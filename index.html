@@ -505,14 +505,21 @@ auth.onAuthStateChanged(async (user) => {
   if (user) {
     authChecked = true;
     showSpinner();
+
+    // Check if admin
+    let isAdmin = false;
     try {
-      // Check if admin — redirect to admin
       const adminDoc = await db.collection('admins').doc(user.email).get();
-      if (adminDoc.exists) {
-        window.location.href = 'admin.html';
-        return;
-      }
-      // Check if student has a candidature
+      if (adminDoc.exists) isAdmin = true;
+    } catch(e) { /* Not admin or no permission — continue */ }
+
+    if (isAdmin) {
+      window.location.href = 'admin.html';
+      return;
+    }
+
+    // Check if student has a candidature
+    try {
       const snap = await db.collection('candidatures').where('userId', '==', user.uid).limit(1).get();
       if (!snap.empty) {
         window.location.href = 'espace.html';
@@ -520,9 +527,9 @@ auth.onAuthStateChanged(async (user) => {
         window.location.href = 'candidature.html';
       }
     } catch(e) {
-      console.error('Auth redirect error:', e);
-      hideSpinner();
-      authChecked = false;
+      console.error('Candidature check error:', e);
+      // Fallback: go to candidature
+      window.location.href = 'candidature.html';
     }
   }
 });

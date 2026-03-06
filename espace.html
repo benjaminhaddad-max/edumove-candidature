@@ -624,20 +624,38 @@ auth.onAuthStateChanged(async (user) => {
     }
   } catch(e) { console.error('Load profile error:', e); }
 
-  // Load candidature
+  // Load candidature — check URL param first (from submission redirect)
+  const urlCid = new URLSearchParams(window.location.search).get('cid');
   try {
-    const snap = await db.collection('candidatures').where('userId', '==', user.uid).limit(1).get();
-    if (snap.empty) {
-      window.location.href = 'candidature.html';
-      return;
+    let snap;
+    if (urlCid) {
+      const doc = await db.collection('candidatures').doc(urlCid).get();
+      if (doc.exists && doc.data().userId === user.uid) {
+        candidatureId = doc.id;
+        candidatureData = doc.data();
+      }
     }
-    candidatureId = snap.docs[0].id;
-    candidatureData = snap.docs[0].data();
+    if (!candidatureId) {
+      snap = await db.collection('candidatures').where('userId', '==', user.uid).limit(1).get();
+      if (snap.empty) {
+        // Retry once after short delay (Firestore eventual consistency)
+        await new Promise(r => setTimeout(r, 1500));
+        snap = await db.collection('candidatures').where('userId', '==', user.uid).limit(1).get();
+      }
+      if (!snap || snap.empty) {
+        window.location.href = 'candidature.html';
+        return;
+      }
+      candidatureId = snap.docs[0].id;
+      candidatureData = snap.docs[0].data();
+    }
   } catch(e) {
     console.error('Load candidature error:', e);
     document.getElementById('loading').style.display = 'none';
     return;
   }
+  // Clean URL param
+  if (urlCid) window.history.replaceState({}, '', 'espace.html');
 
   renderDashboard();
   loadMessages();
@@ -908,6 +926,8 @@ function loadMessages() {
 
       // Scroll to bottom
       container.scrollTop = container.scrollHeight;
+    }, err => {
+      console.error('Messages query error (index needed?):', err);
     });
 }
 

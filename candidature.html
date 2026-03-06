@@ -1363,7 +1363,7 @@ async function submitCandidature() {
       nom: v(p+'-nom'), t1: v(p+'-t1'), t2: v(p+'-t2'), t3: v(p+'-t3'), moy: v(p+'-moy')
     })).filter(n => n.nom);
 
-    await db.collection('candidatures').add({
+    const docRef = await db.collection('candidatures').add({
       userId: currentUser.uid,
       nom: userProfile.nom || '',
       prenom: userProfile.prenom || '',
@@ -1393,7 +1393,7 @@ async function submitCandidature() {
     });
 
     document.getElementById('analyzing-overlay').classList.remove('active');
-    window.location.href = 'espace.html';
+    window.location.href = 'espace.html?cid=' + docRef.id;
   } catch (err) {
     document.getElementById('analyzing-overlay').classList.remove('active');
     console.error('Erreur soumission:', err);
