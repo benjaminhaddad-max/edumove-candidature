@@ -217,16 +217,20 @@ body {
 .status-icon.en_attente { background: #fff3e0; }
 .status-icon.en_cours { background: #e8eaf6; }
 .status-icon.reponse_edumove { background: #e3f2fd; }
+.status-icon.dossier_soumis { background: #f3e5f5; }
 .status-icon.accepte { background: #e8f5e9; }
 .status-icon.refuse { background: #ffebee; }
+.status-icon.abandon { background: #fafafa; }
 .status-info { flex: 1; }
 .status-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
 .status-value { font-size: 20px; font-weight: 700; }
 .status-value.en_attente { color: #e65100; }
 .status-value.en_cours { color: #3949ab; }
 .status-value.reponse_edumove { color: #1565c0; }
+.status-value.dossier_soumis { color: #7b1fa2; }
 .status-value.accepte { color: #2e7d32; }
 .status-value.refuse { color: #c62828; }
+.status-value.abandon { color: #757575; }
 .status-date { font-size: 12px; color: var(--text-muted); }
 
 /* ── TIMELINE ── */
@@ -576,11 +580,13 @@ body {
   <div class="status-timeline" id="status-timeline">
     <div class="timeline-step" id="step-attente"><div class="tl-dot"></div><div class="tl-label">En attente</div></div>
     <div class="timeline-line" id="line-1"></div>
-    <div class="timeline-step" id="step-encours"><div class="tl-dot"></div><div class="tl-label">En cours</div></div>
+    <div class="timeline-step" id="step-encours"><div class="tl-dot"></div><div class="tl-label">Traitement</div></div>
     <div class="timeline-line" id="line-2"></div>
-    <div class="timeline-step" id="step-reponse"><div class="tl-dot"></div><div class="tl-label">Reponse</div></div>
+    <div class="timeline-step" id="step-reponse"><div class="tl-dot"></div><div class="tl-label">R&eacute;ponse</div></div>
     <div class="timeline-line" id="line-3"></div>
-    <div class="timeline-step" id="step-final"><div class="tl-dot"></div><div class="tl-label">Decision</div></div>
+    <div class="timeline-step" id="step-dossier"><div class="tl-dot"></div><div class="tl-label">Universit&eacute;</div></div>
+    <div class="timeline-line" id="line-4"></div>
+    <div class="timeline-step" id="step-final"><div class="tl-dot"></div><div class="tl-label">D&eacute;cision</div></div>
   </div>
 
   <!-- REPONSE EDUMOVE -->
@@ -870,7 +876,7 @@ function renderDashboard() {
   document.getElementById('recap-body').innerHTML = html;
 
   // Show reponse EDUMOVE card if applicable
-  if (['reponse_edumove', 'accepte'].includes(c.status) && c.autoResponseText) {
+  if (['reponse_edumove', 'dossier_soumis', 'accepte', 'refuse', 'abandon'].includes(c.status) && c.autoResponseText) {
     document.getElementById('reponse-edumove-card').style.display = 'block';
     document.getElementById('reponse-text').textContent = c.autoResponseText;
     if (c.callbackRequested) {
@@ -884,8 +890,8 @@ function renderDashboard() {
 }
 
 function updateStatusDisplay(status) {
-  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours de traitement', reponse_edumove: 'Reponse EDUMOVE', accepte: 'Accepte', refuse: 'Refuse' };
-  const statusIcons = { en_attente: '⏳', en_cours: '📋', reponse_edumove: '📩', accepte: '✅', refuse: '❌' };
+  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', dossier_soumis: 'Dossier soumis \u00e0 l\u2019universit\u00e9', accepte: 'Accept\u00e9', refuse: 'Refus\u00e9', abandon: 'Abandon du dossier' };
+  const statusIcons = { en_attente: '\u23f3', en_cours: '\ud83d\udccb', reponse_edumove: '\ud83d\udce9', dossier_soumis: '\ud83c\udf93', accepte: '\u2705', refuse: '\u274c', abandon: '\ud83d\udeab' };
 
   const textEl = document.getElementById('status-text');
   const iconEl = document.getElementById('status-icon-box');
@@ -900,9 +906,9 @@ function updateStatusDisplay(status) {
 }
 
 function updateTimeline(status) {
-  const steps = ['step-attente', 'step-encours', 'step-reponse', 'step-final'];
-  const lines = ['line-1', 'line-2', 'line-3'];
-  const statusOrder = { en_attente: 0, en_cours: 1, reponse_edumove: 2, accepte: 3, refuse: 3 };
+  const steps = ['step-attente', 'step-encours', 'step-reponse', 'step-dossier', 'step-final'];
+  const lines = ['line-1', 'line-2', 'line-3', 'line-4'];
+  const statusOrder = { en_attente: 0, en_cours: 1, reponse_edumove: 2, dossier_soumis: 3, accepte: 4, refuse: 4, abandon: 4 };
   const currentIdx = statusOrder[status] ?? 0;
 
   steps.forEach((id, i) => {

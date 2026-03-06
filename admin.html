@@ -275,8 +275,10 @@ tr:hover { background: rgba(97,92,165,0.03); }
 .status-en_attente { background: #fff3e0; color: #e65100; }
 .status-en_cours { background: #e8eaf6; color: #3949ab; }
 .status-reponse_edumove { background: #e3f2fd; color: #1565c0; }
+.status-dossier_soumis { background: #f3e5f5; color: #7b1fa2; }
 .status-accepte { background: #e8f5e9; color: #2e7d32; }
 .status-refuse { background: #ffebee; color: #c62828; }
+.status-abandon { background: #fafafa; color: #757575; }
 
 .status-select {
   padding: 6px 10px;
@@ -615,9 +617,10 @@ tr:hover { background: rgba(97,92,165,0.03); }
       <div class="stat-card"><div class="stat-label">Total candidatures</div><div class="stat-value" id="stat-total">0</div></div>
       <div class="stat-card orange"><div class="stat-label">En attente</div><div class="stat-value" id="stat-attente">0</div></div>
       <div class="stat-card violet"><div class="stat-label">En cours</div><div class="stat-value" id="stat-encours">0</div></div>
-      <div class="stat-card" style="border-top:3px solid #1565c0;"><div class="stat-label">Reponse EDUMOVE</div><div class="stat-value" id="stat-reponse" style="color:#1565c0;">0</div></div>
-      <div class="stat-card green"><div class="stat-label">Acceptes</div><div class="stat-value" id="stat-accepte">0</div></div>
-      <div class="stat-card red"><div class="stat-label">Refuses</div><div class="stat-value" id="stat-refuse">0</div></div>
+      <div class="stat-card" style="border-top:3px solid #1565c0;"><div class="stat-label">R&eacute;ponse Edumove</div><div class="stat-value" id="stat-reponse" style="color:#1565c0;">0</div></div>
+      <div class="stat-card" style="border-top:3px solid #7b1fa2;"><div class="stat-label">Dossier soumis</div><div class="stat-value" id="stat-dossier" style="color:#7b1fa2;">0</div></div>
+      <div class="stat-card green"><div class="stat-label">Accept&eacute;s</div><div class="stat-value" id="stat-accepte">0</div></div>
+      <div class="stat-card red"><div class="stat-label">Refus&eacute;s</div><div class="stat-value" id="stat-refuse">0</div></div>
       <div class="stat-card" style="border-top:3px solid #e65100;"><div class="stat-label">Rappels demandes</div><div class="stat-value" id="stat-rappel" style="color:#e65100;">0</div></div>
     </div>
 
@@ -632,10 +635,12 @@ tr:hover { background: rgba(97,92,165,0.03); }
       <select class="filter-select" id="filter-status" onchange="applyFilters()">
         <option value="">Tous statuts</option>
         <option value="en_attente">En attente</option>
-        <option value="en_cours">En cours</option>
-        <option value="reponse_edumove">Reponse EDUMOVE</option>
-        <option value="accepte">Accepte</option>
-        <option value="refuse">Refuse</option>
+        <option value="en_cours">En cours de traitement</option>
+        <option value="reponse_edumove">R&eacute;ponse Edumove</option>
+        <option value="dossier_soumis">Dossier soumis</option>
+        <option value="accepte">Accept&eacute;</option>
+        <option value="refuse">Refus&eacute;</option>
+        <option value="abandon">Abandon</option>
       </select>
       <select class="filter-select" id="filter-profil" onchange="applyFilters()">
         <option value="">Tous profils</option>
@@ -783,6 +788,7 @@ function updateStats() {
   const attente = allCandidatures.filter(c => c.status === 'en_attente').length;
   const encours = allCandidatures.filter(c => c.status === 'en_cours').length;
   const reponse = allCandidatures.filter(c => c.status === 'reponse_edumove').length;
+  const dossier = allCandidatures.filter(c => c.status === 'dossier_soumis').length;
   const accepte = allCandidatures.filter(c => c.status === 'accepte').length;
   const refuse = allCandidatures.filter(c => c.status === 'refuse').length;
   const rappel = allCandidatures.filter(c => c.callbackRequested).length;
@@ -790,6 +796,7 @@ function updateStats() {
   document.getElementById('stat-attente').textContent = attente;
   document.getElementById('stat-encours').textContent = encours;
   document.getElementById('stat-reponse').textContent = reponse;
+  document.getElementById('stat-dossier').textContent = dossier;
   document.getElementById('stat-accepte').textContent = accepte;
   document.getElementById('stat-refuse').textContent = refuse;
   document.getElementById('stat-rappel').textContent = rappel;
@@ -834,7 +841,7 @@ function renderTable() {
   }
   empty.style.display = 'none';
 
-  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours', reponse_edumove: 'Reponse EDUMOVE', accepte: 'Accepte', refuse: 'Refuse' };
+  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', dossier_soumis: 'Dossier soumis', accepte: 'Accept\u00e9', refuse: 'Refus\u00e9', abandon: 'Abandon' };
   const destLabels = { italie: 'Italie', espagne: 'Espagne' };
 
   tbody.innerHTML = pageItems.map(c => {
@@ -906,7 +913,7 @@ function viewDetail(id) {
   if (!c) return;
 
   document.getElementById('modal-title').textContent = `${c.prenom} ${c.nom}`;
-  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours', reponse_edumove: 'Reponse EDUMOVE', accepte: 'Accepte', refuse: 'Refuse' };
+  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', dossier_soumis: 'Dossier soumis', accepte: 'Accept\u00e9', refuse: 'Refus\u00e9', abandon: 'Abandon' };
   const langLabels = { b2: 'B2+ / Bilingue', b1: 'B1 / Intermediaire', debut: 'A1/A2 / Debutant', aucun: 'Aucun' };
 
   let html = '';
@@ -1019,9 +1026,11 @@ function viewDetail(id) {
     <div class="detail-section-title" style="color:#f57f17;border-color:#fff9c4;">💡 Suggestion IA</div>
     ${generateAdminSuggestion(c)}
     <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn-view" style="background:var(--success);padding:8px 16px;" onclick="applyAiAction('${c.id}','accepte')">✅ Accepter</button>
-      <button class="btn-view" style="background:var(--error);padding:8px 16px;" onclick="applyAiAction('${c.id}','refuse')">❌ Refuser</button>
-      ${c.status !== 'reponse_edumove' ? `<button class="btn-view" style="background:#1565c0;padding:8px 16px;" onclick="applyAiAction('${c.id}','reponse_edumove')">📩 Envoyer reponse auto</button>` : ''}
+      ${c.status !== 'reponse_edumove' ? `<button class="btn-view" style="background:#1565c0;padding:8px 16px;" onclick="applyAiAction('${c.id}','reponse_edumove')">📩 Envoyer r\u00e9ponse</button>` : ''}
+      <button class="btn-view" style="background:#7b1fa2;padding:8px 16px;" onclick="applyAiAction('${c.id}','dossier_soumis')">🎓 Dossier soumis</button>
+      <button class="btn-view" style="background:var(--success);padding:8px 16px;" onclick="applyAiAction('${c.id}','accepte')">✅ Accept\u00e9</button>
+      <button class="btn-view" style="background:var(--error);padding:8px 16px;" onclick="applyAiAction('${c.id}','refuse')">❌ Refus\u00e9</button>
+      <button class="btn-view" style="background:#757575;padding:8px 16px;" onclick="applyAiAction('${c.id}','abandon')">🚫 Abandon</button>
     </div>
     ${c.manualOverride ? '<div style="margin-top:10px;font-size:11px;color:var(--text-muted);font-style:italic;">⚠️ L\'auto-progression est desactivee (intervention manuelle detectee)</div>' : '<div style="margin-top:10px;font-size:11px;color:var(--text-muted);">🤖 L\'auto-progression est active</div>'}
   </div>`;
@@ -1154,7 +1163,7 @@ function exportCSV() {
 
   const rows = data.map(c => {
     const date = c.createdAt ? new Date(c.createdAt.seconds * 1000).toLocaleDateString('fr-FR') : '';
-    const statusLabels = { en_attente:'En attente', en_cours:'En cours', accepte:'Accepte', refuse:'Refuse' };
+    const statusLabels = { en_attente:'En attente', en_cours:'En cours de traitement', reponse_edumove:'R\u00e9ponse Edumove', dossier_soumis:'Dossier soumis', accepte:'Accept\u00e9', refuse:'Refus\u00e9', abandon:'Abandon' };
     return [
       c.nom, c.prenom, c.email, c.tel, c.departement || c.codePostal || '', c.profil,
       c.score ? parseFloat(c.score).toFixed(1) : '', c.destination, c.universite, c.niveau,
