@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Edumove — Back Office Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --orange: #ec680a;
+  --navy: #1b1d3a;
+  --violet: #615ca5;
+  --violet-light: #8883c0;
+  --cream: #fafafa;
+  --white: #ffffff;
+  --border: #e2e2ef;
+  --text: #1b1d3a;
+  --text-muted: #7b7b9a;
+  --success: #2e7d52;
+  --error: #d63031;
+  --bg: #f5f5fb;
+  --warning: #e17055;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ── HEADER ── */
+.site-header {
+  background: var(--navy);
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 66px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(27,29,58,0.4);
+}
+.logo-zone { display: flex; align-items: center; gap: 10px; }
+.logo-wordmark { font-size: 22px; font-weight: 700; color: white; letter-spacing: -0.01em; }
+.logo-wordmark span { font-weight: 300; color: rgba(255,255,255,0.85); }
+.header-right { display: flex; align-items: center; gap: 16px; }
+.header-user { font-size: 12px; color: rgba(255,255,255,0.6); }
+.btn-logout {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-logout:hover { background: rgba(255,255,255,0.2); }
+
+/* ── LOGIN ── */
+.login-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 66px);
+  padding: 40px;
+}
+.login-card {
+  background: white;
+  border-radius: 16px;
+  padding: 48px 40px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 4px 24px rgba(27,29,58,0.08);
+  text-align: center;
+}
+.login-card h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--navy);
+}
+.login-card p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+}
+.login-field {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  margin-bottom: 12px;
+  outline: none;
+  transition: border 0.2s;
+}
+.login-field:focus { border-color: var(--violet); }
+.btn-login {
+  width: 100%;
+  padding: 13px;
+  background: var(--orange);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+.btn-login:hover { background: #d55a06; }
+.login-error {
+  color: var(--error);
+  font-size: 12px;
+  margin-top: 12px;
+  display: none;
+}
+.login-error.visible { display: block; }
+
+/* ── DASHBOARD ── */
+.dashboard { display: none; }
+.dashboard.active { display: block; }
+.login-view.active { display: block; }
+
+.dash-content {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 32px 40px;
+}
+.dash-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.dash-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+}
+
+/* ── STATS CARDS ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px 22px;
+  box-shadow: 0 2px 12px rgba(27,29,58,0.05);
+}
+.stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--navy);
+}
+.stat-card.orange .stat-value { color: var(--orange); }
+.stat-card.green .stat-value { color: var(--success); }
+.stat-card.red .stat-value { color: var(--error); }
+.stat-card.violet .stat-value { color: var(--violet); }
+
+/* ── TOOLBAR ── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: border 0.2s;
+}
+.search-input:focus { border-color: var(--violet); }
+.filter-select {
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  background: white;
+  cursor: pointer;
+  min-width: 140px;
+}
+.btn-export {
+  padding: 10px 20px;
+  background: var(--navy);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.btn-export:hover { background: #2a2d52; }
+
+/* ── TABLE ── */
+.table-wrap {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(27,29,58,0.05);
+}
+.table-container { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+thead {
+  background: var(--navy);
+  color: white;
+}
+th {
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover { background: rgba(97,92,165,0.03); }
+.td-name { font-weight: 600; color: var(--navy); }
+.td-email { color: var(--text-muted); font-size: 12px; }
+.td-date { color: var(--text-muted); font-size: 12px; white-space: nowrap; }
+
+/* ── STATUS BADGES ── */
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.status-en_attente { background: #fff3e0; color: #e65100; }
+.status-en_cours { background: #e8eaf6; color: #3949ab; }
+.status-accepte { background: #e8f5e9; color: #2e7d32; }
+.status-refuse { background: #ffebee; color: #c62828; }
+
+.status-select {
+  padding: 6px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+  background: white;
+}
+
+/* ── BTN VIEW ── */
+.btn-view {
+  padding: 6px 14px;
+  background: var(--violet);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-view:hover { background: var(--violet-light); }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+.empty-state-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.4; }
+.empty-state p { font-size: 14px; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(27,29,58,0.5);
+  z-index: 200;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 40px 20px;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+  background: white;
+  border-radius: 16px;
+  max-width: 800px;
+  width: 100%;
+  box-shadow: 0 8px 40px rgba(27,29,58,0.15);
+  animation: fadeUp 0.3s ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+}
+.modal-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.modal-close:hover { background: var(--border); }
+.modal-body { padding: 28px 32px; }
+
+.detail-section {
+  margin-bottom: 24px;
+}
+.detail-section-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--violet);
+  font-weight: 600;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--bg);
+}
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+.detail-item label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.detail-item span {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--navy);
+}
+
+.notes-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 8px;
+}
+.notes-table th, .notes-table td {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+.notes-table th {
+  background: var(--bg);
+  color: var(--text);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.doc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--bg);
+  border-radius: 8px;
+  color: var(--violet);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  margin: 4px 4px 4px 0;
+  transition: background 0.2s;
+}
+.doc-link:hover { background: var(--border); }
+
+/* ── PAGINATION ── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px;
+  border-top: 1px solid var(--border);
+}
+.page-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: white;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.page-btn:hover { border-color: var(--violet); color: var(--violet); }
+.page-btn.active { background: var(--violet); color: white; border-color: var(--violet); }
+.page-btn:disabled { opacity: 0.4; cursor: default; }
+.page-info { font-size: 12px; color: var(--text-muted); margin: 0 8px; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .site-header { padding: 0 16px; }
+  .dash-content { padding: 20px 16px; }
+  .toolbar { flex-direction: column; }
+  .search-input { min-width: 100%; }
+  .modal-body { padding: 20px 16px; }
+  .modal-header { padding: 16px; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+}
+</style>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
+<script src="firebase-config.js"></script>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════ -->
+<header class="site-header">
+  <div class="logo-zone">
+    <div class="logo-wordmark">EDUMOVE <span>Admin</span></div>
+  </div>
+  <div class="header-right" id="header-right" style="display:none;">
+    <span class="header-user" id="header-user"></span>
+    <button class="btn-logout" onclick="logout()">Deconnexion</button>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════
+     LOGIN
+══════════════════════════════════════════ -->
+<div id="login-view" class="login-view active">
+  <div class="login-wrap">
+    <div class="login-card">
+      <h2>Connexion Admin</h2>
+      <p>Acces reserve aux administrateurs EDUMOVE</p>
+      <input type="email" class="login-field" id="login-email" placeholder="Email"/>
+      <input type="password" class="login-field" id="login-pass" placeholder="Mot de passe"/>
+      <button class="btn-login" onclick="doLogin()">Se connecter</button>
+      <div class="login-error" id="login-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     DASHBOARD
+══════════════════════════════════════════ -->
+<div id="dashboard" class="dashboard">
+  <div class="dash-content">
+    <div class="dash-title">Tableau de bord</div>
+    <div class="dash-subtitle">Gestion des candidatures EDUMOVE</div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Total candidatures</div><div class="stat-value" id="stat-total">0</div></div>
+      <div class="stat-card orange"><div class="stat-label">En attente</div><div class="stat-value" id="stat-attente">0</div></div>
+      <div class="stat-card violet"><div class="stat-label">En cours</div><div class="stat-value" id="stat-encours">0</div></div>
+      <div class="stat-card green"><div class="stat-label">Acceptes</div><div class="stat-value" id="stat-accepte">0</div></div>
+      <div class="stat-card red"><div class="stat-label">Refuses</div><div class="stat-value" id="stat-refuse">0</div></div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <input type="text" class="search-input" id="search-input" placeholder="Rechercher par nom, prenom ou email..." oninput="applyFilters()"/>
+      <select class="filter-select" id="filter-destination" onchange="applyFilters()">
+        <option value="">Toutes destinations</option>
+        <option value="italie">Italie</option>
+        <option value="espagne">Espagne</option>
+      </select>
+      <select class="filter-select" id="filter-status" onchange="applyFilters()">
+        <option value="">Tous statuts</option>
+        <option value="en_attente">En attente</option>
+        <option value="en_cours">En cours</option>
+        <option value="accepte">Accepte</option>
+        <option value="refuse">Refuse</option>
+      </select>
+      <select class="filter-select" id="filter-profil" onchange="applyFilters()">
+        <option value="">Tous profils</option>
+        <option value="terminale">Terminale</option>
+        <option value="reorientation">Reorientation</option>
+      </select>
+      <button class="btn-export" onclick="exportCSV()">Exporter CSV</button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Profil</th>
+              <th>Score</th>
+              <th>Destination</th>
+              <th>Universite</th>
+              <th>Statut</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+      <div id="empty-state" class="empty-state" style="display:none;">
+        <div class="empty-state-icon">📂</div>
+        <p>Aucune candidature trouvee</p>
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MODAL DETAIL
+══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Detail du dossier</h3>
+      <button class="modal-close" onclick="closeModal()">x</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let allCandidatures = [];
+let filteredCandidatures = [];
+let currentPage = 1;
+const perPage = 15;
+
+// ══════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    // Verifier si admin
+    const adminDoc = await db.collection('admins').doc(user.email).get();
+    if (adminDoc.exists) {
+      showDashboard(user);
+    } else {
+      auth.signOut();
+      showLoginError("Ce compte n'a pas les droits administrateur.");
+    }
+  } else {
+    showLogin();
+  }
+});
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if (!email || !pass) { showLoginError('Veuillez remplir tous les champs.'); return; }
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+  } catch (err) {
+    const messages = {
+      'auth/user-not-found': 'Aucun compte avec cet email.',
+      'auth/wrong-password': 'Mot de passe incorrect.',
+      'auth/invalid-email': 'Email invalide.',
+      'auth/invalid-credential': 'Identifiants incorrects.'
+    };
+    showLoginError(messages[err.code] || 'Erreur de connexion.');
+  }
+}
+
+function logout() {
+  auth.signOut();
+}
+
+function showLogin() {
+  document.getElementById('login-view').style.display = 'block';
+  document.getElementById('dashboard').classList.remove('active');
+  document.getElementById('header-right').style.display = 'none';
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+
+function showDashboard(user) {
+  document.getElementById('login-view').style.display = 'none';
+  document.getElementById('dashboard').classList.add('active');
+  document.getElementById('header-right').style.display = 'flex';
+  document.getElementById('header-user').textContent = user.email;
+  loadCandidatures();
+}
+
+// ══════════════════════════════════════════
+// LOAD DATA
+// ══════════════════════════════════════════
+function loadCandidatures() {
+  db.collection('candidatures').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+    allCandidatures = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    updateStats();
+    applyFilters();
+  });
+}
+
+function updateStats() {
+  const total = allCandidatures.length;
+  const attente = allCandidatures.filter(c => c.status === 'en_attente').length;
+  const encours = allCandidatures.filter(c => c.status === 'en_cours').length;
+  const accepte = allCandidatures.filter(c => c.status === 'accepte').length;
+  const refuse = allCandidatures.filter(c => c.status === 'refuse').length;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-attente').textContent = attente;
+  document.getElementById('stat-encours').textContent = encours;
+  document.getElementById('stat-accepte').textContent = accepte;
+  document.getElementById('stat-refuse').textContent = refuse;
+}
+
+// ══════════════════════════════════════════
+// FILTERS
+// ══════════════════════════════════════════
+function applyFilters() {
+  const search = document.getElementById('search-input').value.toLowerCase().trim();
+  const dest = document.getElementById('filter-destination').value;
+  const status = document.getElementById('filter-status').value;
+  const profil = document.getElementById('filter-profil').value;
+
+  filteredCandidatures = allCandidatures.filter(c => {
+    if (search && !(`${c.nom} ${c.prenom} ${c.email}`).toLowerCase().includes(search)) return false;
+    if (dest && c.destination !== dest) return false;
+    if (status && c.status !== status) return false;
+    if (profil && c.profil !== profil) return false;
+    return true;
+  });
+
+  currentPage = 1;
+  renderTable();
+}
+
+// ══════════════════════════════════════════
+// TABLE RENDERING
+// ══════════════════════════════════════════
+function renderTable() {
+  const tbody = document.getElementById('table-body');
+  const empty = document.getElementById('empty-state');
+  const totalPages = Math.ceil(filteredCandidatures.length / perPage);
+  const start = (currentPage - 1) * perPage;
+  const pageItems = filteredCandidatures.slice(start, start + perPage);
+
+  if (filteredCandidatures.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours', accepte: 'Accepte', refuse: 'Refuse' };
+  const destLabels = { italie: 'Italie', espagne: 'Espagne' };
+
+  tbody.innerHTML = pageItems.map(c => {
+    const date = c.createdAt ? new Date(c.createdAt.seconds * 1000).toLocaleDateString('fr-FR') : '—';
+    return `<tr>
+      <td><div class="td-name">${esc(c.nom)} ${esc(c.prenom)}</div></td>
+      <td class="td-email">${esc(c.email)}</td>
+      <td>${c.profil === 'reorientation' ? 'Reo.' : 'Term.'}</td>
+      <td>${c.score ? parseFloat(c.score).toFixed(1) : '—'}/20</td>
+      <td>${destLabels[c.destination] || '—'}</td>
+      <td>${esc(c.universite || '—')}</td>
+      <td>
+        <select class="status-select" onchange="updateStatus('${c.id}', this.value)">
+          ${Object.entries(statusLabels).map(([k,v]) => `<option value="${k}" ${c.status===k?'selected':''}>${v}</option>`).join('')}
+        </select>
+      </td>
+      <td class="td-date">${date}</td>
+      <td><button class="btn-view" onclick="viewDetail('${c.id}')">Voir</button></td>
+    </tr>`;
+  }).join('');
+
+  renderPagination(totalPages);
+}
+
+function renderPagination(totalPages) {
+  const pag = document.getElementById('pagination');
+  if (totalPages <= 1) { pag.innerHTML = ''; return; }
+  let html = `<button class="page-btn" onclick="goToPage(${currentPage-1})" ${currentPage===1?'disabled':''}>&lt;</button>`;
+  for (let i = 1; i <= totalPages; i++) {
+    if (totalPages > 7 && i > 3 && i < totalPages - 1 && Math.abs(i - currentPage) > 1) {
+      if (i === 4 || i === totalPages - 2) html += `<span class="page-info">...</span>`;
+      continue;
+    }
+    html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goToPage(${i})">${i}</button>`;
+  }
+  html += `<button class="page-btn" onclick="goToPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>&gt;</button>`;
+  pag.innerHTML = html;
+}
+
+function goToPage(p) {
+  const totalPages = Math.ceil(filteredCandidatures.length / perPage);
+  if (p < 1 || p > totalPages) return;
+  currentPage = p;
+  renderTable();
+  document.querySelector('.table-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ══════════════════════════════════════════
+// STATUS UPDATE
+// ══════════════════════════════════════════
+function updateStatus(id, newStatus) {
+  db.collection('candidatures').doc(id).update({ status: newStatus });
+}
+
+// ══════════════════════════════════════════
+// DETAIL MODAL
+// ══════════════════════════════════════════
+function viewDetail(id) {
+  const c = allCandidatures.find(x => x.id === id);
+  if (!c) return;
+
+  document.getElementById('modal-title').textContent = `${c.prenom} ${c.nom}`;
+  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours', accepte: 'Accepte', refuse: 'Refuse' };
+  const langLabels = { b2: 'B2+ / Bilingue', b1: 'B1 / Intermediaire', debut: 'A1/A2 / Debutant', aucun: 'Aucun' };
+
+  let html = '';
+
+  // Infos personnelles
+  html += `<div class="detail-section">
+    <div class="detail-section-title">Informations personnelles</div>
+    <div class="detail-grid">
+      <div class="detail-item"><label>Nom</label><span>${esc(c.nom)}</span></div>
+      <div class="detail-item"><label>Prenom</label><span>${esc(c.prenom)}</span></div>
+      <div class="detail-item"><label>Email</label><span>${esc(c.email)}</span></div>
+      <div class="detail-item"><label>Telephone</label><span>${esc(c.tel)}</span></div>
+      <div class="detail-item" style="grid-column:1/-1"><label>Adresse</label><span>${esc(c.adresse)}</span></div>
+      <div class="detail-item"><label>Profil</label><span>${c.profil === 'reorientation' ? 'Reorientation' : 'Terminale'}</span></div>
+      <div class="detail-item"><label>Statut</label><span class="status-badge status-${c.status}">${statusLabels[c.status] || c.status}</span></div>
+    </div>
+  </div>`;
+
+  // Reorientation
+  if (c.profil === 'reorientation' && c.reorientation) {
+    const r = c.reorientation;
+    html += `<div class="detail-section">
+      <div class="detail-section-title">Reorientation</div>
+      <div class="detail-grid">
+        <div class="detail-item"><label>Formation actuelle</label><span>${esc(r.formation)}</span></div>
+        <div class="detail-item"><label>Etablissement</label><span>${esc(r.etablissement)}</span></div>
+        <div class="detail-item"><label>Annee en cours</label><span>${esc(r.annee)}</span></div>
+        <div class="detail-item" style="grid-column:1/-1"><label>Motif</label><span>${esc(r.motif)}</span></div>
+      </div>
+    </div>`;
+  }
+
+  // Notes
+  const renderNotes = (notes, title) => {
+    if (!notes || notes.length === 0) return '';
+    return `<div class="detail-section">
+      <div class="detail-section-title">${title}</div>
+      <table class="notes-table">
+        <thead><tr><th>Matiere</th><th>T1</th><th>T2</th><th>T3</th><th>Moyenne</th></tr></thead>
+        <tbody>${notes.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'—'}</td><td>${n.t2||'—'}</td><td>${n.t3||'—'}</td><td style="font-weight:600;">${n.moy||'—'}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>`;
+  };
+  html += renderNotes(c.notesPremiere, 'Notes de Premiere');
+  html += renderNotes(c.notesTerminale, 'Notes de Terminale');
+
+  // Score & orientation
+  html += `<div class="detail-section">
+    <div class="detail-section-title">Orientation</div>
+    <div class="detail-grid">
+      <div class="detail-item"><label>Score academique</label><span>${c.score ? parseFloat(c.score).toFixed(1) : '—'}/20</span></div>
+      <div class="detail-item"><label>Niveau</label><span>${esc(c.niveau || '—')}</span></div>
+      <div class="detail-item"><label>Pays choisi</label><span>${esc(c.paysChoisi || '—')}</span></div>
+      <div class="detail-item"><label>Destination recommandee</label><span>${esc(c.destination || '—')}</span></div>
+      <div class="detail-item"><label>Universite</label><span>${esc(c.universite || '—')}</span></div>
+    </div>
+  </div>`;
+
+  // Langues
+  if (c.langues) {
+    html += `<div class="detail-section">
+      <div class="detail-section-title">Langues</div>
+      <div class="detail-grid">
+        ${['espagnol','anglais','italien','portugais'].map(l =>
+          c.langues[l] ? `<div class="detail-item"><label>${l.charAt(0).toUpperCase()+l.slice(1)}</label><span>${langLabels[c.langues[l]] || c.langues[l]}</span></div>` : ''
+        ).join('')}
+        ${c.langues.autre ? `<div class="detail-item"><label>Autre langue</label><span>${esc(c.langues.autre)}</span></div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  // Universite data
+  if (c.universiteData && c.universiteData.type) {
+    const ud = c.universiteData;
+    const typeLabel = { link: 'LINK Campus University', uem: 'UEM', ucjc: 'UCJC' }[ud.type] || ud.type;
+    html += `<div class="detail-section">
+      <div class="detail-section-title">Dossier ${typeLabel}</div>
+      <div class="detail-grid">
+        ${ud.nom ? `<div class="detail-item"><label>Nom</label><span>${esc(ud.nom)}</span></div>` : ''}
+        ${ud.prenom ? `<div class="detail-item"><label>Prenom</label><span>${esc(ud.prenom)}</span></div>` : ''}
+        ${ud.email ? `<div class="detail-item"><label>Email</label><span>${esc(ud.email)}</span></div>` : ''}
+        ${ud.tel ? `<div class="detail-item"><label>Telephone</label><span>${esc(ud.tel)}</span></div>` : ''}
+        ${ud.cp ? `<div class="detail-item"><label>Code postal</label><span>${esc(ud.cp)}</span></div>` : ''}
+        ${ud.ville ? `<div class="detail-item"><label>Ville</label><span>${esc(ud.ville)}</span></div>` : ''}
+        ${ud.langue ? `<div class="detail-item"><label>Langue</label><span>${esc(ud.langue)}</span></div>` : ''}
+        ${ud.filiere ? `<div class="detail-item"><label>Filiere</label><span>${esc(ud.filiere)}</span></div>` : ''}
+        ${ud.test !== undefined ? `<div class="detail-item"><label>Test admission</label><span>${ud.test ? 'Oui' : 'Non'}</span></div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  // Documents
+  if (c.documents && Object.keys(c.documents).length > 0) {
+    const docLabels = {
+      passeport: 'Passeport', bulletins: 'Bulletins', formulaire: 'Formulaire',
+      rapport_technique: 'Rapport technique', identite: 'Piece d\'identite',
+      releves: 'Releves de notes', attestation_b2: 'Attestation B2',
+      lettre_motivation: 'Lettre de motivation'
+    };
+    html += `<div class="detail-section">
+      <div class="detail-section-title">Documents</div>
+      <div>${Object.entries(c.documents).map(([k, url]) =>
+        `<a href="${url}" target="_blank" rel="noopener" class="doc-link">📄 ${docLabels[k] || k}</a>`
+      ).join('')}</div>
+    </div>`;
+  }
+
+  document.getElementById('modal-body').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('active');
+}
+
+// ══════════════════════════════════════════
+// EXPORT CSV
+// ══════════════════════════════════════════
+function exportCSV() {
+  const data = filteredCandidatures.length > 0 ? filteredCandidatures : allCandidatures;
+  if (data.length === 0) { alert('Aucune donnee a exporter.'); return; }
+
+  const headers = ['Nom','Prenom','Email','Telephone','Adresse','Profil','Score','Destination','Universite','Niveau','Statut','Date',
+    'Espagnol','Anglais','Italien','Portugais','Autre langue',
+    'Moyenne Premiere','Moyenne Terminale','Pays choisi'];
+
+  const rows = data.map(c => {
+    const date = c.createdAt ? new Date(c.createdAt.seconds * 1000).toLocaleDateString('fr-FR') : '';
+    const statusLabels = { en_attente:'En attente', en_cours:'En cours', accepte:'Accepte', refuse:'Refuse' };
+    return [
+      c.nom, c.prenom, c.email, c.tel, c.adresse, c.profil,
+      c.score ? parseFloat(c.score).toFixed(1) : '', c.destination, c.universite, c.niveau,
+      statusLabels[c.status] || c.status, date,
+      c.langues?.espagnol || '', c.langues?.anglais || '', c.langues?.italien || '', c.langues?.portugais || '', c.langues?.autre || '',
+      c.moyennePremiere || '', c.moyenneTerminale || '', c.paysChoisi || ''
+    ];
+  });
+
+  const csvContent = [headers, ...rows]
+    .map(row => row.map(cell => `"${String(cell || '').replace(/"/g, '""')}"`).join(','))
+    .join('\n');
+
+  const bom = '\uFEFF';
+  const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `edumove_candidatures_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+function esc(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// Enter key on login fields
+document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('login-email').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('login-pass').focus(); });
+</script>
+</body>
+</html>
