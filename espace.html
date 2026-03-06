@@ -216,6 +216,7 @@ body {
 }
 .status-icon.en_attente { background: #fff3e0; }
 .status-icon.en_cours { background: #e8eaf6; }
+.status-icon.reponse_edumove { background: #e3f2fd; }
 .status-icon.accepte { background: #e8f5e9; }
 .status-icon.refuse { background: #ffebee; }
 .status-info { flex: 1; }
@@ -223,9 +224,31 @@ body {
 .status-value { font-size: 20px; font-weight: 700; }
 .status-value.en_attente { color: #e65100; }
 .status-value.en_cours { color: #3949ab; }
+.status-value.reponse_edumove { color: #1565c0; }
 .status-value.accepte { color: #2e7d32; }
 .status-value.refuse { color: #c62828; }
 .status-date { font-size: 12px; color: var(--text-muted); }
+
+/* ── TIMELINE ── */
+.status-timeline { display: flex; align-items: center; justify-content: center; margin-bottom: 28px; gap: 0; }
+.timeline-step { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 70px; }
+.tl-dot { width: 18px; height: 18px; border-radius: 50%; background: var(--border); border: 2px solid var(--border); transition: all 0.3s; }
+.tl-label { font-size: 11px; color: var(--text-muted); font-weight: 500; text-align: center; }
+.timeline-line { height: 2px; width: 50px; background: var(--border); flex-shrink: 0; transition: background 0.3s; }
+.timeline-step.completed .tl-dot { background: var(--success); border-color: var(--success); }
+.timeline-step.completed .tl-label { color: var(--success); font-weight: 600; }
+.timeline-step.active .tl-dot { background: var(--orange); border-color: var(--orange); box-shadow: 0 0 0 4px rgba(236,104,10,0.15); }
+.timeline-step.active .tl-label { color: var(--orange); font-weight: 600; }
+.timeline-line.done { background: var(--success); }
+
+/* ── REPONSE CARD ── */
+.reponse-card-header { background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%); border-bottom: none; }
+.reponse-card-header .section-card-title { color: white; }
+.reponse-text { white-space: pre-line; font-size: 13px; line-height: 1.8; color: var(--text); }
+.btn-callback { display: inline-flex; align-items: center; gap: 8px; background: var(--orange); color: white; border: none; padding: 14px 28px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.2s; }
+.btn-callback:hover { background: #d45a08; }
+.btn-callback:disabled { background: #ccc; cursor: default; }
+.callback-confirmed { margin-top: 14px; font-size: 13px; color: var(--success); font-weight: 500; padding: 12px 16px; background: #e8f5e9; border-radius: 8px; }
 
 /* ── SECTION CARD ── */
 .section-card {
@@ -473,6 +496,7 @@ body {
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script>
+<script src="status-engine.js"></script>
 </head>
 <body>
 
@@ -546,6 +570,33 @@ body {
       <div class="status-value en_attente" id="status-text">En attente</div>
     </div>
     <div class="status-date" id="status-date"></div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="status-timeline" id="status-timeline">
+    <div class="timeline-step" id="step-attente"><div class="tl-dot"></div><div class="tl-label">En attente</div></div>
+    <div class="timeline-line" id="line-1"></div>
+    <div class="timeline-step" id="step-encours"><div class="tl-dot"></div><div class="tl-label">En cours</div></div>
+    <div class="timeline-line" id="line-2"></div>
+    <div class="timeline-step" id="step-reponse"><div class="tl-dot"></div><div class="tl-label">Reponse</div></div>
+    <div class="timeline-line" id="line-3"></div>
+    <div class="timeline-step" id="step-final"><div class="tl-dot"></div><div class="tl-label">Decision</div></div>
+  </div>
+
+  <!-- REPONSE EDUMOVE -->
+  <div class="section-card" id="reponse-edumove-card" style="display:none;">
+    <div class="section-card-header reponse-card-header">
+      <div class="section-card-title">Recommandation EDUMOVE</div>
+    </div>
+    <div class="section-card-body">
+      <div class="reponse-text" id="reponse-text"></div>
+      <div id="callback-btn-wrap" style="margin-top:24px; text-align:center;">
+        <button class="btn-callback" onclick="requestCallback()" id="btn-callback">📞 Demander un rappel telephonique</button>
+        <div class="callback-confirmed" id="callback-confirmed" style="display:none;">
+          ✅ Votre demande de rappel a ete enregistree. Un conseiller EDUMOVE vous contactera prochainement.
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- RECAP DU DOSSIER -->
@@ -663,6 +714,13 @@ auth.onAuthStateChanged(async (user) => {
   // Clean URL param
   if (new URLSearchParams(window.location.search).get('cid')) {
     window.history.replaceState({}, '', 'espace.html');
+  }
+
+  // Auto-advance status if needed
+  const advanced = await checkAndAdvanceStatus(candidatureId, candidatureData);
+  if (advanced) {
+    const freshDoc = await db.collection('candidatures').doc(candidatureId).get();
+    if (freshDoc.exists) candidatureData = freshDoc.data();
   }
 
   renderDashboard();
@@ -811,13 +869,23 @@ function renderDashboard() {
 
   document.getElementById('recap-body').innerHTML = html;
 
+  // Show reponse EDUMOVE card if applicable
+  if (['reponse_edumove', 'accepte'].includes(c.status) && c.autoResponseText) {
+    document.getElementById('reponse-edumove-card').style.display = 'block';
+    document.getElementById('reponse-text').textContent = c.autoResponseText;
+    if (c.callbackRequested) {
+      document.getElementById('btn-callback').style.display = 'none';
+      document.getElementById('callback-confirmed').style.display = 'block';
+    }
+  }
+
   // Existing documents
   renderDocuments();
 }
 
 function updateStatusDisplay(status) {
-  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours de traitement', accepte: 'Accepte', refuse: 'Refuse' };
-  const statusIcons = { en_attente: '⏳', en_cours: '📋', accepte: '✅', refuse: '❌' };
+  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours de traitement', reponse_edumove: 'Reponse EDUMOVE', accepte: 'Accepte', refuse: 'Refuse' };
+  const statusIcons = { en_attente: '⏳', en_cours: '📋', reponse_edumove: '📩', accepte: '✅', refuse: '❌' };
 
   const textEl = document.getElementById('status-text');
   const iconEl = document.getElementById('status-icon-box');
@@ -826,6 +894,56 @@ function updateStatusDisplay(status) {
   textEl.className = 'status-value ' + status;
   iconEl.textContent = statusIcons[status] || '⏳';
   iconEl.className = 'status-icon ' + status;
+
+  // Update timeline
+  updateTimeline(status);
+}
+
+function updateTimeline(status) {
+  const steps = ['step-attente', 'step-encours', 'step-reponse', 'step-final'];
+  const lines = ['line-1', 'line-2', 'line-3'];
+  const statusOrder = { en_attente: 0, en_cours: 1, reponse_edumove: 2, accepte: 3, refuse: 3 };
+  const currentIdx = statusOrder[status] ?? 0;
+
+  steps.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.className = 'timeline-step';
+    if (i < currentIdx) el.classList.add('completed');
+    else if (i === currentIdx) el.classList.add('active');
+  });
+  lines.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.className = 'timeline-line';
+    if (i < currentIdx) el.classList.add('done');
+  });
+}
+
+// ── CALLBACK REQUEST ──
+async function requestCallback() {
+  const btn = document.getElementById('btn-callback');
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours...';
+  try {
+    await db.collection('candidatures').doc(candidatureId).update({
+      callbackRequested: true,
+      callbackRequestedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await db.collection('messages').add({
+      candidatureId: candidatureId,
+      senderId: currentUser.uid,
+      senderName: (candidatureData.prenom || '') + ' ' + (candidatureData.nom || ''),
+      senderRole: 'etudiant',
+      text: '📞 Je souhaite etre rappele(e) pour discuter de ma recommandation EDUMOVE.',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    btn.style.display = 'none';
+    document.getElementById('callback-confirmed').style.display = 'block';
+  } catch(e) {
+    console.error('Callback request error:', e);
+    btn.disabled = false;
+    btn.textContent = '📞 Demander un rappel telephonique';
+    alert('Erreur lors de la demande. Veuillez reessayer.');
+  }
 }
 
 function listenForStatusChanges() {

@@ -274,6 +274,7 @@ tr:hover { background: rgba(97,92,165,0.03); }
 }
 .status-en_attente { background: #fff3e0; color: #e65100; }
 .status-en_cours { background: #e8eaf6; color: #3949ab; }
+.status-reponse_edumove { background: #e3f2fd; color: #1565c0; }
 .status-accepte { background: #e8f5e9; color: #2e7d32; }
 .status-refuse { background: #ffebee; color: #c62828; }
 
@@ -568,6 +569,7 @@ tr:hover { background: rgba(97,92,165,0.03); }
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
 <script src="firebase-config.js"></script>
+<script src="status-engine.js"></script>
 </head>
 <body>
 
@@ -613,8 +615,10 @@ tr:hover { background: rgba(97,92,165,0.03); }
       <div class="stat-card"><div class="stat-label">Total candidatures</div><div class="stat-value" id="stat-total">0</div></div>
       <div class="stat-card orange"><div class="stat-label">En attente</div><div class="stat-value" id="stat-attente">0</div></div>
       <div class="stat-card violet"><div class="stat-label">En cours</div><div class="stat-value" id="stat-encours">0</div></div>
+      <div class="stat-card" style="border-top:3px solid #1565c0;"><div class="stat-label">Reponse EDUMOVE</div><div class="stat-value" id="stat-reponse" style="color:#1565c0;">0</div></div>
       <div class="stat-card green"><div class="stat-label">Acceptes</div><div class="stat-value" id="stat-accepte">0</div></div>
       <div class="stat-card red"><div class="stat-label">Refuses</div><div class="stat-value" id="stat-refuse">0</div></div>
+      <div class="stat-card" style="border-top:3px solid #e65100;"><div class="stat-label">Rappels demandes</div><div class="stat-value" id="stat-rappel" style="color:#e65100;">0</div></div>
     </div>
 
     <!-- Toolbar -->
@@ -629,6 +633,7 @@ tr:hover { background: rgba(97,92,165,0.03); }
         <option value="">Tous statuts</option>
         <option value="en_attente">En attente</option>
         <option value="en_cours">En cours</option>
+        <option value="reponse_edumove">Reponse EDUMOVE</option>
         <option value="accepte">Accepte</option>
         <option value="refuse">Refuse</option>
       </select>
@@ -753,11 +758,23 @@ function showDashboard(user) {
 // ══════════════════════════════════════════
 // LOAD DATA
 // ══════════════════════════════════════════
+let autoAdvanceRunning = false;
 function loadCandidatures() {
-  db.collection('candidatures').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+  db.collection('candidatures').orderBy('createdAt', 'desc').onSnapshot(async (snapshot) => {
     allCandidatures = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     updateStats();
     applyFilters();
+
+    // Auto-advance statuses (run once, not on re-trigger from own writes)
+    if (!autoAdvanceRunning) {
+      autoAdvanceRunning = true;
+      for (const c of allCandidatures) {
+        if (c.status === 'en_attente' || c.status === 'en_cours') {
+          try { await checkAndAdvanceStatus(c.id, c); } catch(e) { console.error('Auto-advance error:', e); }
+        }
+      }
+      autoAdvanceRunning = false;
+    }
   });
 }
 
@@ -765,13 +782,17 @@ function updateStats() {
   const total = allCandidatures.length;
   const attente = allCandidatures.filter(c => c.status === 'en_attente').length;
   const encours = allCandidatures.filter(c => c.status === 'en_cours').length;
+  const reponse = allCandidatures.filter(c => c.status === 'reponse_edumove').length;
   const accepte = allCandidatures.filter(c => c.status === 'accepte').length;
   const refuse = allCandidatures.filter(c => c.status === 'refuse').length;
+  const rappel = allCandidatures.filter(c => c.callbackRequested).length;
   document.getElementById('stat-total').textContent = total;
   document.getElementById('stat-attente').textContent = attente;
   document.getElementById('stat-encours').textContent = encours;
+  document.getElementById('stat-reponse').textContent = reponse;
   document.getElementById('stat-accepte').textContent = accepte;
   document.getElementById('stat-refuse').textContent = refuse;
+  document.getElementById('stat-rappel').textContent = rappel;
 }
 
 // ══════════════════════════════════════════
@@ -813,7 +834,7 @@ function renderTable() {
   }
   empty.style.display = 'none';
 
-  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours', accepte: 'Accepte', refuse: 'Refuse' };
+  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours', reponse_edumove: 'Reponse EDUMOVE', accepte: 'Accepte', refuse: 'Refuse' };
   const destLabels = { italie: 'Italie', espagne: 'Espagne' };
 
   tbody.innerHTML = pageItems.map(c => {
@@ -864,8 +885,17 @@ function goToPage(p) {
 // ══════════════════════════════════════════
 // STATUS UPDATE
 // ══════════════════════════════════════════
-function updateStatus(id, newStatus) {
-  db.collection('candidatures').doc(id).update({ status: newStatus });
+async function updateStatus(id, newStatus) {
+  const adminEmail = auth.currentUser?.email || 'admin';
+  await db.collection('candidatures').doc(id).update({
+    status: newStatus,
+    manualOverride: true,
+    statusHistory: firebase.firestore.FieldValue.arrayUnion({
+      status: newStatus,
+      at: firebase.firestore.Timestamp.now(),
+      by: adminEmail
+    })
+  });
 }
 
 // ══════════════════════════════════════════
@@ -876,7 +906,7 @@ function viewDetail(id) {
   if (!c) return;
 
   document.getElementById('modal-title').textContent = `${c.prenom} ${c.nom}`;
-  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours', accepte: 'Accepte', refuse: 'Refuse' };
+  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours', reponse_edumove: 'Reponse EDUMOVE', accepte: 'Accepte', refuse: 'Refuse' };
   const langLabels = { b2: 'B2+ / Bilingue', b1: 'B1 / Intermediaire', debut: 'A1/A2 / Debutant', aucun: 'Aucun' };
 
   let html = '';
@@ -984,6 +1014,18 @@ function viewDetail(id) {
     </div>`;
   }
 
+  // Suggestion IA
+  html += `<div class="detail-section" style="background:#fffde7;border:1px solid #fff9c4;border-radius:8px;padding:20px;">
+    <div class="detail-section-title" style="color:#f57f17;border-color:#fff9c4;">💡 Suggestion IA</div>
+    ${generateAdminSuggestion(c)}
+    <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-view" style="background:var(--success);padding:8px 16px;" onclick="applyAiAction('${c.id}','accepte')">✅ Accepter</button>
+      <button class="btn-view" style="background:var(--error);padding:8px 16px;" onclick="applyAiAction('${c.id}','refuse')">❌ Refuser</button>
+      ${c.status !== 'reponse_edumove' ? `<button class="btn-view" style="background:#1565c0;padding:8px 16px;" onclick="applyAiAction('${c.id}','reponse_edumove')">📩 Envoyer reponse auto</button>` : ''}
+    </div>
+    ${c.manualOverride ? '<div style="margin-top:10px;font-size:11px;color:var(--text-muted);font-style:italic;">⚠️ L\'auto-progression est desactivee (intervention manuelle detectee)</div>' : '<div style="margin-top:10px;font-size:11px;color:var(--text-muted);">🤖 L\'auto-progression est active</div>'}
+  </div>`;
+
   // Messagerie
   html += `<div class="msg-section">
     <div class="msg-section-title">Messagerie avec l'etudiant</div>
@@ -1069,6 +1111,34 @@ function closeModal() {
     currentMsgUnsubscribe = null;
   }
   document.getElementById('modal-overlay').classList.remove('active');
+}
+
+async function applyAiAction(id, action) {
+  const adminEmail = auth.currentUser?.email || 'admin';
+  const c = allCandidatures.find(x => x.id === id);
+  const updates = {
+    status: action,
+    manualOverride: true,
+    statusHistory: firebase.firestore.FieldValue.arrayUnion({
+      status: action,
+      at: firebase.firestore.Timestamp.now(),
+      by: adminEmail
+    })
+  };
+
+  // If sending reponse_edumove, generate the response text
+  if (action === 'reponse_edumove' && c) {
+    updates.autoResponseText = generateReponseEdumove(c);
+    updates.autoResponseGeneratedAt = firebase.firestore.FieldValue.serverTimestamp();
+  }
+
+  try {
+    await db.collection('candidatures').doc(id).update(updates);
+    closeModal();
+  } catch(e) {
+    console.error('Apply action error:', e);
+    alert('Erreur lors de la mise a jour.');
+  }
 }
 
 // ══════════════════════════════════════════

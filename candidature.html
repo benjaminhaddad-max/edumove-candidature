@@ -1395,6 +1395,12 @@ async function submitCandidature() {
       niveau: ori.level,
       documents: {},
       status: 'en_attente',
+      statusHistory: [{ status: 'en_attente', at: firebase.firestore.Timestamp.now(), by: 'system' }],
+      manualOverride: false,
+      autoResponseText: null,
+      autoResponseGeneratedAt: null,
+      callbackRequested: false,
+      callbackRequestedAt: null,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
