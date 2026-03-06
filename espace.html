@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Edumove — Mon espace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --orange: #ec680a;
+  --navy: #1b1d3a;
+  --violet: #615ca5;
+  --violet-light: #8883c0;
+  --cream: #fafafa;
+  --white: #ffffff;
+  --border: #e2e2ef;
+  --text: #1b1d3a;
+  --text-muted: #7b7b9a;
+  --success: #2e7d52;
+  --error: #d63031;
+  --bg: #f5f5fb;
+  --warning: #e17055;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ── HEADER ── */
+.site-header {
+  background: var(--navy);
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 66px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(27,29,58,0.4);
+}
+.logo-zone { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.logo-svg { height: 32px; width: auto; }
+.header-right { display: flex; align-items: center; gap: 16px; }
+.header-user { font-size: 12px; color: rgba(255,255,255,0.6); }
+.btn-logout {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-logout:hover { background: rgba(255,255,255,0.2); }
+
+/* ── MAIN ── */
+.dash-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 36px 24px 80px;
+}
+
+.dash-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.dash-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+}
+
+/* ── STATUS CARD ── */
+.status-card {
+  background: white;
+  border-radius: 12px;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 12px rgba(27,29,58,0.05);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.status-icon {
+  width: 56px; height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.status-icon.en_attente { background: #fff3e0; }
+.status-icon.en_cours { background: #e8eaf6; }
+.status-icon.accepte { background: #e8f5e9; }
+.status-icon.refuse { background: #ffebee; }
+.status-info { flex: 1; }
+.status-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+.status-value { font-size: 20px; font-weight: 700; }
+.status-value.en_attente { color: #e65100; }
+.status-value.en_cours { color: #3949ab; }
+.status-value.accepte { color: #2e7d32; }
+.status-value.refuse { color: #c62828; }
+.status-date { font-size: 12px; color: var(--text-muted); }
+
+/* ── SECTION CARD ── */
+.section-card {
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 12px rgba(27,29,58,0.05);
+  overflow: hidden;
+}
+.section-card-header {
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.section-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--navy);
+}
+.section-card-body { padding: 24px 28px; }
+
+/* ── RECAP GRID ── */
+.recap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.recap-item label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.recap-item span {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--navy);
+}
+
+.recap-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 20px 0;
+}
+
+/* ── NOTES TABLE ── */
+.notes-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 8px;
+}
+.notes-table th, .notes-table td {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+.notes-table th {
+  background: var(--bg);
+  color: var(--text);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+/* ── UPLOAD ZONE ── */
+.upload-zone {
+  border: 1.5px dashed var(--border);
+  border-radius: 7px;
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+}
+.upload-zone:hover { border-color: var(--violet); background: rgba(97,92,165,0.03); }
+.upload-zone input { display: none; }
+.upload-zone-icon { font-size: 28px; margin-bottom: 8px; opacity: 0.5; }
+.upload-zone-label { font-size: 13px; color: var(--text-muted); }
+.upload-zone-label strong { color: var(--navy); font-weight: 600; }
+
+.uploaded-files { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+.uploaded-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg);
+  border-radius: 8px;
+  font-size: 13px;
+}
+.uploaded-file-name { flex: 1; font-weight: 500; color: var(--navy); }
+.uploaded-file-date { font-size: 11px; color: var(--text-muted); }
+.uploaded-file a {
+  color: var(--violet);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.upload-progress {
+  display: none;
+  margin-top: 12px;
+  padding: 10px;
+  background: rgba(97,92,165,0.07);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--violet);
+  text-align: center;
+}
+
+/* ── MESSAGING ── */
+.messages-container {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.message {
+  max-width: 75%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  position: relative;
+}
+.message-etudiant {
+  align-self: flex-end;
+  background: var(--navy);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+.message-admin {
+  align-self: flex-start;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+.message-meta {
+  font-size: 10px;
+  margin-top: 4px;
+  opacity: 0.6;
+}
+.message-admin .message-sender {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--orange);
+  margin-bottom: 4px;
+}
+.messages-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.message-input-row {
+  display: flex;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.message-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  resize: none;
+  min-height: 44px;
+  max-height: 100px;
+  transition: border 0.2s;
+}
+.message-input:focus { border-color: var(--violet); }
+.btn-send {
+  padding: 0 20px;
+  background: var(--orange);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.btn-send:hover { background: #d45c08; }
+.btn-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── LOADING ── */
+.loading-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  flex-direction: column;
+  gap: 16px;
+}
+.spinner {
+  width: 44px; height: 44px;
+  border: 3px solid var(--border);
+  border-top-color: var(--orange);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── FOOTER ── */
+.site-footer {
+  background: var(--navy);
+  padding: 18px 40px;
+  text-align: center;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.04em;
+}
+.site-footer a { color: var(--orange); text-decoration: none; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .site-header { padding: 0 20px; }
+  .dash-content { padding: 24px 16px 60px; }
+  .status-card { flex-direction: column; text-align: center; padding: 24px 20px; }
+  .section-card-body { padding: 20px 16px; }
+  .section-card-header { padding: 16px; }
+  .recap-grid { grid-template-columns: 1fr; }
+  .message { max-width: 90%; }
+}
+</style>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
+<script src="firebase-config.js"></script>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="logo-zone" onclick="window.location.href='espace.html'">
+    <svg class="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 435.08 88.95">
+      <g>
+        <path fill="white" d="M151.8,17.57h31.36v6.58h-23.79v16.91h19.35v6.58h-19.35v17.37h25.09v6.58h-32.67V17.57Z"/>
+        <path fill="white" d="M202.98,31.95c8.95,0,11.93,6.12,11.93,6.12h.15s-.15-1.15-.15-2.6v-17.9h7.42v54.01h-7.04v-3.67c0-1.53.08-2.6.08-2.6h-.15s-3.14,7.19-12.7,7.19c-10.48,0-17.06-8.26-17.06-20.27s7.27-20.27,17.52-20.27ZM203.97,66.07c5.74,0,11.17-4.05,11.17-13.92,0-6.89-3.6-13.77-10.94-13.77-6.12,0-11.17,5.05-11.17,13.85s4.51,13.85,10.94,13.85Z"/>
+        <path fill="white" d="M227.3,32.87h7.42v23.1c0,5.36,1.07,9.64,7.27,9.64,7.88,0,12.55-6.96,12.55-14.61v-18.13h7.42v38.71h-7.19v-5.13c0-1.61.15-2.83.15-2.83h-.15c-1.61,3.82-6.66,8.87-14.23,8.87-8.72,0-13.23-4.59-13.23-14.84v-24.79Z"/>
+        <path fill="white" d="M268.39,33.33h3.21v6.73c0,1.76-.31,3.14-.31,3.14h.15c1.91-5.74,8.72-10.79,14.69-10.79,7.65,0,11.25,3.6,12.09,10.4h.15c2.14-5.35,7.96-10.4,14.53-10.4,9.87,0,12.78,5.81,12.78,14.92v24.25h-3.21v-23.1c0-7.19-1.45-13.08-9.56-13.08-6.35,0-11.78,5.66-13.46,11.63-.54,1.76-.76,3.67-.76,5.89v18.67h-3.21v-23.1c0-6.58-.92-13.08-9.33-13.08-6.81,0-12.16,5.97-13.92,12.32-.46,1.61-.61,3.37-.61,5.2v18.67h-3.21v-38.25Z"/>
+        <path fill="white" d="M349.48,32.41c10.94,0,19.81,8.64,19.81,19.81s-8.87,20.27-19.81,20.27-19.81-8.87-19.81-20.27,8.87-19.81,19.81-19.81ZM349.48,69.36c9.1,0,16.45-7.42,16.45-17.14s-7.34-16.68-16.45-16.68-16.45,7.19-16.45,16.68,7.34,17.14,16.45,17.14Z"/>
+        <path fill="white" d="M368.45,33.33h3.44l11.78,29.99c.69,1.84,1.3,4.13,1.3,4.13h.15s.61-2.29,1.3-4.13l11.78-29.99h3.37l-14.99,38.25h-3.06l-15.07-38.25Z"/>
+        <path fill="white" d="M419.48,32.41c10.4,0,15.61,8.19,15.61,17.44,0,.84-.15,2.07-.15,2.07h-30.68c0,11.09,7.5,17.44,16.37,17.44,7.34,0,11.86-4.82,11.86-4.82l1.76,2.68s-5.35,5.28-13.62,5.28c-10.79,0-19.74-7.8-19.74-19.97,0-12.93,8.8-20.12,18.59-20.12ZM431.72,48.94c-.38-9.33-5.97-13.54-12.32-13.54-7.04,0-13.54,4.59-14.92,13.54h27.23Z"/>
+      </g>
+      <path fill="white" d="M84.64,55.74v-22.54h22.8l17.4-16.6L107.43,0H40.19v27.79h-22.78L0,44.4l17.41,16.6h22.78v27.96h67.24l17.4-16.6-17.41-16.61h-22.79ZM45.51,5.32h59.79l11.83,11.28-11.83,11.29h-59.79V5.32ZM19.53,55.68l-11.83-11.28,11.83-11.29h59.78v22.57H19.53ZM105.3,83.64h-59.79v-22.57h59.79l11.83,11.29-11.83,11.28Z"/>
+    </svg>
+  </div>
+  <div class="header-right" id="header-right">
+    <span class="header-user" id="header-user"></span>
+    <button class="btn-logout" onclick="logout()">Deconnexion</button>
+  </div>
+</header>
+
+<!-- LOADING -->
+<div class="loading-wrap" id="loading">
+  <div class="spinner"></div>
+  <div style="font-size:14px;color:var(--text-muted);">Chargement de votre espace...</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="dash-content" id="main-content" style="display:none;">
+
+  <div class="dash-title" id="welcome-title">Mon espace candidat</div>
+  <div class="dash-subtitle">Suivez l'avancement de votre dossier EDUMOVE</div>
+
+  <!-- STATUS -->
+  <div class="status-card" id="status-card">
+    <div class="status-icon en_attente" id="status-icon-box">⏳</div>
+    <div class="status-info">
+      <div class="status-label">Statut de votre dossier</div>
+      <div class="status-value en_attente" id="status-text">En attente</div>
+    </div>
+    <div class="status-date" id="status-date"></div>
+  </div>
+
+  <!-- RECAP DU DOSSIER -->
+  <div class="section-card">
+    <div class="section-card-header">
+      <div class="section-card-title">Recapitulatif de votre dossier</div>
+    </div>
+    <div class="section-card-body" id="recap-body">
+      <!-- Filled by JS -->
+    </div>
+  </div>
+
+  <!-- DOCUMENTS -->
+  <div class="section-card">
+    <div class="section-card-header">
+      <div class="section-card-title">Documents</div>
+    </div>
+    <div class="section-card-body">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Vous pouvez ajouter des documents complementaires a votre dossier (bulletins, passeport, lettres...). L'equipe EDUMOVE les consultera.</p>
+      <div class="upload-zone" onclick="document.getElementById('file-upload').click()">
+        <div class="upload-zone-icon">📎</div>
+        <div class="upload-zone-label"><strong>Cliquez pour ajouter un document</strong> · PDF, JPG, PNG (max 10 Mo)</div>
+        <input type="file" id="file-upload" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDocument(this)"/>
+      </div>
+      <div class="upload-progress" id="upload-progress">Envoi en cours...</div>
+      <div class="uploaded-files" id="uploaded-files"></div>
+    </div>
+  </div>
+
+  <!-- MESSAGERIE -->
+  <div class="section-card">
+    <div class="section-card-header">
+      <div class="section-card-title">Messagerie</div>
+    </div>
+    <div class="section-card-body">
+      <div class="messages-container" id="messages-container">
+        <div class="messages-empty" id="messages-empty">Aucun message pour le moment. Envoyez un message a l'equipe EDUMOVE ci-dessous.</div>
+      </div>
+      <div class="message-input-row">
+        <textarea class="message-input" id="message-input" placeholder="Ecrivez votre message..." rows="1"></textarea>
+        <button class="btn-send" id="btn-send" onclick="sendMessage()">Envoyer</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  © 2026 EDUMOVE · <a href="https://edumove.fr" target="_blank">edumove.fr</a> · Tous droits reserves
+</footer>
+
+<script>
+let currentUser = null;
+let candidatureId = null;
+let candidatureData = null;
+let messagesUnsubscribe = null;
+
+// ── AUTH ──
+auth.onAuthStateChanged(async (user) => {
+  if (!user) {
+    window.location.href = 'index.html';
+    return;
+  }
+  currentUser = user;
+  document.getElementById('header-user').textContent = user.email;
+
+  // Load candidature
+  const snap = await db.collection('candidatures').where('userId', '==', user.uid).limit(1).get();
+  if (snap.empty) {
+    window.location.href = 'candidature.html';
+    return;
+  }
+
+  candidatureId = snap.docs[0].id;
+  candidatureData = snap.docs[0].data();
+
+  renderDashboard();
+  loadMessages();
+  listenForStatusChanges();
+
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+});
+
+function logout() {
+  if (messagesUnsubscribe) messagesUnsubscribe();
+  auth.signOut();
+}
+
+// ── RENDER DASHBOARD ──
+function renderDashboard() {
+  const c = candidatureData;
+
+  // Welcome
+  document.getElementById('welcome-title').textContent = 'Bonjour ' + esc(c.prenom || '') + ' !';
+
+  // Status
+  updateStatusDisplay(c.status);
+
+  // Date
+  if (c.createdAt) {
+    document.getElementById('status-date').textContent = 'Soumis le ' + new Date(c.createdAt.seconds * 1000).toLocaleDateString('fr-FR');
+  }
+
+  // Recap
+  const langLabels = { b2: 'B2+ / Bilingue', b1: 'B1 / Intermediaire', debut: 'A1/A2 / Debutant', aucun: 'Aucun' };
+
+  let html = '';
+  html += `<div class="recap-grid">
+    <div class="recap-item"><label>Nom</label><span>${esc(c.nom)}</span></div>
+    <div class="recap-item"><label>Prenom</label><span>${esc(c.prenom)}</span></div>
+    <div class="recap-item"><label>Email</label><span>${esc(c.email)}</span></div>
+    <div class="recap-item"><label>Telephone</label><span>${esc(c.tel)}</span></div>
+    <div class="recap-item"><label>Code postal</label><span>${esc(c.codePostal)}</span></div>
+    <div class="recap-item"><label>Ville</label><span>${esc(c.ville)}</span></div>
+    <div class="recap-item"><label>Profil</label><span>${c.profil === 'reorientation' ? 'Reorientation' : 'Terminale'}</span></div>
+  </div>`;
+
+  // Notes Premiere
+  if (c.notesPremiere && c.notesPremiere.length > 0) {
+    html += `<hr class="recap-divider"/>
+    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--violet);margin-bottom:8px;">Notes de Premiere</div>
+    <table class="notes-table">
+      <thead><tr><th>Matiere</th><th>T1</th><th>T2</th><th>T3</th><th>Moy.</th></tr></thead>
+      <tbody>${c.notesPremiere.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'—'}</td><td>${n.t2||'—'}</td><td>${n.t3||'—'}</td><td style="font-weight:600;">${n.moy||'—'}</td></tr>`).join('')}</tbody>
+    </table>`;
+    if (c.moyennePremiere) html += `<div style="margin-top:8px;font-size:13px;color:var(--navy);">Moyenne : <strong>${esc(c.moyennePremiere)}</strong></div>`;
+  }
+
+  // Notes Terminale
+  if (c.notesTerminale && c.notesTerminale.length > 0) {
+    html += `<hr class="recap-divider"/>
+    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--violet);margin-bottom:8px;">Notes de Terminale</div>
+    <table class="notes-table">
+      <thead><tr><th>Matiere</th><th>T1</th><th>T2</th><th>T3</th><th>Moy.</th></tr></thead>
+      <tbody>${c.notesTerminale.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'—'}</td><td>${n.t2||'—'}</td><td>${n.t3||'—'}</td><td style="font-weight:600;">${n.moy||'—'}</td></tr>`).join('')}</tbody>
+    </table>`;
+    if (c.moyenneTerminale) html += `<div style="margin-top:8px;font-size:13px;color:var(--navy);">Moyenne : <strong>${esc(c.moyenneTerminale)}</strong></div>`;
+  }
+
+  // Langues
+  if (c.langues) {
+    html += `<hr class="recap-divider"/>
+    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--violet);margin-bottom:8px;">Competences linguistiques</div>
+    <div class="recap-grid">
+      ${['espagnol','anglais','italien','portugais'].map(l =>
+        c.langues[l] ? `<div class="recap-item"><label>${l.charAt(0).toUpperCase()+l.slice(1)}</label><span>${langLabels[c.langues[l]] || c.langues[l]}</span></div>` : ''
+      ).join('')}
+      ${c.langues.autre ? `<div class="recap-item"><label>Autre</label><span>${esc(c.langues.autre)}</span></div>` : ''}
+    </div>`;
+  }
+
+  // Classement
+  if (c.classementDestinations && c.classementDestinations.length > 0) {
+    html += `<hr class="recap-divider"/>
+    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--violet);margin-bottom:8px;">Classement des destinations</div>
+    <div style="font-size:13px;">${c.classementDestinations.map((d,i) => `<span style="font-weight:600;color:var(--navy);">${i+1}.</span> ${esc(d)}`).join(' &nbsp;|&nbsp; ')}</div>`;
+  }
+
+  document.getElementById('recap-body').innerHTML = html;
+
+  // Existing documents
+  renderDocuments();
+}
+
+function updateStatusDisplay(status) {
+  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours de traitement', accepte: 'Accepte', refuse: 'Refuse' };
+  const statusIcons = { en_attente: '⏳', en_cours: '📋', accepte: '✅', refuse: '❌' };
+
+  const textEl = document.getElementById('status-text');
+  const iconEl = document.getElementById('status-icon-box');
+
+  textEl.textContent = statusLabels[status] || status;
+  textEl.className = 'status-value ' + status;
+  iconEl.textContent = statusIcons[status] || '⏳';
+  iconEl.className = 'status-icon ' + status;
+}
+
+function listenForStatusChanges() {
+  db.collection('candidatures').doc(candidatureId).onSnapshot(doc => {
+    if (doc.exists) {
+      const data = doc.data();
+      candidatureData = data;
+      updateStatusDisplay(data.status);
+      renderDocuments();
+    }
+  });
+}
+
+// ── DOCUMENTS ──
+function renderDocuments() {
+  const container = document.getElementById('uploaded-files');
+  const docs = candidatureData.documents || {};
+  const docLabels = {
+    passeport: 'Passeport', bulletins: 'Bulletins', formulaire: 'Formulaire',
+    rapport_technique: 'Rapport technique', identite: 'Piece d\'identite',
+    releves: 'Releves de notes', attestation_b2: 'Attestation B2',
+    lettre_motivation: 'Lettre de motivation'
+  };
+
+  let html = '';
+  Object.entries(docs).forEach(([key, url]) => {
+    html += `<div class="uploaded-file">
+      <span>📄</span>
+      <span class="uploaded-file-name">${docLabels[key] || key}</span>
+      <a href="${esc(url)}" target="_blank" rel="noopener">Voir</a>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+async function uploadDocument(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  if (file.size > 10 * 1024 * 1024) {
+    alert('Le fichier est trop volumineux (max 10 Mo).');
+    input.value = '';
+    return;
+  }
+
+  const progressEl = document.getElementById('upload-progress');
+  progressEl.style.display = 'block';
+  progressEl.textContent = 'Envoi de ' + file.name + '...';
+
+  try {
+    const timestamp = Date.now();
+    const path = `candidatures/${candidatureId}/docs_${timestamp}_${file.name}`;
+    const snap = await storage.ref(path).put(file);
+    const url = await snap.ref.getDownloadURL();
+
+    // Save to candidature documents
+    const docKey = 'doc_' + timestamp;
+    await db.collection('candidatures').doc(candidatureId).update({
+      [`documents.${docKey}`]: url
+    });
+
+    progressEl.textContent = 'Document envoye !';
+    setTimeout(() => { progressEl.style.display = 'none'; }, 2000);
+    input.value = '';
+  } catch (err) {
+    console.error('Upload error:', err);
+    progressEl.textContent = 'Erreur lors de l\'envoi.';
+    setTimeout(() => { progressEl.style.display = 'none'; }, 3000);
+  }
+}
+
+// ── MESSAGING ──
+function loadMessages() {
+  const container = document.getElementById('messages-container');
+  const emptyEl = document.getElementById('messages-empty');
+
+  messagesUnsubscribe = db.collection('messages')
+    .where('candidatureId', '==', candidatureId)
+    .orderBy('createdAt', 'asc')
+    .onSnapshot(snapshot => {
+      if (snapshot.empty) {
+        emptyEl.style.display = 'block';
+        return;
+      }
+      emptyEl.style.display = 'none';
+
+      // Clear and re-render
+      container.querySelectorAll('.message').forEach(m => m.remove());
+
+      snapshot.docs.forEach(doc => {
+        const msg = doc.data();
+        const div = document.createElement('div');
+        div.className = 'message message-' + msg.senderRole;
+
+        let inner = '';
+        if (msg.senderRole === 'admin') {
+          inner += `<div class="message-sender">Equipe EDUMOVE</div>`;
+        }
+        inner += `<div>${esc(msg.text)}</div>`;
+        if (msg.createdAt) {
+          const date = new Date(msg.createdAt.seconds * 1000);
+          inner += `<div class="message-meta">${date.toLocaleDateString('fr-FR')} ${date.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'})}</div>`;
+        }
+        div.innerHTML = inner;
+        container.appendChild(div);
+      });
+
+      // Scroll to bottom
+      container.scrollTop = container.scrollHeight;
+    });
+}
+
+async function sendMessage() {
+  const input = document.getElementById('message-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const btn = document.getElementById('btn-send');
+  btn.disabled = true;
+
+  try {
+    await db.collection('messages').add({
+      candidatureId: candidatureId,
+      senderId: currentUser.uid,
+      senderName: candidatureData.prenom + ' ' + candidatureData.nom,
+      senderRole: 'etudiant',
+      text: text,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    input.value = '';
+  } catch (err) {
+    console.error('Message error:', err);
+    alert('Erreur lors de l\'envoi du message.');
+  }
+  btn.disabled = false;
+}
+
+// Enter to send (shift+enter for new line)
+document.getElementById('message-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+// ── UTILS ──
+function esc(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+</body>
+</html>

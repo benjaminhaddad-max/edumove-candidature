@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Edumove — Plateforme de Candidature</title>
+<title>Edumove — Etudes superieures en Europe</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
@@ -46,19 +46,8 @@ body {
   z-index: 100;
   box-shadow: 0 2px 20px rgba(27,29,58,0.4);
 }
-
-/* LOGO SVG EDUMOVE */
 .logo-zone { display: flex; align-items: center; gap: 10px; }
 .logo-svg { height: 32px; width: auto; }
-.logo-wordmark { display: none; }
-.logo-wordmark {
-  font-size: 22px;
-  font-weight: 700;
-  color: white;
-  letter-spacing: -0.01em;
-}
-.logo-wordmark span { font-weight: 300; color: rgba(255,255,255,0.85); }
-
 .header-right {
   font-size: 11px;
   color: rgba(255,255,255,0.4);
@@ -75,8 +64,6 @@ body {
   position: relative;
   overflow: hidden;
 }
-
-/* Geometric shapes from brand */
 .hero-band::before {
   content: '';
   position: absolute;
@@ -95,7 +82,6 @@ body {
   background: var(--violet);
   opacity: 0.2;
 }
-
 .hero-dot-grid {
   position: absolute;
   top: 20px; left: 30px;
@@ -112,7 +98,6 @@ body {
 }
 .hero-dot-grid span:nth-child(-n+5) { background: rgba(255,255,255,0.5); }
 .hero-dot-grid span:nth-child(n+6):nth-child(-n+10) { background: rgba(255,255,255,0.3); }
-
 .hero-eyebrow {
   font-size: 10.5px;
   letter-spacing: 0.22em;
@@ -122,7 +107,6 @@ body {
   margin-bottom: 14px;
   position: relative;
 }
-
 .hero-title {
   font-size: clamp(24px, 3.5vw, 38px);
   font-weight: 700;
@@ -132,7 +116,6 @@ body {
   margin-bottom: 6px;
 }
 .hero-title em { font-style: normal; color: var(--orange); }
-
 .hero-sub {
   margin-top: 12px;
   font-size: 13px;
@@ -141,7 +124,7 @@ body {
   position: relative;
 }
 
-/* Filière pills */
+/* Filiere pills */
 .hero-filieres {
   margin-top: 24px;
   display: flex;
@@ -150,7 +133,6 @@ body {
   gap: 8px;
   position: relative;
 }
-
 .fil-pill {
   padding: 5px 16px;
   border-radius: 20px;
@@ -171,640 +153,195 @@ body {
   font-weight: 300;
 }
 
-/* ── PROGRESS BAR ── */
-.progress-wrap {
-  background: var(--white);
-  border-bottom: 1px solid var(--border);
-  padding: 18px 40px;
+/* ── AUTH SECTION ── */
+.auth-section {
+  max-width: 460px;
+  margin: 48px auto;
+  padding: 0 24px 80px;
 }
 
-.progress-steps {
-  max-width: 680px;
-  margin: 0 auto;
+.auth-tabs {
   display: flex;
-  justify-content: space-between;
-  position: relative;
+  margin-bottom: 0;
+  border-radius: 10px 10px 0 0;
+  overflow: hidden;
 }
-
-/* connecting line */
-.progress-steps::before {
-  content: '';
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  right: 14px;
-  height: 1px;
-  background: var(--border);
-  z-index: 0;
-}
-
-.step-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  position: relative;
-  z-index: 1;
-}
-
-.step-num {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid var(--border);
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
-  transition: all 0.3s;
-}
-
-.step-item.active .step-num {
-  background: var(--navy);
-  border-color: var(--navy);
-  color: white;
-}
-.step-item.done .step-num {
-  background: var(--orange);
-  border-color: var(--orange);
-  color: white;
-}
-
-.step-label {
-  font-size: 10.5px;
-  font-weight: 500;
-  color: var(--text-muted);
-  letter-spacing: 0.03em;
+.auth-tab {
+  flex: 1;
+  padding: 14px;
   text-align: center;
-  white-space: nowrap;
-}
-.step-item.active .step-label { color: var(--navy); font-weight: 600; }
-.step-item.done .step-label { color: var(--orange); }
-
-/* ── MAIN ── */
-.main-wrap {
-  max-width: 780px;
-  margin: 0 auto;
-  padding: 44px 24px 80px;
-}
-
-.screen { display: none; }
-.screen.active { display: block; animation: fadeUp 0.3s ease; }
-
-@keyframes fadeUp {
-  from { opacity:0; transform:translateY(14px); }
-  to { opacity:1; transform:translateY(0); }
-}
-
-/* ── SECTION TITLES ── */
-.section-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--navy);
-  margin-bottom: 4px;
-}
-.rule {
-  width: 36px; height: 3px;
-  background: var(--orange);
-  border-radius: 2px;
-  margin: 8px 0 16px;
-}
-.section-desc {
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  transition: all 0.2s;
+  background: var(--border);
   color: var(--text-muted);
-  margin-bottom: 28px;
-  font-weight: 400;
-  line-height: 1.7;
+}
+.auth-tab.active {
+  background: white;
+  color: var(--navy);
+}
+.auth-tab:hover:not(.active) {
+  background: #d8d8ea;
 }
 
-/* ── CARD ── */
-.card {
+.auth-card {
   background: white;
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 28px 32px;
-  margin-bottom: 20px;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  padding: 36px 32px;
 }
 
-/* ── FORM GRID ── */
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px 22px;
-  margin-bottom: 4px;
+.auth-form { display: none; }
+.auth-form.active { display: block; }
+
+.auth-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 6px;
 }
-.form-grid.one-col { grid-template-columns: 1fr; }
-.span-2 { grid-column: 1/-1; }
+.auth-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
 
-.field { display: flex; flex-direction: column; gap: 6px; }
-
-label {
+.auth-field {
+  margin-bottom: 16px;
+}
+.auth-field label {
+  display: block;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--text);
+  margin-bottom: 6px;
 }
-label .req { color: var(--orange); margin-left: 2px; }
-
-input[type="text"],input[type="email"],input[type="tel"],
-input[type="number"],select,textarea {
+.auth-field label .req { color: var(--orange); margin-left: 2px; }
+.auth-field input {
   width: 100%;
-  padding: 10px 13px;
+  padding: 12px 14px;
   border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
   background: var(--white);
   color: var(--text);
-  font-family: 'Poppins', sans-serif;
-  font-size: 13.5px;
-  border-radius: 6px;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  -webkit-appearance: none;
 }
-input:focus,select:focus,textarea:focus {
+.auth-field input:focus {
   border-color: var(--violet);
   box-shadow: 0 0 0 3px rgba(97,92,165,0.1);
 }
-input.invalid,select.invalid { border-color: var(--error); }
+.auth-field input.invalid { border-color: var(--error); }
 
-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%237b7b9a'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 13px center;
-  padding-right: 34px;
-  cursor: pointer;
-}
-textarea { resize: vertical; min-height: 80px; }
-
-.field-hint { font-size: 11px; color: var(--text-muted); font-style: italic; }
-
-/* ── FORM DIVIDER ── */
-.form-divider {
+.btn-auth {
+  width: 100%;
+  padding: 13px;
+  background: var(--orange);
+  color: white;
   border: none;
-  border-top: 1px solid var(--border);
-  margin: 28px 0;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+  letter-spacing: 0.02em;
 }
-.form-section-label {
-  font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--violet);
-  padding: 18px 0 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.btn-auth:hover { background: #d45c08; }
+.btn-auth:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.auth-error {
+  color: var(--error);
+  font-size: 12px;
+  margin-top: 12px;
+  display: none;
+  text-align: center;
 }
-.form-section-label::after {
+.auth-error.visible { display: block; }
+
+.auth-success {
+  color: var(--success);
+  font-size: 12px;
+  margin-top: 12px;
+  display: none;
+  text-align: center;
+}
+.auth-success.visible { display: block; }
+
+.auth-divider {
+  text-align: center;
+  margin: 20px 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  position: relative;
+}
+.auth-divider::before, .auth-divider::after {
   content: '';
-  flex: 1;
+  position: absolute;
+  top: 50%;
+  width: 40%;
   height: 1px;
   background: var(--border);
 }
+.auth-divider::before { left: 0; }
+.auth-divider::after { right: 0; }
 
-/* ── NOTES GROUP ── */
-.notes-group {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 20px 22px;
-}
-.notes-group-title {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--navy);
-  margin-bottom: 16px;
-}
-.notes-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 16px;
-}
-
-/* ── LANGUE CARDS (new system) ── */
-.lang-section-desc {
-  font-size: 12.5px;
-  color: var(--text-muted);
-  margin-bottom: 18px;
-  background: rgba(97,92,165,0.07);
-  border-left: 3px solid var(--violet);
-  padding: 10px 14px;
-  border-radius: 0 6px 6px 0;
-  line-height: 1.65;
-}
-
-.lang-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.lang-card {
-  background: white;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.lang-card-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.lang-card-flag { font-size: 20px; flex-shrink: 0; }
-
-.lang-card-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--navy);
-  flex: 1;
-}
-
-.lang-card-toggle {
-  font-size: 18px;
-  color: var(--text-muted);
-  transition: transform 0.2s;
-}
-
-.lang-card.open .lang-card-toggle { transform: rotate(45deg); color: var(--orange); }
-.lang-card.open { border-color: var(--violet); }
-
-.lang-level-options {
-  display: none;
-  padding: 0 16px 14px;
-  gap: 8px;
-  flex-direction: column;
-}
-.lang-card.open .lang-level-options { display: flex; }
-
-.level-option {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 13px;
-  border: 1.5px solid var(--border);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s;
-  user-select: none;
-}
-.level-option:hover { border-color: var(--violet); background: rgba(97,92,165,0.04); }
-.level-option.selected { border-color: var(--orange); background: rgba(236,104,10,0.06); }
-
-.level-option input[type="radio"] {
-  width: 15px; height: 15px;
-  accent-color: var(--orange);
-  flex-shrink: 0;
-  cursor: pointer;
-}
-
-.level-info { flex: 1; }
-.level-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--navy);
-}
-.level-desc {
+/* ── PASSWORD REQUIREMENTS ── */
+.password-reqs {
+  margin-top: 8px;
   font-size: 11px;
   color: var(--text-muted);
-  font-weight: 300;
+}
+.password-reqs li {
+  list-style: none;
+  padding: 2px 0;
+}
+.password-reqs li::before {
+  content: '•';
+  margin-right: 6px;
+  color: var(--border);
+}
+.password-reqs li.valid::before {
+  content: '✓';
+  color: var(--success);
 }
 
-.level-badge {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 10px;
-  letter-spacing: 0.05em;
-}
-.badge-b2 { background: rgba(46,125,82,0.12); color: #2e7d52; }
-.badge-b1 { background: rgba(97,92,165,0.12); color: var(--violet); }
-.badge-a { background: rgba(236,104,10,0.12); color: var(--orange); }
-.badge-none { background: rgba(123,123,154,0.12); color: var(--text-muted); }
-
-/* Autre langue field */
-.autre-lang-wrap {
-  background: white;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  padding: 14px 16px;
-  margin-top: 6px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.autre-lang-wrap label { text-transform: none; font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--navy); white-space: nowrap; }
-.autre-lang-wrap input { flex: 1; margin: 0; }
-
-/* ── CHECKBOX / RADIO ITEMS ── */
-.checkbox-group { display: flex; flex-direction: column; gap: 8px; }
-.checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 16px;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  background: white;
-  cursor: pointer;
-  transition: all 0.15s;
-  user-select: none;
-}
-.checkbox-item:hover { border-color: var(--violet); background: rgba(97,92,165,0.03); }
-.checkbox-item.selected { border-color: var(--navy); background: rgba(27,29,58,0.04); }
-
-.checkbox-item input[type="radio"],
-.checkbox-item input[type="checkbox"] {
-  width: 16px; height: 16px;
-  accent-color: var(--navy);
-  flex-shrink: 0;
-  cursor: pointer;
-}
-.flag-icon { font-size: 20px; }
-.checkbox-label { font-size: 14px; font-weight: 500; color: var(--text); }
-
-/* ── BUTTONS ── */
-.btn-row {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 32px;
-  padding-top: 24px;
-  border-top: 1px solid var(--border);
-}
-
-.btn {
-  padding: 12px 28px;
-  font-family: 'Poppins', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  border: none;
-  border-radius: 7px;
-  transition: all 0.2s;
-}
-.btn-primary { background: var(--navy); color: white; }
-.btn-primary:hover { background: var(--violet); box-shadow: 0 4px 16px rgba(97,92,165,0.35); transform: translateY(-1px); }
-.btn-secondary { background: transparent; color: var(--text-muted); border: 1.5px solid var(--border); }
-.btn-secondary:hover { border-color: var(--navy); color: var(--navy); }
-.btn-orange { background: var(--orange); color: white; }
-.btn-orange:hover { background: #d45c08; box-shadow: 0 4px 16px rgba(236,104,10,0.35); transform: translateY(-1px); }
-
-/* ── RESULT CARD ── */
-.result-card {
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-}
-.result-header {
-  background: var(--navy);
-  padding: 24px 28px;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-.result-icon {
-  width: 50px; height: 50px;
-  background: rgba(236,104,10,0.2);
-  border: 1.5px solid var(--orange);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  flex-shrink: 0;
-}
-.result-eyebrow { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--orange); margin-bottom: 5px; font-weight: 600; }
-.result-name { font-size: 18px; color: white; font-weight: 600; }
-.result-body { padding: 28px; }
-.result-summary { font-size: 13.5px; line-height: 1.8; color: var(--text); margin-bottom: 22px; font-weight: 400; }
-.result-summary strong { font-weight: 700; color: var(--navy); }
-
-.destination-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 18px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  margin-bottom: 24px;
-}
-.destination-flag { font-size: 24px; }
-.destination-country { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); font-weight: 500; }
-.destination-uni { font-size: 16px; color: var(--navy); font-weight: 700; }
-
-.next-steps-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); margin-bottom: 12px; font-weight: 600; }
-.steps-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-.steps-list li { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; color: var(--text); line-height: 1.65; }
-.step-dot { width: 6px; height: 6px; background: var(--orange); border-radius: 50%; margin-top: 8px; flex-shrink: 0; }
-
-/* ── ALERTS ── */
-.alert {
-  padding: 13px 16px;
-  border-left: 3px solid;
-  border-radius: 0 6px 6px 0;
-  margin-bottom: 22px;
-  font-size: 13px;
-  line-height: 1.65;
-  font-weight: 400;
-}
-.alert-orange { border-color: var(--orange); background: rgba(236,104,10,0.07); color: #8a3e02; }
-.alert-navy { border-color: var(--navy); background: rgba(27,29,58,0.05); color: var(--navy); }
-.alert-violet { border-color: var(--violet); background: rgba(97,92,165,0.07); color: var(--violet); }
-.alert-success { border-color: var(--success); background: rgba(46,125,82,0.07); color: var(--success); }
-
-/* ── UPLOAD ZONES ── */
-.upload-zone {
-  border: 1.5px dashed var(--border);
-  border-radius: 7px;
-  padding: 18px 16px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: white;
-}
-.upload-zone:hover { border-color: var(--violet); background: rgba(97,92,165,0.03); }
-.upload-zone input { display: none; }
-.upload-zone-icon { font-size: 20px; margin-bottom: 7px; opacity: 0.6; }
-.upload-zone-label { font-size: 12.5px; color: var(--text-muted); font-weight: 400; }
-.upload-zone-label strong { color: var(--navy); font-weight: 600; }
-.upload-filename { font-size: 12px; color: var(--success); margin-top: 7px; display: none; }
-.upload-filename.visible { display: block; }
-
-/* ── SUCCESS PAGE ── */
-.success-wrap {
-  text-align: center;
-  padding: 56px 24px;
-}
-.success-icon-wrap {
-  width: 72px; height: 72px;
-  background: rgba(46,125,82,0.1);
-  border: 2px solid var(--success);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 30px;
-  margin: 0 auto 24px;
-}
-.success-title { font-size: 28px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
-.success-sub { font-size: 13.5px; color: var(--text-muted); max-width: 500px; margin: 0 auto; line-height: 1.8; }
-
-/* ── ANALYZING OVERLAY ── */
-.analyzing-overlay {
+/* ── LOADING SPINNER ── */
+.spinner-overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(27,29,58,0.8);
+  background: rgba(27,29,58,0.6);
   z-index: 200;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
-  gap: 24px;
 }
-.analyzing-overlay.active { display: flex; }
-.analyzing-box {
+.spinner-overlay.active { display: flex; }
+.spinner-box {
   background: white;
   border-radius: 12px;
-  padding: 44px 52px;
+  padding: 40px 48px;
   text-align: center;
-  max-width: 340px;
-  width: 90%;
 }
-.analyzing-spinner {
-  width: 52px; height: 52px;
+.spinner {
+  width: 44px; height: 44px;
   border: 3px solid var(--border);
   border-top-color: var(--orange);
   border-radius: 50%;
   animation: spin 0.9s linear infinite;
-  margin: 0 auto 20px;
+  margin: 0 auto 16px;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-.analyzing-title { font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
-.analyzing-text { font-size: 12.5px; color: var(--text-muted); font-weight: 300; line-height: 1.6; }
-
-/* ── ERROR MESSAGES ── */
-.error-msg { font-size: 11px; color: var(--error); margin-top: 4px; display: none; }
-.error-msg.visible { display: block; }
-
-/* ── PROFIL CARDS ── */
-.profil-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-top: 8px;
-}
-
-.profil-card {
-  background: white;
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  padding: 32px 28px;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: center;
-}
-.profil-card:hover {
-  border-color: var(--violet);
-  box-shadow: 0 8px 24px rgba(97,92,165,0.12);
-  transform: translateY(-3px);
-}
-.profil-card-icon { font-size: 40px; margin-bottom: 16px; }
-.profil-card-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--navy);
-  margin-bottom: 10px;
-}
-.profil-card-desc {
-  font-size: 13px;
-  color: var(--text-muted);
-  line-height: 1.7;
-  margin-bottom: 20px;
-  font-weight: 400;
-}
-.profil-card-cta {
-  display: inline-block;
-  padding: 9px 22px;
-  background: var(--navy);
-  color: white;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  transition: background 0.2s;
-}
-.profil-card:hover .profil-card-cta { background: var(--orange); }
-
-/* ── NOTES TABLE ── */
-.notes-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-.notes-table th {
-  background: var(--navy);
-  color: white;
-  padding: 8px 10px;
-  font-size: 10.5px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  text-align: left;
-}
-.notes-table td {
-  border-bottom: 1px solid var(--border);
-  padding: 6px 6px;
-}
-.notes-table tr:last-child td { border-bottom: none; }
-.nt-matiere {
-  font-size: 13px !important;
-  padding: 7px 10px !important;
-}
-.nt-note {
-  width: 70px !important;
-  text-align: center !important;
-  padding: 7px 8px !important;
-  font-size: 13px !important;
-}
-.nt-moy {
-  width: 80px !important;
-  text-align: center !important;
-  padding: 7px 8px !important;
-  font-size: 13px !important;
-}
-.nt-moy-auto {
-  background: var(--bg) !important;
-  color: var(--violet) !important;
-  font-weight: 600 !important;
-  border-color: var(--border) !important;
-  cursor: default !important;
-}
-.notes-global-moy {
-  margin-top: 12px;
-  padding: 10px 14px;
-  background: rgba(97,92,165,0.07);
-  border-left: 3px solid var(--violet);
-  border-radius: 0 6px 6px 0;
-  font-size: 13px;
-  color: var(--navy);
-}
-
-@media (max-width: 600px) {
-  .profil-grid { grid-template-columns: 1fr; }
-  .nt-note { width: 55px !important; }
-}
+.spinner-text { font-size: 14px; color: var(--navy); font-weight: 500; }
 
 /* ── FOOTER ── */
 .site-footer {
@@ -821,60 +358,9 @@ textarea { resize: vertical; min-height: 80px; }
 @media (max-width: 600px) {
   .site-header { padding: 0 20px; }
   .hero-band { padding: 36px 20px 36px; }
-  .progress-wrap { padding: 14px 20px; }
-  .step-label { font-size: 9px; }
-  .main-wrap { padding: 28px 16px 60px; }
-  .form-grid { grid-template-columns: 1fr; }
-  .span-2 { grid-column: 1; }
-  .notes-grid { grid-template-columns: 1fr; }
-  .btn-row { flex-direction: column-reverse; }
-  .btn { width: 100%; text-align: center; }
-  .card { padding: 20px 18px; }
-  .result-body { padding: 20px; }
-  .result-header { padding: 18px 20px; }
+  .auth-section { margin: 28px auto; padding: 0 16px 60px; }
+  .auth-card { padding: 28px 20px; }
 }
-
-/* ── RANKING SYSTEM ── */
-.ranking-list { display: flex; flex-direction: column; gap: 8px; max-width: 600px; }
-.ranking-item {
-  display: flex; align-items: center; gap: 14px;
-  background: white; border: 1.5px solid var(--border); border-radius: 10px;
-  padding: 14px 18px; cursor: grab; transition: all 0.2s;
-  user-select: none;
-}
-.ranking-item:active { cursor: grabbing; box-shadow: 0 4px 16px rgba(27,29,58,0.12); }
-.ranking-item.drag-over { border-color: var(--orange); background: #fff8f0; }
-.ranking-num {
-  width: 28px; height: 28px; border-radius: 50%;
-  background: var(--navy); color: white; font-size: 13px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.ranking-label { flex: 1; font-weight: 500; font-size: 14px; }
-.ranking-arrows { display: flex; flex-direction: column; gap: 2px; }
-.arrow-btn {
-  width: 26px; height: 20px; border: 1px solid var(--border); border-radius: 4px;
-  background: white; cursor: pointer; font-size: 10px; display: flex;
-  align-items: center; justify-content: center; transition: all 0.15s;
-  color: var(--text-muted);
-}
-.arrow-btn:hover { border-color: var(--violet); color: var(--violet); background: #f5f5fb; }
-
-/* ── SELECT in notes table ── */
-select.nt-matiere {
-  width: 100%; padding: 7px 8px; border: 1px solid var(--border);
-  border-radius: 6px; font-family: inherit; font-size: 13px;
-  background: white; cursor: pointer; outline: none;
-}
-select.nt-matiere:focus { border-color: var(--violet); }
-
-/* ── LANG CARD required indicator ── */
-.lang-card.lang-missing { border: 2px solid var(--error); }
-.lang-card.lang-answered { border: 2px solid var(--success); }
-.lang-card .lang-required-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: var(--error); display: inline-block; margin-left: 8px;
-}
-.lang-card.lang-answered .lang-required-dot { background: var(--success); }
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -898,11 +384,10 @@ select.nt-matiere:focus { border-color: var(--violet); }
         <path fill="white" d="M368.45,33.33h3.44l11.78,29.99c.69,1.84,1.3,4.13,1.3,4.13h.15s.61-2.29,1.3-4.13l11.78-29.99h3.37l-14.99,38.25h-3.06l-15.07-38.25Z"/>
         <path fill="white" d="M419.48,32.41c10.4,0,15.61,8.19,15.61,17.44,0,.84-.15,2.07-.15,2.07h-30.68c0,11.09,7.5,17.44,16.37,17.44,7.34,0,11.86-4.82,11.86-4.82l1.76,2.68s-5.35,5.28-13.62,5.28c-10.79,0-19.74-7.8-19.74-19.97,0-12.93,8.8-20.12,18.59-20.12ZM431.72,48.94c-.38-9.33-5.97-13.54-12.32-13.54-7.04,0-13.54,4.59-14.92,13.54h27.23Z"/>
       </g>
-      <!-- Pictogramme panneaux -->
       <path fill="white" d="M84.64,55.74v-22.54h22.8l17.4-16.6L107.43,0H40.19v27.79h-22.78L0,44.4l17.41,16.6h22.78v27.96h67.24l17.4-16.6-17.41-16.61h-22.79ZM45.51,5.32h59.79l11.83,11.28-11.83,11.29h-59.79V5.32ZM19.53,55.68l-11.83-11.28,11.83-11.29h59.78v22.57H19.53ZM105.3,83.64h-59.79v-22.57h59.79l11.83,11.29-11.83,11.28Z"/>
     </svg>
   </div>
-  <div class="header-right">Études supérieures en Europe · 2026 – 2027</div>
+  <div class="header-right">Etudes superieures en Europe · 2026 – 2027</div>
 </header>
 
 <!-- HERO -->
@@ -913,1155 +398,186 @@ select.nt-matiere:focus { border-color: var(--violet); }
     <span></span><span></span><span></span><span></span><span></span>
     <span></span><span></span><span></span><span></span><span></span>
   </div>
-  <div class="hero-eyebrow">Études supérieures en Europe · 2026 – 2027</div>
-  <h1 class="hero-title"><em>Envole-toi</em> pour les meilleures<br/>universités de santé d'Europe !</h1>
-  <div class="hero-sub">Analyse personnalisée · Accompagnement individuel · Universités partenaires</div>
+  <div class="hero-eyebrow">Etudes superieures en Europe · 2026 – 2027</div>
+  <h1 class="hero-title"><em>Envole-toi</em> pour les meilleures<br/>universites de sante d'Europe !</h1>
+  <div class="hero-sub">Analyse personnalisee · Accompagnement individuel · Universites partenaires</div>
   <div class="hero-filieres">
-    <span class="fil-pill on">🩺 Médecine</span>
-    <span class="fil-pill on">🦷 Odontologie</span>
-    <span class="fil-pill on">💊 Pharmacie</span>
-    <span class="fil-pill on">🦽 Kinésithérapie</span>
-    <span class="fil-pill soon">✦ Autres filières — Bientôt disponibles</span>
+    <span class="fil-pill on">Medecine</span>
+    <span class="fil-pill on">Odontologie</span>
+    <span class="fil-pill on">Pharmacie</span>
+    <span class="fil-pill on">Kinesitherapie</span>
+    <span class="fil-pill soon">Autres filieres — Bientot disponibles</span>
   </div>
 </div>
 
-<!-- PROGRESS BAR -->
-<div class="progress-wrap">
-  <div class="progress-steps">
-    <div class="step-item active" id="prog-1">
-      <div class="step-num">1</div>
-      <div class="step-label">Votre profil</div>
+<!-- AUTH SECTION -->
+<div class="auth-section">
+  <div class="auth-tabs">
+    <button class="auth-tab active" onclick="switchTab('login')">Se connecter</button>
+    <button class="auth-tab" onclick="switchTab('signup')">S'inscrire</button>
+  </div>
+  <div class="auth-card">
+
+    <!-- LOGIN FORM -->
+    <div id="form-login" class="auth-form active">
+      <div class="auth-title">Connexion</div>
+      <div class="auth-subtitle">Accedez a votre espace candidat EDUMOVE</div>
+      <div class="auth-field">
+        <label>Adresse email <span class="req">*</span></label>
+        <input type="email" id="login-email" placeholder="exemple@email.com"/>
+      </div>
+      <div class="auth-field">
+        <label>Mot de passe <span class="req">*</span></label>
+        <input type="password" id="login-pass" placeholder="Votre mot de passe"/>
+      </div>
+      <button class="btn-auth" onclick="doLogin()">Se connecter</button>
+      <div class="auth-error" id="login-error"></div>
     </div>
-    <div class="step-item" id="prog-2">
-      <div class="step-num">2</div>
-      <div class="step-label">Analyse</div>
+
+    <!-- SIGNUP FORM -->
+    <div id="form-signup" class="auth-form">
+      <div class="auth-title">Creer un compte</div>
+      <div class="auth-subtitle">Inscrivez-vous pour demarrer votre candidature</div>
+      <div class="auth-field">
+        <label>Adresse email <span class="req">*</span></label>
+        <input type="email" id="signup-email" placeholder="exemple@email.com"/>
+      </div>
+      <div class="auth-field">
+        <label>Mot de passe <span class="req">*</span></label>
+        <input type="password" id="signup-pass" placeholder="Minimum 6 caracteres"/>
+      </div>
+      <div class="auth-field">
+        <label>Confirmer le mot de passe <span class="req">*</span></label>
+        <input type="password" id="signup-pass2" placeholder="Retapez votre mot de passe"/>
+      </div>
+      <button class="btn-auth" onclick="doSignup()">Creer mon compte</button>
+      <div class="auth-error" id="signup-error"></div>
+      <div class="auth-success" id="signup-success"></div>
     </div>
-    <div class="step-item" id="prog-3">
-      <div class="step-num">3</div>
-      <div class="step-label">Dossier</div>
-    </div>
-    <div class="step-item" id="prog-4">
-      <div class="step-num">4</div>
-      <div class="step-label">Confirmation</div>
-    </div>
+
   </div>
 </div>
 
-<main class="main-wrap">
-<!-- ══════════════════════════════════════════
-     SCREEN 0 — CHOIX DU PROFIL
-══════════════════════════════════════════ -->
-<div id="screen-0" class="screen active">
-
-  <div class="section-title">Bienvenue sur la plateforme EDUMOVE</div>
-  <div class="rule"></div>
-  <div class="section-desc">Avant de commencer, dites-nous où vous en êtes dans votre parcours. Cela nous permettra de personnaliser votre formulaire de candidature.</div>
-
-  <div class="profil-grid">
-
-    <div class="profil-card" id="pc-terminale" onclick="selectProfil('terminale')">
-      <div class="profil-card-icon">🎓</div>
-      <div class="profil-card-title">Je suis en Terminale</div>
-      <div class="profil-card-desc">Actuellement en classe de Terminale (année scolaire 2025–2026), je n'ai pas encore passé le baccalauréat.</div>
-      <div class="profil-card-cta">Commencer →</div>
-    </div>
-
-    <div class="profil-card" id="pc-reorientation" onclick="selectProfil('reorientation')">
-      <div class="profil-card-icon">🔄</div>
-      <div class="profil-card-title">Je suis en réorientation</div>
-      <div class="profil-card-desc">J'ai déjà commencé des études supérieures et je souhaite me réorienter vers une université européenne.</div>
-      <div class="profil-card-cta">Commencer →</div>
-    </div>
-
-  </div>
-
-</div>
-
-<!-- ══════════════════════════════════════════
-     SCREEN 1 — FORMULAIRE
-══════════════════════════════════════════ -->
-<div id="screen-1" class="screen">
-
-  <div class="section-title">Informations personnelles</div>
-  <div class="rule"></div>
-  <div class="section-desc">Complétez ce formulaire avec soin. Toutes les informations sont traitées de manière confidentielle par l'équipe EDUMOVE.</div>
-
-  <div class="form-grid">
-    <div class="field">
-      <label>Nom <span class="req">*</span></label>
-      <input type="text" id="nom" placeholder="Votre nom de famille"/>
-      <div class="error-msg" id="err-nom">Ce champ est requis.</div>
-    </div>
-    <div class="field">
-      <label>Prénom <span class="req">*</span></label>
-      <input type="text" id="prenom" placeholder="Votre prénom"/>
-      <div class="error-msg" id="err-prenom">Ce champ est requis.</div>
-    </div>
-    <div class="field">
-      <label>Adresse email <span class="req">*</span></label>
-      <input type="email" id="email" placeholder="exemple@email.com"/>
-      <div class="error-msg" id="err-email">Veuillez entrer un email valide.</div>
-    </div>
-    <div class="field">
-      <label>Téléphone <span class="req">*</span></label>
-      <input type="tel" id="tel" placeholder="+33 6 XX XX XX XX"/>
-      <div class="error-msg" id="err-tel">Ce champ est requis.</div>
-    </div>
-    <div class="field">
-      <label>Code postal <span class="req">*</span></label>
-      <input type="text" id="codepostal" placeholder="Ex : 75012" maxlength="5" oninput="lookupCity()"/>
-      <div class="error-msg" id="err-codepostal">Ce champ est requis.</div>
-    </div>
-    <div class="field">
-      <label>Ville</label>
-      <input type="text" id="ville" placeholder="Rempli automatiquement" readonly style="background:var(--bg);"/>
-    </div>
-  </div>
-
-  <!-- BLOC RÉORIENTATION -->
-  <div id="bloc-reorientation" style="display:none;">
-    <hr class="form-divider"/>
-    <div class="section-title" style="font-size:19px;">Situation actuelle</div>
-    <div class="rule"></div>
-    <div class="section-desc">Précisez votre cursus actuel afin que notre équipe puisse évaluer votre dossier de réorientation.</div>
-
-    <div class="form-grid">
-      <div class="field">
-        <label>Formation actuelle <span class="req">*</span></label>
-        <select id="reori-formation" onchange="toggleAutreFormation()">
-          <option value="">— Sélectionner —</option>
-          <option value="PASS">PASS (Parcours Accès Santé Spécifique)</option>
-          <option value="LAS">LAS (Licence Accès Santé)</option>
-          <option value="L1 Médecine étranger">L1 Médecine à l'étranger</option>
-          <option value="Licence autre">Licence (autre domaine)</option>
-          <option value="BTS/BUT">BTS / BUT</option>
-          <option value="Prépa">Classe préparatoire</option>
-          <option value="autre">Autre — préciser</option>
-        </select>
-        <div class="error-msg" id="err-reori-formation">Ce champ est requis.</div>
-      </div>
-      <div class="field">
-        <label>Établissement actuel</label>
-        <input type="text" id="reori-etablissement" placeholder="Nom de l'université ou école"/>
-      </div>
-    </div>
-    <div class="field" id="reori-autre-wrap" style="display:none;margin-top:-4px;">
-      <label>Précisez votre formation <span class="req">*</span></label>
-      <input type="text" id="reori-autre" placeholder="Décrivez votre formation actuelle"/>
-    </div>
-    <div class="form-grid" style="margin-top:16px;">
-      <div class="field">
-        <label>Année en cours</label>
-        <select id="reori-annee">
-          <option value="">— Sélectionner —</option>
-          <option value="1ère année">1ère année</option>
-          <option value="2ème année">2ème année</option>
-          <option value="3ème année">3ème année</option>
-          <option value="Plus">Plus de 3 ans</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Motif de réorientation</label>
-        <input type="text" id="reori-motif" placeholder="Ex : Échec PASS, projet médical à l'étranger…"/>
-      </div>
-    </div>
-  </div>
-
-  <hr class="form-divider"/>
-
-  <!-- NOTES PREMIÈRE -->
-  <div class="section-title" style="font-size:19px;">Notes de Première</div>
-  <div class="rule"></div>
-  <div class="section-desc">Renseignez vos notes de Première. Indiquez la matière et les moyennes trimestrielles connues.</div>
-
-  <div class="notes-group">
-    <div class="notes-group-title">Spécialités — Classe de Première</div>
-    <div style="overflow-x:auto;">
-    <table class="notes-table" id="table-premiere">
-      <thead>
-        <tr>
-          <th style="width:32%">Matière / Spécialité</th>
-          <th>T1</th>
-          <th>T2</th>
-          <th>T3</th>
-          <th>Moy. annuelle</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><select class="nt-matiere" id="p1-nom" onchange="updateTerminaleOptions()"><option value="">— Choisir —</option><option>Mathematiques</option><option>Physique-Chimie</option><option>SVT</option><option>Sciences de l'ingenieur (SI)</option><option>NSI (Numerique)</option><option>SES</option><option>HGGSP</option><option>HLP</option><option>LLCE Anglais</option><option>LLCE Espagnol</option><option>LLCE Autre</option><option>Arts</option><option>Biologie-Ecologie</option></select></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p1-t1" oninput="calcMoy('p1')"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p1-t2" oninput="calcMoy('p1')"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p1-t3" oninput="calcMoy('p1')"/></td>
-          <td><input type="number" class="nt-moy nt-moy-auto" placeholder="auto" id="p1-moy" readonly/></td>
-        </tr>
-        <tr>
-          <td><select class="nt-matiere" id="p2-nom" onchange="updateTerminaleOptions()"><option value="">— Choisir —</option><option>Mathematiques</option><option>Physique-Chimie</option><option>SVT</option><option>Sciences de l'ingenieur (SI)</option><option>NSI (Numerique)</option><option>SES</option><option>HGGSP</option><option>HLP</option><option>LLCE Anglais</option><option>LLCE Espagnol</option><option>LLCE Autre</option><option>Arts</option><option>Biologie-Ecologie</option></select></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p2-t1" oninput="calcMoy('p2')"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p2-t2" oninput="calcMoy('p2')"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p2-t3" oninput="calcMoy('p2')"/></td>
-          <td><input type="number" class="nt-moy nt-moy-auto" placeholder="auto" id="p2-moy" readonly/></td>
-        </tr>
-        <tr>
-          <td><select class="nt-matiere" id="p3-nom" onchange="updateTerminaleOptions()"><option value="">— Choisir —</option><option>Mathematiques</option><option>Physique-Chimie</option><option>SVT</option><option>Sciences de l'ingenieur (SI)</option><option>NSI (Numerique)</option><option>SES</option><option>HGGSP</option><option>HLP</option><option>LLCE Anglais</option><option>LLCE Espagnol</option><option>LLCE Autre</option><option>Arts</option><option>Biologie-Ecologie</option></select></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p3-t1" oninput="calcMoy('p3')"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p3-t2" oninput="calcMoy('p3')"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p3-t3" oninput="calcMoy('p3')"/></td>
-          <td><input type="number" class="nt-moy nt-moy-auto" placeholder="auto" id="p3-moy" readonly/></td>
-        </tr>
-      </tbody>
-    </table>
-    </div>
-    <div class="notes-global-moy" id="moy-premiere-wrap" style="display:none;">
-      Moyenne générale Première : <strong id="moy-premiere-val">—</strong>
-    </div>
-  </div>
-
-  <!-- NOTES TERMINALE -->
-  <div class="notes-group" style="margin-top:16px;" id="bloc-notes-terminale">
-    <div class="notes-group-title">Specialites conservees en Terminale <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(selectionnez les 2 specialites gardees parmi vos 3 de Premiere, puis renseignez les trimestres disponibles)</span></div>
-    <div class="error-msg" id="err-terminale-spe" style="margin-bottom:8px;">Veuillez selectionner vos 2 specialites de Terminale.</div>
-    <div id="terminale-checkboxes" class="checkbox-group" style="margin-bottom:16px;"></div>
-    <div style="overflow-x:auto;">
-    <table class="notes-table" id="table-terminale">
-      <thead>
-        <tr>
-          <th style="width:32%">Specialite gardee</th>
-          <th>T1</th>
-          <th>T2</th>
-          <th>T3</th>
-          <th>Moy. connue</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr id="term-row-1" style="display:none;">
-          <td><strong id="t1-nom-display"></strong><input type="hidden" id="t1-nom"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t1-t1" oninput="calcMoy('t1')"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t1-t2" oninput="calcMoy('t1')"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t1-t3" oninput="calcMoy('t1')"/></td>
-          <td><input type="number" class="nt-moy nt-moy-auto" placeholder="auto" id="t1-moy" readonly/></td>
-        </tr>
-        <tr id="term-row-2" style="display:none;">
-          <td><strong id="t2-nom-display"></strong><input type="hidden" id="t2-nom"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t2-t1" oninput="calcMoy('t2')"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t2-t2" oninput="calcMoy('t2')"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t2-t3" oninput="calcMoy('t2')"/></td>
-          <td><input type="number" class="nt-moy nt-moy-auto" placeholder="auto" id="t2-moy" readonly/></td>
-        </tr>
-      </tbody>
-    </table>
-    </div>
-    <div class="notes-global-moy" id="moy-terminale-wrap" style="display:none;">
-      Moyenne générale Terminale (connue) : <strong id="moy-terminale-val">—</strong>
-    </div>
-  </div>
-
-  <hr class="form-divider"/>
-
-  <!-- CLASSEMENT DESTINATIONS -->
-  <div class="section-title" style="font-size:19px;">Classement de vos preferences</div>
-  <div class="rule"></div>
-  <div class="section-desc">Classez vos preferences par ordre de priorite (glissez-deposez ou utilisez les fleches). EDUMOVE prepare les candidatures dans des villes accessibles en avion et a proximite de l'aeroport, pour faciliter vos futurs allers-retours avec la France.</div>
-
-  <div class="ranking-list" id="ranking-list">
-    <div class="ranking-item" data-value="pass_las" draggable="true">
-      <span class="ranking-num">1</span>
-      <span class="flag-icon">🇫🇷</span>
-      <span class="ranking-label">PASS / LAS via Parcoursup</span>
-      <span class="ranking-arrows">
-        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
-        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
-      </span>
-    </div>
-    <div class="ranking-item" data-value="roumanie" draggable="true">
-      <span class="ranking-num">2</span>
-      <span class="flag-icon">🇷🇴</span>
-      <span class="ranking-label">Roumanie</span>
-      <span class="ranking-arrows">
-        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
-        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
-      </span>
-    </div>
-    <div class="ranking-item" data-value="italie" draggable="true">
-      <span class="ranking-num">3</span>
-      <span class="flag-icon">🇮🇹</span>
-      <span class="ranking-label">Italie</span>
-      <span class="ranking-arrows">
-        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
-        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
-      </span>
-    </div>
-    <div class="ranking-item" data-value="portugal" draggable="true">
-      <span class="ranking-num">4</span>
-      <span class="flag-icon">🇵🇹</span>
-      <span class="ranking-label">Portugal</span>
-      <span class="ranking-arrows">
-        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
-        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
-      </span>
-    </div>
-    <div class="ranking-item" data-value="espagne" draggable="true">
-      <span class="ranking-num">5</span>
-      <span class="flag-icon">🇪🇸</span>
-      <span class="ranking-label">Espagne</span>
-      <span class="ranking-arrows">
-        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
-        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
-      </span>
-    </div>
-  </div>
-
-  <hr class="form-divider"/>
-
-  <!-- LANGUES — NOUVEAU SYSTÈME PAR NIVEAUX -->
-  <div class="section-title" style="font-size:19px;">Compétences linguistiques</div>
-  <div class="rule"></div>
-
-  <div class="lang-section-desc">
-    Indiquez votre niveau pour <strong>chaque langue</strong> (obligatoire). Pas d'inquietude si vous ne parlez pas la langue du pays vise — certaines universites partenaires proposent des programmes accessibles sans niveau minimum, avec un accompagnement linguistique integre.
-  </div>
-  <div class="error-msg" id="err-langues" style="margin-bottom:12px;">Veuillez indiquer votre niveau pour les 4 langues ci-dessous.</div>
-
-  <div class="lang-cards">
-
-    <!-- ESPAGNOL -->
-    <div class="lang-card" id="lc-espagnol">
-      <div class="lang-card-header" onclick="toggleLangCard('espagnol')">
-        <span class="lang-card-flag">🇪🇸</span>
-        <span class="lang-card-name">Espagnol</span>
-        <span class="lang-required-dot"></span><span class="lang-card-toggle" id="lct-espagnol">+</span>
-      </div>
-      <div class="lang-level-options" id="llo-espagnol">
-        <label class="level-option" onclick="selectLevel(this,'espagnol','b2')">
-          <input type="radio" name="lvl-espagnol" value="b2"/>
-          <div class="level-info">
-            <div class="level-name">Bilingue / Courant</div>
-            <div class="level-desc">Je m'exprime aisément, conversations complexes</div>
-          </div>
-          <span class="level-badge badge-b2">B2 +</span>
-        </label>
-        <label class="level-option" onclick="selectLevel(this,'espagnol','b1')">
-          <input type="radio" name="lvl-espagnol" value="b1"/>
-          <div class="level-info">
-            <div class="level-name">Intermédiaire</div>
-            <div class="level-desc">Je comprends les grandes lignes, notions correctes</div>
-          </div>
-          <span class="level-badge badge-b1">B1</span>
-        </label>
-        <label class="level-option" onclick="selectLevel(this,'espagnol','debut')">
-          <input type="radio" name="lvl-espagnol" value="debut"/>
-          <div class="level-info">
-            <div class="level-name">Débutant</div>
-            <div class="level-desc">Quelques bases scolaires uniquement</div>
-          </div>
-          <span class="level-badge badge-a">A1/A2</span>
-        </label>
-        <label class="level-option" onclick="selectLevel(this,'espagnol','aucun')">
-          <input type="radio" name="lvl-espagnol" value="aucun"/>
-          <div class="level-info">
-            <div class="level-name">Aucune connaissance</div>
-            <div class="level-desc">Je ne parle pas espagnol</div>
-          </div>
-          <span class="level-badge badge-none">—</span>
-        </label>
-      </div>
-    </div>
-
-    <!-- ANGLAIS -->
-    <div class="lang-card" id="lc-anglais">
-      <div class="lang-card-header" onclick="toggleLangCard('anglais')">
-        <span class="lang-card-flag">🇬🇧</span>
-        <span class="lang-card-name">Anglais</span>
-        <span class="lang-required-dot"></span><span class="lang-card-toggle" id="lct-anglais">+</span>
-      </div>
-      <div class="lang-level-options" id="llo-anglais">
-        <label class="level-option" onclick="selectLevel(this,'anglais','b2')">
-          <input type="radio" name="lvl-anglais" value="b2"/>
-          <div class="level-info">
-            <div class="level-name">Bilingue / Courant</div>
-            <div class="level-desc">Je m'exprime aisément en anglais</div>
-          </div>
-          <span class="level-badge badge-b2">B2 +</span>
-        </label>
-        <label class="level-option" onclick="selectLevel(this,'anglais','b1')">
-          <input type="radio" name="lvl-anglais" value="b1"/>
-          <div class="level-info">
-            <div class="level-name">Intermédiaire</div>
-            <div class="level-desc">Conversations courantes, compréhension correcte</div>
-          </div>
-          <span class="level-badge badge-b1">B1</span>
-        </label>
-        <label class="level-option" onclick="selectLevel(this,'anglais','debut')">
-          <input type="radio" name="lvl-anglais" value="debut"/>
-          <div class="level-info">
-            <div class="level-name">Débutant</div>
-            <div class="level-desc">Quelques bases scolaires</div>
-          </div>
-          <span class="level-badge badge-a">A1/A2</span>
-        </label>
-        <label class="level-option" onclick="selectLevel(this,'anglais','aucun')">
-          <input type="radio" name="lvl-anglais" value="aucun"/>
-          <div class="level-info">
-            <div class="level-name">Aucune connaissance</div>
-            <div class="level-desc">Je ne parle pas anglais</div>
-          </div>
-          <span class="level-badge badge-none">—</span>
-        </label>
-      </div>
-    </div>
-
-    <!-- ITALIEN -->
-    <div class="lang-card" id="lc-italien">
-      <div class="lang-card-header" onclick="toggleLangCard('italien')">
-        <span class="lang-card-flag">🇮🇹</span>
-        <span class="lang-card-name">Italien</span>
-        <span class="lang-required-dot"></span><span class="lang-card-toggle" id="lct-italien">+</span>
-      </div>
-      <div class="lang-level-options" id="llo-italien">
-        <label class="level-option" onclick="selectLevel(this,'italien','b2')">
-          <input type="radio" name="lvl-italien" value="b2"/>
-          <div class="level-info"><div class="level-name">Bilingue / Courant</div><div class="level-desc">Je m'exprime aisément en italien</div></div>
-          <span class="level-badge badge-b2">B2 +</span>
-        </label>
-        <label class="level-option" onclick="selectLevel(this,'italien','b1')">
-          <input type="radio" name="lvl-italien" value="b1"/>
-          <div class="level-info"><div class="level-name">Intermédiaire</div><div class="level-desc">Notions correctes</div></div>
-          <span class="level-badge badge-b1">B1</span>
-        </label>
-        <label class="level-option" onclick="selectLevel(this,'italien','debut')">
-          <input type="radio" name="lvl-italien" value="debut"/>
-          <div class="level-info"><div class="level-name">Débutant</div><div class="level-desc">Quelques bases</div></div>
-          <span class="level-badge badge-a">A1/A2</span>
-        </label>
-        <label class="level-option" onclick="selectLevel(this,'italien','aucun')">
-          <input type="radio" name="lvl-italien" value="aucun"/>
-          <div class="level-info"><div class="level-name">Aucune connaissance</div><div class="level-desc">Je ne parle pas italien</div></div>
-          <span class="level-badge badge-none">—</span>
-        </label>
-      </div>
-    </div>
-
-    <!-- PORTUGAIS -->
-    <div class="lang-card" id="lc-portugais">
-      <div class="lang-card-header" onclick="toggleLangCard('portugais')">
-        <span class="lang-card-flag">🇵🇹</span>
-        <span class="lang-card-name">Portugais</span>
-        <span class="lang-required-dot"></span><span class="lang-card-toggle" id="lct-portugais">+</span>
-      </div>
-      <div class="lang-level-options" id="llo-portugais">
-        <label class="level-option" onclick="selectLevel(this,'portugais','b2')">
-          <input type="radio" name="lvl-portugais" value="b2"/>
-          <div class="level-info"><div class="level-name">Bilingue / Courant</div><div class="level-desc">Je m'exprime aisément</div></div>
-          <span class="level-badge badge-b2">B2 +</span>
-        </label>
-        <label class="level-option" onclick="selectLevel(this,'portugais','b1')">
-          <input type="radio" name="lvl-portugais" value="b1"/>
-          <div class="level-info"><div class="level-name">Intermédiaire</div><div class="level-desc">Notions correctes</div></div>
-          <span class="level-badge badge-b1">B1</span>
-        </label>
-        <label class="level-option" onclick="selectLevel(this,'portugais','debut')">
-          <input type="radio" name="lvl-portugais" value="debut"/>
-          <div class="level-info"><div class="level-name">Débutant</div><div class="level-desc">Quelques bases</div></div>
-          <span class="level-badge badge-a">A1/A2</span>
-        </label>
-        <label class="level-option" onclick="selectLevel(this,'portugais','aucun')">
-          <input type="radio" name="lvl-portugais" value="aucun"/>
-          <div class="level-info"><div class="level-name">Aucune connaissance</div><div class="level-desc">Je ne parle pas portugais</div></div>
-          <span class="level-badge badge-none">—</span>
-        </label>
-      </div>
-    </div>
-
-    <!-- AUTRE -->
-    <div class="autre-lang-wrap">
-      <label>Autre langue :</label>
-      <input type="text" id="autre-langue" placeholder="Ex : Allemand – niveau B1, Arabe – courant…"/>
-    </div>
-
-  </div>
-
-  <div class="btn-row">
-    <button class="btn btn-primary" onclick="submitStep1()">Soumettre ma candidature →</button>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════
-     SCREEN 2 — RÉSULTAT D'ORIENTATION
-══════════════════════════════════════════ -->
-<div id="screen-2" class="screen">
-  <div class="section-title">Analyse de votre profil</div>
-  <div class="rule"></div>
-  <div class="section-desc">Voici les recommandations établies suite à l'étude de votre dossier par notre équipe pédagogique.</div>
-
-  <div id="result-card" class="result-card"></div>
-
-  <div class="btn-row">
-    <button class="btn btn-secondary" onclick="goBack(1)">← Modifier</button>
-    <button class="btn btn-primary" onclick="goToStep3()">Compléter mon dossier →</button>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════
-     SCREEN 3A — ITALIE (LINK)
-══════════════════════════════════════════ -->
-<div id="screen-3-italie" class="screen">
-  <div class="section-title">Candidature — LINK Campus University</div>
-  <div class="rule"></div>
-  <div class="section-desc">Rome, Italie · Université partenaire EDUMOVE</div>
-
-  <div class="alert alert-orange">
-    <strong>📅 Session d'admission à Paris :</strong> Un test d'évaluation est organisé à <strong>Paris le 15 avril 2025</strong>. Frais de participation : <strong>200 €</strong>. Votre dossier complet (formulaire + passeport) doit nous parvenir avant cette date.
-  </div>
-
-  <div class="form-grid">
-    <div class="field"><label>Nom <span class="req">*</span></label><input type="text" id="it-nom"/></div>
-    <div class="field"><label>Prénom <span class="req">*</span></label><input type="text" id="it-prenom"/></div>
-    <div class="field"><label>Email <span class="req">*</span></label><input type="email" id="it-email"/></div>
-    <div class="field"><label>Téléphone <span class="req">*</span></label><input type="tel" id="it-tel"/></div>
-    <div class="field span-2"><label>Adresse <span class="req">*</span></label><input type="text" id="it-adresse"/></div>
-  </div>
-
-  <div class="form-section-label">Pièces justificatives obligatoires</div>
-  <div class="form-grid one-col" style="gap:12px;">
-    <div class="field"><label>Copie du passeport <span class="req">*</span></label>
-      <div class="upload-zone" onclick="triggerUpload('up-it-pass')"><div class="upload-zone-icon">📄</div><div class="upload-zone-label"><strong>Cliquez pour joindre</strong> · PDF, JPG, PNG</div><input type="file" id="up-it-pass" accept=".pdf,.jpg,.jpeg,.png" onchange="showFilename(this,'fn-it-pass')"/><div class="upload-filename" id="fn-it-pass"></div></div>
-    </div>
-    <div class="field"><label>Bulletins de Première fusionnés <span class="req">*</span></label>
-      <div class="upload-zone" onclick="triggerUpload('up-it-bul')"><div class="upload-zone-icon">📋</div><div class="upload-zone-label"><strong>Cliquez pour joindre</strong> · PDF uniquement</div><input type="file" id="up-it-bul" accept=".pdf" onchange="showFilename(this,'fn-it-bul')"/><div class="upload-filename" id="fn-it-bul"></div></div>
-    </div>
-    <div class="field"><label>Formulaire d'inscription LINK <span class="req">*</span></label>
-      <div class="upload-zone" onclick="triggerUpload('up-it-form')"><div class="upload-zone-icon">📝</div><div class="upload-zone-label"><strong>Cliquez pour joindre</strong> le formulaire complété · PDF</div><input type="file" id="up-it-form" accept=".pdf" onchange="showFilename(this,'fn-it-form')"/><div class="upload-filename" id="fn-it-form"></div></div>
-    </div>
-  </div>
-
-  <div class="alert alert-navy" style="margin-top:24px;">ℹ️ Un conseiller EDUMOVE vous contactera par téléphone pour confirmer les modalités d'inscription et vous préciser les prochaines étapes.</div>
-
-  <div class="btn-row">
-    <button class="btn btn-secondary" onclick="goBack(2)">← Retour</button>
-    <button class="btn btn-orange" onclick="submitFinal()">Transmettre mon dossier →</button>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════
-     SCREEN 3B — ESPAGNE
-══════════════════════════════════════════ -->
-<div id="screen-3-espagne" class="screen">
-  <div class="section-title">Candidature — Universités espagnoles</div>
-  <div class="rule"></div>
-  <div class="section-desc">En fonction de votre profil linguistique, sélectionnez l'université qui correspond à votre projet.</div>
-
-  <div class="checkbox-group" id="uni-choix-group" style="margin-bottom:24px;"></div>
-
-  <div id="form-uem" style="display:none;">
-    <div class="alert alert-violet" style="margin-bottom:20px;">Vous candidatez à l'<strong>Universidad Europea de Madrid (UEM)</strong>.</div>
-    <div class="form-grid">
-      <div class="field"><label>Nom <span class="req">*</span></label><input type="text" id="uem-nom"/></div>
-      <div class="field"><label>Prénom <span class="req">*</span></label><input type="text" id="uem-prenom"/></div>
-      <div class="field"><label>Email <span class="req">*</span></label><input type="email" id="uem-email"/></div>
-      <div class="field"><label>Téléphone <span class="req">*</span></label><input type="tel" id="uem-tel"/></div>
-      <div class="field span-2"><label>Adresse <span class="req">*</span></label><input type="text" id="uem-adresse"/></div>
-      <div class="field"><label>Code postal <span class="req">*</span></label><input type="text" id="uem-cp"/></div>
-      <div class="field"><label>Ville <span class="req">*</span></label><input type="text" id="uem-ville"/></div>
-      <div class="field"><label>Langue de candidature <span class="req">*</span></label>
-        <select id="uem-langue"><option value="">— Sélectionner —</option><option value="espagnol">Espagnol</option><option value="anglais">Anglais</option></select>
-      </div>
-      <div class="field"><label>Filière souhaitée <span class="req">*</span></label><input type="text" id="uem-filiere" placeholder="Ex : Médecine, Odontologie…"/></div>
-    </div>
-    <div class="form-section-label">Pièces justificatives obligatoires</div>
-    <div class="form-grid one-col" style="gap:12px;">
-      <div class="field"><label>Rapport technique académique <span class="req">*</span></label>
-        <div class="upload-zone" onclick="triggerUpload('uem-d1')"><div class="upload-zone-icon">📊</div><div class="upload-zone-label"><strong>Joindre le document</strong> · PDF</div><input type="file" id="uem-d1" accept=".pdf" onchange="showFilename(this,'fn-uem1')"/><div class="upload-filename" id="fn-uem1"></div></div>
-      </div>
-      <div class="field"><label>Passeport <span class="req">*</span></label>
-        <div class="upload-zone" onclick="triggerUpload('uem-d2')"><div class="upload-zone-icon">📄</div><div class="upload-zone-label"><strong>Joindre le passeport</strong> · PDF, JPG</div><input type="file" id="uem-d2" accept=".pdf,.jpg,.jpeg,.png" onchange="showFilename(this,'fn-uem2')"/><div class="upload-filename" id="fn-uem2"></div></div>
-      </div>
-      <div class="field"><label>Bulletins de Première (2 ou 3, fusionnés en 1 PDF) <span class="req">*</span></label>
-        <div class="upload-zone" onclick="triggerUpload('uem-d3')"><div class="upload-zone-icon">📋</div><div class="upload-zone-label"><strong>Joindre les bulletins</strong> · PDF</div><input type="file" id="uem-d3" accept=".pdf" onchange="showFilename(this,'fn-uem3')"/><div class="upload-filename" id="fn-uem3"></div></div>
-      </div>
-    </div>
-    <label class="checkbox-item" style="margin-top:16px;" onclick="toggleCheck(this)">
-      <input type="checkbox" id="uem-test"/>
-      <span class="checkbox-label" style="font-size:13px;">Je souhaite passer les tests d'admission lors de la prochaine session disponible.</span>
-    </label>
-  </div>
-
-  <div id="form-ucjc" style="display:none;">
-    <div class="alert alert-violet" style="margin-bottom:20px;">Vous candidatez à l'<strong>Universidad Camilo José Cela (UCJC)</strong>.</div>
-    <div class="form-grid">
-      <div class="field"><label>Nom <span class="req">*</span></label><input type="text" id="ucjc-nom"/></div>
-      <div class="field"><label>Prénom <span class="req">*</span></label><input type="text" id="ucjc-prenom"/></div>
-      <div class="field"><label>Email <span class="req">*</span></label><input type="email" id="ucjc-email"/></div>
-      <div class="field"><label>Téléphone <span class="req">*</span></label><input type="tel" id="ucjc-tel"/></div>
-      <div class="field span-2"><label>Adresse <span class="req">*</span></label><input type="text" id="ucjc-adresse"/></div>
-      <div class="field"><label>Code postal <span class="req">*</span></label><input type="text" id="ucjc-cp"/></div>
-      <div class="field"><label>Ville <span class="req">*</span></label><input type="text" id="ucjc-ville"/></div>
-    </div>
-    <div class="form-section-label">Pièces justificatives obligatoires</div>
-    <div class="form-grid one-col" style="gap:12px;">
-      <div class="field"><label>Pièce d'identité ou passeport <span class="req">*</span></label>
-        <div class="upload-zone" onclick="triggerUpload('ucjc-d1')"><div class="upload-zone-icon">📄</div><div class="upload-zone-label"><strong>Joindre le document</strong> · PDF, JPG</div><input type="file" id="ucjc-d1" accept=".pdf,.jpg,.jpeg,.png" onchange="showFilename(this,'fn-ucjc1')"/><div class="upload-filename" id="fn-ucjc1"></div></div>
-      </div>
-      <div class="field"><label>Formulaire de candidature UCJC <span class="req">*</span></label>
-        <div class="upload-zone" onclick="triggerUpload('ucjc-d2')"><div class="upload-zone-icon">📝</div><div class="upload-zone-label"><strong>Formulaire complété</strong> · PDF</div><input type="file" id="ucjc-d2" accept=".pdf" onchange="showFilename(this,'fn-ucjc2')"/><div class="upload-filename" id="fn-ucjc2"></div></div>
-      </div>
-      <div class="field"><label>Relevés de notes du baccalauréat <span class="req">*</span></label>
-        <div class="upload-zone" onclick="triggerUpload('ucjc-d3')"><div class="upload-zone-icon">📋</div><div class="upload-zone-label"><strong>Joindre les relevés</strong> · PDF</div><input type="file" id="ucjc-d3" accept=".pdf" onchange="showFilename(this,'fn-ucjc3')"/><div class="upload-filename" id="fn-ucjc3"></div></div>
-      </div>
-      <div class="field"><label>Attestation B2 espagnol <span style="color:var(--text-muted);text-transform:none;font-weight:300;letter-spacing:0;">(si disponible)</span></label>
-        <div class="upload-zone" onclick="triggerUpload('ucjc-d4')"><div class="upload-zone-icon">🎓</div><div class="upload-zone-label"><strong>Joindre l'attestation</strong> · PDF, JPG</div><input type="file" id="ucjc-d4" accept=".pdf,.jpg,.jpeg,.png" onchange="showFilename(this,'fn-ucjc4')"/><div class="upload-filename" id="fn-ucjc4"></div></div>
-      </div>
-      <div class="field"><label>Lettre de motivation en espagnol <span class="req">*</span></label>
-        <div class="upload-zone" onclick="triggerUpload('ucjc-d5')"><div class="upload-zone-icon">✉️</div><div class="upload-zone-label"><strong>Joindre la lettre</strong> · PDF, DOCX</div><input type="file" id="ucjc-d5" accept=".pdf,.doc,.docx" onchange="showFilename(this,'fn-ucjc5')"/><div class="upload-filename" id="fn-ucjc5"></div></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="btn-row">
-    <button class="btn btn-secondary" onclick="goBack(2)">← Retour</button>
-    <button class="btn btn-orange" id="btn-submit-espagne" style="display:none;" onclick="submitFinal()">Transmettre mon dossier →</button>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════
-     SCREEN 4 — CONFIRMATION
-══════════════════════════════════════════ -->
-<div id="screen-4" class="screen">
-  <div class="success-wrap">
-    <div class="success-icon-wrap">✓</div>
-    <div class="success-title">Dossier transmis !</div>
-    <div class="success-sub">
-      Votre candidature a bien été reçue par l'équipe EDUMOVE.<br/>
-      Un e-mail de confirmation a été envoyé à votre adresse.<br/><br/>
-      Un conseiller vous contactera dans les <strong>48 heures ouvrées</strong> pour confirmer les prochaines étapes de votre parcours d'admission.
-    </div>
-    <div class="alert alert-success" style="margin-top:32px;text-align:left;max-width:480px;margin-left:auto;margin-right:auto;">
-      ✅ Dossier en cours de traitement · Conservez votre email de confirmation
-    </div>
-  </div>
-</div>
-
-</main>
-
-<!-- OVERLAY -->
-<div class="analyzing-overlay" id="analyzing-overlay">
-  <div class="analyzing-box">
-    <div class="analyzing-spinner"></div>
-    <div class="analyzing-title">Analyse en cours…</div>
-    <div class="analyzing-text">Notre équipe étudie votre profil académique et linguistique pour vous orienter au mieux.</div>
+<!-- SPINNER -->
+<div class="spinner-overlay" id="spinner">
+  <div class="spinner-box">
+    <div class="spinner"></div>
+    <div class="spinner-text">Chargement...</div>
   </div>
 </div>
 
 <footer class="site-footer">
-  © 2026 EDUMOVE · <a href="https://edumove.fr" target="_blank">edumove.fr</a> · Tous droits réservés
+  © 2026 EDUMOVE · <a href="https://edumove.fr" target="_blank">edumove.fr</a> · Tous droits reserves
 </footer>
 
 <script>
-// ── STATE ──
-const state = {
-  profil: '',
-  prenom:'', nom:'', email:'', tel:'', codepostal:'', ville:'',
-  score:0, langLevels:{}, destination:'', uniChoix:'',
-  ranking: ['pass_las','roumanie','italie','portugal','espagne'],
-  termSpe: []
-};
-
-// ── PROFIL SELECTION (Screen 0) ──
-function selectProfil(type) {
-  state.profil = type;
-  document.getElementById('bloc-reorientation').style.display = type === 'reorientation' ? 'block' : 'none';
-  showScreen('screen-1');
-  updateProgress(1);
-}
-
-function toggleAutreFormation() {
-  const val = document.getElementById('reori-formation').value;
-  document.getElementById('reori-autre-wrap').style.display = val === 'autre' ? 'block' : 'none';
-}
-
-// ── CITY LOOKUP FROM CODE POSTAL ──
-async function lookupCity() {
-  const cp = document.getElementById('codepostal').value.trim();
-  const villeEl = document.getElementById('ville');
-  if (cp.length === 5 && /^\d{5}$/.test(cp)) {
-    try {
-      const res = await fetch('https://geo.api.gouv.fr/communes?codePostal=' + cp + '&fields=nom&limit=1');
-      const data = await res.json();
-      villeEl.value = data.length > 0 ? data[0].nom : '';
-    } catch(e) { villeEl.value = ''; }
-  } else { villeEl.value = ''; }
-}
-
-// ── TERMINALE OPTIONS from Première ──
-function updateTerminaleOptions() {
-  const spes = ['p1-nom','p2-nom','p3-nom'].map(id => document.getElementById(id).value).filter(v => v);
-  const container = document.getElementById('terminale-checkboxes');
-  container.innerHTML = '';
-  state.termSpe = [];
-  document.getElementById('term-row-1').style.display = 'none';
-  document.getElementById('term-row-2').style.display = 'none';
-  if (spes.length < 2) return;
-  spes.forEach(spe => {
-    const label = document.createElement('label');
-    label.className = 'checkbox-item';
-    label.innerHTML = '<input type="checkbox" value="' + spe + '" onchange="toggleTermSpe(this)"/><span class="checkbox-label">' + spe + '</span>';
-    container.appendChild(label);
-  });
-}
-
-function toggleTermSpe(cb) {
-  const checked = Array.from(document.querySelectorAll('#terminale-checkboxes input:checked'));
-  if (checked.length > 2) { cb.checked = false; return; }
-  state.termSpe = checked.map(c => c.value);
-  // Update table rows
-  const row1 = document.getElementById('term-row-1');
-  const row2 = document.getElementById('term-row-2');
-  if (state.termSpe[0]) {
-    row1.style.display = '';
-    document.getElementById('t1-nom').value = state.termSpe[0];
-    document.getElementById('t1-nom-display').textContent = state.termSpe[0];
-  } else { row1.style.display = 'none'; }
-  if (state.termSpe[1]) {
-    row2.style.display = '';
-    document.getElementById('t2-nom').value = state.termSpe[1];
-    document.getElementById('t2-nom-display').textContent = state.termSpe[1];
-  } else { row2.style.display = 'none'; }
-  // Update checkbox visual
-  document.querySelectorAll('#terminale-checkboxes .checkbox-item').forEach(el => {
-    el.classList.toggle('selected', el.querySelector('input').checked);
-  });
-}
-
-// ── RANKING (drag & arrows) ──
-function moveRank(btn, dir) {
-  const item = btn.closest('.ranking-item');
-  const list = document.getElementById('ranking-list');
-  const items = Array.from(list.children);
-  const idx = items.indexOf(item);
-  if (idx + dir < 0 || idx + dir >= items.length) return;
-  if (dir === -1) list.insertBefore(item, items[idx - 1]);
-  else list.insertBefore(items[idx + 1], item);
-  updateRankNums();
-}
-
-function updateRankNums() {
-  const items = document.querySelectorAll('#ranking-list .ranking-item');
-  state.ranking = [];
-  items.forEach((item, i) => {
-    item.querySelector('.ranking-num').textContent = i + 1;
-    state.ranking.push(item.dataset.value);
-  });
-}
-
-// Drag & drop for ranking
-document.addEventListener('DOMContentLoaded', () => {
-  const list = document.getElementById('ranking-list');
-  let dragItem = null;
-  list.addEventListener('dragstart', e => {
-    dragItem = e.target.closest('.ranking-item');
-    if (dragItem) dragItem.style.opacity = '0.5';
-  });
-  list.addEventListener('dragend', e => {
-    if (dragItem) dragItem.style.opacity = '1';
-    document.querySelectorAll('.ranking-item').forEach(i => i.classList.remove('drag-over'));
-    dragItem = null;
-  });
-  list.addEventListener('dragover', e => {
-    e.preventDefault();
-    const target = e.target.closest('.ranking-item');
-    if (target && target !== dragItem) {
-      document.querySelectorAll('.ranking-item').forEach(i => i.classList.remove('drag-over'));
-      target.classList.add('drag-over');
+// ── AUTH STATE ──
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    showSpinner();
+    // Check if admin — redirect to admin
+    const adminDoc = await db.collection('admins').doc(user.email).get();
+    if (adminDoc.exists) {
+      window.location.href = 'admin.html';
+      return;
     }
-  });
-  list.addEventListener('drop', e => {
-    e.preventDefault();
-    const target = e.target.closest('.ranking-item');
-    if (target && target !== dragItem && dragItem) {
-      const items = Array.from(list.children);
-      const dragIdx = items.indexOf(dragItem);
-      const targetIdx = items.indexOf(target);
-      if (dragIdx < targetIdx) list.insertBefore(dragItem, target.nextSibling);
-      else list.insertBefore(dragItem, target);
-      updateRankNums();
+    // Check if student has a candidature
+    const snap = await db.collection('candidatures').where('userId', '==', user.uid).limit(1).get();
+    if (!snap.empty) {
+      window.location.href = 'espace.html';
+    } else {
+      window.location.href = 'candidature.html';
     }
-    document.querySelectorAll('.ranking-item').forEach(i => i.classList.remove('drag-over'));
-  });
+  }
 });
 
-// ── NOTES CALC (auto-moyenne par ligne) ──
-function calcMoy(prefix) {
-  const t1 = parseFloat(document.getElementById(prefix+'-t1')?.value);
-  const t2 = parseFloat(document.getElementById(prefix+'-t2')?.value);
-  const t3 = parseFloat(document.getElementById(prefix+'-t3')?.value);
-  const vals = [t1,t2,t3].filter(n => !isNaN(n));
-  const moyEl = document.getElementById(prefix+'-moy');
-  moyEl.value = vals.length > 0 ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2) : '';
-  updateGlobalMoy();
-}
-
-function updateGlobalMoy() {
-  const moysPrem = ['p1','p2','p3'].map(p => parseFloat(document.getElementById(p+'-moy')?.value)).filter(n => !isNaN(n));
-  if (moysPrem.length > 0) {
-    document.getElementById('moy-premiere-val').textContent = (moysPrem.reduce((a,b)=>a+b,0)/moysPrem.length).toFixed(2) + ' / 20';
-    document.getElementById('moy-premiere-wrap').style.display = 'block';
+// ── TABS ──
+function switchTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+  if (tab === 'login') {
+    document.querySelector('.auth-tab:first-child').classList.add('active');
+    document.getElementById('form-login').classList.add('active');
   } else {
-    document.getElementById('moy-premiere-wrap').style.display = 'none';
+    document.querySelector('.auth-tab:last-child').classList.add('active');
+    document.getElementById('form-signup').classList.add('active');
   }
-  const moysTerm = ['t1','t2'].map(p => parseFloat(document.getElementById(p+'-moy')?.value)).filter(n => !isNaN(n));
-  if (moysTerm.length > 0) {
-    document.getElementById('moy-terminale-val').textContent = (moysTerm.reduce((a,b)=>a+b,0)/moysTerm.length).toFixed(2) + ' / 20';
-    document.getElementById('moy-terminale-wrap').style.display = 'block';
-  } else {
-    document.getElementById('moy-terminale-wrap').style.display = 'none';
+  // Clear errors
+  document.querySelectorAll('.auth-error, .auth-success').forEach(e => { e.classList.remove('visible'); e.textContent = ''; });
+}
+
+// ── LOGIN ──
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  errEl.classList.remove('visible');
+
+  if (!email || !pass) { showAuthError(errEl, 'Veuillez remplir tous les champs.'); return; }
+
+  try {
+    showSpinner();
+    await auth.signInWithEmailAndPassword(email, pass);
+    // onAuthStateChanged will handle redirect
+  } catch (err) {
+    hideSpinner();
+    const msgs = {
+      'auth/user-not-found': 'Aucun compte avec cet email.',
+      'auth/wrong-password': 'Mot de passe incorrect.',
+      'auth/invalid-email': 'Email invalide.',
+      'auth/invalid-credential': 'Identifiants incorrects.',
+      'auth/too-many-requests': 'Trop de tentatives. Reessayez plus tard.'
+    };
+    showAuthError(errEl, msgs[err.code] || 'Erreur de connexion.');
   }
 }
 
-// ── LANG CARD TOGGLE ──
-function toggleLangCard(lang) {
-  const card = document.getElementById('lc-'+lang);
-  const isOpen = card.classList.contains('open');
-  ['espagnol','anglais','italien','portugais'].forEach(l => {
-    document.getElementById('lc-'+l).classList.remove('open');
-    document.getElementById('lct-'+l).textContent = '+';
-  });
-  if (!isOpen) {
-    card.classList.add('open');
-    document.getElementById('lct-'+lang).textContent = '+';
-  }
-}
+// ── SIGNUP ──
+async function doSignup() {
+  const email = document.getElementById('signup-email').value.trim();
+  const pass = document.getElementById('signup-pass').value;
+  const pass2 = document.getElementById('signup-pass2').value;
+  const errEl = document.getElementById('signup-error');
+  const successEl = document.getElementById('signup-success');
+  errEl.classList.remove('visible');
+  successEl.classList.remove('visible');
 
-// ── SELECT LEVEL ──
-function selectLevel(el, lang, val) {
-  const options = el.closest('.lang-level-options').querySelectorAll('.level-option');
-  options.forEach(o => { o.classList.remove('selected'); o.querySelector('input').checked = false; });
-  el.classList.add('selected');
-  el.querySelector('input').checked = true;
-  state.langLevels[lang] = val;
-  const lc = document.getElementById('lc-'+lang);
-  const badge = { b2:'B2+', b1:'B1', debut:'A1/A2', aucun:'—' }[val];
-  const badgeClass = { b2:'badge-b2', b1:'badge-b1', debut:'badge-a', aucun:'badge-none' }[val];
-  let existing = lc.querySelector('.lang-card-header .level-badge');
-  if (!existing) {
-    existing = document.createElement('span');
-    lc.querySelector('.lang-card-header').insertBefore(existing, lc.querySelector('.lang-card-toggle'));
-  }
-  existing.className = 'level-badge ' + badgeClass;
-  existing.textContent = badge;
-  lc.classList.remove('lang-missing');
-  lc.classList.add('lang-answered');
-}
+  if (!email || !pass || !pass2) { showAuthError(errEl, 'Veuillez remplir tous les champs.'); return; }
+  if (pass.length < 6) { showAuthError(errEl, 'Le mot de passe doit contenir au moins 6 caracteres.'); return; }
+  if (pass !== pass2) { showAuthError(errEl, 'Les mots de passe ne correspondent pas.'); return; }
 
-// ── ORIENTATION ALGO ──
-function orient(score, levels) {
-  const esp = levels['espagnol'] || 'aucun';
-  const eng = levels['anglais'] || 'aucun';
-  if (score >= 13) {
-    if (esp === 'b2') return { dest:'espagne', uni:'UCJC + UEM', level:'fort' };
-    if (eng === 'b2' || eng === 'b1') return { dest:'espagne', uni:'UEM', level:'fort' };
-    return { dest:'italie', uni:'LINK Campus University', level:'fort' };
+  try {
+    showSpinner();
+    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+    // Create user doc in Firestore
+    await db.collection('users').doc(cred.user.uid).set({
+      email: email,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    // onAuthStateChanged will redirect to candidature.html
+  } catch (err) {
+    hideSpinner();
+    const msgs = {
+      'auth/email-already-in-use': 'Un compte existe deja avec cet email.',
+      'auth/invalid-email': 'Adresse email invalide.',
+      'auth/weak-password': 'Mot de passe trop faible (minimum 6 caracteres).'
+    };
+    showAuthError(errEl, msgs[err.code] || 'Erreur lors de la creation du compte.');
   }
-  if (score >= 10) {
-    if (esp === 'b2') return { dest:'espagne', uni:'UCJC + UEM', level:'moyen' };
-    if (eng === 'b2' || eng === 'b1') return { dest:'espagne', uni:'UEM', level:'moyen' };
-    return { dest:'italie', uni:'LINK Campus University', level:'moyen' };
-  }
-  return { dest:'italie', uni:'LINK Campus University', level:'faible' };
 }
 
 // ── HELPERS ──
-function selectRadio(el, name) {
-  document.querySelectorAll(`[name="${name}"]`).forEach(r => r.closest('.checkbox-item').classList.remove('selected'));
-  el.classList.add('selected');
+function showAuthError(el, msg) {
+  el.textContent = msg;
+  el.classList.add('visible');
 }
-function toggleCheck(el) {
-  const cb = el.querySelector('input[type="checkbox"]');
-  setTimeout(() => { if(cb.checked) el.classList.add('selected'); else el.classList.remove('selected'); }, 0);
-}
-function triggerUpload(id) { document.getElementById(id).click(); }
-function showFilename(input, fnId) {
-  const el = document.getElementById(fnId);
-  if (input.files && input.files[0]) { el.textContent = '✓ ' + input.files[0].name; el.classList.add('visible'); }
-}
-function showErr(id, show) { document.getElementById(id)?.classList.toggle('visible', show); }
-function markField(id, invalid) { document.getElementById(id)?.classList.toggle('invalid', invalid); }
-function v(id) { return (document.getElementById(id)?.value||'').trim(); }
+function showSpinner() { document.getElementById('spinner').classList.add('active'); }
+function hideSpinner() { document.getElementById('spinner').classList.remove('active'); }
 
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo({top:0, behavior:'smooth'});
-}
-function updateProgress(step) {
-  for(let i=1;i<=4;i++) {
-    const el = document.getElementById('prog-'+i);
-    el.classList.remove('active','done');
-    if(i<step) el.classList.add('done');
-    else if(i===step) el.classList.add('active');
-  }
-}
-function goBack(s) {
-  if(s === 0) { showScreen('screen-0'); updateProgress(0); }
-  else { showScreen('screen-'+s); updateProgress(s); }
-}
-
-function calcScore() {
-  // Priorite aux notes de Terminale si renseignees, sinon Premiere
-  const moysTerm = ['t1','t2'].map(p => parseFloat(document.getElementById(p+'-moy')?.value)).filter(n => !isNaN(n));
-  if (moysTerm.length > 0) return moysTerm.reduce((a,b)=>a+b,0)/moysTerm.length;
-  const moysPrem = ['p1','p2','p3'].map(p => parseFloat(document.getElementById(p+'-moy')?.value)).filter(n => !isNaN(n));
-  return moysPrem.length > 0 ? moysPrem.reduce((a,b)=>a+b,0)/moysPrem.length : 0;
-}
-
-// ── STEP 1 SUBMIT ──
-function submitStep1() {
-  let valid = true;
-  ['nom','prenom','email','tel','codepostal'].forEach(f => {
-    const empty = !v(f);
-    markField(f, empty);
-    showErr('err-'+f, empty);
-    if(empty) valid = false;
-  });
-  const emailVal = v('email');
-  if(emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
-    markField('email',true); showErr('err-email',true); valid=false;
-  }
-  if(state.profil === 'reorientation' && !v('reori-formation')) {
-    showErr('err-reori-formation', true); valid=false;
-  }
-  // Au moins une matiere de premiere renseignee
-  const hasPrem = ['p1','p2','p3'].some(p => v(p+'-nom'));
-  if (!hasPrem) {
-    document.getElementById('table-premiere').closest('.notes-group').style.outline = '2px solid var(--error)';
-    valid = false;
-  } else {
-    document.getElementById('table-premiere').closest('.notes-group').style.outline = '';
-  }
-  // Toutes les langues obligatoires
-  const langues = ['espagnol','anglais','italien','portugais'];
-  const allLangs = langues.every(l => state.langLevels[l]);
-  showErr('err-langues', !allLangs);
-  if (!allLangs) {
-    valid = false;
-    langues.forEach(l => {
-      const lc = document.getElementById('lc-'+l);
-      if (!state.langLevels[l]) lc.classList.add('lang-missing');
-    });
-  }
-  // Update ranking
-  updateRankNums();
-
-  if(!valid) {
-    const first = document.querySelector('.invalid') || document.querySelector('.lang-missing') || document.querySelector('[style*="outline"]');
-    first?.scrollIntoView({behavior:'smooth',block:'center'});
-    return;
-  }
-
-  state.prenom = v('prenom'); state.nom = v('nom');
-  state.email = v('email'); state.tel = v('tel');
-  state.codepostal = v('codepostal'); state.ville = v('ville');
-  state.score = calcScore();
-
-  document.getElementById('analyzing-overlay').classList.add('active');
-  setTimeout(() => {
-    document.getElementById('analyzing-overlay').classList.remove('active');
-    const ori = orient(state.score, state.langLevels);
-    state.destination = ori.dest;
-    state.uni = ori.uni;
-    document.getElementById('result-card').innerHTML = buildResultCard(state.prenom, state.nom, state.score, ori);
-    showScreen('screen-2');
-    updateProgress(2);
-  }, 2600);
-}
-
-// ── RESULT CARD ──
-function buildResultCard(prenom, nom, score, ori) {
-  const isItalie = ori.dest === 'italie';
-  const flag = isItalie ? '🇮🇹' : '🇪🇸';
-  const country = isItalie ? 'Italie' : 'Espagne';
-  const summaryMap = {
-    fort: isItalie
-      ? `Suite à l'analyse approfondie de votre dossier, notre équipe vous oriente vers la <strong>LINK Campus University</strong> de Rome. Ce programme est particulièrement adapté à votre profil et vous permettra d'intégrer un cursus de santé de qualité européenne.`
-      : `Votre dossier présente un profil <strong>solide et compétitif</strong> pour les universités espagnoles partenaires. L'Espagne est la destination stratégique qui correspond à votre niveau académique.`,
-    moyen: isItalie
-      ? `Votre profil est compatible avec notre partenaire <strong>LINK Campus University</strong>. Ce programme propose un accompagnement adapté et une intégration progressive vers les études de santé en Europe.`
-      : `Votre profil vous ouvre les portes des universités partenaires espagnoles. Avec un accompagnement personnalisé, votre candidature a de sérieux atouts.`,
-    faible: `Suite à l'étude de votre dossier, notre équipe vous oriente vers la <strong>LINK Campus University</strong> de Rome, qui propose un programme d'intégration progressive particulièrement adapté à votre situation.`
-  };
-  const stepsItalie = `
-    <li><span class="step-dot"></span>Un test d'admission est organisé à <strong>Paris le 15 avril 2025</strong> (frais : 200 €)</li>
-    <li><span class="step-dot"></span>Complétez le formulaire ci-dessous et joignez votre passeport</li>
-    <li><span class="step-dot"></span>Un conseiller EDUMOVE vous appellera pour confirmer les modalités</li>
-    <li><span class="step-dot"></span>Votre dossier sera transmis à notre équipe dédiée</li>`;
-  const stepsEspagne = `
-    <li><span class="step-dot"></span>Sélectionnez l'université espagnole correspondant à votre profil</li>
-    <li><span class="step-dot"></span>Rassemblez les pièces justificatives requises</li>
-    <li><span class="step-dot"></span>Transmettez votre dossier complet via ce portail</li>
-    <li><span class="step-dot"></span>Notre équipe vous contactera pour confirmer votre candidature</li>`;
-  return `
-    <div class="result-header">
-      <div class="result-icon">${flag}</div>
-      <div>
-        <div class="result-eyebrow">Recommandation EDUMOVE · Confidentiel</div>
-        <div class="result-name">${prenom} ${nom} — Orientation ${country}</div>
-      </div>
-    </div>
-    <div class="result-body">
-      <div class="result-summary">${summaryMap[ori.level]}</div>
-      <div class="destination-badge">
-        <div class="destination-flag">${flag}</div>
-        <div>
-          <div class="destination-country">${country} · Établissement recommandé</div>
-          <div class="destination-uni">${ori.uni}</div>
-        </div>
-      </div>
-      <div class="next-steps-label">Prochaines étapes</div>
-      <ul class="steps-list">${isItalie ? stepsItalie : stepsEspagne}</ul>
-    </div>`;
-}
-
-// ── STEP 3 ──
-function goToStep3() {
-  if (state.destination === 'italie') {
-    ['nom','prenom','email','tel'].forEach(f => {
-      const el = document.getElementById('it-'+f);
-      if(el) el.value = state[f]||'';
-    });
-    const itAddr = document.getElementById('it-adresse');
-    if(itAddr) itAddr.value = state.ville || '';
-    showScreen('screen-3-italie');
-    updateProgress(3);
-  } else {
-    buildEspagneChoix();
-    showScreen('screen-3-espagne');
-    updateProgress(3);
-  }
-}
-
-function buildEspagneChoix() {
-  const hasEspB2 = (state.langLevels['espagnol']||'aucun') === 'b2';
-  const group = document.getElementById('uni-choix-group');
-  group.innerHTML = '';
-  const unis = hasEspB2
-    ? [
-        { val:'ucjc', label:'Universidad Camilo José Cela (UCJC)', sub:'Madrid · Candidature en espagnol', flag:'🇪🇸' },
-        { val:'uem',  label:'Universidad Europea de Madrid (UEM)',  sub:'Madrid · Candidature en espagnol ou anglais', flag:'🇪🇸' }
-      ]
-    : [{ val:'uem', label:'Universidad Europea de Madrid (UEM)', sub:'Madrid · Candidature en anglais', flag:'🇪🇸' }];
-  unis.forEach(u => {
-    const label = document.createElement('label');
-    label.className = 'checkbox-item';
-    label.innerHTML = `<input type="radio" name="uni-choix" value="${u.val}"/><span class="flag-icon">${u.flag}</span><span class="checkbox-label"><strong>${u.label}</strong><br/><span style="font-size:12px;color:var(--text-muted);font-weight:400;">${u.sub}</span></span>`;
-    label.addEventListener('click', () => selectUni(label, u.val));
-    group.appendChild(label);
-  });
-  ['uem','ucjc'].forEach(u => {
-    ['nom','prenom','email','tel'].forEach(f => {
-      const el = document.getElementById(u+'-'+f);
-      if(el) el.value = state[f]||'';
-    });
-    const cpEl = document.getElementById(u+'-cp');
-    if(cpEl) cpEl.value = state.codepostal||'';
-    const villeEl = document.getElementById(u+'-ville');
-    if(villeEl) villeEl.value = state.ville||'';
-  });
-}
-
-function selectUni(el, val) {
-  document.querySelectorAll('[name="uni-choix"]').forEach(r => r.closest('.checkbox-item').classList.remove('selected'));
-  el.classList.add('selected');
-  state.uniChoix = val;
-  document.getElementById('form-uem').style.display = val==='uem' ? 'block' : 'none';
-  document.getElementById('form-ucjc').style.display = val==='ucjc' ? 'block' : 'none';
-  document.getElementById('btn-submit-espagne').style.display = 'inline-block';
-}
-
-async function submitFinal() {
-  document.getElementById('analyzing-overlay').classList.add('active');
-  try {
-    // Collecter les notes de Première
-    const notesPremiere = ['p1','p2','p3'].map(p => ({
-      nom: v(p+'-nom'), t1: v(p+'-t1'), t2: v(p+'-t2'), t3: v(p+'-t3'), moy: v(p+'-moy')
-    })).filter(n => n.nom);
-    // Collecter les notes de Terminale
-    const notesTerminale = ['t1','t2'].map(p => ({
-      nom: v(p+'-nom'), t1: v(p+'-t1'), t2: v(p+'-t2'), t3: v(p+'-t3'), moy: v(p+'-moy')
-    })).filter(n => n.nom);
-
-    // Données université spécifiques
-    let universiteData = {};
-    if (state.destination === 'italie') {
-      universiteData = { type:'link', nom:v('it-nom'), prenom:v('it-prenom'), email:v('it-email'), tel:v('it-tel'), adresse:v('it-adresse') };
-    } else if (state.uniChoix === 'uem') {
-      universiteData = { type:'uem', nom:v('uem-nom'), prenom:v('uem-prenom'), email:v('uem-email'), tel:v('uem-tel'), adresse:v('uem-adresse'), cp:v('uem-cp'), ville:v('uem-ville'), langue:v('uem-langue'), filiere:v('uem-filiere'), test:!!document.getElementById('uem-test')?.checked };
-    } else if (state.uniChoix === 'ucjc') {
-      universiteData = { type:'ucjc', nom:v('ucjc-nom'), prenom:v('ucjc-prenom'), email:v('ucjc-email'), tel:v('ucjc-tel'), adresse:v('ucjc-adresse'), cp:v('ucjc-cp'), ville:v('ucjc-ville') };
-    }
-
-    // Générer un ID unique pour ce dossier
-    const docRef = db.collection('candidatures').doc();
-    const dossierId = docRef.id;
-
-    // Upload des fichiers
-    const documents = {};
-    const fileUploads = [];
-    const fileMap = state.destination === 'italie'
-      ? [['up-it-pass','passeport'],['up-it-bul','bulletins'],['up-it-form','formulaire']]
-      : state.uniChoix === 'uem'
-        ? [['uem-d1','rapport_technique'],['uem-d2','passeport'],['uem-d3','bulletins']]
-        : [['ucjc-d1','identite'],['ucjc-d2','formulaire'],['ucjc-d3','releves'],['ucjc-d4','attestation_b2'],['ucjc-d5','lettre_motivation']];
-
-    for (const [inputId, docName] of fileMap) {
-      const input = document.getElementById(inputId);
-      if (input && input.files && input.files[0]) {
-        const file = input.files[0];
-        const path = `candidatures/${dossierId}/${docName}_${file.name}`;
-        fileUploads.push(
-          storage.ref(path).put(file).then(snap => snap.ref.getDownloadURL()).then(url => { documents[docName] = url; })
-        );
-      }
-    }
-    await Promise.all(fileUploads);
-
-    // Sauvegarder dans Firestore
-    await docRef.set({
-      nom: state.nom,
-      prenom: state.prenom,
-      email: state.email,
-      tel: state.tel,
-      codePostal: state.codepostal,
-      ville: state.ville,
-      profil: state.profil,
-      reorientation: state.profil === 'reorientation' ? {
-        formation: v('reori-formation'),
-        etablissement: v('reori-etablissement'),
-        annee: v('reori-annee'),
-        motif: v('reori-motif')
-      } : null,
-      notesPremiere,
-      notesTerminale,
-      moyennePremiere: v('moy-premiere-val'),
-      moyenneTerminale: v('moy-terminale-val'),
-      score: state.score,
-      langues: { ...state.langLevels, autre: v('autre-langue') },
-      classementDestinations: state.ranking,
-      destination: state.destination,
-      universite: state.uni,
-      niveau: orient(state.score, state.langLevels).level,
-      universiteData,
-      documents,
-      status: 'en_attente',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    document.getElementById('analyzing-overlay').classList.remove('active');
-    showScreen('screen-4');
-    updateProgress(4);
-  } catch (err) {
-    document.getElementById('analyzing-overlay').classList.remove('active');
-    console.error('Erreur soumission:', err);
-    alert('Une erreur est survenue lors de la transmission. Veuillez réessayer.');
-  }
-}
+// Enter key handlers
+document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('login-email').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('login-pass').focus(); });
+document.getElementById('signup-pass2').addEventListener('keydown', e => { if (e.key === 'Enter') doSignup(); });
 </script>
 </body>
 </html>

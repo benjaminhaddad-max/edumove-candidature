@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Edumove — Candidature</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --orange: #ec680a;
+  --navy: #1b1d3a;
+  --violet: #615ca5;
+  --violet-light: #8883c0;
+  --cream: #fafafa;
+  --white: #ffffff;
+  --border: #e2e2ef;
+  --text: #1b1d3a;
+  --text-muted: #7b7b9a;
+  --success: #2e7d52;
+  --error: #d63031;
+  --bg: #f5f5fb;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ── HEADER ── */
+.site-header {
+  background: var(--navy);
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 66px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(27,29,58,0.4);
+}
+.logo-zone { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.logo-svg { height: 32px; width: auto; }
+.header-right { display: flex; align-items: center; gap: 16px; }
+.header-user { font-size: 12px; color: rgba(255,255,255,0.6); }
+.btn-logout {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-logout:hover { background: rgba(255,255,255,0.2); }
+
+/* ── MAIN ── */
+.main-wrap {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 44px 24px 80px;
+}
+
+/* ── SECTION TITLES ── */
+.section-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+.rule {
+  width: 36px; height: 3px;
+  background: var(--orange);
+  border-radius: 2px;
+  margin: 8px 0 16px;
+}
+.section-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+/* ── CARD ── */
+.card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 28px 32px;
+  margin-bottom: 20px;
+}
+
+/* ── FORM GRID ── */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 22px;
+  margin-bottom: 4px;
+}
+.form-grid.one-col { grid-template-columns: 1fr; }
+.span-2 { grid-column: 1/-1; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+
+label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text);
+}
+label .req { color: var(--orange); margin-left: 2px; }
+
+input[type="text"],input[type="email"],input[type="tel"],
+input[type="number"],select,textarea {
+  width: 100%;
+  padding: 10px 13px;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  color: var(--text);
+  font-family: 'Poppins', sans-serif;
+  font-size: 13.5px;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+}
+input:focus,select:focus,textarea:focus {
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px rgba(97,92,165,0.1);
+}
+input.invalid,select.invalid { border-color: var(--error); }
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 5 5-5z' fill='%237b7b9a'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+  padding-right: 34px;
+  cursor: pointer;
+}
+
+.field-hint { font-size: 11px; color: var(--text-muted); font-style: italic; }
+
+/* ── FORM DIVIDER ── */
+.form-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 28px 0;
+}
+.form-section-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--violet);
+  padding: 18px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.form-section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── PROFIL SELECTION ── */
+.profil-select {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.profil-option {
+  flex: 1;
+  padding: 16px 20px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+  background: white;
+}
+.profil-option:hover { border-color: var(--violet); }
+.profil-option.selected { border-color: var(--orange); background: rgba(236,104,10,0.04); }
+.profil-option-icon { font-size: 28px; margin-bottom: 8px; }
+.profil-option-label { font-size: 14px; font-weight: 600; color: var(--navy); }
+.profil-option-desc { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+/* ── NOTES GROUP ── */
+.notes-group {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px 22px;
+}
+.notes-group-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--navy);
+  margin-bottom: 16px;
+}
+
+/* ── NOTES TABLE ── */
+.notes-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.notes-table th {
+  background: var(--navy);
+  color: white;
+  padding: 8px 10px;
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  text-align: left;
+}
+.notes-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 6px 6px;
+}
+.notes-table tr:last-child td { border-bottom: none; }
+.nt-matiere {
+  font-size: 13px !important;
+  padding: 7px 10px !important;
+}
+.nt-note {
+  width: 70px !important;
+  text-align: center !important;
+  padding: 7px 8px !important;
+  font-size: 13px !important;
+}
+.nt-moy {
+  width: 80px !important;
+  text-align: center !important;
+  padding: 7px 8px !important;
+  font-size: 13px !important;
+}
+.nt-moy-auto {
+  background: var(--bg) !important;
+  color: var(--violet) !important;
+  font-weight: 600 !important;
+  border-color: var(--border) !important;
+  cursor: default !important;
+}
+.notes-global-moy {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: rgba(97,92,165,0.07);
+  border-left: 3px solid var(--violet);
+  border-radius: 0 6px 6px 0;
+  font-size: 13px;
+  color: var(--navy);
+}
+
+select.nt-matiere {
+  width: 100%; padding: 7px 8px; border: 1px solid var(--border);
+  border-radius: 6px; font-family: inherit; font-size: 13px;
+  background: white; cursor: pointer; outline: none;
+}
+select.nt-matiere:focus { border-color: var(--violet); }
+
+/* ── CHECKBOX ITEMS ── */
+.checkbox-group { display: flex; flex-direction: column; gap: 8px; }
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+.checkbox-item:hover { border-color: var(--violet); background: rgba(97,92,165,0.03); }
+.checkbox-item.selected { border-color: var(--navy); background: rgba(27,29,58,0.04); }
+.checkbox-item input[type="checkbox"] {
+  width: 16px; height: 16px;
+  accent-color: var(--navy);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.checkbox-label { font-size: 14px; font-weight: 500; color: var(--text); }
+
+/* ── LANGUE CARDS ── */
+.lang-section-desc {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+  background: rgba(97,92,165,0.07);
+  border-left: 3px solid var(--violet);
+  padding: 10px 14px;
+  border-radius: 0 6px 6px 0;
+  line-height: 1.65;
+}
+.lang-cards { display: flex; flex-direction: column; gap: 12px; }
+.lang-card {
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.lang-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+}
+.lang-card-flag { font-size: 20px; flex-shrink: 0; }
+.lang-card-name { font-size: 14px; font-weight: 600; color: var(--navy); flex: 1; }
+.lang-card-toggle {
+  font-size: 18px;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+}
+.lang-card.open .lang-card-toggle { transform: rotate(45deg); color: var(--orange); }
+.lang-card.open { border-color: var(--violet); }
+.lang-level-options {
+  display: none;
+  padding: 0 16px 14px;
+  gap: 8px;
+  flex-direction: column;
+}
+.lang-card.open .lang-level-options { display: flex; }
+.level-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+.level-option:hover { border-color: var(--violet); background: rgba(97,92,165,0.04); }
+.level-option.selected { border-color: var(--orange); background: rgba(236,104,10,0.06); }
+.level-option input[type="radio"] {
+  width: 15px; height: 15px;
+  accent-color: var(--orange);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.level-info { flex: 1; }
+.level-name { font-size: 13px; font-weight: 600; color: var(--navy); }
+.level-desc { font-size: 11px; color: var(--text-muted); font-weight: 300; }
+.level-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.05em;
+}
+.badge-b2 { background: rgba(46,125,82,0.12); color: #2e7d52; }
+.badge-b1 { background: rgba(97,92,165,0.12); color: var(--violet); }
+.badge-a { background: rgba(236,104,10,0.12); color: var(--orange); }
+.badge-none { background: rgba(123,123,154,0.12); color: var(--text-muted); }
+.autre-lang-wrap {
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.autre-lang-wrap label { text-transform: none; font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--navy); white-space: nowrap; }
+.autre-lang-wrap input { flex: 1; margin: 0; }
+
+/* ── LANG REQUIRED ── */
+.lang-card.lang-missing { border: 2px solid var(--error); }
+.lang-card.lang-answered { border: 2px solid var(--success); }
+.lang-card .lang-required-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--error); display: inline-block; margin-left: 8px;
+}
+.lang-card.lang-answered .lang-required-dot { background: var(--success); }
+
+/* ── RANKING SYSTEM ── */
+.ranking-list { display: flex; flex-direction: column; gap: 8px; max-width: 600px; }
+.ranking-item {
+  display: flex; align-items: center; gap: 14px;
+  background: white; border: 1.5px solid var(--border); border-radius: 10px;
+  padding: 14px 18px; cursor: grab; transition: all 0.2s;
+  user-select: none;
+}
+.ranking-item:active { cursor: grabbing; box-shadow: 0 4px 16px rgba(27,29,58,0.12); }
+.ranking-item.drag-over { border-color: var(--orange); background: #fff8f0; }
+.ranking-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--navy); color: white; font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.ranking-label { flex: 1; font-weight: 500; font-size: 14px; }
+.flag-icon { font-size: 20px; }
+.ranking-arrows { display: flex; flex-direction: column; gap: 2px; }
+.arrow-btn {
+  width: 26px; height: 20px; border: 1px solid var(--border); border-radius: 4px;
+  background: white; cursor: pointer; font-size: 10px; display: flex;
+  align-items: center; justify-content: center; transition: all 0.15s;
+  color: var(--text-muted);
+}
+.arrow-btn:hover { border-color: var(--violet); color: var(--violet); background: #f5f5fb; }
+
+/* ── BUTTONS ── */
+.btn-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+.btn {
+  padding: 12px 28px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  border: none;
+  border-radius: 7px;
+  transition: all 0.2s;
+}
+.btn-primary { background: var(--navy); color: white; }
+.btn-primary:hover { background: var(--violet); box-shadow: 0 4px 16px rgba(97,92,165,0.35); transform: translateY(-1px); }
+.btn-orange { background: var(--orange); color: white; }
+.btn-orange:hover { background: #d45c08; box-shadow: 0 4px 16px rgba(236,104,10,0.35); transform: translateY(-1px); }
+
+/* ── ERROR MESSAGES ── */
+.error-msg { font-size: 11px; color: var(--error); margin-top: 4px; display: none; }
+.error-msg.visible { display: block; }
+
+/* ── ALERTS ── */
+.alert {
+  padding: 13px 16px;
+  border-left: 3px solid;
+  border-radius: 0 6px 6px 0;
+  margin-bottom: 22px;
+  font-size: 13px;
+  line-height: 1.65;
+  font-weight: 400;
+}
+.alert-orange { border-color: var(--orange); background: rgba(236,104,10,0.07); color: #8a3e02; }
+
+/* ── OVERLAY ── */
+.analyzing-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(27,29,58,0.8);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 24px;
+}
+.analyzing-overlay.active { display: flex; }
+.analyzing-box {
+  background: white;
+  border-radius: 12px;
+  padding: 44px 52px;
+  text-align: center;
+  max-width: 340px;
+  width: 90%;
+}
+.analyzing-spinner {
+  width: 52px; height: 52px;
+  border: 3px solid var(--border);
+  border-top-color: var(--orange);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+  margin: 0 auto 20px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.analyzing-title { font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+.analyzing-text { font-size: 12.5px; color: var(--text-muted); font-weight: 300; line-height: 1.6; }
+
+/* ── FOOTER ── */
+.site-footer {
+  background: var(--navy);
+  padding: 18px 40px;
+  text-align: center;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.04em;
+}
+.site-footer a { color: var(--orange); text-decoration: none; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .site-header { padding: 0 20px; }
+  .main-wrap { padding: 28px 16px 60px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .span-2 { grid-column: 1; }
+  .btn-row { flex-direction: column-reverse; }
+  .btn { width: 100%; text-align: center; }
+  .card { padding: 20px 18px; }
+  .profil-select { flex-direction: column; }
+  .nt-note { width: 55px !important; }
+}
+</style>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
+<script src="firebase-config.js"></script>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="logo-zone" onclick="window.location.href='index.html'">
+    <svg class="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 435.08 88.95">
+      <g>
+        <path fill="white" d="M151.8,17.57h31.36v6.58h-23.79v16.91h19.35v6.58h-19.35v17.37h25.09v6.58h-32.67V17.57Z"/>
+        <path fill="white" d="M202.98,31.95c8.95,0,11.93,6.12,11.93,6.12h.15s-.15-1.15-.15-2.6v-17.9h7.42v54.01h-7.04v-3.67c0-1.53.08-2.6.08-2.6h-.15s-3.14,7.19-12.7,7.19c-10.48,0-17.06-8.26-17.06-20.27s7.27-20.27,17.52-20.27ZM203.97,66.07c5.74,0,11.17-4.05,11.17-13.92,0-6.89-3.6-13.77-10.94-13.77-6.12,0-11.17,5.05-11.17,13.85s4.51,13.85,10.94,13.85Z"/>
+        <path fill="white" d="M227.3,32.87h7.42v23.1c0,5.36,1.07,9.64,7.27,9.64,7.88,0,12.55-6.96,12.55-14.61v-18.13h7.42v38.71h-7.19v-5.13c0-1.61.15-2.83.15-2.83h-.15c-1.61,3.82-6.66,8.87-14.23,8.87-8.72,0-13.23-4.59-13.23-14.84v-24.79Z"/>
+        <path fill="white" d="M268.39,33.33h3.21v6.73c0,1.76-.31,3.14-.31,3.14h.15c1.91-5.74,8.72-10.79,14.69-10.79,7.65,0,11.25,3.6,12.09,10.4h.15c2.14-5.35,7.96-10.4,14.53-10.4,9.87,0,12.78,5.81,12.78,14.92v24.25h-3.21v-23.1c0-7.19-1.45-13.08-9.56-13.08-6.35,0-11.78,5.66-13.46,11.63-.54,1.76-.76,3.67-.76,5.89v18.67h-3.21v-23.1c0-6.58-.92-13.08-9.33-13.08-6.81,0-12.16,5.97-13.92,12.32-.46,1.61-.61,3.37-.61,5.2v18.67h-3.21v-38.25Z"/>
+        <path fill="white" d="M349.48,32.41c10.94,0,19.81,8.64,19.81,19.81s-8.87,20.27-19.81,20.27-19.81-8.87-19.81-20.27,8.87-19.81,19.81-19.81ZM349.48,69.36c9.1,0,16.45-7.42,16.45-17.14s-7.34-16.68-16.45-16.68-16.45,7.19-16.45,16.68,7.34,17.14,16.45,17.14Z"/>
+        <path fill="white" d="M368.45,33.33h3.44l11.78,29.99c.69,1.84,1.3,4.13,1.3,4.13h.15s.61-2.29,1.3-4.13l11.78-29.99h3.37l-14.99,38.25h-3.06l-15.07-38.25Z"/>
+        <path fill="white" d="M419.48,32.41c10.4,0,15.61,8.19,15.61,17.44,0,.84-.15,2.07-.15,2.07h-30.68c0,11.09,7.5,17.44,16.37,17.44,7.34,0,11.86-4.82,11.86-4.82l1.76,2.68s-5.35,5.28-13.62,5.28c-10.79,0-19.74-7.8-19.74-19.97,0-12.93,8.8-20.12,18.59-20.12ZM431.72,48.94c-.38-9.33-5.97-13.54-12.32-13.54-7.04,0-13.54,4.59-14.92,13.54h27.23Z"/>
+      </g>
+      <path fill="white" d="M84.64,55.74v-22.54h22.8l17.4-16.6L107.43,0H40.19v27.79h-22.78L0,44.4l17.41,16.6h22.78v27.96h67.24l17.4-16.6-17.41-16.61h-22.79ZM45.51,5.32h59.79l11.83,11.28-11.83,11.29h-59.79V5.32ZM19.53,55.68l-11.83-11.28,11.83-11.29h59.78v22.57H19.53ZM105.3,83.64h-59.79v-22.57h59.79l11.83,11.29-11.83,11.28Z"/>
+    </svg>
+  </div>
+  <div class="header-right" id="header-right">
+    <span class="header-user" id="header-user"></span>
+    <button class="btn-logout" onclick="logout()">Deconnexion</button>
+  </div>
+</header>
+
+<main class="main-wrap">
+
+  <div class="section-title">Formulaire de candidature</div>
+  <div class="rule"></div>
+  <div class="section-desc">Completez ce formulaire avec soin. Toutes les informations sont traitees de maniere confidentielle par l'equipe EDUMOVE.</div>
+
+  <!-- PROFIL SELECTION -->
+  <div class="form-section-label">Votre situation</div>
+  <div class="profil-select">
+    <div class="profil-option" onclick="selectProfil('terminale', this)">
+      <div class="profil-option-icon">🎓</div>
+      <div class="profil-option-label">Terminale</div>
+      <div class="profil-option-desc">Annee scolaire 2025-2026</div>
+    </div>
+    <div class="profil-option" onclick="selectProfil('reorientation', this)">
+      <div class="profil-option-icon">🔄</div>
+      <div class="profil-option-label">Reorientation</div>
+      <div class="profil-option-desc">Deja en etudes superieures</div>
+    </div>
+  </div>
+  <div class="error-msg" id="err-profil">Veuillez selectionner votre situation.</div>
+
+  <hr class="form-divider"/>
+
+  <!-- INFOS PERSONNELLES -->
+  <div class="form-section-label">Informations personnelles</div>
+  <div class="form-grid">
+    <div class="field">
+      <label>Nom <span class="req">*</span></label>
+      <input type="text" id="nom" placeholder="Votre nom de famille"/>
+      <div class="error-msg" id="err-nom">Ce champ est requis.</div>
+    </div>
+    <div class="field">
+      <label>Prenom <span class="req">*</span></label>
+      <input type="text" id="prenom" placeholder="Votre prenom"/>
+      <div class="error-msg" id="err-prenom">Ce champ est requis.</div>
+    </div>
+    <div class="field">
+      <label>Adresse email <span class="req">*</span></label>
+      <input type="email" id="email" placeholder="exemple@email.com"/>
+      <div class="error-msg" id="err-email">Veuillez entrer un email valide.</div>
+    </div>
+    <div class="field">
+      <label>Telephone <span class="req">*</span></label>
+      <input type="tel" id="tel" placeholder="+33 6 XX XX XX XX"/>
+      <div class="error-msg" id="err-tel">Ce champ est requis.</div>
+    </div>
+    <div class="field">
+      <label>Code postal <span class="req">*</span></label>
+      <input type="text" id="codepostal" placeholder="Ex : 75012" maxlength="5" oninput="lookupCity()"/>
+      <div class="error-msg" id="err-codepostal">Ce champ est requis.</div>
+    </div>
+    <div class="field">
+      <label>Ville</label>
+      <input type="text" id="ville" placeholder="Rempli automatiquement" readonly style="background:var(--bg);"/>
+    </div>
+  </div>
+
+  <!-- BLOC REORIENTATION -->
+  <div id="bloc-reorientation" style="display:none;">
+    <hr class="form-divider"/>
+    <div class="form-section-label">Situation actuelle</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Formation actuelle <span class="req">*</span></label>
+        <select id="reori-formation" onchange="toggleAutreFormation()">
+          <option value="">— Selectionner —</option>
+          <option value="PASS">PASS (Parcours Acces Sante Specifique)</option>
+          <option value="LAS">LAS (Licence Acces Sante)</option>
+          <option value="L1 Medecine etranger">L1 Medecine a l'etranger</option>
+          <option value="Licence autre">Licence (autre domaine)</option>
+          <option value="BTS/BUT">BTS / BUT</option>
+          <option value="Prepa">Classe preparatoire</option>
+          <option value="autre">Autre — preciser</option>
+        </select>
+        <div class="error-msg" id="err-reori-formation">Ce champ est requis.</div>
+      </div>
+      <div class="field">
+        <label>Etablissement actuel</label>
+        <input type="text" id="reori-etablissement" placeholder="Nom de l'universite ou ecole"/>
+      </div>
+    </div>
+    <div class="field" id="reori-autre-wrap" style="display:none;margin-top:12px;">
+      <label>Precisez votre formation <span class="req">*</span></label>
+      <input type="text" id="reori-autre" placeholder="Decrivez votre formation actuelle"/>
+    </div>
+    <div class="form-grid" style="margin-top:16px;">
+      <div class="field">
+        <label>Annee en cours</label>
+        <select id="reori-annee">
+          <option value="">— Selectionner —</option>
+          <option value="1ere annee">1ere annee</option>
+          <option value="2eme annee">2eme annee</option>
+          <option value="3eme annee">3eme annee</option>
+          <option value="Plus">Plus de 3 ans</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Motif de reorientation</label>
+        <input type="text" id="reori-motif" placeholder="Ex : Echec PASS, projet medical..."/>
+      </div>
+    </div>
+  </div>
+
+  <hr class="form-divider"/>
+
+  <!-- NOTES PREMIERE -->
+  <div class="form-section-label">Notes de Premiere</div>
+  <div class="section-desc" style="margin-bottom:16px;">Renseignez vos notes de Premiere. Indiquez la matiere et les moyennes trimestrielles connues.</div>
+
+  <div class="notes-group">
+    <div class="notes-group-title">Specialites — Classe de Premiere</div>
+    <div style="overflow-x:auto;">
+    <table class="notes-table" id="table-premiere">
+      <thead>
+        <tr>
+          <th style="width:32%">Matiere / Specialite</th>
+          <th>T1</th>
+          <th>T2</th>
+          <th>T3</th>
+          <th>Moy. annuelle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><select class="nt-matiere" id="p1-nom" onchange="updateTerminaleOptions()"><option value="">— Choisir —</option><option>Mathematiques</option><option>Physique-Chimie</option><option>SVT</option><option>Sciences de l'ingenieur (SI)</option><option>NSI (Numerique)</option><option>SES</option><option>HGGSP</option><option>HLP</option><option>LLCE Anglais</option><option>LLCE Espagnol</option><option>LLCE Autre</option><option>Arts</option><option>Biologie-Ecologie</option></select></td>
+          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p1-t1" oninput="calcMoy('p1')"/></td>
+          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p1-t2" oninput="calcMoy('p1')"/></td>
+          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p1-t3" oninput="calcMoy('p1')"/></td>
+          <td><input type="number" class="nt-moy nt-moy-auto" placeholder="auto" id="p1-moy" readonly/></td>
+        </tr>
+        <tr>
+          <td><select class="nt-matiere" id="p2-nom" onchange="updateTerminaleOptions()"><option value="">— Choisir —</option><option>Mathematiques</option><option>Physique-Chimie</option><option>SVT</option><option>Sciences de l'ingenieur (SI)</option><option>NSI (Numerique)</option><option>SES</option><option>HGGSP</option><option>HLP</option><option>LLCE Anglais</option><option>LLCE Espagnol</option><option>LLCE Autre</option><option>Arts</option><option>Biologie-Ecologie</option></select></td>
+          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p2-t1" oninput="calcMoy('p2')"/></td>
+          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p2-t2" oninput="calcMoy('p2')"/></td>
+          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p2-t3" oninput="calcMoy('p2')"/></td>
+          <td><input type="number" class="nt-moy nt-moy-auto" placeholder="auto" id="p2-moy" readonly/></td>
+        </tr>
+        <tr>
+          <td><select class="nt-matiere" id="p3-nom" onchange="updateTerminaleOptions()"><option value="">— Choisir —</option><option>Mathematiques</option><option>Physique-Chimie</option><option>SVT</option><option>Sciences de l'ingenieur (SI)</option><option>NSI (Numerique)</option><option>SES</option><option>HGGSP</option><option>HLP</option><option>LLCE Anglais</option><option>LLCE Espagnol</option><option>LLCE Autre</option><option>Arts</option><option>Biologie-Ecologie</option></select></td>
+          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p3-t1" oninput="calcMoy('p3')"/></td>
+          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p3-t2" oninput="calcMoy('p3')"/></td>
+          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p3-t3" oninput="calcMoy('p3')"/></td>
+          <td><input type="number" class="nt-moy nt-moy-auto" placeholder="auto" id="p3-moy" readonly/></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="notes-global-moy" id="moy-premiere-wrap" style="display:none;">
+      Moyenne generale Premiere : <strong id="moy-premiere-val">—</strong>
+    </div>
+  </div>
+
+  <!-- NOTES TERMINALE -->
+  <div class="notes-group" style="margin-top:16px;" id="bloc-notes-terminale">
+    <div class="notes-group-title">Specialites conservees en Terminale <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(selectionnez les 2 specialites gardees parmi vos 3 de Premiere, puis renseignez les trimestres disponibles)</span></div>
+    <div class="error-msg" id="err-terminale-spe" style="margin-bottom:8px;">Veuillez selectionner vos 2 specialites de Terminale.</div>
+    <div id="terminale-checkboxes" class="checkbox-group" style="margin-bottom:16px;"></div>
+    <div style="overflow-x:auto;">
+    <table class="notes-table" id="table-terminale">
+      <thead>
+        <tr>
+          <th style="width:32%">Specialite gardee</th>
+          <th>T1</th>
+          <th>T2</th>
+          <th>T3</th>
+          <th>Moy. connue</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="term-row-1" style="display:none;">
+          <td><strong id="t1-nom-display"></strong><input type="hidden" id="t1-nom"/></td>
+          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t1-t1" oninput="calcMoy('t1')"/></td>
+          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t1-t2" oninput="calcMoy('t1')"/></td>
+          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t1-t3" oninput="calcMoy('t1')"/></td>
+          <td><input type="number" class="nt-moy nt-moy-auto" placeholder="auto" id="t1-moy" readonly/></td>
+        </tr>
+        <tr id="term-row-2" style="display:none;">
+          <td><strong id="t2-nom-display"></strong><input type="hidden" id="t2-nom"/></td>
+          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t2-t1" oninput="calcMoy('t2')"/></td>
+          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t2-t2" oninput="calcMoy('t2')"/></td>
+          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t2-t3" oninput="calcMoy('t2')"/></td>
+          <td><input type="number" class="nt-moy nt-moy-auto" placeholder="auto" id="t2-moy" readonly/></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="notes-global-moy" id="moy-terminale-wrap" style="display:none;">
+      Moyenne generale Terminale (connue) : <strong id="moy-terminale-val">—</strong>
+    </div>
+  </div>
+
+  <hr class="form-divider"/>
+
+  <!-- CLASSEMENT DESTINATIONS -->
+  <div class="form-section-label">Classement de vos preferences</div>
+  <div class="section-desc" style="margin-bottom:16px;">Classez vos preferences par ordre de priorite (glissez-deposez ou utilisez les fleches). EDUMOVE prepare les candidatures dans des villes accessibles en avion et a proximite de l'aeroport, pour faciliter vos futurs allers-retours avec la France.</div>
+
+  <div class="ranking-list" id="ranking-list">
+    <div class="ranking-item" data-value="pass_las" draggable="true">
+      <span class="ranking-num">1</span>
+      <span class="flag-icon">🇫🇷</span>
+      <span class="ranking-label">PASS / LAS via Parcoursup</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
+      </span>
+    </div>
+    <div class="ranking-item" data-value="roumanie" draggable="true">
+      <span class="ranking-num">2</span>
+      <span class="flag-icon">🇷🇴</span>
+      <span class="ranking-label">Roumanie</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
+      </span>
+    </div>
+    <div class="ranking-item" data-value="italie" draggable="true">
+      <span class="ranking-num">3</span>
+      <span class="flag-icon">🇮🇹</span>
+      <span class="ranking-label">Italie</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
+      </span>
+    </div>
+    <div class="ranking-item" data-value="portugal" draggable="true">
+      <span class="ranking-num">4</span>
+      <span class="flag-icon">🇵🇹</span>
+      <span class="ranking-label">Portugal</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
+      </span>
+    </div>
+    <div class="ranking-item" data-value="espagne" draggable="true">
+      <span class="ranking-num">5</span>
+      <span class="flag-icon">🇪🇸</span>
+      <span class="ranking-label">Espagne</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
+      </span>
+    </div>
+  </div>
+
+  <hr class="form-divider"/>
+
+  <!-- LANGUES -->
+  <div class="form-section-label">Competences linguistiques</div>
+  <div class="lang-section-desc">
+    Indiquez votre niveau pour <strong>chaque langue</strong> (obligatoire). Pas d'inquietude si vous ne parlez pas la langue du pays vise — certaines universites partenaires proposent des programmes accessibles sans niveau minimum, avec un accompagnement linguistique integre.
+  </div>
+  <div class="error-msg" id="err-langues" style="margin-bottom:12px;">Veuillez indiquer votre niveau pour les 4 langues ci-dessous.</div>
+
+  <div class="lang-cards">
+    <!-- ESPAGNOL -->
+    <div class="lang-card" id="lc-espagnol">
+      <div class="lang-card-header" onclick="toggleLangCard('espagnol')">
+        <span class="lang-card-flag">🇪🇸</span>
+        <span class="lang-card-name">Espagnol</span>
+        <span class="lang-required-dot"></span><span class="lang-card-toggle" id="lct-espagnol">+</span>
+      </div>
+      <div class="lang-level-options" id="llo-espagnol">
+        <label class="level-option" onclick="selectLevel(this,'espagnol','b2')"><input type="radio" name="lvl-espagnol" value="b2"/><div class="level-info"><div class="level-name">Bilingue / Courant</div><div class="level-desc">Je m'exprime aisement</div></div><span class="level-badge badge-b2">B2 +</span></label>
+        <label class="level-option" onclick="selectLevel(this,'espagnol','b1')"><input type="radio" name="lvl-espagnol" value="b1"/><div class="level-info"><div class="level-name">Intermediaire</div><div class="level-desc">Notions correctes</div></div><span class="level-badge badge-b1">B1</span></label>
+        <label class="level-option" onclick="selectLevel(this,'espagnol','debut')"><input type="radio" name="lvl-espagnol" value="debut"/><div class="level-info"><div class="level-name">Debutant</div><div class="level-desc">Quelques bases scolaires</div></div><span class="level-badge badge-a">A1/A2</span></label>
+        <label class="level-option" onclick="selectLevel(this,'espagnol','aucun')"><input type="radio" name="lvl-espagnol" value="aucun"/><div class="level-info"><div class="level-name">Aucune connaissance</div><div class="level-desc">Je ne parle pas espagnol</div></div><span class="level-badge badge-none">—</span></label>
+      </div>
+    </div>
+    <!-- ANGLAIS -->
+    <div class="lang-card" id="lc-anglais">
+      <div class="lang-card-header" onclick="toggleLangCard('anglais')">
+        <span class="lang-card-flag">🇬🇧</span>
+        <span class="lang-card-name">Anglais</span>
+        <span class="lang-required-dot"></span><span class="lang-card-toggle" id="lct-anglais">+</span>
+      </div>
+      <div class="lang-level-options" id="llo-anglais">
+        <label class="level-option" onclick="selectLevel(this,'anglais','b2')"><input type="radio" name="lvl-anglais" value="b2"/><div class="level-info"><div class="level-name">Bilingue / Courant</div><div class="level-desc">Je m'exprime aisement en anglais</div></div><span class="level-badge badge-b2">B2 +</span></label>
+        <label class="level-option" onclick="selectLevel(this,'anglais','b1')"><input type="radio" name="lvl-anglais" value="b1"/><div class="level-info"><div class="level-name">Intermediaire</div><div class="level-desc">Conversations courantes</div></div><span class="level-badge badge-b1">B1</span></label>
+        <label class="level-option" onclick="selectLevel(this,'anglais','debut')"><input type="radio" name="lvl-anglais" value="debut"/><div class="level-info"><div class="level-name">Debutant</div><div class="level-desc">Quelques bases scolaires</div></div><span class="level-badge badge-a">A1/A2</span></label>
+        <label class="level-option" onclick="selectLevel(this,'anglais','aucun')"><input type="radio" name="lvl-anglais" value="aucun"/><div class="level-info"><div class="level-name">Aucune connaissance</div><div class="level-desc">Je ne parle pas anglais</div></div><span class="level-badge badge-none">—</span></label>
+      </div>
+    </div>
+    <!-- ITALIEN -->
+    <div class="lang-card" id="lc-italien">
+      <div class="lang-card-header" onclick="toggleLangCard('italien')">
+        <span class="lang-card-flag">🇮🇹</span>
+        <span class="lang-card-name">Italien</span>
+        <span class="lang-required-dot"></span><span class="lang-card-toggle" id="lct-italien">+</span>
+      </div>
+      <div class="lang-level-options" id="llo-italien">
+        <label class="level-option" onclick="selectLevel(this,'italien','b2')"><input type="radio" name="lvl-italien" value="b2"/><div class="level-info"><div class="level-name">Bilingue / Courant</div><div class="level-desc">Je m'exprime aisement en italien</div></div><span class="level-badge badge-b2">B2 +</span></label>
+        <label class="level-option" onclick="selectLevel(this,'italien','b1')"><input type="radio" name="lvl-italien" value="b1"/><div class="level-info"><div class="level-name">Intermediaire</div><div class="level-desc">Notions correctes</div></div><span class="level-badge badge-b1">B1</span></label>
+        <label class="level-option" onclick="selectLevel(this,'italien','debut')"><input type="radio" name="lvl-italien" value="debut"/><div class="level-info"><div class="level-name">Debutant</div><div class="level-desc">Quelques bases</div></div><span class="level-badge badge-a">A1/A2</span></label>
+        <label class="level-option" onclick="selectLevel(this,'italien','aucun')"><input type="radio" name="lvl-italien" value="aucun"/><div class="level-info"><div class="level-name">Aucune connaissance</div><div class="level-desc">Je ne parle pas italien</div></div><span class="level-badge badge-none">—</span></label>
+      </div>
+    </div>
+    <!-- PORTUGAIS -->
+    <div class="lang-card" id="lc-portugais">
+      <div class="lang-card-header" onclick="toggleLangCard('portugais')">
+        <span class="lang-card-flag">🇵🇹</span>
+        <span class="lang-card-name">Portugais</span>
+        <span class="lang-required-dot"></span><span class="lang-card-toggle" id="lct-portugais">+</span>
+      </div>
+      <div class="lang-level-options" id="llo-portugais">
+        <label class="level-option" onclick="selectLevel(this,'portugais','b2')"><input type="radio" name="lvl-portugais" value="b2"/><div class="level-info"><div class="level-name">Bilingue / Courant</div><div class="level-desc">Je m'exprime aisement</div></div><span class="level-badge badge-b2">B2 +</span></label>
+        <label class="level-option" onclick="selectLevel(this,'portugais','b1')"><input type="radio" name="lvl-portugais" value="b1"/><div class="level-info"><div class="level-name">Intermediaire</div><div class="level-desc">Notions correctes</div></div><span class="level-badge badge-b1">B1</span></label>
+        <label class="level-option" onclick="selectLevel(this,'portugais','debut')"><input type="radio" name="lvl-portugais" value="debut"/><div class="level-info"><div class="level-name">Debutant</div><div class="level-desc">Quelques bases</div></div><span class="level-badge badge-a">A1/A2</span></label>
+        <label class="level-option" onclick="selectLevel(this,'portugais','aucun')"><input type="radio" name="lvl-portugais" value="aucun"/><div class="level-info"><div class="level-name">Aucune connaissance</div><div class="level-desc">Je ne parle pas portugais</div></div><span class="level-badge badge-none">—</span></label>
+      </div>
+    </div>
+    <!-- AUTRE -->
+    <div class="autre-lang-wrap">
+      <label>Autre langue :</label>
+      <input type="text" id="autre-langue" placeholder="Ex : Allemand – niveau B1, Arabe – courant..."/>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-orange" onclick="submitCandidature()">Soumettre ma candidature</button>
+  </div>
+
+</main>
+
+<!-- OVERLAY -->
+<div class="analyzing-overlay" id="analyzing-overlay">
+  <div class="analyzing-box">
+    <div class="analyzing-spinner"></div>
+    <div class="analyzing-title">Envoi en cours...</div>
+    <div class="analyzing-text">Votre candidature est en cours de transmission a notre equipe.</div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  © 2026 EDUMOVE · <a href="https://edumove.fr" target="_blank">edumove.fr</a> · Tous droits reserves
+</footer>
+
+<script>
+// ── AUTH CHECK ──
+let currentUser = null;
+
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = 'index.html';
+    return;
+  }
+  currentUser = user;
+  document.getElementById('header-user').textContent = user.email;
+  // Pre-fill email
+  document.getElementById('email').value = user.email;
+  // Check if already has a candidature
+  db.collection('candidatures').where('userId', '==', user.uid).limit(1).get().then(snap => {
+    if (!snap.empty) {
+      window.location.href = 'espace.html';
+    }
+  });
+});
+
+function logout() { auth.signOut(); }
+
+// ── STATE ──
+const state = {
+  profil: '',
+  langLevels: {},
+  ranking: ['pass_las','roumanie','italie','portugal','espagne'],
+  termSpe: []
+};
+
+// ── PROFIL SELECTION ──
+function selectProfil(type, el) {
+  state.profil = type;
+  document.querySelectorAll('.profil-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('bloc-reorientation').style.display = type === 'reorientation' ? 'block' : 'none';
+  showErr('err-profil', false);
+}
+
+function toggleAutreFormation() {
+  const val = document.getElementById('reori-formation').value;
+  document.getElementById('reori-autre-wrap').style.display = val === 'autre' ? 'block' : 'none';
+}
+
+// ── CITY LOOKUP ──
+async function lookupCity() {
+  const cp = document.getElementById('codepostal').value.trim();
+  const villeEl = document.getElementById('ville');
+  if (cp.length === 5 && /^\d{5}$/.test(cp)) {
+    try {
+      const res = await fetch('https://geo.api.gouv.fr/communes?codePostal=' + cp + '&fields=nom&limit=1');
+      const data = await res.json();
+      villeEl.value = data.length > 0 ? data[0].nom : '';
+    } catch(e) { villeEl.value = ''; }
+  } else { villeEl.value = ''; }
+}
+
+// ── TERMINALE OPTIONS from Premiere ──
+function updateTerminaleOptions() {
+  const spes = ['p1-nom','p2-nom','p3-nom'].map(id => document.getElementById(id).value).filter(v => v);
+  const container = document.getElementById('terminale-checkboxes');
+  container.innerHTML = '';
+  state.termSpe = [];
+  document.getElementById('term-row-1').style.display = 'none';
+  document.getElementById('term-row-2').style.display = 'none';
+  if (spes.length < 2) return;
+  spes.forEach(spe => {
+    const label = document.createElement('label');
+    label.className = 'checkbox-item';
+    label.innerHTML = '<input type="checkbox" value="' + spe + '" onchange="toggleTermSpe(this)"/><span class="checkbox-label">' + spe + '</span>';
+    container.appendChild(label);
+  });
+}
+
+function toggleTermSpe(cb) {
+  const checked = Array.from(document.querySelectorAll('#terminale-checkboxes input:checked'));
+  if (checked.length > 2) { cb.checked = false; return; }
+  state.termSpe = checked.map(c => c.value);
+  const row1 = document.getElementById('term-row-1');
+  const row2 = document.getElementById('term-row-2');
+  if (state.termSpe[0]) {
+    row1.style.display = '';
+    document.getElementById('t1-nom').value = state.termSpe[0];
+    document.getElementById('t1-nom-display').textContent = state.termSpe[0];
+  } else { row1.style.display = 'none'; }
+  if (state.termSpe[1]) {
+    row2.style.display = '';
+    document.getElementById('t2-nom').value = state.termSpe[1];
+    document.getElementById('t2-nom-display').textContent = state.termSpe[1];
+  } else { row2.style.display = 'none'; }
+  document.querySelectorAll('#terminale-checkboxes .checkbox-item').forEach(el => {
+    el.classList.toggle('selected', el.querySelector('input').checked);
+  });
+}
+
+// ── RANKING ──
+function moveRank(btn, dir) {
+  const item = btn.closest('.ranking-item');
+  const list = document.getElementById('ranking-list');
+  const items = Array.from(list.children);
+  const idx = items.indexOf(item);
+  if (idx + dir < 0 || idx + dir >= items.length) return;
+  if (dir === -1) list.insertBefore(item, items[idx - 1]);
+  else list.insertBefore(items[idx + 1], item);
+  updateRankNums();
+}
+
+function updateRankNums() {
+  const items = document.querySelectorAll('#ranking-list .ranking-item');
+  state.ranking = [];
+  items.forEach((item, i) => {
+    item.querySelector('.ranking-num').textContent = i + 1;
+    state.ranking.push(item.dataset.value);
+  });
+}
+
+// Drag & drop
+document.addEventListener('DOMContentLoaded', () => {
+  const list = document.getElementById('ranking-list');
+  let dragItem = null;
+  list.addEventListener('dragstart', e => {
+    dragItem = e.target.closest('.ranking-item');
+    if (dragItem) dragItem.style.opacity = '0.5';
+  });
+  list.addEventListener('dragend', e => {
+    if (dragItem) dragItem.style.opacity = '1';
+    document.querySelectorAll('.ranking-item').forEach(i => i.classList.remove('drag-over'));
+    dragItem = null;
+  });
+  list.addEventListener('dragover', e => {
+    e.preventDefault();
+    const target = e.target.closest('.ranking-item');
+    if (target && target !== dragItem) {
+      document.querySelectorAll('.ranking-item').forEach(i => i.classList.remove('drag-over'));
+      target.classList.add('drag-over');
+    }
+  });
+  list.addEventListener('drop', e => {
+    e.preventDefault();
+    const target = e.target.closest('.ranking-item');
+    if (target && target !== dragItem && dragItem) {
+      const items = Array.from(list.children);
+      const dragIdx = items.indexOf(dragItem);
+      const targetIdx = items.indexOf(target);
+      if (dragIdx < targetIdx) list.insertBefore(dragItem, target.nextSibling);
+      else list.insertBefore(dragItem, target);
+      updateRankNums();
+    }
+    document.querySelectorAll('.ranking-item').forEach(i => i.classList.remove('drag-over'));
+  });
+});
+
+// ── NOTES CALC ──
+function calcMoy(prefix) {
+  const t1 = parseFloat(document.getElementById(prefix+'-t1')?.value);
+  const t2 = parseFloat(document.getElementById(prefix+'-t2')?.value);
+  const t3 = parseFloat(document.getElementById(prefix+'-t3')?.value);
+  const vals = [t1,t2,t3].filter(n => !isNaN(n));
+  const moyEl = document.getElementById(prefix+'-moy');
+  moyEl.value = vals.length > 0 ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2) : '';
+  updateGlobalMoy();
+}
+
+function updateGlobalMoy() {
+  const moysPrem = ['p1','p2','p3'].map(p => parseFloat(document.getElementById(p+'-moy')?.value)).filter(n => !isNaN(n));
+  if (moysPrem.length > 0) {
+    document.getElementById('moy-premiere-val').textContent = (moysPrem.reduce((a,b)=>a+b,0)/moysPrem.length).toFixed(2) + ' / 20';
+    document.getElementById('moy-premiere-wrap').style.display = 'block';
+  } else { document.getElementById('moy-premiere-wrap').style.display = 'none'; }
+  const moysTerm = ['t1','t2'].map(p => parseFloat(document.getElementById(p+'-moy')?.value)).filter(n => !isNaN(n));
+  if (moysTerm.length > 0) {
+    document.getElementById('moy-terminale-val').textContent = (moysTerm.reduce((a,b)=>a+b,0)/moysTerm.length).toFixed(2) + ' / 20';
+    document.getElementById('moy-terminale-wrap').style.display = 'block';
+  } else { document.getElementById('moy-terminale-wrap').style.display = 'none'; }
+}
+
+// ── LANG CARD ──
+function toggleLangCard(lang) {
+  const card = document.getElementById('lc-'+lang);
+  const isOpen = card.classList.contains('open');
+  ['espagnol','anglais','italien','portugais'].forEach(l => {
+    document.getElementById('lc-'+l).classList.remove('open');
+    document.getElementById('lct-'+l).textContent = '+';
+  });
+  if (!isOpen) {
+    card.classList.add('open');
+    document.getElementById('lct-'+lang).textContent = '+';
+  }
+}
+
+function selectLevel(el, lang, val) {
+  const options = el.closest('.lang-level-options').querySelectorAll('.level-option');
+  options.forEach(o => { o.classList.remove('selected'); o.querySelector('input').checked = false; });
+  el.classList.add('selected');
+  el.querySelector('input').checked = true;
+  state.langLevels[lang] = val;
+  const lc = document.getElementById('lc-'+lang);
+  const badge = { b2:'B2+', b1:'B1', debut:'A1/A2', aucun:'—' }[val];
+  const badgeClass = { b2:'badge-b2', b1:'badge-b1', debut:'badge-a', aucun:'badge-none' }[val];
+  let existing = lc.querySelector('.lang-card-header .level-badge');
+  if (!existing) {
+    existing = document.createElement('span');
+    lc.querySelector('.lang-card-header').insertBefore(existing, lc.querySelector('.lang-card-toggle'));
+  }
+  existing.className = 'level-badge ' + badgeClass;
+  existing.textContent = badge;
+  lc.classList.remove('lang-missing');
+  lc.classList.add('lang-answered');
+}
+
+// ── ORIENTATION ALGO (internal only) ──
+function orient(score, levels) {
+  const esp = levels['espagnol'] || 'aucun';
+  const eng = levels['anglais'] || 'aucun';
+  if (score >= 13) {
+    if (esp === 'b2') return { dest:'espagne', uni:'UCJC + UEM', level:'fort' };
+    if (eng === 'b2' || eng === 'b1') return { dest:'espagne', uni:'UEM', level:'fort' };
+    return { dest:'italie', uni:'LINK Campus University', level:'fort' };
+  }
+  if (score >= 10) {
+    if (esp === 'b2') return { dest:'espagne', uni:'UCJC + UEM', level:'moyen' };
+    if (eng === 'b2' || eng === 'b1') return { dest:'espagne', uni:'UEM', level:'moyen' };
+    return { dest:'italie', uni:'LINK Campus University', level:'moyen' };
+  }
+  return { dest:'italie', uni:'LINK Campus University', level:'faible' };
+}
+
+function calcScore() {
+  const moysTerm = ['t1','t2'].map(p => parseFloat(document.getElementById(p+'-moy')?.value)).filter(n => !isNaN(n));
+  if (moysTerm.length > 0) return moysTerm.reduce((a,b)=>a+b,0)/moysTerm.length;
+  const moysPrem = ['p1','p2','p3'].map(p => parseFloat(document.getElementById(p+'-moy')?.value)).filter(n => !isNaN(n));
+  return moysPrem.length > 0 ? moysPrem.reduce((a,b)=>a+b,0)/moysPrem.length : 0;
+}
+
+// ── HELPERS ──
+function v(id) { return (document.getElementById(id)?.value||'').trim(); }
+function showErr(id, show) { document.getElementById(id)?.classList.toggle('visible', show); }
+function markField(id, invalid) { document.getElementById(id)?.classList.toggle('invalid', invalid); }
+
+// ── SUBMIT ──
+async function submitCandidature() {
+  let valid = true;
+
+  // Profil
+  if (!state.profil) { showErr('err-profil', true); valid = false; }
+
+  // Infos perso
+  ['nom','prenom','email','tel','codepostal'].forEach(f => {
+    const empty = !v(f);
+    markField(f, empty);
+    showErr('err-'+f, empty);
+    if(empty) valid = false;
+  });
+  const emailVal = v('email');
+  if(emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+    markField('email',true); showErr('err-email',true); valid=false;
+  }
+
+  // Reorientation
+  if(state.profil === 'reorientation' && !v('reori-formation')) {
+    showErr('err-reori-formation', true); valid=false;
+  }
+
+  // Notes premiere
+  const hasPrem = ['p1','p2','p3'].some(p => v(p+'-nom'));
+  if (!hasPrem) {
+    document.getElementById('table-premiere').closest('.notes-group').style.outline = '2px solid var(--error)';
+    valid = false;
+  } else {
+    document.getElementById('table-premiere').closest('.notes-group').style.outline = '';
+  }
+
+  // Langues
+  const langues = ['espagnol','anglais','italien','portugais'];
+  const allLangs = langues.every(l => state.langLevels[l]);
+  showErr('err-langues', !allLangs);
+  if (!allLangs) {
+    valid = false;
+    langues.forEach(l => {
+      if (!state.langLevels[l]) document.getElementById('lc-'+l).classList.add('lang-missing');
+    });
+  }
+
+  updateRankNums();
+
+  if(!valid) {
+    const first = document.querySelector('.invalid') || document.querySelector('.lang-missing') || document.querySelector('[style*="outline"]');
+    first?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  // Submit
+  document.getElementById('analyzing-overlay').classList.add('active');
+
+  try {
+    const score = calcScore();
+    const ori = orient(score, state.langLevels);
+
+    const notesPremiere = ['p1','p2','p3'].map(p => ({
+      nom: v(p+'-nom'), t1: v(p+'-t1'), t2: v(p+'-t2'), t3: v(p+'-t3'), moy: v(p+'-moy')
+    })).filter(n => n.nom);
+
+    const notesTerminale = ['t1','t2'].map(p => ({
+      nom: v(p+'-nom'), t1: v(p+'-t1'), t2: v(p+'-t2'), t3: v(p+'-t3'), moy: v(p+'-moy')
+    })).filter(n => n.nom);
+
+    await db.collection('candidatures').add({
+      userId: currentUser.uid,
+      nom: v('nom'),
+      prenom: v('prenom'),
+      email: v('email'),
+      tel: v('tel'),
+      codePostal: v('codepostal'),
+      ville: v('ville'),
+      profil: state.profil,
+      reorientation: state.profil === 'reorientation' ? {
+        formation: v('reori-formation'),
+        etablissement: v('reori-etablissement'),
+        annee: v('reori-annee'),
+        motif: v('reori-motif')
+      } : null,
+      notesPremiere,
+      notesTerminale,
+      moyennePremiere: v('moy-premiere-val'),
+      moyenneTerminale: v('moy-terminale-val'),
+      score: score,
+      langues: { ...state.langLevels, autre: v('autre-langue') },
+      classementDestinations: state.ranking,
+      destination: ori.dest,
+      universite: ori.uni,
+      niveau: ori.level,
+      documents: {},
+      status: 'en_attente',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // Update user doc
+    await db.collection('users').doc(currentUser.uid).update({
+      nom: v('nom'),
+      prenom: v('prenom')
+    });
+
+    document.getElementById('analyzing-overlay').classList.remove('active');
+    window.location.href = 'espace.html';
+  } catch (err) {
+    document.getElementById('analyzing-overlay').classList.remove('active');
+    console.error('Erreur soumission:', err);
+    alert('Une erreur est survenue lors de la transmission. Veuillez reessayer.');
+  }
+}
+</script>
+</body>
+</html>
