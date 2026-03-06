@@ -608,23 +608,18 @@ let authChecked = false;
 // ── AUTH ──
 auth.onAuthStateChanged(async (user) => {
   if (authChecked) return;
-  console.log('[ESPACE] onAuthStateChanged fired, user:', user ? user.uid : 'null');
-
   if (!user) {
     // Firebase Auth may fire with null before restoring session from IndexedDB.
     await new Promise(r => setTimeout(r, 2000));
     user = auth.currentUser;
-    console.log('[ESPACE] After 2s wait, currentUser:', user ? user.uid : 'still null');
     if (!user) {
       sessionStorage.removeItem('edumove_just_submitted');
-      alert('[DEBUG] Pas connecte → retour login');
       window.location.href = 'index.html';
       return;
     }
   }
   authChecked = true;
   currentUser = user;
-  console.log('[ESPACE] Auth OK, uid:', user.uid);
 
   // Load user profile for dropdown
   try {
@@ -633,34 +628,27 @@ auth.onAuthStateChanged(async (user) => {
       userProfile = userDoc.data();
       fillProfilDropdown();
     }
-  } catch(e) { console.error('[ESPACE] Load profile error:', e); }
+  } catch(e) { console.error('Load profile error:', e); }
 
   // Load candidature — check URL param or sessionStorage (from submission redirect)
   const urlCid = new URLSearchParams(window.location.search).get('cid') || sessionStorage.getItem('edumove_just_submitted');
   sessionStorage.removeItem('edumove_just_submitted');
-  console.log('[ESPACE] urlCid:', urlCid);
-
   try {
     let snap;
     if (urlCid) {
       const doc = await db.collection('candidatures').doc(urlCid).get();
-      console.log('[ESPACE] Doc by cid exists:', doc.exists);
       if (doc.exists && doc.data().userId === user.uid) {
         candidatureId = doc.id;
         candidatureData = doc.data();
       }
     }
     if (!candidatureId) {
-      console.log('[ESPACE] Querying candidatures by userId...');
       snap = await db.collection('candidatures').where('userId', '==', user.uid).limit(1).get();
-      console.log('[ESPACE] Query result empty:', snap.empty);
       if (snap.empty) {
         await new Promise(r => setTimeout(r, 2000));
         snap = await db.collection('candidatures').where('userId', '==', user.uid).limit(1).get();
-        console.log('[ESPACE] Retry result empty:', snap.empty);
       }
       if (!snap || snap.empty) {
-        alert('[DEBUG] Aucune candidature trouvee → retour formulaire');
         window.location.href = 'candidature.html';
         return;
       }
@@ -668,8 +656,7 @@ auth.onAuthStateChanged(async (user) => {
       candidatureData = snap.docs[0].data();
     }
   } catch(e) {
-    console.error('[ESPACE] Load candidature error:', e);
-    alert('[DEBUG] Erreur chargement candidature: ' + e.message);
+    console.error('Load candidature error:', e);
     document.getElementById('loading').style.display = 'none';
     return;
   }
@@ -678,7 +665,6 @@ auth.onAuthStateChanged(async (user) => {
     window.history.replaceState({}, '', 'espace.html');
   }
 
-  console.log('[ESPACE] Candidature loaded OK, rendering dashboard');
   renderDashboard();
   loadMessages();
   listenForStatusChanges();
