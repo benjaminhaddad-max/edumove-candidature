@@ -48,20 +48,137 @@ body {
 }
 .logo-zone { display: flex; align-items: center; gap: 10px; cursor: pointer; }
 .logo-svg { height: 32px; width: auto; }
-.header-right { display: flex; align-items: center; gap: 16px; }
-.header-user { font-size: 12px; color: rgba(255,255,255,0.6); }
-.btn-logout {
+.header-right { display: flex; align-items: center; gap: 12px; position: relative; }
+.btn-profil {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   background: rgba(255,255,255,0.1);
   border: 1px solid rgba(255,255,255,0.2);
   color: white;
-  padding: 6px 16px;
-  border-radius: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
   font-size: 12px;
   cursor: pointer;
   font-family: inherit;
   transition: all 0.2s;
 }
-.btn-logout:hover { background: rgba(255,255,255,0.2); }
+.btn-profil:hover { background: rgba(255,255,255,0.2); }
+.btn-profil-icon {
+  width: 26px; height: 26px;
+  background: var(--orange);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+.btn-profil-name { font-weight: 500; }
+
+/* ── PROFILE DROPDOWN ── */
+.profil-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 320px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(27,29,58,0.18);
+  z-index: 200;
+  overflow: hidden;
+}
+.profil-dropdown.open { display: block; }
+.profil-dropdown-header {
+  background: var(--navy);
+  padding: 20px;
+  color: white;
+}
+.profil-dropdown-title { font-size: 16px; font-weight: 700; }
+.profil-dropdown-email { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+.profil-dropdown-body { padding: 16px 20px; }
+.profil-dropdown-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.profil-dropdown-item:last-child { border-bottom: none; }
+.profil-dropdown-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); font-weight: 500; }
+.profil-dropdown-value { font-size: 13px; font-weight: 500; color: var(--navy); }
+.profil-dropdown-edit {
+  display: none;
+  padding: 8px 0;
+}
+.profil-dropdown-edit input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}
+.profil-dropdown-edit input:focus { border-color: var(--violet); }
+.profil-dropdown-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+}
+.btn-edit-profil {
+  flex: 1;
+  padding: 9px;
+  border: 1.5px solid var(--border);
+  background: white;
+  color: var(--navy);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-edit-profil:hover { border-color: var(--violet); color: var(--violet); }
+.btn-save-profil {
+  flex: 1;
+  padding: 9px;
+  border: none;
+  background: var(--orange);
+  color: white;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: none;
+  transition: background 0.2s;
+}
+.btn-save-profil:hover { background: #d45c08; }
+.btn-logout {
+  flex: 1;
+  padding: 9px;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-logout:hover { border-color: var(--error); color: var(--error); }
+.profil-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+}
+.profil-backdrop.open { display: block; }
 
 /* ── MAIN ── */
 .main-wrap {
@@ -552,10 +669,38 @@ select.nt-matiere:focus { border-color: var(--violet); }
     </svg>
   </div>
   <div class="header-right" id="header-right">
-    <span class="header-user" id="header-user"></span>
-    <button class="btn-logout" onclick="logout()">Deconnexion</button>
+    <button class="btn-profil" id="btn-profil" onclick="toggleProfilDropdown()">
+      <span class="btn-profil-icon" id="profil-initials">—</span>
+      <span class="btn-profil-name" id="profil-short-name">Mon profil</span>
+      <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <div class="profil-dropdown" id="profil-dropdown">
+      <div class="profil-dropdown-header">
+        <div class="profil-dropdown-title" id="profil-dd-name">—</div>
+        <div class="profil-dropdown-email" id="profil-dd-email">—</div>
+      </div>
+      <div class="profil-dropdown-body" id="profil-dd-body">
+        <div class="profil-dropdown-item"><span class="profil-dropdown-label">Nom</span><span class="profil-dropdown-value" id="pv-nom">—</span></div>
+        <div class="profil-dropdown-item"><span class="profil-dropdown-label">Prenom</span><span class="profil-dropdown-value" id="pv-prenom">—</span></div>
+        <div class="profil-dropdown-item"><span class="profil-dropdown-label">Email</span><span class="profil-dropdown-value" id="pv-email">—</span></div>
+        <div class="profil-dropdown-item"><span class="profil-dropdown-label">Telephone</span><span class="profil-dropdown-value" id="pv-tel">—</span></div>
+        <div class="profil-dropdown-item"><span class="profil-dropdown-label">Departement</span><span class="profil-dropdown-value" id="pv-dep">—</span></div>
+      </div>
+      <div class="profil-dropdown-body" id="profil-dd-edit" style="display:none;">
+        <div class="profil-dropdown-edit" style="display:block;"><label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--text-muted);">Nom</label><input id="pe-nom"/></div>
+        <div class="profil-dropdown-edit" style="display:block;"><label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--text-muted);">Prenom</label><input id="pe-prenom"/></div>
+        <div class="profil-dropdown-edit" style="display:block;"><label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--text-muted);">Telephone</label><input id="pe-tel"/></div>
+        <div class="profil-dropdown-edit" style="display:block;"><label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--text-muted);">Departement</label><input id="pe-dep"/></div>
+      </div>
+      <div class="profil-dropdown-footer">
+        <button class="btn-edit-profil" id="btn-edit-profil" onclick="editProfil()">Modifier</button>
+        <button class="btn-save-profil" id="btn-save-profil" onclick="saveProfil()">Enregistrer</button>
+        <button class="btn-logout" onclick="logout()">Deconnexion</button>
+      </div>
+    </div>
   </div>
 </header>
+<div class="profil-backdrop" id="profil-backdrop" onclick="closeProfilDropdown()"></div>
 
 <main class="main-wrap">
 
@@ -578,36 +723,6 @@ select.nt-matiere:focus { border-color: var(--violet); }
     </div>
   </div>
   <div class="error-msg" id="err-profil">Veuillez selectionner votre situation.</div>
-
-  <hr class="form-divider"/>
-
-  <!-- INFORMATIONS PERSONNELLES (pre-remplies depuis le profil) -->
-  <div class="form-section-label">Vos informations</div>
-  <div class="alert alert-profil" style="border-color:var(--violet);background:rgba(97,92,165,0.06);color:var(--violet);padding:12px 16px;border-left:3px solid var(--violet);border-radius:0 6px 6px 0;margin-bottom:20px;font-size:13px;">
-    Ces informations proviennent de votre profil. Pour les modifier, contactez l'equipe EDUMOVE.
-  </div>
-  <div class="form-grid">
-    <div class="field">
-      <label>Nom</label>
-      <input type="text" id="nom" readonly class="field-readonly"/>
-    </div>
-    <div class="field">
-      <label>Prenom</label>
-      <input type="text" id="prenom" readonly class="field-readonly"/>
-    </div>
-    <div class="field">
-      <label>Email</label>
-      <input type="email" id="email" readonly class="field-readonly"/>
-    </div>
-    <div class="field">
-      <label>Telephone</label>
-      <input type="tel" id="tel" readonly class="field-readonly"/>
-    </div>
-    <div class="field">
-      <label>Departement</label>
-      <input type="text" id="departement" readonly class="field-readonly"/>
-    </div>
-  </div>
 
   <!-- BLOC REORIENTATION -->
   <div id="bloc-reorientation" style="display:none;">
@@ -892,37 +1007,102 @@ select.nt-matiere:focus { border-color: var(--violet); }
 <script>
 // ── AUTH CHECK ──
 let currentUser = null;
-
 let userProfile = {};
+let authChecked = false;
 
 auth.onAuthStateChanged(async (user) => {
+  if (authChecked) return;
+  authChecked = true;
   if (!user) {
     window.location.href = 'index.html';
     return;
   }
   currentUser = user;
-  document.getElementById('header-user').textContent = user.email;
 
   // Check if already has a candidature
-  const snap = await db.collection('candidatures').where('userId', '==', user.uid).limit(1).get();
-  if (!snap.empty) {
-    window.location.href = 'espace.html';
-    return;
-  }
+  try {
+    const snap = await db.collection('candidatures').where('userId', '==', user.uid).limit(1).get();
+    if (!snap.empty) {
+      window.location.href = 'espace.html';
+      return;
+    }
+  } catch(e) { console.error('Check candidature error:', e); }
 
-  // Load user profile and pre-fill
-  const userDoc = await db.collection('users').doc(user.uid).get();
-  if (userDoc.exists) {
-    userProfile = userDoc.data();
-    document.getElementById('nom').value = userProfile.nom || '';
-    document.getElementById('prenom').value = userProfile.prenom || '';
-    document.getElementById('email').value = userProfile.email || user.email;
-    document.getElementById('tel').value = userProfile.tel || '';
-    document.getElementById('departement').value = userProfile.departement || '';
-  }
+  // Load user profile
+  try {
+    const userDoc = await db.collection('users').doc(user.uid).get();
+    if (userDoc.exists) {
+      userProfile = userDoc.data();
+      fillProfilDropdown();
+    }
+  } catch(e) { console.error('Load profile error:', e); }
 });
 
-function logout() { auth.signOut(); }
+function logout() {
+  auth.signOut().then(() => { window.location.href = 'index.html'; });
+}
+
+// ── PROFILE DROPDOWN ──
+function fillProfilDropdown() {
+  const p = userProfile;
+  const ini = ((p.prenom||'')[0]||'') + ((p.nom||'')[0]||'');
+  document.getElementById('profil-initials').textContent = ini.toUpperCase();
+  document.getElementById('profil-short-name').textContent = (p.prenom||'') + ' ' + (p.nom||'');
+  document.getElementById('profil-dd-name').textContent = (p.prenom||'') + ' ' + (p.nom||'');
+  document.getElementById('profil-dd-email').textContent = p.email || currentUser.email;
+  document.getElementById('pv-nom').textContent = p.nom || '—';
+  document.getElementById('pv-prenom').textContent = p.prenom || '—';
+  document.getElementById('pv-email').textContent = p.email || '—';
+  document.getElementById('pv-tel').textContent = p.tel || '—';
+  document.getElementById('pv-dep').textContent = p.departement || '—';
+}
+
+function toggleProfilDropdown() {
+  document.getElementById('profil-dropdown').classList.toggle('open');
+  document.getElementById('profil-backdrop').classList.toggle('open');
+}
+
+function closeProfilDropdown() {
+  document.getElementById('profil-dropdown').classList.remove('open');
+  document.getElementById('profil-backdrop').classList.remove('open');
+  cancelEditProfil();
+}
+
+function editProfil() {
+  const p = userProfile;
+  document.getElementById('pe-nom').value = p.nom || '';
+  document.getElementById('pe-prenom').value = p.prenom || '';
+  document.getElementById('pe-tel').value = p.tel || '';
+  document.getElementById('pe-dep').value = p.departement || '';
+  document.getElementById('profil-dd-body').style.display = 'none';
+  document.getElementById('profil-dd-edit').style.display = 'block';
+  document.getElementById('btn-edit-profil').style.display = 'none';
+  document.getElementById('btn-save-profil').style.display = 'block';
+}
+
+function cancelEditProfil() {
+  document.getElementById('profil-dd-body').style.display = 'block';
+  document.getElementById('profil-dd-edit').style.display = 'none';
+  document.getElementById('btn-edit-profil').style.display = 'block';
+  document.getElementById('btn-save-profil').style.display = 'none';
+}
+
+async function saveProfil() {
+  const nom = document.getElementById('pe-nom').value.trim();
+  const prenom = document.getElementById('pe-prenom').value.trim();
+  const tel = document.getElementById('pe-tel').value.trim();
+  const dep = document.getElementById('pe-dep').value.trim();
+  if (!nom || !prenom || !tel || !dep) { alert('Veuillez remplir tous les champs.'); return; }
+  try {
+    await db.collection('users').doc(currentUser.uid).update({ nom, prenom, tel, departement: dep });
+    userProfile.nom = nom;
+    userProfile.prenom = prenom;
+    userProfile.tel = tel;
+    userProfile.departement = dep;
+    fillProfilDropdown();
+    cancelEditProfil();
+  } catch(e) { alert('Erreur lors de la sauvegarde.'); console.error(e); }
+}
 
 // ── STATE ──
 const state = {
@@ -1185,11 +1365,11 @@ async function submitCandidature() {
 
     await db.collection('candidatures').add({
       userId: currentUser.uid,
-      nom: v('nom'),
-      prenom: v('prenom'),
-      email: v('email'),
-      tel: v('tel'),
-      departement: v('departement'),
+      nom: userProfile.nom || '',
+      prenom: userProfile.prenom || '',
+      email: userProfile.email || currentUser.email,
+      tel: userProfile.tel || '',
+      departement: userProfile.departement || '',
       profil: state.profil,
       reorientation: state.profil === 'reorientation' ? {
         formation: v('reori-formation'),
@@ -1199,8 +1379,8 @@ async function submitCandidature() {
       } : null,
       notesPremiere,
       notesTerminale,
-      moyennePremiere: v('moy-premiere-val'),
-      moyenneTerminale: v('moy-terminale-val'),
+      moyennePremiere: document.getElementById('moy-premiere-val')?.textContent || '',
+      moyenneTerminale: document.getElementById('moy-terminale-val')?.textContent || '',
       score: score,
       langues: { ...state.langLevels, autre: v('autre-langue') },
       classementDestinations: state.ranking,

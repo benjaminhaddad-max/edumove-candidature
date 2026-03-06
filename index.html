@@ -499,21 +499,30 @@ body {
 
 <script>
 // ── AUTH STATE ──
+let authChecked = false;
 auth.onAuthStateChanged(async (user) => {
+  if (authChecked) return;
   if (user) {
+    authChecked = true;
     showSpinner();
-    // Check if admin — redirect to admin
-    const adminDoc = await db.collection('admins').doc(user.email).get();
-    if (adminDoc.exists) {
-      window.location.href = 'admin.html';
-      return;
-    }
-    // Check if student has a candidature
-    const snap = await db.collection('candidatures').where('userId', '==', user.uid).limit(1).get();
-    if (!snap.empty) {
-      window.location.href = 'espace.html';
-    } else {
-      window.location.href = 'candidature.html';
+    try {
+      // Check if admin — redirect to admin
+      const adminDoc = await db.collection('admins').doc(user.email).get();
+      if (adminDoc.exists) {
+        window.location.href = 'admin.html';
+        return;
+      }
+      // Check if student has a candidature
+      const snap = await db.collection('candidatures').where('userId', '==', user.uid).limit(1).get();
+      if (!snap.empty) {
+        window.location.href = 'espace.html';
+      } else {
+        window.location.href = 'candidature.html';
+      }
+    } catch(e) {
+      console.error('Auth redirect error:', e);
+      hideSpinner();
+      authChecked = false;
     }
   }
 });
