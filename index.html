@@ -833,6 +833,48 @@ textarea { resize: vertical; min-height: 80px; }
   .result-body { padding: 20px; }
   .result-header { padding: 18px 20px; }
 }
+
+/* ── RANKING SYSTEM ── */
+.ranking-list { display: flex; flex-direction: column; gap: 8px; max-width: 600px; }
+.ranking-item {
+  display: flex; align-items: center; gap: 14px;
+  background: white; border: 1.5px solid var(--border); border-radius: 10px;
+  padding: 14px 18px; cursor: grab; transition: all 0.2s;
+  user-select: none;
+}
+.ranking-item:active { cursor: grabbing; box-shadow: 0 4px 16px rgba(27,29,58,0.12); }
+.ranking-item.drag-over { border-color: var(--orange); background: #fff8f0; }
+.ranking-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--navy); color: white; font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.ranking-label { flex: 1; font-weight: 500; font-size: 14px; }
+.ranking-arrows { display: flex; flex-direction: column; gap: 2px; }
+.arrow-btn {
+  width: 26px; height: 20px; border: 1px solid var(--border); border-radius: 4px;
+  background: white; cursor: pointer; font-size: 10px; display: flex;
+  align-items: center; justify-content: center; transition: all 0.15s;
+  color: var(--text-muted);
+}
+.arrow-btn:hover { border-color: var(--violet); color: var(--violet); background: #f5f5fb; }
+
+/* ── SELECT in notes table ── */
+select.nt-matiere {
+  width: 100%; padding: 7px 8px; border: 1px solid var(--border);
+  border-radius: 6px; font-family: inherit; font-size: 13px;
+  background: white; cursor: pointer; outline: none;
+}
+select.nt-matiere:focus { border-color: var(--violet); }
+
+/* ── LANG CARD required indicator ── */
+.lang-card.lang-missing { border: 2px solid var(--error); }
+.lang-card.lang-answered { border: 2px solid var(--success); }
+.lang-card .lang-required-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--error); display: inline-block; margin-left: 8px;
+}
+.lang-card.lang-answered .lang-required-dot { background: var(--success); }
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -965,10 +1007,14 @@ textarea { resize: vertical; min-height: 80px; }
       <input type="tel" id="tel" placeholder="+33 6 XX XX XX XX"/>
       <div class="error-msg" id="err-tel">Ce champ est requis.</div>
     </div>
-    <div class="field span-2">
-      <label>Adresse postale <span class="req">*</span></label>
-      <input type="text" id="adresse" placeholder="N° et rue, ville, code postal"/>
-      <div class="error-msg" id="err-adresse">Ce champ est requis.</div>
+    <div class="field">
+      <label>Code postal <span class="req">*</span></label>
+      <input type="text" id="codepostal" placeholder="Ex : 75012" maxlength="5" oninput="lookupCity()"/>
+      <div class="error-msg" id="err-codepostal">Ce champ est requis.</div>
+    </div>
+    <div class="field">
+      <label>Ville</label>
+      <input type="text" id="ville" placeholder="Rempli automatiquement" readonly style="background:var(--bg);"/>
     </div>
   </div>
 
@@ -1043,21 +1089,21 @@ textarea { resize: vertical; min-height: 80px; }
       </thead>
       <tbody>
         <tr>
-          <td><input type="text" class="nt-matiere" placeholder="Ex : Mathématiques" id="p1-nom"/></td>
+          <td><select class="nt-matiere" id="p1-nom" onchange="updateTerminaleOptions()"><option value="">— Choisir —</option><option>Mathematiques</option><option>Physique-Chimie</option><option>SVT</option><option>Sciences de l'ingenieur (SI)</option><option>NSI (Numerique)</option><option>SES</option><option>HGGSP</option><option>HLP</option><option>LLCE Anglais</option><option>LLCE Espagnol</option><option>LLCE Autre</option><option>Arts</option><option>Biologie-Ecologie</option></select></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p1-t1" oninput="calcMoy('p1')"/></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p1-t2" oninput="calcMoy('p1')"/></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p1-t3" oninput="calcMoy('p1')"/></td>
           <td><input type="number" class="nt-moy nt-moy-auto" placeholder="auto" id="p1-moy" readonly/></td>
         </tr>
         <tr>
-          <td><input type="text" class="nt-matiere" placeholder="Ex : SVT" id="p2-nom"/></td>
+          <td><select class="nt-matiere" id="p2-nom" onchange="updateTerminaleOptions()"><option value="">— Choisir —</option><option>Mathematiques</option><option>Physique-Chimie</option><option>SVT</option><option>Sciences de l'ingenieur (SI)</option><option>NSI (Numerique)</option><option>SES</option><option>HGGSP</option><option>HLP</option><option>LLCE Anglais</option><option>LLCE Espagnol</option><option>LLCE Autre</option><option>Arts</option><option>Biologie-Ecologie</option></select></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p2-t1" oninput="calcMoy('p2')"/></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p2-t2" oninput="calcMoy('p2')"/></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p2-t3" oninput="calcMoy('p2')"/></td>
           <td><input type="number" class="nt-moy nt-moy-auto" placeholder="auto" id="p2-moy" readonly/></td>
         </tr>
         <tr>
-          <td><input type="text" class="nt-matiere" placeholder="Ex : Physique-Chimie (opt.)" id="p3-nom"/></td>
+          <td><select class="nt-matiere" id="p3-nom" onchange="updateTerminaleOptions()"><option value="">— Choisir —</option><option>Mathematiques</option><option>Physique-Chimie</option><option>SVT</option><option>Sciences de l'ingenieur (SI)</option><option>NSI (Numerique)</option><option>SES</option><option>HGGSP</option><option>HLP</option><option>LLCE Anglais</option><option>LLCE Espagnol</option><option>LLCE Autre</option><option>Arts</option><option>Biologie-Ecologie</option></select></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p3-t1" oninput="calcMoy('p3')"/></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p3-t2" oninput="calcMoy('p3')"/></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p3-t3" oninput="calcMoy('p3')"/></td>
@@ -1073,12 +1119,14 @@ textarea { resize: vertical; min-height: 80px; }
 
   <!-- NOTES TERMINALE -->
   <div class="notes-group" style="margin-top:16px;" id="bloc-notes-terminale">
-    <div class="notes-group-title">Spécialités — Classe de Terminale <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(renseignez les trimestres disponibles)</span></div>
+    <div class="notes-group-title">Specialites conservees en Terminale <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(selectionnez les 2 specialites gardees parmi vos 3 de Premiere, puis renseignez les trimestres disponibles)</span></div>
+    <div class="error-msg" id="err-terminale-spe" style="margin-bottom:8px;">Veuillez selectionner vos 2 specialites de Terminale.</div>
+    <div id="terminale-checkboxes" class="checkbox-group" style="margin-bottom:16px;"></div>
     <div style="overflow-x:auto;">
     <table class="notes-table" id="table-terminale">
       <thead>
         <tr>
-          <th style="width:32%">Matière / Spécialité</th>
+          <th style="width:32%">Specialite gardee</th>
           <th>T1</th>
           <th>T2</th>
           <th>T3</th>
@@ -1086,26 +1134,19 @@ textarea { resize: vertical; min-height: 80px; }
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td><input type="text" class="nt-matiere" placeholder="Ex : Mathématiques" id="t1-nom"/></td>
+        <tr id="term-row-1" style="display:none;">
+          <td><strong id="t1-nom-display"></strong><input type="hidden" id="t1-nom"/></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t1-t1" oninput="calcMoy('t1')"/></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t1-t2" oninput="calcMoy('t1')"/></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t1-t3" oninput="calcMoy('t1')"/></td>
           <td><input type="number" class="nt-moy nt-moy-auto" placeholder="auto" id="t1-moy" readonly/></td>
         </tr>
-        <tr>
-          <td><input type="text" class="nt-matiere" placeholder="Ex : SVT" id="t2-nom"/></td>
+        <tr id="term-row-2" style="display:none;">
+          <td><strong id="t2-nom-display"></strong><input type="hidden" id="t2-nom"/></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t2-t1" oninput="calcMoy('t2')"/></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t2-t2" oninput="calcMoy('t2')"/></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t2-t3" oninput="calcMoy('t2')"/></td>
           <td><input type="number" class="nt-moy nt-moy-auto" placeholder="auto" id="t2-moy" readonly/></td>
-        </tr>
-        <tr>
-          <td><input type="text" class="nt-matiere" placeholder="Ex : Physique-Chimie (opt.)" id="t3-nom"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t3-t1" oninput="calcMoy('t3')"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t3-t2" oninput="calcMoy('t3')"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t3-t3" oninput="calcMoy('t3')"/></td>
-          <td><input type="number" class="nt-moy nt-moy-auto" placeholder="auto" id="t3-moy" readonly/></td>
         </tr>
       </tbody>
     </table>
@@ -1117,34 +1158,58 @@ textarea { resize: vertical; min-height: 80px; }
 
   <hr class="form-divider"/>
 
-  <!-- PAYS SOUHAITÉ -->
-  <div class="section-title" style="font-size:19px;">Destination souhaitée</div>
+  <!-- CLASSEMENT DESTINATIONS -->
+  <div class="section-title" style="font-size:19px;">Classement de vos preferences</div>
   <div class="rule"></div>
-  <div class="section-desc">Dans quel pays souhaiteriez-vous poursuivre vos études ? Votre orientation finale sera confirmée après analyse approfondie de votre dossier.</div>
+  <div class="section-desc">Classez vos preferences par ordre de priorite (glissez-deposez ou utilisez les fleches). EDUMOVE prepare les candidatures dans des villes accessibles en avion et a proximite de l'aeroport, pour faciliter vos futurs allers-retours avec la France.</div>
 
-  <div class="checkbox-group" id="pays-group">
-    <label class="checkbox-item" onclick="selectRadio(this,'pays','roumanie')">
-      <input type="radio" name="pays" value="roumanie"/>
+  <div class="ranking-list" id="ranking-list">
+    <div class="ranking-item" data-value="pass_las" draggable="true">
+      <span class="ranking-num">1</span>
+      <span class="flag-icon">🇫🇷</span>
+      <span class="ranking-label">PASS / LAS via Parcoursup</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
+      </span>
+    </div>
+    <div class="ranking-item" data-value="roumanie" draggable="true">
+      <span class="ranking-num">2</span>
       <span class="flag-icon">🇷🇴</span>
-      <span class="checkbox-label">Roumanie</span>
-    </label>
-    <label class="checkbox-item" onclick="selectRadio(this,'pays','italie')">
-      <input type="radio" name="pays" value="italie"/>
+      <span class="ranking-label">Roumanie</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
+      </span>
+    </div>
+    <div class="ranking-item" data-value="italie" draggable="true">
+      <span class="ranking-num">3</span>
       <span class="flag-icon">🇮🇹</span>
-      <span class="checkbox-label">Italie</span>
-    </label>
-    <label class="checkbox-item" onclick="selectRadio(this,'pays','portugal')">
-      <input type="radio" name="pays" value="portugal"/>
+      <span class="ranking-label">Italie</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
+      </span>
+    </div>
+    <div class="ranking-item" data-value="portugal" draggable="true">
+      <span class="ranking-num">4</span>
       <span class="flag-icon">🇵🇹</span>
-      <span class="checkbox-label">Portugal</span>
-    </label>
-    <label class="checkbox-item" onclick="selectRadio(this,'pays','espagne')">
-      <input type="radio" name="pays" value="espagne"/>
+      <span class="ranking-label">Portugal</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
+      </span>
+    </div>
+    <div class="ranking-item" data-value="espagne" draggable="true">
+      <span class="ranking-num">5</span>
       <span class="flag-icon">🇪🇸</span>
-      <span class="checkbox-label">Espagne</span>
-    </label>
+      <span class="ranking-label">Espagne</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
+      </span>
+    </div>
   </div>
-  <div class="error-msg" id="err-pays" style="margin-top:8px;">Veuillez sélectionner un pays.</div>
 
   <hr class="form-divider"/>
 
@@ -1153,8 +1218,9 @@ textarea { resize: vertical; min-height: 80px; }
   <div class="rule"></div>
 
   <div class="lang-section-desc">
-    Indiquez votre niveau pour chaque langue. <strong>Pas d'inquiétude si vous ne parlez pas la langue du pays visé</strong> — certaines universités partenaires proposent des programmes accessibles sans niveau minimum, avec un accompagnement linguistique intégré.
+    Indiquez votre niveau pour <strong>chaque langue</strong> (obligatoire). Pas d'inquietude si vous ne parlez pas la langue du pays vise — certaines universites partenaires proposent des programmes accessibles sans niveau minimum, avec un accompagnement linguistique integre.
   </div>
+  <div class="error-msg" id="err-langues" style="margin-bottom:12px;">Veuillez indiquer votre niveau pour les 4 langues ci-dessous.</div>
 
   <div class="lang-cards">
 
@@ -1163,7 +1229,7 @@ textarea { resize: vertical; min-height: 80px; }
       <div class="lang-card-header" onclick="toggleLangCard('espagnol')">
         <span class="lang-card-flag">🇪🇸</span>
         <span class="lang-card-name">Espagnol</span>
-        <span class="lang-card-toggle" id="lct-espagnol">+</span>
+        <span class="lang-required-dot"></span><span class="lang-card-toggle" id="lct-espagnol">+</span>
       </div>
       <div class="lang-level-options" id="llo-espagnol">
         <label class="level-option" onclick="selectLevel(this,'espagnol','b2')">
@@ -1206,7 +1272,7 @@ textarea { resize: vertical; min-height: 80px; }
       <div class="lang-card-header" onclick="toggleLangCard('anglais')">
         <span class="lang-card-flag">🇬🇧</span>
         <span class="lang-card-name">Anglais</span>
-        <span class="lang-card-toggle" id="lct-anglais">+</span>
+        <span class="lang-required-dot"></span><span class="lang-card-toggle" id="lct-anglais">+</span>
       </div>
       <div class="lang-level-options" id="llo-anglais">
         <label class="level-option" onclick="selectLevel(this,'anglais','b2')">
@@ -1249,7 +1315,7 @@ textarea { resize: vertical; min-height: 80px; }
       <div class="lang-card-header" onclick="toggleLangCard('italien')">
         <span class="lang-card-flag">🇮🇹</span>
         <span class="lang-card-name">Italien</span>
-        <span class="lang-card-toggle" id="lct-italien">+</span>
+        <span class="lang-required-dot"></span><span class="lang-card-toggle" id="lct-italien">+</span>
       </div>
       <div class="lang-level-options" id="llo-italien">
         <label class="level-option" onclick="selectLevel(this,'italien','b2')">
@@ -1280,7 +1346,7 @@ textarea { resize: vertical; min-height: 80px; }
       <div class="lang-card-header" onclick="toggleLangCard('portugais')">
         <span class="lang-card-flag">🇵🇹</span>
         <span class="lang-card-name">Portugais</span>
-        <span class="lang-card-toggle" id="lct-portugais">+</span>
+        <span class="lang-required-dot"></span><span class="lang-card-toggle" id="lct-portugais">+</span>
       </div>
       <div class="lang-level-options" id="llo-portugais">
         <label class="level-option" onclick="selectLevel(this,'portugais','b2')">
@@ -1493,8 +1559,10 @@ textarea { resize: vertical; min-height: 80px; }
 // ── STATE ──
 const state = {
   profil: '',
-  prenom:'', nom:'', email:'', tel:'', adresse:'',
-  score:0, langLevels:{}, destination:'', uniChoix:''
+  prenom:'', nom:'', email:'', tel:'', codepostal:'', ville:'',
+  score:0, langLevels:{}, destination:'', uniChoix:'',
+  ranking: ['pass_las','roumanie','italie','portugal','espagne'],
+  termSpe: []
 };
 
 // ── PROFIL SELECTION (Screen 0) ──
@@ -1509,6 +1577,116 @@ function toggleAutreFormation() {
   const val = document.getElementById('reori-formation').value;
   document.getElementById('reori-autre-wrap').style.display = val === 'autre' ? 'block' : 'none';
 }
+
+// ── CITY LOOKUP FROM CODE POSTAL ──
+async function lookupCity() {
+  const cp = document.getElementById('codepostal').value.trim();
+  const villeEl = document.getElementById('ville');
+  if (cp.length === 5 && /^\d{5}$/.test(cp)) {
+    try {
+      const res = await fetch('https://geo.api.gouv.fr/communes?codePostal=' + cp + '&fields=nom&limit=1');
+      const data = await res.json();
+      villeEl.value = data.length > 0 ? data[0].nom : '';
+    } catch(e) { villeEl.value = ''; }
+  } else { villeEl.value = ''; }
+}
+
+// ── TERMINALE OPTIONS from Première ──
+function updateTerminaleOptions() {
+  const spes = ['p1-nom','p2-nom','p3-nom'].map(id => document.getElementById(id).value).filter(v => v);
+  const container = document.getElementById('terminale-checkboxes');
+  container.innerHTML = '';
+  state.termSpe = [];
+  document.getElementById('term-row-1').style.display = 'none';
+  document.getElementById('term-row-2').style.display = 'none';
+  if (spes.length < 2) return;
+  spes.forEach(spe => {
+    const label = document.createElement('label');
+    label.className = 'checkbox-item';
+    label.innerHTML = '<input type="checkbox" value="' + spe + '" onchange="toggleTermSpe(this)"/><span class="checkbox-label">' + spe + '</span>';
+    container.appendChild(label);
+  });
+}
+
+function toggleTermSpe(cb) {
+  const checked = Array.from(document.querySelectorAll('#terminale-checkboxes input:checked'));
+  if (checked.length > 2) { cb.checked = false; return; }
+  state.termSpe = checked.map(c => c.value);
+  // Update table rows
+  const row1 = document.getElementById('term-row-1');
+  const row2 = document.getElementById('term-row-2');
+  if (state.termSpe[0]) {
+    row1.style.display = '';
+    document.getElementById('t1-nom').value = state.termSpe[0];
+    document.getElementById('t1-nom-display').textContent = state.termSpe[0];
+  } else { row1.style.display = 'none'; }
+  if (state.termSpe[1]) {
+    row2.style.display = '';
+    document.getElementById('t2-nom').value = state.termSpe[1];
+    document.getElementById('t2-nom-display').textContent = state.termSpe[1];
+  } else { row2.style.display = 'none'; }
+  // Update checkbox visual
+  document.querySelectorAll('#terminale-checkboxes .checkbox-item').forEach(el => {
+    el.classList.toggle('selected', el.querySelector('input').checked);
+  });
+}
+
+// ── RANKING (drag & arrows) ──
+function moveRank(btn, dir) {
+  const item = btn.closest('.ranking-item');
+  const list = document.getElementById('ranking-list');
+  const items = Array.from(list.children);
+  const idx = items.indexOf(item);
+  if (idx + dir < 0 || idx + dir >= items.length) return;
+  if (dir === -1) list.insertBefore(item, items[idx - 1]);
+  else list.insertBefore(items[idx + 1], item);
+  updateRankNums();
+}
+
+function updateRankNums() {
+  const items = document.querySelectorAll('#ranking-list .ranking-item');
+  state.ranking = [];
+  items.forEach((item, i) => {
+    item.querySelector('.ranking-num').textContent = i + 1;
+    state.ranking.push(item.dataset.value);
+  });
+}
+
+// Drag & drop for ranking
+document.addEventListener('DOMContentLoaded', () => {
+  const list = document.getElementById('ranking-list');
+  let dragItem = null;
+  list.addEventListener('dragstart', e => {
+    dragItem = e.target.closest('.ranking-item');
+    if (dragItem) dragItem.style.opacity = '0.5';
+  });
+  list.addEventListener('dragend', e => {
+    if (dragItem) dragItem.style.opacity = '1';
+    document.querySelectorAll('.ranking-item').forEach(i => i.classList.remove('drag-over'));
+    dragItem = null;
+  });
+  list.addEventListener('dragover', e => {
+    e.preventDefault();
+    const target = e.target.closest('.ranking-item');
+    if (target && target !== dragItem) {
+      document.querySelectorAll('.ranking-item').forEach(i => i.classList.remove('drag-over'));
+      target.classList.add('drag-over');
+    }
+  });
+  list.addEventListener('drop', e => {
+    e.preventDefault();
+    const target = e.target.closest('.ranking-item');
+    if (target && target !== dragItem && dragItem) {
+      const items = Array.from(list.children);
+      const dragIdx = items.indexOf(dragItem);
+      const targetIdx = items.indexOf(target);
+      if (dragIdx < targetIdx) list.insertBefore(dragItem, target.nextSibling);
+      else list.insertBefore(dragItem, target);
+      updateRankNums();
+    }
+    document.querySelectorAll('.ranking-item').forEach(i => i.classList.remove('drag-over'));
+  });
+});
 
 // ── NOTES CALC (auto-moyenne par ligne) ──
 function calcMoy(prefix) {
@@ -1529,7 +1707,7 @@ function updateGlobalMoy() {
   } else {
     document.getElementById('moy-premiere-wrap').style.display = 'none';
   }
-  const moysTerm = ['t1','t2','t3'].map(p => parseFloat(document.getElementById(p+'-moy')?.value)).filter(n => !isNaN(n));
+  const moysTerm = ['t1','t2'].map(p => parseFloat(document.getElementById(p+'-moy')?.value)).filter(n => !isNaN(n));
   if (moysTerm.length > 0) {
     document.getElementById('moy-terminale-val').textContent = (moysTerm.reduce((a,b)=>a+b,0)/moysTerm.length).toFixed(2) + ' / 20';
     document.getElementById('moy-terminale-wrap').style.display = 'block';
@@ -1569,6 +1747,8 @@ function selectLevel(el, lang, val) {
   }
   existing.className = 'level-badge ' + badgeClass;
   existing.textContent = badge;
+  lc.classList.remove('lang-missing');
+  lc.classList.add('lang-answered');
 }
 
 // ── ORIENTATION ALGO ──
@@ -1625,8 +1805,8 @@ function goBack(s) {
 }
 
 function calcScore() {
-  // Priorité aux notes de Terminale si renseignées, sinon Première
-  const moysTerm = ['t1','t2','t3'].map(p => parseFloat(document.getElementById(p+'-moy')?.value)).filter(n => !isNaN(n));
+  // Priorite aux notes de Terminale si renseignees, sinon Premiere
+  const moysTerm = ['t1','t2'].map(p => parseFloat(document.getElementById(p+'-moy')?.value)).filter(n => !isNaN(n));
   if (moysTerm.length > 0) return moysTerm.reduce((a,b)=>a+b,0)/moysTerm.length;
   const moysPrem = ['p1','p2','p3'].map(p => parseFloat(document.getElementById(p+'-moy')?.value)).filter(n => !isNaN(n));
   return moysPrem.length > 0 ? moysPrem.reduce((a,b)=>a+b,0)/moysPrem.length : 0;
@@ -1635,7 +1815,7 @@ function calcScore() {
 // ── STEP 1 SUBMIT ──
 function submitStep1() {
   let valid = true;
-  ['nom','prenom','email','tel','adresse'].forEach(f => {
+  ['nom','prenom','email','tel','codepostal'].forEach(f => {
     const empty = !v(f);
     markField(f, empty);
     showErr('err-'+f, empty);
@@ -1648,7 +1828,7 @@ function submitStep1() {
   if(state.profil === 'reorientation' && !v('reori-formation')) {
     showErr('err-reori-formation', true); valid=false;
   }
-  // Au moins une matière de première renseignée
+  // Au moins une matiere de premiere renseignee
   const hasPrem = ['p1','p2','p3'].some(p => v(p+'-nom'));
   if (!hasPrem) {
     document.getElementById('table-premiere').closest('.notes-group').style.outline = '2px solid var(--error)';
@@ -1656,18 +1836,29 @@ function submitStep1() {
   } else {
     document.getElementById('table-premiere').closest('.notes-group').style.outline = '';
   }
-  const pays = document.querySelector('[name="pays"]:checked');
-  showErr('err-pays', !pays);
-  if(!pays) valid=false;
+  // Toutes les langues obligatoires
+  const langues = ['espagnol','anglais','italien','portugais'];
+  const allLangs = langues.every(l => state.langLevels[l]);
+  showErr('err-langues', !allLangs);
+  if (!allLangs) {
+    valid = false;
+    langues.forEach(l => {
+      const lc = document.getElementById('lc-'+l);
+      if (!state.langLevels[l]) lc.classList.add('lang-missing');
+    });
+  }
+  // Update ranking
+  updateRankNums();
 
   if(!valid) {
-    const first = document.querySelector('.invalid') || document.querySelector('[style*="outline"]');
+    const first = document.querySelector('.invalid') || document.querySelector('.lang-missing') || document.querySelector('[style*="outline"]');
     first?.scrollIntoView({behavior:'smooth',block:'center'});
     return;
   }
 
   state.prenom = v('prenom'); state.nom = v('nom');
-  state.email = v('email'); state.tel = v('tel'); state.adresse = v('adresse');
+  state.email = v('email'); state.tel = v('tel');
+  state.codepostal = v('codepostal'); state.ville = v('ville');
   state.score = calcScore();
 
   document.getElementById('analyzing-overlay').classList.add('active');
@@ -1731,10 +1922,12 @@ function buildResultCard(prenom, nom, score, ori) {
 // ── STEP 3 ──
 function goToStep3() {
   if (state.destination === 'italie') {
-    ['nom','prenom','email','tel','adresse'].forEach(f => {
+    ['nom','prenom','email','tel'].forEach(f => {
       const el = document.getElementById('it-'+f);
       if(el) el.value = state[f]||'';
     });
+    const itAddr = document.getElementById('it-adresse');
+    if(itAddr) itAddr.value = state.ville || '';
     showScreen('screen-3-italie');
     updateProgress(3);
   } else {
@@ -1761,10 +1954,16 @@ function buildEspagneChoix() {
     label.addEventListener('click', () => selectUni(label, u.val));
     group.appendChild(label);
   });
-  ['uem','ucjc'].forEach(u => ['nom','prenom','email','tel','adresse'].forEach(f => {
-    const el = document.getElementById(u+'-'+f);
-    if(el) el.value = state[f]||'';
-  }));
+  ['uem','ucjc'].forEach(u => {
+    ['nom','prenom','email','tel'].forEach(f => {
+      const el = document.getElementById(u+'-'+f);
+      if(el) el.value = state[f]||'';
+    });
+    const cpEl = document.getElementById(u+'-cp');
+    if(cpEl) cpEl.value = state.codepostal||'';
+    const villeEl = document.getElementById(u+'-ville');
+    if(villeEl) villeEl.value = state.ville||'';
+  });
 }
 
 function selectUni(el, val) {
@@ -1784,7 +1983,7 @@ async function submitFinal() {
       nom: v(p+'-nom'), t1: v(p+'-t1'), t2: v(p+'-t2'), t3: v(p+'-t3'), moy: v(p+'-moy')
     })).filter(n => n.nom);
     // Collecter les notes de Terminale
-    const notesTerminale = ['t1','t2','t3'].map(p => ({
+    const notesTerminale = ['t1','t2'].map(p => ({
       nom: v(p+'-nom'), t1: v(p+'-t1'), t2: v(p+'-t2'), t3: v(p+'-t3'), moy: v(p+'-moy')
     })).filter(n => n.nom);
 
@@ -1829,7 +2028,8 @@ async function submitFinal() {
       prenom: state.prenom,
       email: state.email,
       tel: state.tel,
-      adresse: state.adresse,
+      codePostal: state.codepostal,
+      ville: state.ville,
       profil: state.profil,
       reorientation: state.profil === 'reorientation' ? {
         formation: v('reori-formation'),
@@ -1843,7 +2043,7 @@ async function submitFinal() {
       moyenneTerminale: v('moy-terminale-val'),
       score: state.score,
       langues: { ...state.langLevels, autre: v('autre-langue') },
-      paysChoisi: document.querySelector('[name="pays"]:checked')?.value || '',
+      classementDestinations: state.ranking,
       destination: state.destination,
       universite: state.uni,
       niveau: orient(state.score, state.langLevels).level,

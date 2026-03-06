@@ -798,7 +798,8 @@ function viewDetail(id) {
       <div class="detail-item"><label>Prenom</label><span>${esc(c.prenom)}</span></div>
       <div class="detail-item"><label>Email</label><span>${esc(c.email)}</span></div>
       <div class="detail-item"><label>Telephone</label><span>${esc(c.tel)}</span></div>
-      <div class="detail-item" style="grid-column:1/-1"><label>Adresse</label><span>${esc(c.adresse)}</span></div>
+      <div class="detail-item"><label>Code postal</label><span>${esc(c.codePostal)}</span></div>
+      <div class="detail-item"><label>Ville</label><span>${esc(c.ville)}</span></div>
       <div class="detail-item"><label>Profil</label><span>${c.profil === 'reorientation' ? 'Reorientation' : 'Terminale'}</span></div>
       <div class="detail-item"><label>Statut</label><span class="status-badge status-${c.status}">${statusLabels[c.status] || c.status}</span></div>
     </div>
@@ -838,7 +839,7 @@ function viewDetail(id) {
     <div class="detail-grid">
       <div class="detail-item"><label>Score academique</label><span>${c.score ? parseFloat(c.score).toFixed(1) : '—'}/20</span></div>
       <div class="detail-item"><label>Niveau</label><span>${esc(c.niveau || '—')}</span></div>
-      <div class="detail-item"><label>Pays choisi</label><span>${esc(c.paysChoisi || '—')}</span></div>
+      <div class="detail-item" style="grid-column:1/-1"><label>Classement destinations</label><span>${(c.classementDestinations||[]).map((d,i) => (i+1)+'. '+d).join(' | ') || '—'}</span></div>
       <div class="detail-item"><label>Destination recommandee</label><span>${esc(c.destination || '—')}</span></div>
       <div class="detail-item"><label>Universite</label><span>${esc(c.universite || '—')}</span></div>
     </div>
@@ -908,19 +909,19 @@ function exportCSV() {
   const data = filteredCandidatures.length > 0 ? filteredCandidatures : allCandidatures;
   if (data.length === 0) { alert('Aucune donnee a exporter.'); return; }
 
-  const headers = ['Nom','Prenom','Email','Telephone','Adresse','Profil','Score','Destination','Universite','Niveau','Statut','Date',
+  const headers = ['Nom','Prenom','Email','Telephone','Code Postal','Ville','Profil','Score','Destination','Universite','Niveau','Statut','Date',
     'Espagnol','Anglais','Italien','Portugais','Autre langue',
-    'Moyenne Premiere','Moyenne Terminale','Pays choisi'];
+    'Moyenne Premiere','Moyenne Terminale','Classement destinations'];
 
   const rows = data.map(c => {
     const date = c.createdAt ? new Date(c.createdAt.seconds * 1000).toLocaleDateString('fr-FR') : '';
     const statusLabels = { en_attente:'En attente', en_cours:'En cours', accepte:'Accepte', refuse:'Refuse' };
     return [
-      c.nom, c.prenom, c.email, c.tel, c.adresse, c.profil,
+      c.nom, c.prenom, c.email, c.tel, c.codePostal || '', c.ville || '', c.profil,
       c.score ? parseFloat(c.score).toFixed(1) : '', c.destination, c.universite, c.niveau,
       statusLabels[c.status] || c.status, date,
       c.langues?.espagnol || '', c.langues?.anglais || '', c.langues?.italien || '', c.langues?.portugais || '', c.langues?.autre || '',
-      c.moyennePremiere || '', c.moyenneTerminale || '', c.paysChoisi || ''
+      c.moyennePremiere || '', c.moyenneTerminale || '', (c.classementDestinations||[]).join(' > ') || ''
     ];
   });
 
