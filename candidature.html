@@ -1012,11 +1012,17 @@ let authChecked = false;
 
 auth.onAuthStateChanged(async (user) => {
   if (authChecked) return;
-  authChecked = true;
   if (!user) {
-    window.location.href = 'index.html';
-    return;
+    // Firebase Auth may fire with null before restoring session from IndexedDB.
+    // Wait and re-check before redirecting.
+    await new Promise(r => setTimeout(r, 2000));
+    user = auth.currentUser;
+    if (!user) {
+      window.location.href = 'index.html';
+      return;
+    }
   }
+  authChecked = true;
   currentUser = user;
 
   // Check if already has a candidature
@@ -1393,6 +1399,7 @@ async function submitCandidature() {
     });
 
     document.getElementById('analyzing-overlay').classList.remove('active');
+    sessionStorage.setItem('edumove_just_submitted', docRef.id);
     window.location.href = 'espace.html?cid=' + docRef.id;
   } catch (err) {
     document.getElementById('analyzing-overlay').classList.remove('active');

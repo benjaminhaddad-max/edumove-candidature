@@ -608,11 +608,18 @@ let authChecked = false;
 // ── AUTH ──
 auth.onAuthStateChanged(async (user) => {
   if (authChecked) return;
-  authChecked = true;
   if (!user) {
-    window.location.href = 'index.html';
-    return;
+    // Firebase Auth may fire with null before restoring session from IndexedDB.
+    // Wait and re-check before redirecting.
+    await new Promise(r => setTimeout(r, 2000));
+    user = auth.currentUser;
+    if (!user) {
+      sessionStorage.removeItem('edumove_just_submitted');
+      window.location.href = 'index.html';
+      return;
+    }
   }
+  authChecked = true;
   currentUser = user;
 
   // Load user profile for dropdown
@@ -624,8 +631,9 @@ auth.onAuthStateChanged(async (user) => {
     }
   } catch(e) { console.error('Load profile error:', e); }
 
-  // Load candidature — check URL param first (from submission redirect)
-  const urlCid = new URLSearchParams(window.location.search).get('cid');
+  // Load candidature — check URL param or sessionStorage (from submission redirect)
+  const urlCid = new URLSearchParams(window.location.search).get('cid') || sessionStorage.getItem('edumove_just_submitted');
+  sessionStorage.removeItem('edumove_just_submitted');
   try {
     let snap;
     if (urlCid) {
@@ -638,8 +646,8 @@ auth.onAuthStateChanged(async (user) => {
     if (!candidatureId) {
       snap = await db.collection('candidatures').where('userId', '==', user.uid).limit(1).get();
       if (snap.empty) {
-        // Retry once after short delay (Firestore eventual consistency)
-        await new Promise(r => setTimeout(r, 1500));
+        // Retry after delay (Firestore eventual consistency)
+        await new Promise(r => setTimeout(r, 2000));
         snap = await db.collection('candidatures').where('userId', '==', user.uid).limit(1).get();
       }
       if (!snap || snap.empty) {
@@ -655,7 +663,9 @@ auth.onAuthStateChanged(async (user) => {
     return;
   }
   // Clean URL param
-  if (urlCid) window.history.replaceState({}, '', 'espace.html');
+  if (new URLSearchParams(window.location.search).get('cid')) {
+    window.history.replaceState({}, '', 'espace.html');
+  }
 
   renderDashboard();
   loadMessages();
