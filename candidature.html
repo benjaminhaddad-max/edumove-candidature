@@ -150,6 +150,13 @@ select {
 }
 
 .field-hint { font-size: 11px; color: var(--text-muted); font-style: italic; }
+.field-readonly {
+  background: var(--bg) !important;
+  color: var(--text-muted) !important;
+  cursor: default !important;
+  border-color: transparent !important;
+  font-weight: 500 !important;
+}
 
 /* ── FORM DIVIDER ── */
 .form-divider {
@@ -574,37 +581,31 @@ select.nt-matiere:focus { border-color: var(--violet); }
 
   <hr class="form-divider"/>
 
-  <!-- INFOS PERSONNELLES -->
-  <div class="form-section-label">Informations personnelles</div>
+  <!-- INFORMATIONS PERSONNELLES (pre-remplies depuis le profil) -->
+  <div class="form-section-label">Vos informations</div>
+  <div class="alert alert-profil" style="border-color:var(--violet);background:rgba(97,92,165,0.06);color:var(--violet);padding:12px 16px;border-left:3px solid var(--violet);border-radius:0 6px 6px 0;margin-bottom:20px;font-size:13px;">
+    Ces informations proviennent de votre profil. Pour les modifier, contactez l'equipe EDUMOVE.
+  </div>
   <div class="form-grid">
     <div class="field">
-      <label>Nom <span class="req">*</span></label>
-      <input type="text" id="nom" placeholder="Votre nom de famille"/>
-      <div class="error-msg" id="err-nom">Ce champ est requis.</div>
+      <label>Nom</label>
+      <input type="text" id="nom" readonly class="field-readonly"/>
     </div>
     <div class="field">
-      <label>Prenom <span class="req">*</span></label>
-      <input type="text" id="prenom" placeholder="Votre prenom"/>
-      <div class="error-msg" id="err-prenom">Ce champ est requis.</div>
+      <label>Prenom</label>
+      <input type="text" id="prenom" readonly class="field-readonly"/>
     </div>
     <div class="field">
-      <label>Adresse email <span class="req">*</span></label>
-      <input type="email" id="email" placeholder="exemple@email.com"/>
-      <div class="error-msg" id="err-email">Veuillez entrer un email valide.</div>
+      <label>Email</label>
+      <input type="email" id="email" readonly class="field-readonly"/>
     </div>
     <div class="field">
-      <label>Telephone <span class="req">*</span></label>
-      <input type="tel" id="tel" placeholder="+33 6 XX XX XX XX"/>
-      <div class="error-msg" id="err-tel">Ce champ est requis.</div>
+      <label>Telephone</label>
+      <input type="tel" id="tel" readonly class="field-readonly"/>
     </div>
     <div class="field">
-      <label>Code postal <span class="req">*</span></label>
-      <input type="text" id="codepostal" placeholder="Ex : 75012" maxlength="5" oninput="lookupCity()"/>
-      <div class="error-msg" id="err-codepostal">Ce champ est requis.</div>
-    </div>
-    <div class="field">
-      <label>Ville</label>
-      <input type="text" id="ville" placeholder="Rempli automatiquement" readonly style="background:var(--bg);"/>
+      <label>Departement</label>
+      <input type="text" id="departement" readonly class="field-readonly"/>
     </div>
   </div>
 
@@ -892,21 +893,33 @@ select.nt-matiere:focus { border-color: var(--violet); }
 // ── AUTH CHECK ──
 let currentUser = null;
 
-auth.onAuthStateChanged(user => {
+let userProfile = {};
+
+auth.onAuthStateChanged(async (user) => {
   if (!user) {
     window.location.href = 'index.html';
     return;
   }
   currentUser = user;
   document.getElementById('header-user').textContent = user.email;
-  // Pre-fill email
-  document.getElementById('email').value = user.email;
+
   // Check if already has a candidature
-  db.collection('candidatures').where('userId', '==', user.uid).limit(1).get().then(snap => {
-    if (!snap.empty) {
-      window.location.href = 'espace.html';
-    }
-  });
+  const snap = await db.collection('candidatures').where('userId', '==', user.uid).limit(1).get();
+  if (!snap.empty) {
+    window.location.href = 'espace.html';
+    return;
+  }
+
+  // Load user profile and pre-fill
+  const userDoc = await db.collection('users').doc(user.uid).get();
+  if (userDoc.exists) {
+    userProfile = userDoc.data();
+    document.getElementById('nom').value = userProfile.nom || '';
+    document.getElementById('prenom').value = userProfile.prenom || '';
+    document.getElementById('email').value = userProfile.email || user.email;
+    document.getElementById('tel').value = userProfile.tel || '';
+    document.getElementById('departement').value = userProfile.departement || '';
+  }
 });
 
 function logout() { auth.signOut(); }
@@ -931,19 +944,6 @@ function selectProfil(type, el) {
 function toggleAutreFormation() {
   const val = document.getElementById('reori-formation').value;
   document.getElementById('reori-autre-wrap').style.display = val === 'autre' ? 'block' : 'none';
-}
-
-// ── CITY LOOKUP ──
-async function lookupCity() {
-  const cp = document.getElementById('codepostal').value.trim();
-  const villeEl = document.getElementById('ville');
-  if (cp.length === 5 && /^\d{5}$/.test(cp)) {
-    try {
-      const res = await fetch('https://geo.api.gouv.fr/communes?codePostal=' + cp + '&fields=nom&limit=1');
-      const data = await res.json();
-      villeEl.value = data.length > 0 ? data[0].nom : '';
-    } catch(e) { villeEl.value = ''; }
-  } else { villeEl.value = ''; }
 }
 
 // ── TERMINALE OPTIONS from Premiere ──
@@ -1135,18 +1135,6 @@ async function submitCandidature() {
   // Profil
   if (!state.profil) { showErr('err-profil', true); valid = false; }
 
-  // Infos perso
-  ['nom','prenom','email','tel','codepostal'].forEach(f => {
-    const empty = !v(f);
-    markField(f, empty);
-    showErr('err-'+f, empty);
-    if(empty) valid = false;
-  });
-  const emailVal = v('email');
-  if(emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
-    markField('email',true); showErr('err-email',true); valid=false;
-  }
-
   // Reorientation
   if(state.profil === 'reorientation' && !v('reori-formation')) {
     showErr('err-reori-formation', true); valid=false;
@@ -1201,8 +1189,7 @@ async function submitCandidature() {
       prenom: v('prenom'),
       email: v('email'),
       tel: v('tel'),
-      codePostal: v('codepostal'),
-      ville: v('ville'),
+      departement: v('departement'),
       profil: state.profil,
       reorientation: state.profil === 'reorientation' ? {
         formation: v('reori-formation'),
@@ -1223,12 +1210,6 @@ async function submitCandidature() {
       documents: {},
       status: 'en_attente',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    // Update user doc
-    await db.collection('users').doc(currentUser.uid).update({
-      nom: v('nom'),
-      prenom: v('prenom')
     });
 
     document.getElementById('analyzing-overlay').classList.remove('active');

@@ -241,6 +241,12 @@ body {
 }
 .auth-field input.invalid { border-color: var(--error); }
 
+.auth-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
 .btn-auth {
   width: 100%;
   padding: 13px;
@@ -360,6 +366,7 @@ body {
   .hero-band { padding: 36px 20px 36px; }
   .auth-section { margin: 28px auto; padding: 0 16px 60px; }
   .auth-card { padding: 28px 20px; }
+  .auth-field-row { grid-template-columns: 1fr; }
 }
 </style>
 <!-- Firebase SDK -->
@@ -438,9 +445,29 @@ body {
     <div id="form-signup" class="auth-form">
       <div class="auth-title">Creer un compte</div>
       <div class="auth-subtitle">Inscrivez-vous pour demarrer votre candidature</div>
+      <div class="auth-field-row">
+        <div class="auth-field">
+          <label>Nom <span class="req">*</span></label>
+          <input type="text" id="signup-nom" placeholder="Votre nom"/>
+        </div>
+        <div class="auth-field">
+          <label>Prenom <span class="req">*</span></label>
+          <input type="text" id="signup-prenom" placeholder="Votre prenom"/>
+        </div>
+      </div>
       <div class="auth-field">
         <label>Adresse email <span class="req">*</span></label>
         <input type="email" id="signup-email" placeholder="exemple@email.com"/>
+      </div>
+      <div class="auth-field-row">
+        <div class="auth-field">
+          <label>Telephone <span class="req">*</span></label>
+          <input type="tel" id="signup-tel" placeholder="+33 6 XX XX XX XX"/>
+        </div>
+        <div class="auth-field">
+          <label>Departement <span class="req">*</span></label>
+          <input type="text" id="signup-departement" placeholder="Ex : 75, 13, 69..." maxlength="3"/>
+        </div>
       </div>
       <div class="auth-field">
         <label>Mot de passe <span class="req">*</span></label>
@@ -534,7 +561,11 @@ async function doLogin() {
 
 // ── SIGNUP ──
 async function doSignup() {
+  const nom = document.getElementById('signup-nom').value.trim();
+  const prenom = document.getElementById('signup-prenom').value.trim();
   const email = document.getElementById('signup-email').value.trim();
+  const tel = document.getElementById('signup-tel').value.trim();
+  const departement = document.getElementById('signup-departement').value.trim();
   const pass = document.getElementById('signup-pass').value;
   const pass2 = document.getElementById('signup-pass2').value;
   const errEl = document.getElementById('signup-error');
@@ -542,16 +573,20 @@ async function doSignup() {
   errEl.classList.remove('visible');
   successEl.classList.remove('visible');
 
-  if (!email || !pass || !pass2) { showAuthError(errEl, 'Veuillez remplir tous les champs.'); return; }
+  if (!nom || !prenom || !email || !tel || !departement || !pass || !pass2) { showAuthError(errEl, 'Veuillez remplir tous les champs.'); return; }
   if (pass.length < 6) { showAuthError(errEl, 'Le mot de passe doit contenir au moins 6 caracteres.'); return; }
   if (pass !== pass2) { showAuthError(errEl, 'Les mots de passe ne correspondent pas.'); return; }
 
   try {
     showSpinner();
     const cred = await auth.createUserWithEmailAndPassword(email, pass);
-    // Create user doc in Firestore
+    // Create user doc in Firestore with profile info
     await db.collection('users').doc(cred.user.uid).set({
+      nom: nom,
+      prenom: prenom,
       email: email,
+      tel: tel,
+      departement: departement,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     // onAuthStateChanged will redirect to candidature.html
