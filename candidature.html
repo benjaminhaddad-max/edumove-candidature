@@ -1314,6 +1314,21 @@ function v(id) { return (document.getElementById(id)?.value||'').trim(); }
 function showErr(id, show) { document.getElementById(id)?.classList.toggle('visible', show); }
 function markField(id, invalid) { document.getElementById(id)?.classList.toggle('invalid', invalid); }
 
+// ── HUBSPOT SYNC (fire-and-forget) ──
+function syncToHubSpot(data) {
+  fetch('/api/hubspot', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': 'EDUMOVE_SYNC_2024'
+    },
+    body: JSON.stringify(data)
+  })
+  .then(r => r.json())
+  .then(result => console.log('HubSpot sync:', result))
+  .catch(err => console.warn('HubSpot sync failed (non-blocking):', err));
+}
+
 // ── SUBMIT ──
 async function submitCandidature() {
   let valid = true;
@@ -1402,6 +1417,25 @@ async function submitCandidature() {
       callbackRequested: false,
       callbackRequestedAt: null,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // Sync vers HubSpot (non-bloquant)
+    syncToHubSpot({
+      nom: userProfile.nom || '',
+      prenom: userProfile.prenom || '',
+      email: userProfile.email || currentUser.email,
+      tel: userProfile.tel || '',
+      departement: userProfile.departement || '',
+      profil: state.profil,
+      score: score,
+      destination: ori.dest,
+      universite: ori.uni,
+      niveau: ori.level,
+      langues: { ...state.langLevels },
+      classementDestinations: state.ranking,
+      moyennePremiere: document.getElementById('moy-premiere-val')?.textContent || '',
+      moyenneTerminale: document.getElementById('moy-terminale-val')?.textContent || '',
+      candidatureId: docRef.id
     });
 
     document.getElementById('analyzing-overlay').classList.remove('active');
