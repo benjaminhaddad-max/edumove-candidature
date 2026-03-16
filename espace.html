@@ -1709,8 +1709,14 @@ function getUELangues(ville, filiere) {
   return ['Espagnol', 'Anglais', 'Français'];
 }
 
+// Villes où Médecine est disponible
+const UE_MEDECINE_VILLES = ['Madrid', 'Canaries'];
+
 function getUEFilieres(ville) {
-  const list = [...UE_FILIERES_BASE];
+  const list = UE_FILIERES_BASE.filter(f => {
+    if (f === 'Médecine') return UE_MEDECINE_VILLES.includes(ville);
+    return true;
+  });
   if (ville === 'Alicante') list.splice(list.indexOf('Dentaire') + 1, 0, 'Prépa dentaire');
   return list;
 }
