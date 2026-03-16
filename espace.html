@@ -368,6 +368,141 @@ body {
   text-align: center;
 }
 
+/* ── CONFIRM DOCS ── */
+.confirm-docs-wrap {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.btn-confirm-docs {
+  background: var(--violet);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-confirm-docs:hover { background: #4e497f; }
+.docs-confirmed-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #2e7d32;
+  font-weight: 500;
+}
+.docs-confirmed-banner span { font-size: 20px; }
+
+/* ── UE FORM ── */
+.ue-form-card-header {
+  background: linear-gradient(135deg, #c62828 0%, #e53935 100%);
+}
+.ue-form-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.ue-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  font-size: 14px;
+  color: var(--navy);
+  background: white;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23615ca5' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+.ue-select:focus { outline: none; border-color: var(--violet); }
+.ue-select:disabled { background-color: #f5f5f5; color: var(--text-muted); cursor: not-allowed; }
+.ue-selects-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+@media (max-width: 600px) { .ue-selects-grid { grid-template-columns: 1fr; } }
+.ue-complet-warning {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #fff3e0;
+  border: 1px solid #ffb74d;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #e65100;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+.ue-docs-required {
+  margin-top: 4px;
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  background: var(--bg);
+  border-radius: 8px;
+}
+.ue-docs-required-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--violet);
+  margin-bottom: 10px;
+}
+.ue-doc-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--navy);
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+}
+.ue-doc-item:last-child { border-bottom: none; }
+.ue-doc-item::before { content: '📄'; font-size: 14px; }
+.ue-saved-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #2e7d32;
+}
+.ue-saved-banner-icon { font-size: 20px; flex-shrink: 0; }
+.ue-saved-details { font-size: 12px; color: #388e3c; margin-top: 4px; }
+.btn-ue-save {
+  background: #c62828;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%;
+}
+.btn-ue-save:hover { background: #b71c1c; }
+.btn-ue-save:disabled { background: #bdbdbd; cursor: not-allowed; }
+
 /* ── MESSAGING ── */
 .messages-container {
   max-height: 400px;
@@ -564,13 +699,13 @@ body {
 <div class="dash-content" id="main-content" style="display:none;">
 
   <div class="dash-title" id="welcome-title">Mon espace candidat</div>
-  <div class="dash-subtitle">Suivez l'avancement de votre dossier EDUMOVE</div>
+  <div class="dash-subtitle">Suivez l’avancement de votre dossier EDUMOVE</div>
 
   <!-- STATUS -->
   <div class="status-card" id="status-card">
     <div class="status-icon en_attente" id="status-icon-box">⏳</div>
     <div class="status-info">
-      <div class="status-label">Statut de votre dossier</div>
+        <div class="status-label">Statut de votre dossier</div>
       <div class="status-value en_attente" id="status-text">En attente</div>
     </div>
     <div class="status-date" id="status-date"></div>
@@ -580,7 +715,7 @@ body {
   <div class="status-timeline" id="status-timeline">
     <div class="timeline-step" id="step-attente"><div class="tl-dot"></div><div class="tl-label">En attente</div></div>
     <div class="timeline-line" id="line-1"></div>
-    <div class="timeline-step" id="step-encours"><div class="tl-dot"></div><div class="tl-label">Traitement</div></div>
+        <div class="timeline-step" id="step-encours"><div class="tl-dot"></div><div class="tl-label">Traitement</div></div>
     <div class="timeline-line" id="line-2"></div>
     <div class="timeline-step" id="step-reponse"><div class="tl-dot"></div><div class="tl-label">R&eacute;ponse</div></div>
     <div class="timeline-line" id="line-3"></div>
@@ -597,9 +732,68 @@ body {
     <div class="section-card-body">
       <div class="reponse-text" id="reponse-text"></div>
       <div id="callback-btn-wrap" style="margin-top:24px; text-align:center;">
-        <button class="btn-callback" onclick="requestCallback()" id="btn-callback">📞 Demander un rappel telephonique</button>
+        <button class="btn-callback" onclick="requestCallback()" id="btn-callback">📞 Demander un rappel téléphonique</button>
         <div class="callback-confirmed" id="callback-confirmed" style="display:none;">
-          ✅ Votre demande de rappel a ete enregistree. Un conseiller EDUMOVE vous contactera prochainement.
+          ✅ Votre demande de rappel a été enregistrée. Un conseiller EDUMOVE vous contactera prochainement.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UNIVERSIDAD EUROPEA — FORMULAIRE CANDIDATURE -->
+  <div class="section-card" id="ue-form-card" style="display:none;">
+    <div class="section-card-header ue-form-card-header">
+      <div class="section-card-title">🇪🇸 Candidature Universidad Europea</div>
+    </div>
+    <div class="section-card-body" id="ue-form-body">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:18px;">Sélectionnez le campus, la filière et la langue d'enseignement souhaités pour votre candidature.</p>
+
+      <div id="ue-form-fields">
+        <div class="ue-selects-grid">
+          <div>
+            <div class="ue-form-label">Ville 🏙</div>
+            <select class="ue-select" id="ue-ville" onchange="onUEVilleChange()">
+              <option value="">— Choisir —</option>
+              <option value="Madrid">Madrid</option>
+              <option value="Malaga">Málaga</option>
+              <option value="Valence">Valence</option>
+              <option value="Alicante">Alicante</option>
+              <option value="Canaries">Îles Canaries</option>
+            </select>
+          </div>
+          <div>
+            <div class="ue-form-label">Filière 📚</div>
+            <select class="ue-select" id="ue-filiere" onchange="onUEFiliereChange()" disabled>
+              <option value="">— Choisir —</option>
+            </select>
+          </div>
+          <div>
+            <div class="ue-form-label">Langue d'enseignement 🌐</div>
+            <select class="ue-select" id="ue-langue" onchange="onUELangueChange()" disabled>
+              <option value="">— Choisir —</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="ue-complet-warning" id="ue-complet-warning">
+          ⚠️ Cette combinaison est <strong style="margin-left:4px;">actuellement complète</strong>. Vous pouvez tout de même soumettre votre dossier — nous vous informerons en cas de désistement.
+        </div>
+
+        <div class="ue-docs-required" id="ue-docs-required" style="display:none;">
+          <div class="ue-docs-required-title">Documents requis pour cette candidature</div>
+          <div class="ue-doc-item">Rapport technique académique</div>
+          <div class="ue-doc-item">3 bulletins scolaires de Première</div>
+          <div class="ue-doc-item">Passeport (pages photo + validité)</div>
+        </div>
+
+        <button class="btn-ue-save" id="btn-ue-save" onclick="saveUEChoices()" disabled>Confirmer mes choix</button>
+      </div>
+
+      <div class="ue-saved-banner" id="ue-saved-banner" style="display:none;">
+        <span class="ue-saved-banner-icon">✅</span>
+        <div>
+          <div>Vos choix de candidature ont été enregistrés. L'équipe EDUMOVE prépare votre dossier.</div>
+          <div class="ue-saved-details" id="ue-saved-details"></div>
         </div>
       </div>
     </div>
@@ -608,7 +802,7 @@ body {
   <!-- RECAP DU DOSSIER -->
   <div class="section-card">
     <div class="section-card-header">
-      <div class="section-card-title">Recapitulatif de votre dossier</div>
+      <div class="section-card-title">Récapitulatif de votre dossier</div>
     </div>
     <div class="section-card-body" id="recap-body">
       <!-- Filled by JS -->
@@ -621,7 +815,7 @@ body {
       <div class="section-card-title">Documents</div>
     </div>
     <div class="section-card-body">
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Vous pouvez ajouter des documents complementaires a votre dossier (bulletins, passeport, lettres...). L'equipe EDUMOVE les consultera.</p>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Vous pouvez ajouter des documents complémentaires à votre dossier (bulletins, passeport, lettres...). L’équipe EDUMOVE les consultera.</p>
       <div class="upload-zone" onclick="document.getElementById('file-upload').click()">
         <div class="upload-zone-icon">📎</div>
         <div class="upload-zone-label"><strong>Cliquez pour ajouter un document</strong> · PDF, JPG, PNG (max 10 Mo)</div>
@@ -629,20 +823,29 @@ body {
       </div>
       <div class="upload-progress" id="upload-progress">Envoi en cours...</div>
       <div class="uploaded-files" id="uploaded-files"></div>
+      <div class="confirm-docs-wrap" id="confirm-docs-wrap" style="display:none;">
+        <button class="btn-confirm-docs" id="btn-confirm-docs" onclick="confirmDocumentsSubmitted()">
+          ✅ J'ai envoyé tous mes documents complémentaires
+        </button>
+        <div class="docs-confirmed-banner" id="docs-confirmed-banner" style="display:none;">
+          <span>✅</span>
+          <div>Vos documents ont bien été reçus. L'équipe EDUMOVE va les examiner et vous recontacter prochainement.</div>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- MESSAGERIE -->
   <div class="section-card">
-    <div class="section-card-header">
+      <div class="section-card-header">
       <div class="section-card-title">Messagerie</div>
     </div>
     <div class="section-card-body">
       <div class="messages-container" id="messages-container">
-        <div class="messages-empty" id="messages-empty">Aucun message pour le moment. Envoyez un message a l'equipe EDUMOVE ci-dessous.</div>
+        <div class="messages-empty" id="messages-empty">Aucun message pour le moment. Envoyez un message à l’équipe EDUMOVE ci-dessous.</div>
       </div>
       <div class="message-input-row">
-        <textarea class="message-input" id="message-input" placeholder="Ecrivez votre message..." rows="1"></textarea>
+        <textarea class="message-input" id="message-input" placeholder="Écrivez votre message..." rows="1"></textarea>
         <button class="btn-send" id="btn-send" onclick="sendMessage()">Envoyer</button>
       </div>
     </div>
@@ -651,7 +854,7 @@ body {
 </div>
 
 <footer class="site-footer">
-  © 2026 EDUMOVE · <a href="https://edumove.fr" target="_blank">edumove.fr</a> · Tous droits reserves
+  © 2026 EDUMOVE · <a href="https://edumove.fr" target="_blank">edumove.fr</a> · Tous droits réservés
 </footer>
 
 <script>
@@ -820,7 +1023,7 @@ function renderDashboard() {
   }
 
   // Recap
-  const langLabels = { b2: 'B2+ / Bilingue', b1: 'B1 / Intermediaire', debut: 'A1/A2 / Debutant', aucun: 'Aucun' };
+  const langLabels = { b2: 'B2+ / Bilingue', b1: 'B1 / Intermédiaire', debut: 'A1/A2 / Débutant', aucun: 'Aucun' };
 
   let html = '';
   html += `<div class="recap-grid">
@@ -835,7 +1038,7 @@ function renderDashboard() {
   // Notes Premiere
   if (c.notesPremiere && c.notesPremiere.length > 0) {
     html += `<hr class="recap-divider"/>
-    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--violet);margin-bottom:8px;">Notes de Premiere</div>
+    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--violet);margin-bottom:8px;">Notes de Première</div>
     <table class="notes-table">
       <thead><tr><th>Matiere</th><th>T1</th><th>T2</th><th>T3</th><th>Moy.</th></tr></thead>
       <tbody>${c.notesPremiere.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'—'}</td><td>${n.t2||'—'}</td><td>${n.t3||'—'}</td><td style="font-weight:600;">${n.moy||'—'}</td></tr>`).join('')}</tbody>
@@ -857,7 +1060,7 @@ function renderDashboard() {
   // Langues
   if (c.langues) {
     html += `<hr class="recap-divider"/>
-    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--violet);margin-bottom:8px;">Competences linguistiques</div>
+    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--violet);margin-bottom:8px;">Compétences linguistiques</div>
     <div class="recap-grid">
       ${['espagnol','anglais','italien','portugais'].map(l =>
         c.langues[l] ? `<div class="recap-item"><label>${l.charAt(0).toUpperCase()+l.slice(1)}</label><span>${langLabels[c.langues[l]] || c.langues[l]}</span></div>` : ''
@@ -885,12 +1088,29 @@ function renderDashboard() {
     }
   }
 
+  // Show Universidad Europea form if applicable
+  if (c.status === 'reponse_edumove' && c.autoResponseText && /universidad europea/i.test(c.autoResponseText)) {
+    document.getElementById('ue-form-card').style.display = 'block';
+    if (c.ueChoices) {
+      showUESavedBanner(c.ueChoices.ville, c.ueChoices.filiere, c.ueChoices.langue);
+    }
+  }
+
+  // Show confirm docs button for reponse_edumove status
+  if (c.status === 'reponse_edumove') {
+    document.getElementById('confirm-docs-wrap').style.display = 'block';
+    if (c.docsConfirmed) {
+      document.getElementById('btn-confirm-docs').style.display = 'none';
+      document.getElementById('docs-confirmed-banner').style.display = 'flex';
+    }
+  }
+
   // Existing documents
   renderDocuments();
 }
 
 function updateStatusDisplay(status) {
-  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', dossier_soumis: 'Dossier soumis \u00e0 l\u2019universit\u00e9', accepte: 'Accept\u00e9', refuse: 'Refus\u00e9', abandon: 'Abandon du dossier' };
+  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours de traitement', reponse_edumove: 'Réponse Edumove', dossier_soumis: 'Dossier soumis à l’université', accepte: 'Accepté', refuse: 'Refusé', abandon: 'Abandon du dossier' };
   const statusIcons = { en_attente: '\u23f3', en_cours: '\ud83d\udccb', reponse_edumove: '\ud83d\udce9', dossier_soumis: '\ud83c\udf93', accepte: '\u2705', refuse: '\u274c', abandon: '\ud83d\udeab' };
 
   const textEl = document.getElementById('status-text');
@@ -1010,13 +1230,155 @@ async function uploadDocument(input) {
       [`documents.${docKey}`]: url
     });
 
-    progressEl.textContent = 'Document envoye !';
+    progressEl.textContent = 'Document envoyé !';
     setTimeout(() => { progressEl.style.display = 'none'; }, 2000);
     input.value = '';
   } catch (err) {
     console.error('Upload error:', err);
-    progressEl.textContent = 'Erreur lors de l\'envoi.';
+    progressEl.textContent = 'Erreur lors de l’envoi.';
     setTimeout(() => { progressEl.style.display = 'none'; }, 3000);
+  }
+}
+
+// ── UNIVERSIDAD EUROPEA ──
+const UE_FILIERES_BASE = ['Médecine', 'Dentaire', 'Pharmacie', 'Vétérinaire', 'Kinésithérapie'];
+const UE_COMPLETS = [
+  { ville: 'Malaga',   filiere: 'Dentaire',        langue: null },
+  { ville: 'Valence',  filiere: 'Kinésithérapie',  langue: 'Espagnol' },
+  { ville: 'Alicante', filiere: 'Kinésithérapie',  langue: 'Espagnol' },
+];
+
+function isUEComplet(ville, filiere, langue) {
+  return UE_COMPLETS.some(c =>
+    c.ville === ville && c.filiere === filiere && (c.langue === null || c.langue === langue)
+  );
+}
+
+function getUELangues(ville, filiere) {
+  if (filiere === 'Médecine') return ['Espagnol'];
+  if (filiere === 'Kinésithérapie' && (ville === 'Valence' || ville === 'Alicante')) return ['Espagnol'];
+  return ['Espagnol', 'Anglais', 'Français'];
+}
+
+function getUEFilieres(ville) {
+  const list = [...UE_FILIERES_BASE];
+  if (ville === 'Alicante') list.splice(list.indexOf('Dentaire') + 1, 0, 'Prépa dentaire');
+  return list;
+}
+
+function onUEVilleChange() {
+  const ville = document.getElementById('ue-ville').value;
+  const selFiliere = document.getElementById('ue-filiere');
+  const selLangue = document.getElementById('ue-langue');
+
+  selFiliere.innerHTML = '<option value="">— Choisir —</option>';
+  selLangue.innerHTML = '<option value="">— Choisir —</option>';
+  selFiliere.disabled = !ville;
+  selLangue.disabled = true;
+
+  if (!ville) { updateUEState(); return; }
+
+  const filieres = getUEFilieres(ville);
+  filieres.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value = f;
+    const isFull = isUEComplet(ville, f, null) || isUEComplet(ville, f, 'Espagnol');
+    // Only mark as complet if ALL langues for this combo are complet
+    const langues = getUELangues(ville, f);
+    const allFull = langues.every(l => isUEComplet(ville, f, l));
+    opt.textContent = allFull ? f + ' (Complet)' : f;
+    selFiliere.appendChild(opt);
+  });
+  updateUEState();
+}
+
+function onUEFiliereChange() {
+  const ville = document.getElementById('ue-ville').value;
+  const filiere = document.getElementById('ue-filiere').value;
+  const selLangue = document.getElementById('ue-langue');
+
+  selLangue.innerHTML = '<option value="">— Choisir —</option>';
+  selLangue.disabled = !filiere;
+
+  if (!filiere) { updateUEState(); return; }
+
+  const langues = getUELangues(ville, filiere);
+  langues.forEach(l => {
+    const opt = document.createElement('option');
+    opt.value = l;
+    const full = isUEComplet(ville, filiere, l);
+    opt.textContent = full ? l + ' (Complet)' : l;
+    selLangue.appendChild(opt);
+  });
+  // Auto-select if only one option
+  if (langues.length === 1) { selLangue.value = langues[0]; }
+  updateUEState();
+}
+
+function onUELangueChange() { updateUEState(); }
+
+function updateUEState() {
+  const ville   = document.getElementById('ue-ville').value;
+  const filiere = document.getElementById('ue-filiere').value;
+  const langue  = document.getElementById('ue-langue').value;
+  const warn    = document.getElementById('ue-complet-warning');
+  const docs    = document.getElementById('ue-docs-required');
+  const btn     = document.getElementById('btn-ue-save');
+
+  const allSelected = ville && filiere && langue;
+  const complet = allSelected && isUEComplet(ville, filiere, langue);
+
+  warn.style.display = complet ? 'flex' : 'none';
+  docs.style.display = allSelected ? 'block' : 'none';
+  btn.disabled = !allSelected;
+}
+
+async function saveUEChoices() {
+  const ville   = document.getElementById('ue-ville').value;
+  const filiere = document.getElementById('ue-filiere').value;
+  const langue  = document.getElementById('ue-langue').value;
+  const btn     = document.getElementById('btn-ue-save');
+
+  btn.disabled = true;
+  btn.textContent = 'Enregistrement...';
+
+  try {
+    await db.collection('candidatures').doc(candidatureId).update({
+      ueChoices: { ville, filiere, langue },
+      ueChoicesAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showUESavedBanner(ville, filiere, langue);
+  } catch (err) {
+    console.error('UE save error:', err);
+    btn.disabled = false;
+    btn.textContent = 'Confirmer mes choix';
+  }
+}
+
+function showUESavedBanner(ville, filiere, langue) {
+  document.getElementById('ue-form-fields').style.display = 'none';
+  const banner = document.getElementById('ue-saved-banner');
+  banner.style.display = 'flex';
+  document.getElementById('ue-saved-details').textContent =
+    ville + ' · ' + filiere + ' · ' + langue;
+}
+
+// ── CONFIRM DOCS ──
+async function confirmDocumentsSubmitted() {
+  const btn = document.getElementById('btn-confirm-docs');
+  btn.disabled = true;
+  btn.textContent = 'Confirmation en cours...';
+  try {
+    await db.collection('candidatures').doc(candidatureId).update({
+      docsConfirmed: true,
+      docsConfirmedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    btn.style.display = 'none';
+    document.getElementById('docs-confirmed-banner').style.display = 'flex';
+  } catch (err) {
+    console.error('Confirm docs error:', err);
+    btn.disabled = false;
+    btn.textContent = '✅ J\'ai envoyé tous mes documents complémentaires';
   }
 }
 
@@ -1083,7 +1445,7 @@ async function sendMessage() {
     input.value = '';
   } catch (err) {
     console.error('Message error:', err);
-    alert('Erreur lors de l\'envoi du message.');
+    alert('Erreur lors de l’envoi du message.');
   }
   btn.disabled = false;
 }
