@@ -401,6 +401,97 @@ body {
 }
 .docs-confirmed-banner span { font-size: 20px; }
 
+/* ── UCJC FORM ── */
+.ucjc-card-header {
+  background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+}
+.ucjc-lang-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #e8eaf6;
+  border: 1px solid #9fa8da;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1a237e;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.ucjc-lang-banner-icon { font-size: 22px; flex-shrink: 0; }
+.ucjc-docs-list {
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  background: var(--bg);
+  border-radius: 8px;
+}
+.ucjc-docs-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #1a237e;
+  margin-bottom: 10px;
+}
+.ucjc-doc-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--navy);
+}
+.ucjc-doc-item:last-child { border-bottom: none; }
+.ucjc-doc-name { display: flex; align-items: center; gap: 8px; }
+.ucjc-doc-optional {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+  flex-shrink: 0;
+}
+.btn-ucjc-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: #1a237e;
+  color: white;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.btn-ucjc-download:hover { background: #283593; }
+.btn-ucjc-save {
+  background: #1a237e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%;
+}
+.btn-ucjc-save:hover { background: #283593; }
+.ucjc-saved-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #2e7d32;
+}
+.ucjc-saved-banner-icon { font-size: 20px; flex-shrink: 0; }
+
 /* ── UE FORM ── */
 .ue-form-card-header {
   background: linear-gradient(135deg, #c62828 0%, #e53935 100%);
@@ -737,6 +828,52 @@ body {
           ✅ Votre demande de rappel a été enregistrée. Un conseiller EDUMOVE vous contactera prochainement.
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- UCJC — FORMULAIRE CANDIDATURE -->
+  <div class="section-card" id="ucjc-form-card" style="display:none;">
+    <div class="section-card-header ucjc-card-header">
+      <div class="section-card-title">🎓 Candidature UCJC — Universidad Camilo José Cela</div>
+    </div>
+    <div class="section-card-body">
+
+      <div class="ucjc-lang-banner">
+        <span class="ucjc-lang-banner-icon">🇪🇸</span>
+        <div>Tous les cours à l'UCJC sont dispensés <strong>100% en espagnol</strong>. Un niveau B2 minimum est requis pour candidater.</div>
+      </div>
+
+      <div id="ucjc-form-fields">
+        <div class="ucjc-docs-list">
+          <div class="ucjc-docs-title">Documents à soumettre avec votre dossier</div>
+
+          <div class="ucjc-doc-item">
+            <span class="ucjc-doc-name">📄 Lettre de motivation <strong style="margin-left:4px;">en espagnol</strong></span>
+          </div>
+
+          <div class="ucjc-doc-item">
+            <span class="ucjc-doc-name">🪪 Carte d'identité ou Passeport</span>
+          </div>
+
+          <div class="ucjc-doc-item">
+            <span class="ucjc-doc-name">📋 Formulaire d'admission UCJC <span style="font-size:11px;color:var(--text-muted);margin-left:4px;">(à remplir et signer)</span></span>
+            <a class="btn-ucjc-download" href="formulaire-admission-ucjc.pdf" download="Formulaire-Admission-UCJC.pdf">⬇ Télécharger</a>
+          </div>
+
+          <div class="ucjc-doc-item">
+            <span class="ucjc-doc-name">🌐 Attestation de niveau B2 en espagnol</span>
+            <span class="ucjc-doc-optional">Optionnel — toute certification acceptée (même en ligne)</span>
+          </div>
+        </div>
+
+        <button class="btn-ucjc-save" onclick="saveUCJCConfirm()">✅ J'ai préparé tous mes documents UCJC</button>
+      </div>
+
+      <div class="ucjc-saved-banner" id="ucjc-saved-banner" style="display:none;">
+        <span class="ucjc-saved-banner-icon">✅</span>
+        <div>Votre confirmation a bien été enregistrée. L'équipe EDUMOVE va préparer votre dossier de candidature UCJC.</div>
+      </div>
+
     </div>
   </div>
 
@@ -1088,6 +1225,15 @@ function renderDashboard() {
     }
   }
 
+  // Show UCJC form if applicable
+  if (c.status === 'reponse_edumove' && c.autoResponseText && /ucjc|camilo jos/i.test(c.autoResponseText)) {
+    document.getElementById('ucjc-form-card').style.display = 'block';
+    if (c.ucjcDocsConfirmed) {
+      document.getElementById('ucjc-form-fields').style.display = 'none';
+      document.getElementById('ucjc-saved-banner').style.display = 'flex';
+    }
+  }
+
   // Show Universidad Europea form if applicable
   if (c.status === 'reponse_edumove' && c.autoResponseText && /universidad europea/i.test(c.autoResponseText)) {
     document.getElementById('ue-form-card').style.display = 'block';
@@ -1237,6 +1383,25 @@ async function uploadDocument(input) {
     console.error('Upload error:', err);
     progressEl.textContent = 'Erreur lors de l’envoi.';
     setTimeout(() => { progressEl.style.display = 'none'; }, 3000);
+  }
+}
+
+// ── UCJC ──
+async function saveUCJCConfirm() {
+  const btn = document.querySelector('.btn-ucjc-save');
+  btn.disabled = true;
+  btn.textContent = 'Enregistrement...';
+  try {
+    await db.collection('candidatures').doc(candidatureId).update({
+      ucjcDocsConfirmed: true,
+      ucjcDocsConfirmedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    document.getElementById('ucjc-form-fields').style.display = 'none';
+    document.getElementById('ucjc-saved-banner').style.display = 'flex';
+  } catch (err) {
+    console.error('UCJC confirm error:', err);
+    btn.disabled = false;
+    btn.textContent = '✅ J\'ai préparé tous mes documents UCJC';
   }
 }
 
