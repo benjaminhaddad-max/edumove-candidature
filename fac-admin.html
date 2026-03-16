@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Edumove — Espace Université</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --navy: #1b1d3a;
+  --border: #e2e2ef;
+  --text: #1b1d3a;
+  --text-muted: #7b7b9a;
+  --bg: #f5f5fb;
+  --white: #ffffff;
+  /* University colors — set dynamically by JS */
+  --uni-color: #1b1d3a;
+  --uni-light: #e8eaf6;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; line-height: 1.6; }
+
+/* HEADER */
+.site-header {
+  background: var(--uni-color);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 62px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  transition: background 0.3s;
+}
+.logo-wordmark { font-size: 18px; font-weight: 700; color: white; letter-spacing: -0.01em; }
+.logo-wordmark span { font-weight: 300; opacity: 0.8; }
+.header-right { display: flex; align-items: center; gap: 14px; }
+.header-user { font-size: 12px; color: rgba(255,255,255,0.65); }
+.btn-logout { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+.btn-logout:hover { background: rgba(255,255,255,0.22); }
+
+/* LOGIN */
+.login-wrap { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 62px); padding: 40px; }
+.login-card { background: white; border-radius: 16px; padding: 40px; width: 100%; max-width: 400px; box-shadow: 0 4px 24px rgba(27,29,58,0.1); }
+.login-card h2 { font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+.login-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; }
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 6px; }
+.form-input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; color: var(--text); transition: border-color 0.2s; }
+.form-input:focus { outline: none; border-color: var(--uni-color); }
+.btn-login { width: 100%; padding: 12px; background: var(--uni-color); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: opacity 0.2s; margin-top: 4px; }
+.btn-login:hover { opacity: 0.88; }
+.login-error { display: none; margin-top: 12px; padding: 10px 14px; background: #fff0f0; border: 1px solid #ffcdd2; border-radius: 7px; color: #c62828; font-size: 13px; }
+
+/* DASHBOARD */
+.dashboard { display: none; max-width: 1100px; margin: 0 auto; padding: 28px 24px; }
+.dash-title { font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+.dash-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; }
+
+/* STATS BAR */
+.stats-bar { display: flex; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+.stat-card { background: white; border-radius: 10px; padding: 16px 20px; flex: 1; min-width: 140px; border: 1px solid var(--border); }
+.stat-value { font-size: 28px; font-weight: 700; color: var(--uni-color); line-height: 1; }
+.stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+/* CANDIDATURE TABLE */
+.table-card { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+.table-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.table-title { font-size: 15px; font-weight: 600; color: var(--navy); }
+.search-input { padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 7px; font-size: 13px; font-family: inherit; width: 220px; }
+.search-input:focus { outline: none; border-color: var(--uni-color); }
+.cand-table { width: 100%; border-collapse: collapse; }
+.cand-table th { padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); background: var(--bg); border-bottom: 1px solid var(--border); }
+.cand-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
+.cand-table tr:last-child td { border-bottom: none; }
+.cand-table tr.cand-row:hover { background: var(--bg); cursor: pointer; }
+.cand-table tr.cand-row.expanded { background: #fafafe; }
+.badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.badge-uni { background: var(--uni-light); color: var(--uni-color); }
+.badge-pending { background: #fff8e1; color: #f57f17; }
+.badge-confirmed { background: #e8f5e9; color: #2e7d32; }
+
+/* EXPAND ROW */
+.cand-detail { display: none; background: #f9f9fc; border-bottom: 1px solid var(--border); }
+.cand-detail.open { display: table-row; }
+.cand-detail td { padding: 16px 20px; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+@media (max-width: 700px) { .detail-grid { grid-template-columns: 1fr; } }
+.detail-section { background: white; border-radius: 8px; padding: 14px; border: 1px solid var(--border); }
+.detail-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--uni-color); margin-bottom: 10px; }
+.detail-row { display: flex; flex-direction: column; margin-bottom: 8px; font-size: 13px; }
+.detail-row:last-child { margin-bottom: 0; }
+.detail-row label { font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
+.detail-row span { color: var(--navy); font-weight: 500; }
+.doc-link { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; background: var(--uni-light); color: var(--uni-color); border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; margin: 3px 3px 3px 0; transition: opacity 0.2s; }
+.doc-link:hover { opacity: 0.75; }
+.no-docs { font-size: 12px; color: var(--text-muted); font-style: italic; }
+.empty-state { padding: 60px 20px; text-align: center; color: var(--text-muted); font-size: 14px; }
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+/* LOADING */
+.loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: calc(100vh - 62px); gap: 12px; }
+.spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--uni-color); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+</head>
+<body>
+
+<header class="site-header" id="site-header">
+  <div class="logo-zone">
+    <div class="logo-wordmark">EDUMOVE <span id="uni-label">· Espace Université</span></div>
+  </div>
+  <div class="header-right" id="header-right" style="display:none;">
+    <span class="header-user" id="header-user"></span>
+    <button class="btn-logout" onclick="logout()">Déconnexion</button>
+  </div>
+</header>
+
+<!-- LOADING -->
+<div class="loading-screen" id="loading-screen">
+  <div class="spinner"></div>
+  <div style="font-size:13px;color:var(--text-muted);">Chargement...</div>
+</div>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap" style="display:none;">
+  <div class="login-card">
+    <h2>Accès Université</h2>
+    <p>Espace réservé aux partenaires universitaires EDUMOVE</p>
+    <div class="form-group">
+      <label class="form-label">Adresse email</label>
+      <input class="form-input" type="email" id="login-email" placeholder="votre@universite.es" autocomplete="username"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Mot de passe</label>
+      <input class="form-input" type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="btn-login" onclick="doLogin()">Se connecter</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard" style="display:none;">
+  <div class="dash-title" id="dash-title">Dossiers candidats</div>
+  <div class="dash-subtitle" id="dash-subtitle">Vue en lecture seule — accès partenaire EDUMOVE</div>
+
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-card">
+      <div class="stat-value" id="stat-total">—</div>
+      <div class="stat-label">Dossiers reçus</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-confirmed">—</div>
+      <div class="stat-label">Documents confirmés</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-docs">—</div>
+      <div class="stat-label">Docs uploadés (total)</div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-title">Liste des candidats</div>
+      <input class="search-input" type="text" id="search-input" placeholder="Rechercher un candidat..." oninput="filterCandidatures()"/>
+    </div>
+    <div id="table-wrap">
+      <div class="empty-state" id="empty-state" style="display:none;">
+        <div class="empty-icon">📭</div>
+        <div>Aucun dossier disponible pour le moment.</div>
+      </div>
+      <table class="cand-table" id="cand-table" style="display:none;">
+        <thead>
+          <tr>
+            <th>Candidat</th>
+            <th id="col-uni">Candidature</th>
+            <th>Documents</th>
+            <th>Statut docs</th>
+            <th>Date dossier</th>
+          </tr>
+        </thead>
+        <tbody id="cand-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentUniversity = null; // 'ue' | 'ucjc' | 'link'
+let allCandidatures = [];
+
+const UNI_CONFIG = {
+  ue: {
+    label: 'Universidad Europea',
+    color: '#c62828',
+    light: '#fce4ec',
+    emoji: '🇪🇸',
+    colLabel: 'Ville · Filière · Langue',
+  },
+  ucjc: {
+    label: 'UCJC — Universidad Camilo José Cela',
+    color: '#1a237e',
+    light: '#e8eaf6',
+    emoji: '🎓',
+    colLabel: 'Confirmation',
+  },
+  link: {
+    label: 'LINK Campus — Università degli Studi LINK',
+    color: '#004d40',
+    light: '#e0f2f1',
+    emoji: '🏛',
+    colLabel: 'Confirmation',
+  }
+};
+
+function applyUniTheme(uni) {
+  const cfg = UNI_CONFIG[uni];
+  document.documentElement.style.setProperty('--uni-color', cfg.color);
+  document.documentElement.style.setProperty('--uni-light', cfg.light);
+  document.getElementById('uni-label').textContent = '· ' + cfg.emoji + ' ' + cfg.label;
+  document.getElementById('dash-title').textContent = 'Dossiers — ' + cfg.label;
+  document.getElementById('col-uni').textContent = cfg.colLabel;
+}
+
+// ── AUTH ──
+auth.onAuthStateChanged(async (user) => {
+  document.getElementById('loading-screen').style.display = 'none';
+  if (!user) {
+    document.getElementById('login-wrap').style.display = 'flex';
+    return;
+  }
+  // Check fac_admins collection
+  const doc = await db.collection('fac_admins').doc(user.email).get();
+  if (!doc.exists) {
+    auth.signOut();
+    document.getElementById('login-wrap').style.display = 'flex';
+    showLoginError("Ce compte n'a pas accès à l'espace université.");
+    return;
+  }
+  currentUniversity = doc.data().university;
+  applyUniTheme(currentUniversity);
+  document.getElementById('header-right').style.display = 'flex';
+  document.getElementById('header-user').textContent = user.email;
+  document.getElementById('dashboard').style.display = 'block';
+  loadCandidatures();
+});
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+  if (!email || !pass) { showLoginError('Veuillez remplir tous les champs.'); return; }
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+  } catch (e) {
+    showLoginError('Email ou mot de passe incorrect.');
+  }
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function logout() {
+  auth.signOut();
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('header-right').style.display = 'none';
+  document.getElementById('login-wrap').style.display = 'flex';
+  currentUniversity = null;
+  allCandidatures = [];
+}
+
+// ── LOAD CANDIDATURES ──
+function loadCandidatures() {
+  db.collection('candidatures').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+    const all = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    allCandidatures = all.filter(c => matchUniversity(c));
+    renderStats();
+    renderTable(allCandidatures);
+  });
+}
+
+function matchUniversity(c) {
+  if (currentUniversity === 'ue')   return c.ueChoices != null;
+  if (currentUniversity === 'ucjc') return c.ucjcDocsConfirmed === true;
+  if (currentUniversity === 'link') return c.linkDocsConfirmed === true;
+  return false;
+}
+
+function renderStats() {
+  document.getElementById('stat-total').textContent = allCandidatures.length;
+  const confirmed = allCandidatures.filter(c => {
+    if (currentUniversity === 'ue')   return c.ueChoices != null;
+    if (currentUniversity === 'ucjc') return c.ucjcDocsConfirmed === true;
+    if (currentUniversity === 'link') return c.linkDocsConfirmed === true;
+  }).length;
+  document.getElementById('stat-confirmed').textContent = confirmed;
+  const totalDocs = allCandidatures.reduce((acc, c) => acc + Object.keys(c.documents || {}).length, 0);
+  document.getElementById('stat-docs').textContent = totalDocs;
+}
+
+function filterCandidatures() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const filtered = allCandidatures.filter(c => {
+    const name = ((c.prenom || '') + ' ' + (c.nom || '')).toLowerCase();
+    const email = (c.email || '').toLowerCase();
+    return name.includes(q) || email.includes(q);
+  });
+  renderTable(filtered);
+}
+
+function renderTable(list) {
+  const tbody = document.getElementById('cand-tbody');
+  const table = document.getElementById('cand-table');
+  const empty = document.getElementById('empty-state');
+  tbody.innerHTML = '';
+
+  if (list.length === 0) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  table.style.display = 'table';
+  empty.style.display = 'none';
+
+  list.forEach(c => {
+    const name = esc((c.prenom || '') + ' ' + (c.nom || ''));
+    const email = esc(c.email || '—');
+    const phone = esc(c.telephone || c.phone || '—');
+    const docsCount = Object.keys(c.documents || {}).length;
+    const date = c.createdAt ? new Date(c.createdAt.seconds * 1000).toLocaleDateString('fr-FR') : '—';
+
+    // University-specific column
+    let uniCell = '';
+    if (currentUniversity === 'ue' && c.ueChoices) {
+      uniCell = `<span class="badge badge-uni">${esc(c.ueChoices.ville)} · ${esc(c.ueChoices.filiere)} · ${esc(c.ueChoices.langue)}</span>`;
+    } else if (currentUniversity === 'ucjc') {
+      const d = c.ucjcDocsConfirmedAt ? new Date(c.ucjcDocsConfirmedAt.seconds * 1000).toLocaleDateString('fr-FR') : '';
+      uniCell = `<span class="badge badge-confirmed">✅ Confirmé${d ? ' le ' + d : ''}</span>`;
+    } else if (currentUniversity === 'link') {
+      const d = c.linkDocsConfirmedAt ? new Date(c.linkDocsConfirmedAt.seconds * 1000).toLocaleDateString('fr-FR') : '';
+      uniCell = `<span class="badge badge-confirmed">✅ Confirmé${d ? ' le ' + d : ''}</span>`;
+    }
+
+    // Docs status
+    const docsStatus = docsCount > 0
+      ? `<span class="badge badge-confirmed">${docsCount} fichier${docsCount > 1 ? 's' : ''}</span>`
+      : `<span class="badge badge-pending">En attente</span>`;
+
+    const row = document.createElement('tr');
+    row.className = 'cand-row';
+    row.innerHTML = `
+      <td>
+        <div style="font-weight:600;color:var(--navy)">${name}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${email}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${phone}</div>
+      </td>
+      <td>${uniCell}</td>
+      <td>${docsStatus}</td>
+      <td><span class="badge badge-uni">${esc(statusLabel(c.status))}</span></td>
+      <td style="color:var(--text-muted);font-size:12px">${date}</td>
+    `;
+    row.onclick = () => toggleDetail(c.id);
+    tbody.appendChild(row);
+
+    // Detail row
+    const detailRow = document.createElement('tr');
+    detailRow.className = 'cand-detail';
+    detailRow.id = 'detail-' + c.id;
+    detailRow.innerHTML = `<td colspan="5">${buildDetail(c)}</td>`;
+    tbody.appendChild(detailRow);
+  });
+}
+
+function toggleDetail(id) {
+  const row = document.getElementById('detail-' + id);
+  const isOpen = row.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.cand-detail.open').forEach(r => r.classList.remove('open'));
+  document.querySelectorAll('.cand-row.expanded').forEach(r => r.classList.remove('expanded'));
+  if (!isOpen) {
+    row.classList.add('open');
+    row.previousElementSibling.classList.add('expanded');
+  }
+}
+
+function buildDetail(c) {
+  // Personal info
+  let personal = `
+    <div class="detail-section">
+      <div class="detail-section-title">👤 Informations personnelles</div>
+      <div class="detail-row"><label>Nom complet</label><span>${esc((c.prenom || '') + ' ' + (c.nom || ''))}</span></div>
+      <div class="detail-row"><label>Email</label><span>${esc(c.email || '—')}</span></div>
+      <div class="detail-row"><label>Téléphone</label><span>${esc(c.telephone || c.phone || '—')}</span></div>
+      <div class="detail-row"><label>Année bac</label><span>${esc(String(c.anneeBac || c.annee_bac || '—'))}</span></div>
+      <div class="detail-row"><label>Filière bac</label><span>${esc(c.filiereBac || c.filiere_bac || '—')}</span></div>
+    </div>`;
+
+  // University-specific info
+  let uniInfo = '';
+  if (currentUniversity === 'ue' && c.ueChoices) {
+    uniInfo = `
+      <div class="detail-section">
+        <div class="detail-section-title">🇪🇸 Choix Universidad Europea</div>
+        <div class="detail-row"><label>Ville / Campus</label><span>${esc(c.ueChoices.ville)}</span></div>
+        <div class="detail-row"><label>Filière</label><span>${esc(c.ueChoices.filiere)}</span></div>
+        <div class="detail-row"><label>Langue d'enseignement</label><span>${esc(c.ueChoices.langue)}</span></div>
+        ${c.ueChoicesAt ? `<div class="detail-row"><label>Date de confirmation</label><span>${new Date(c.ueChoicesAt.seconds*1000).toLocaleDateString('fr-FR')}</span></div>` : ''}
+      </div>`;
+  } else if (currentUniversity === 'ucjc') {
+    uniInfo = `
+      <div class="detail-section">
+        <div class="detail-section-title">🎓 UCJC — Détails</div>
+        <div class="detail-row"><label>Cours</label><span>100% en espagnol</span></div>
+        <div class="detail-row"><label>Documents confirmés</label><span>${c.ucjcDocsConfirmed ? '✅ Oui' : '⏳ En attente'}</span></div>
+        ${c.ucjcDocsConfirmedAt ? `<div class="detail-row"><label>Date confirmation</label><span>${new Date(c.ucjcDocsConfirmedAt.seconds*1000).toLocaleDateString('fr-FR')}</span></div>` : ''}
+      </div>`;
+  } else if (currentUniversity === 'link') {
+    uniInfo = `
+      <div class="detail-section">
+        <div class="detail-section-title">🏛 LINK Campus — Détails</div>
+        <div class="detail-row"><label>Test d'admission</label><span>15 avril 2026</span></div>
+        <div class="detail-row"><label>Documents confirmés</label><span>${c.linkDocsConfirmed ? '✅ Oui' : '⏳ En attente'}</span></div>
+        ${c.linkDocsConfirmedAt ? `<div class="detail-row"><label>Date confirmation</label><span>${new Date(c.linkDocsConfirmedAt.seconds*1000).toLocaleDateString('fr-FR')}</span></div>` : ''}
+      </div>`;
+  }
+
+  // Documents
+  const docs = c.documents || {};
+  const docKeys = Object.keys(docs);
+  let docsHtml = docKeys.length > 0
+    ? docKeys.map(k => `<a class="doc-link" href="${esc(docs[k])}" target="_blank" rel="noopener">📄 ${esc(k.replace(/^doc_\d+_/, ''))}</a>`).join('')
+    : '<span class="no-docs">Aucun document uploadé pour l\'instant.</span>';
+
+  let docsSection = `
+    <div class="detail-section">
+      <div class="detail-section-title">📁 Documents uploadés</div>
+      <div>${docsHtml}</div>
+    </div>`;
+
+  return `<div class="detail-grid">${personal}${uniInfo}${docsSection}</div>`;
+}
+
+function statusLabel(s) {
+  const map = { en_attente: 'En attente', en_cours: 'En cours', reponse_edumove: 'Réponse EDUMOVE', dossier_soumis: 'Dossier soumis', accepte: 'Accepté', refuse: 'Refusé', abandon: 'Abandon' };
+  return map[s] || (s || '—');
+}
+
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
