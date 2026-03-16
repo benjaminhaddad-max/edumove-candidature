@@ -565,12 +565,8 @@ tr:hover { background: rgba(97,92,165,0.03); }
 }
 </style>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
-<script src="firebase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 <script src="status-engine.js"></script>
 </head>
 <body>
@@ -704,40 +700,50 @@ const perPage = 15;
 // ══════════════════════════════════════════
 // AUTH
 // ══════════════════════════════════════════
-auth.onAuthStateChanged(async (user) => {
-  if (user) {
-    // Verifier si admin
-    const adminDoc = await db.collection('admins').doc(user.email).get();
-    if (adminDoc.exists) {
+let currentAdminUser = null;
+
+(async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.user) {
+    const user = session.user;
+    const { data: adminData } = await supabase.from('admins').select('id').eq('id', user.id).maybeSingle();
+    if (adminData) {
+      currentAdminUser = user;
       showDashboard(user);
     } else {
-      auth.signOut();
+      await supabase.auth.signOut();
       showLoginError("Ce compte n'a pas les droits administrateur.");
     }
   } else {
     showLogin();
   }
-});
+})();
 
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-pass').value;
   if (!email || !pass) { showLoginError('Veuillez remplir tous les champs.'); return; }
   try {
-    await auth.signInWithEmailAndPassword(email, pass);
+    const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+    if (error) throw error;
+    const user = (await supabase.auth.getUser()).data?.user;
+    if (!user) throw new Error('No user');
+    const { data: adminData } = await supabase.from('admins').select('id').eq('id', user.id).maybeSingle();
+    if (adminData) {
+      currentAdminUser = user;
+      showDashboard(user);
+    } else {
+      await supabase.auth.signOut();
+      showLoginError("Ce compte n'a pas les droits administrateur.");
+    }
   } catch (err) {
-    const messages = {
-      'auth/user-not-found': 'Aucun compte avec cet email.',
-      'auth/wrong-password': 'Mot de passe incorrect.',
-      'auth/invalid-email': 'Email invalide.',
-      'auth/invalid-credential': 'Identifiants incorrects.'
-    };
-    showLoginError(messages[err.code] || 'Erreur de connexion.');
+    showLoginError('Identifiants incorrects.');
   }
 }
 
 function logout() {
-  auth.signOut();
+  supabase.auth.signOut();
+  showLogin();
 }
 
 function showLogin() {
@@ -764,23 +770,33 @@ function showDashboard(user) {
 // LOAD DATA
 // ══════════════════════════════════════════
 let autoAdvanceRunning = false;
-function loadCandidatures() {
-  db.collection('candidatures').orderBy('createdAt', 'desc').onSnapshot(async (snapshot) => {
-    allCandidatures = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    updateStats();
-    applyFilters();
+async function loadCandidatures() {
+  const { data, error } = await supabase.from('candidatures').select('*').order('created_at', { ascending: false });
+  if (error) { console.error('Load candidatures error:', error); return; }
+  allCandidatures = data || [];
+  updateStats();
+  applyFilters();
 
-    // Auto-advance statuses (run once, not on re-trigger from own writes)
-    if (!autoAdvanceRunning) {
-      autoAdvanceRunning = true;
-      for (const c of allCandidatures) {
-        if (c.status === 'en_attente' || c.status === 'en_cours') {
-          try { await checkAndAdvanceStatus(c.id, c); } catch(e) { console.error('Auto-advance error:', e); }
-        }
+  // Auto-advance statuses (run once)
+  if (!autoAdvanceRunning) {
+    autoAdvanceRunning = true;
+    for (const c of allCandidatures) {
+      if (c.status === 'en_attente' || c.status === 'en_cours') {
+        try { await checkAndAdvanceStatus(c.id, c); } catch(e) { console.error('Auto-advance error:', e); }
       }
-      autoAdvanceRunning = false;
     }
-  });
+    autoAdvanceRunning = false;
+  }
+
+  // Subscribe for realtime updates
+  supabase.channel('admin-candidatures')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'candidatures' }, async () => {
+      const { data: fresh } = await supabase.from('candidatures').select('*').order('created_at', { ascending: false });
+      allCandidatures = fresh || [];
+      updateStats();
+      applyFilters();
+    })
+    .subscribe();
 }
 
 function updateStats() {
@@ -791,7 +807,7 @@ function updateStats() {
   const dossier = allCandidatures.filter(c => c.status === 'dossier_soumis').length;
   const accepte = allCandidatures.filter(c => c.status === 'accepte').length;
   const refuse = allCandidatures.filter(c => c.status === 'refuse').length;
-  const rappel = allCandidatures.filter(c => c.callbackRequested).length;
+  const rappel = allCandidatures.filter(c => c.callback_requested).length;
   document.getElementById('stat-total').textContent = total;
   document.getElementById('stat-attente').textContent = attente;
   document.getElementById('stat-encours').textContent = encours;
@@ -845,7 +861,7 @@ function renderTable() {
   const destLabels = { italie: 'Italie', espagne: 'Espagne' };
 
   tbody.innerHTML = pageItems.map(c => {
-    const date = c.createdAt ? new Date(c.createdAt.seconds * 1000).toLocaleDateString('fr-FR') : '—';
+    const date = c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '—';
     return `<tr>
       <td><div class="td-name">${esc(c.nom)} ${esc(c.prenom)}</div></td>
       <td class="td-email">${esc(c.email)}</td>
@@ -893,16 +909,14 @@ function goToPage(p) {
 // STATUS UPDATE
 // ══════════════════════════════════════════
 async function updateStatus(id, newStatus) {
-  const adminEmail = auth.currentUser?.email || 'admin';
-  await db.collection('candidatures').doc(id).update({
+  const adminEmail = currentAdminUser?.email || 'admin';
+  const c = allCandidatures.find(x => x.id === id);
+  const existing = Array.isArray(c?.status_history) ? c.status_history : [];
+  await supabase.from('candidatures').update({
     status: newStatus,
-    manualOverride: true,
-    statusHistory: firebase.firestore.FieldValue.arrayUnion({
-      status: newStatus,
-      at: firebase.firestore.Timestamp.now(),
-      by: adminEmail
-    })
-  });
+    manual_override: true,
+    status_history: [...existing, { status: newStatus, at: new Date().toISOString(), by: adminEmail }]
+  }).eq('id', id);
 }
 
 // ══════════════════════════════════════════
@@ -957,8 +971,8 @@ function viewDetail(id) {
       </table>
     </div>`;
   };
-  html += renderNotes(c.notesPremiere, 'Notes de Premiere');
-  html += renderNotes(c.notesTerminale, 'Notes de Terminale');
+  html += renderNotes(c.notes_premiere, 'Notes de Premiere');
+  html += renderNotes(c.notes_terminale, 'Notes de Terminale');
 
   // Score & orientation
   html += `<div class="detail-section">
@@ -966,7 +980,7 @@ function viewDetail(id) {
     <div class="detail-grid">
       <div class="detail-item"><label>Score academique</label><span>${c.score ? parseFloat(c.score).toFixed(1) : '—'}/20</span></div>
       <div class="detail-item"><label>Niveau</label><span>${esc(c.niveau || '—')}</span></div>
-      <div class="detail-item" style="grid-column:1/-1"><label>Classement destinations</label><span>${(c.classementDestinations||[]).map((d,i) => (i+1)+'. '+d).join(' | ') || '—'}</span></div>
+      <div class="detail-item" style="grid-column:1/-1"><label>Classement destinations</label><span>${(c.classement_destinations||[]).map((d,i) => (i+1)+'. '+d).join(' | ') || '—'}</span></div>
       <div class="detail-item"><label>Destination recommandee</label><span>${esc(c.destination || '—')}</span></div>
       <div class="detail-item"><label>Universite</label><span>${esc(c.universite || '—')}</span></div>
     </div>
@@ -1032,7 +1046,7 @@ function viewDetail(id) {
       <button class="btn-view" style="background:var(--error);padding:8px 16px;" onclick="applyAiAction('${c.id}','refuse')">❌ Refus\u00e9</button>
       <button class="btn-view" style="background:#757575;padding:8px 16px;" onclick="applyAiAction('${c.id}','abandon')">🚫 Abandon</button>
     </div>
-    ${c.manualOverride ? '<div style="margin-top:10px;font-size:11px;color:var(--text-muted);font-style:italic;">⚠️ L\'auto-progression est desactivee (intervention manuelle detectee)</div>' : '<div style="margin-top:10px;font-size:11px;color:var(--text-muted);">🤖 L\'auto-progression est active</div>'}
+    ${c.manual_override ? '<div style="margin-top:10px;font-size:11px;color:var(--text-muted);font-style:italic;">⚠️ L\'auto-progression est desactivee (intervention manuelle detectee)</div>' : '<div style="margin-top:10px;font-size:11px;color:var(--text-muted);">🤖 L\'auto-progression est active</div>'}
   </div>`;
 
   // Messagerie
@@ -1056,41 +1070,45 @@ function viewDetail(id) {
 
 let currentMsgUnsubscribe = null;
 
-function loadMessagesForCandidature(candidatureId) {
+async function loadMessagesForCandidature(candidatureId) {
   if (currentMsgUnsubscribe) currentMsgUnsubscribe();
 
   const container = document.getElementById('msg-container-' + candidatureId);
   const emptyEl = document.getElementById('msg-empty-' + candidatureId);
 
-  currentMsgUnsubscribe = db.collection('messages')
-    .where('candidatureId', '==', candidatureId)
-    .orderBy('createdAt', 'asc')
-    .onSnapshot(snapshot => {
-      // Remove old messages
-      container.querySelectorAll('.msg-bubble').forEach(m => m.remove());
-
-      if (snapshot.empty) {
-        emptyEl.style.display = 'block';
-        return;
+  const renderMsgs = (msgs) => {
+    container.querySelectorAll('.msg-bubble').forEach(m => m.remove());
+    if (!msgs || msgs.length === 0) {
+      emptyEl.style.display = 'block';
+      return;
+    }
+    emptyEl.style.display = 'none';
+    msgs.forEach(msg => {
+      const div = document.createElement('div');
+      div.className = 'msg-bubble ' + msg.sender;
+      let inner = `<div class="msg-sender">${msg.sender === 'admin' ? 'Equipe EDUMOVE' : esc('Etudiant')}</div>`;
+      inner += `<div>${esc(msg.content)}</div>`;
+      if (msg.created_at) {
+        const date = new Date(msg.created_at);
+        inner += `<div class="msg-time">${date.toLocaleDateString('fr-FR')} ${date.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'})}</div>`;
       }
-      emptyEl.style.display = 'none';
-
-      snapshot.docs.forEach(doc => {
-        const msg = doc.data();
-        const div = document.createElement('div');
-        div.className = 'msg-bubble ' + msg.senderRole;
-
-        let inner = `<div class="msg-sender">${msg.senderRole === 'admin' ? 'Equipe EDUMOVE' : esc(msg.senderName || 'Etudiant')}</div>`;
-        inner += `<div>${esc(msg.text)}</div>`;
-        if (msg.createdAt) {
-          const date = new Date(msg.createdAt.seconds * 1000);
-          inner += `<div class="msg-time">${date.toLocaleDateString('fr-FR')} ${date.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'})}</div>`;
-        }
-        div.innerHTML = inner;
-        container.appendChild(div);
-      });
-      container.scrollTop = container.scrollHeight;
+      div.innerHTML = inner;
+      container.appendChild(div);
     });
+    container.scrollTop = container.scrollHeight;
+  };
+
+  const { data: initialMsgs } = await supabase.from('messages').select('*').eq('candidature_id', candidatureId).order('created_at', { ascending: true });
+  renderMsgs(initialMsgs);
+
+  const channel = supabase.channel('admin-msgs-' + candidatureId)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'candidature_id=eq.' + candidatureId }, async () => {
+      const { data: msgs } = await supabase.from('messages').select('*').eq('candidature_id', candidatureId).order('created_at', { ascending: true });
+      renderMsgs(msgs);
+    })
+    .subscribe();
+
+  currentMsgUnsubscribe = () => supabase.removeChannel(channel);
 }
 
 async function sendAdminMessage(candidatureId) {
@@ -1099,13 +1117,11 @@ async function sendAdminMessage(candidatureId) {
   if (!text) return;
 
   try {
-    await db.collection('messages').add({
-      candidatureId: candidatureId,
-      senderId: 'admin',
-      senderName: 'Equipe EDUMOVE',
-      senderRole: 'admin',
-      text: text,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    await supabase.from('messages').insert({
+      candidature_id: candidatureId,
+      user_id: currentAdminUser?.id || null,
+      content: text,
+      sender: 'admin'
     });
     input.value = '';
   } catch (err) {
@@ -1123,26 +1139,23 @@ function closeModal() {
 }
 
 async function applyAiAction(id, action) {
-  const adminEmail = auth.currentUser?.email || 'admin';
+  const adminEmail = currentAdminUser?.email || 'admin';
   const c = allCandidatures.find(x => x.id === id);
+  const existing = Array.isArray(c?.status_history) ? c.status_history : [];
   const updates = {
     status: action,
-    manualOverride: true,
-    statusHistory: firebase.firestore.FieldValue.arrayUnion({
-      status: action,
-      at: firebase.firestore.Timestamp.now(),
-      by: adminEmail
-    })
+    manual_override: true,
+    status_history: [...existing, { status: action, at: new Date().toISOString(), by: adminEmail }]
   };
 
   // If sending reponse_edumove, generate the response text
   if (action === 'reponse_edumove' && c) {
-    updates.autoResponseText = generateReponseEdumove(c);
-    updates.autoResponseGeneratedAt = firebase.firestore.FieldValue.serverTimestamp();
+    updates.auto_response_text = generateReponseEdumove(c);
+    updates.auto_response_generated_at = new Date().toISOString();
   }
 
   try {
-    await db.collection('candidatures').doc(id).update(updates);
+    await supabase.from('candidatures').update(updates).eq('id', id);
     closeModal();
   } catch(e) {
     console.error('Apply action error:', e);
@@ -1162,14 +1175,14 @@ function exportCSV() {
     'Moyenne Premiere','Moyenne Terminale','Classement destinations'];
 
   const rows = data.map(c => {
-    const date = c.createdAt ? new Date(c.createdAt.seconds * 1000).toLocaleDateString('fr-FR') : '';
+    const date = c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '';
     const statusLabels = { en_attente:'En attente', en_cours:'En cours de traitement', reponse_edumove:'R\u00e9ponse Edumove', dossier_soumis:'Dossier soumis', accepte:'Accept\u00e9', refuse:'Refus\u00e9', abandon:'Abandon' };
     return [
-      c.nom, c.prenom, c.email, c.tel, c.departement || c.codePostal || '', c.profil,
+      c.nom, c.prenom, c.email, c.tel, c.departement || '', c.profil,
       c.score ? parseFloat(c.score).toFixed(1) : '', c.destination, c.universite, c.niveau,
       statusLabels[c.status] || c.status, date,
       c.langues?.espagnol || '', c.langues?.anglais || '', c.langues?.italien || '', c.langues?.portugais || '', c.langues?.autre || '',
-      c.moyennePremiere || '', c.moyenneTerminale || '', (c.classementDestinations||[]).join(' > ') || ''
+      c.moyenne_premiere || '', c.moyenne_terminale || '', (c.classement_destinations||[]).join(' > ') || ''
     ];
   });
 

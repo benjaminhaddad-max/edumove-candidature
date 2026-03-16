@@ -643,12 +643,8 @@ select.nt-matiere:focus { border-color: var(--violet); }
   .nt-note { width: 55px !important; }
 }
 </style>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
-<script src="firebase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 </head>
 <body>
 
@@ -706,7 +702,7 @@ select.nt-matiere:focus { border-color: var(--violet); }
 
   <div class="section-title">Formulaire de candidature</div>
   <div class="rule"></div>
-  <div class="section-desc">Completez ce formulaire avec soin. Toutes les informations sont traitees de maniere confidentielle par l'equipe EDUMOVE.</div>
+  <div class="section-desc">Complétez ce formulaire avec soin. Toutes les informations sont traitées de manière confidentielle par l’équipe EDUMOVE.</div>
 
   <!-- PROFIL SELECTION -->
   <div class="form-section-label">Votre situation</div>
@@ -714,15 +710,15 @@ select.nt-matiere:focus { border-color: var(--violet); }
     <div class="profil-option" onclick="selectProfil('terminale', this)">
       <div class="profil-option-icon">🎓</div>
       <div class="profil-option-label">Terminale</div>
-      <div class="profil-option-desc">Annee scolaire 2025-2026</div>
+      <div class="profil-option-desc">Année scolaire 2025-2026</div>
     </div>
-    <div class="profil-option" onclick="selectProfil('reorientation', this)">
+      <div class="profil-option" onclick="selectProfil('reorientation', this)">
       <div class="profil-option-icon">🔄</div>
-      <div class="profil-option-label">Reorientation</div>
-      <div class="profil-option-desc">Deja en etudes superieures</div>
+      <div class="profil-option-label">Réorientation</div>
+      <div class="profil-option-desc">Déjà en études supérieures</div>
     </div>
   </div>
-  <div class="error-msg" id="err-profil">Veuillez selectionner votre situation.</div>
+  <div class="error-msg" id="err-profil">Veuillez sélectionner votre situation.</div>
 
   <!-- BLOC REORIENTATION -->
   <div id="bloc-reorientation" style="display:none;">
@@ -732,40 +728,40 @@ select.nt-matiere:focus { border-color: var(--violet); }
       <div class="field">
         <label>Formation actuelle <span class="req">*</span></label>
         <select id="reori-formation" onchange="toggleAutreFormation()">
-          <option value="">— Selectionner —</option>
-          <option value="PASS">PASS (Parcours Acces Sante Specifique)</option>
-          <option value="LAS">LAS (Licence Acces Sante)</option>
-          <option value="L1 Medecine etranger">L1 Medecine a l'etranger</option>
+          <option value="">— Sélectionner —</option>
+          <option value="PASS">PASS (Parcours Accès Santé Spécifique)</option>
+          <option value="LAS">LAS (Licence Accès Santé)</option>
+          <option value="L1 Medecine etranger">L1 Médecine à l’étranger</option>
           <option value="Licence autre">Licence (autre domaine)</option>
           <option value="BTS/BUT">BTS / BUT</option>
-          <option value="Prepa">Classe preparatoire</option>
-          <option value="autre">Autre — preciser</option>
+          <option value="Prepa">Classe préparatoire</option>
+          <option value="autre">Autre — préciser</option>
         </select>
         <div class="error-msg" id="err-reori-formation">Ce champ est requis.</div>
       </div>
       <div class="field">
-        <label>Etablissement actuel</label>
-        <input type="text" id="reori-etablissement" placeholder="Nom de l'universite ou ecole"/>
+        <label>Établissement actuel</label>
+        <input type="text" id="reori-etablissement" placeholder="Nom de l’université ou école"/>
       </div>
     </div>
     <div class="field" id="reori-autre-wrap" style="display:none;margin-top:12px;">
-      <label>Precisez votre formation <span class="req">*</span></label>
-      <input type="text" id="reori-autre" placeholder="Decrivez votre formation actuelle"/>
+      <label>Précisez votre formation <span class="req">*</span></label>
+      <input type="text" id="reori-autre" placeholder="Décrivez votre formation actuelle"/>
     </div>
     <div class="form-grid" style="margin-top:16px;">
       <div class="field">
-        <label>Annee en cours</label>
+        <label>Année en cours</label>
         <select id="reori-annee">
-          <option value="">— Selectionner —</option>
-          <option value="1ere annee">1ere annee</option>
-          <option value="2eme annee">2eme annee</option>
-          <option value="3eme annee">3eme annee</option>
+          <option value="">— Sélectionner —</option>
+          <option value="1ere annee">1ère année</option>
+          <option value="2eme annee">2ème année</option>
+          <option value="3eme annee">3ème année</option>
           <option value="Plus">Plus de 3 ans</option>
         </select>
       </div>
       <div class="field">
-        <label>Motif de reorientation</label>
-        <input type="text" id="reori-motif" placeholder="Ex : Echec PASS, projet medical..."/>
+        <label>Motif de réorientation</label>
+        <input type="text" id="reori-motif" placeholder="Ex : Échec PASS, projet médical..."/>
       </div>
     </div>
   </div>
@@ -773,16 +769,16 @@ select.nt-matiere:focus { border-color: var(--violet); }
   <hr class="form-divider"/>
 
   <!-- NOTES PREMIERE -->
-  <div class="form-section-label">Notes de Premiere</div>
-  <div class="section-desc" style="margin-bottom:16px;">Renseignez vos notes de Premiere. Indiquez la matiere et les moyennes trimestrielles connues.</div>
+  <div class="form-section-label">Notes de Première</div>
+  <div class="section-desc" style="margin-bottom:16px;">Renseignez vos notes de Première. Indiquez la matière et les moyennes trimestrielles connues.</div>
 
   <div class="notes-group">
-    <div class="notes-group-title">Specialites — Classe de Premiere</div>
+    <div class="notes-group-title">Spécialités — Classe de Première</div>
     <div style="overflow-x:auto;">
     <table class="notes-table" id="table-premiere">
       <thead>
         <tr>
-          <th style="width:32%">Matiere / Specialite</th>
+          <th style="width:32%">Matière / Spécialité</th>
           <th>T1</th>
           <th>T2</th>
           <th>T3</th>
@@ -791,21 +787,21 @@ select.nt-matiere:focus { border-color: var(--violet); }
       </thead>
       <tbody>
         <tr>
-          <td><select class="nt-matiere" id="p1-nom" onchange="updateTerminaleOptions()"><option value="">— Choisir —</option><option>Mathematiques</option><option>Physique-Chimie</option><option>SVT</option><option>Sciences de l'ingenieur (SI)</option><option>NSI (Numerique)</option><option>SES</option><option>HGGSP</option><option>HLP</option><option>LLCE Anglais</option><option>LLCE Espagnol</option><option>LLCE Autre</option><option>Arts</option><option>Biologie-Ecologie</option></select></td>
+          <td><select class="nt-matiere" id="p1-nom" onchange="updateTerminaleOptions()"><option value="">— Choisir —</option><option>Mathématiques</option><option>Physique-Chimie</option><option>SVT</option><option>Sciences de l’ingénieur (SI)</option><option>NSI (Numérique)</option><option>SES</option><option>HGGSP</option><option>HLP</option><option>LLCE Anglais</option><option>LLCE Espagnol</option><option>LLCE Autre</option><option>Arts</option><option>Biologie-Écologie</option></select></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p1-t1" oninput="calcMoy('p1')"/></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p1-t2" oninput="calcMoy('p1')"/></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p1-t3" oninput="calcMoy('p1')"/></td>
           <td><input type="number" class="nt-moy nt-moy-auto" placeholder="auto" id="p1-moy" readonly/></td>
         </tr>
         <tr>
-          <td><select class="nt-matiere" id="p2-nom" onchange="updateTerminaleOptions()"><option value="">— Choisir —</option><option>Mathematiques</option><option>Physique-Chimie</option><option>SVT</option><option>Sciences de l'ingenieur (SI)</option><option>NSI (Numerique)</option><option>SES</option><option>HGGSP</option><option>HLP</option><option>LLCE Anglais</option><option>LLCE Espagnol</option><option>LLCE Autre</option><option>Arts</option><option>Biologie-Ecologie</option></select></td>
+          <td><select class="nt-matiere" id="p2-nom" onchange="updateTerminaleOptions()"><option value="">— Choisir —</option><option>Mathématiques</option><option>Physique-Chimie</option><option>SVT</option><option>Sciences de l’ingénieur (SI)</option><option>NSI (Numérique)</option><option>SES</option><option>HGGSP</option><option>HLP</option><option>LLCE Anglais</option><option>LLCE Espagnol</option><option>LLCE Autre</option><option>Arts</option><option>Biologie-Écologie</option></select></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p2-t1" oninput="calcMoy('p2')"/></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p2-t2" oninput="calcMoy('p2')"/></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p2-t3" oninput="calcMoy('p2')"/></td>
           <td><input type="number" class="nt-moy nt-moy-auto" placeholder="auto" id="p2-moy" readonly/></td>
         </tr>
         <tr>
-          <td><select class="nt-matiere" id="p3-nom" onchange="updateTerminaleOptions()"><option value="">— Choisir —</option><option>Mathematiques</option><option>Physique-Chimie</option><option>SVT</option><option>Sciences de l'ingenieur (SI)</option><option>NSI (Numerique)</option><option>SES</option><option>HGGSP</option><option>HLP</option><option>LLCE Anglais</option><option>LLCE Espagnol</option><option>LLCE Autre</option><option>Arts</option><option>Biologie-Ecologie</option></select></td>
+          <td><select class="nt-matiere" id="p3-nom" onchange="updateTerminaleOptions()"><option value="">— Choisir —</option><option>Mathématiques</option><option>Physique-Chimie</option><option>SVT</option><option>Sciences de l’ingénieur (SI)</option><option>NSI (Numérique)</option><option>SES</option><option>HGGSP</option><option>HLP</option><option>LLCE Anglais</option><option>LLCE Espagnol</option><option>LLCE Autre</option><option>Arts</option><option>Biologie-Écologie</option></select></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p3-t1" oninput="calcMoy('p3')"/></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p3-t2" oninput="calcMoy('p3')"/></td>
           <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="p3-t3" oninput="calcMoy('p3')"/></td>
@@ -815,20 +811,20 @@ select.nt-matiere:focus { border-color: var(--violet); }
     </table>
     </div>
     <div class="notes-global-moy" id="moy-premiere-wrap" style="display:none;">
-      Moyenne generale Premiere : <strong id="moy-premiere-val">—</strong>
+      Moyenne générale Première : <strong id="moy-premiere-val">—</strong>
     </div>
   </div>
 
   <!-- NOTES TERMINALE -->
   <div class="notes-group" style="margin-top:16px;" id="bloc-notes-terminale">
-    <div class="notes-group-title">Specialites conservees en Terminale <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(selectionnez les 2 specialites gardees parmi vos 3 de Premiere, puis renseignez les trimestres disponibles)</span></div>
-    <div class="error-msg" id="err-terminale-spe" style="margin-bottom:8px;">Veuillez selectionner vos 2 specialites de Terminale.</div>
+    <div class="notes-group-title">Spécialités conservées en Terminale <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(sélectionnez les 2 spécialités gardées parmi vos 3 de Première, puis renseignez les trimestres disponibles)</span></div>
+    <div class="error-msg" id="err-terminale-spe" style="margin-bottom:8px;">Veuillez sélectionner vos 2 spécialités de Terminale.</div>
     <div id="terminale-checkboxes" class="checkbox-group" style="margin-bottom:16px;"></div>
     <div style="overflow-x:auto;">
     <table class="notes-table" id="table-terminale">
       <thead>
         <tr>
-          <th style="width:32%">Specialite gardee</th>
+          <th style="width:32%">Spécialité gardée</th>
           <th>T1</th>
           <th>T2</th>
           <th>T3</th>
@@ -854,15 +850,15 @@ select.nt-matiere:focus { border-color: var(--violet); }
     </table>
     </div>
     <div class="notes-global-moy" id="moy-terminale-wrap" style="display:none;">
-      Moyenne generale Terminale (connue) : <strong id="moy-terminale-val">—</strong>
+      Moyenne générale Terminale (connue) : <strong id="moy-terminale-val">—</strong>
     </div>
   </div>
 
   <hr class="form-divider"/>
 
   <!-- CLASSEMENT DESTINATIONS -->
-  <div class="form-section-label">Classement de vos preferences</div>
-  <div class="section-desc" style="margin-bottom:16px;">Classez vos preferences par ordre de priorite (glissez-deposez ou utilisez les fleches). EDUMOVE prepare les candidatures dans des villes accessibles en avion et a proximite de l'aeroport, pour faciliter vos futurs allers-retours avec la France.</div>
+  <div class="form-section-label">Classement de vos préférences</div>
+  <div class="section-desc" style="margin-bottom:16px;">Classez vos préférences par ordre de priorité (glissez-déposez ou utilisez les flèches). EDUMOVE prépare les candidatures dans des villes accessibles en avion et à proximité de l’aéroport, pour faciliter vos futurs allers-retours avec la France.</div>
 
   <div class="ranking-list" id="ranking-list">
     <div class="ranking-item" data-value="pass_las" draggable="true">
@@ -915,9 +911,9 @@ select.nt-matiere:focus { border-color: var(--violet); }
   <hr class="form-divider"/>
 
   <!-- LANGUES -->
-  <div class="form-section-label">Competences linguistiques</div>
+  <div class="form-section-label">Compétences linguistiques</div>
   <div class="lang-section-desc">
-    Indiquez votre niveau pour <strong>chaque langue</strong> (obligatoire). Pas d'inquietude si vous ne parlez pas la langue du pays vise — certaines universites partenaires proposent des programmes accessibles sans niveau minimum, avec un accompagnement linguistique integre.
+    Indiquez votre niveau pour <strong>chaque langue</strong> (obligatoire). Pas d’inquiétude si vous ne parlez pas la langue du pays visé — certaines universités partenaires proposent des programmes accessibles sans niveau minimum, avec un accompagnement linguistique intégré.
   </div>
   <div class="error-msg" id="err-langues" style="margin-bottom:12px;">Veuillez indiquer votre niveau pour les 4 langues ci-dessous.</div>
 
@@ -930,9 +926,9 @@ select.nt-matiere:focus { border-color: var(--violet); }
         <span class="lang-required-dot"></span><span class="lang-card-toggle" id="lct-espagnol">+</span>
       </div>
       <div class="lang-level-options" id="llo-espagnol">
-        <label class="level-option" onclick="selectLevel(this,'espagnol','b2')"><input type="radio" name="lvl-espagnol" value="b2"/><div class="level-info"><div class="level-name">Bilingue / Courant</div><div class="level-desc">Je m'exprime aisement</div></div><span class="level-badge badge-b2">B2 +</span></label>
-        <label class="level-option" onclick="selectLevel(this,'espagnol','b1')"><input type="radio" name="lvl-espagnol" value="b1"/><div class="level-info"><div class="level-name">Intermediaire</div><div class="level-desc">Notions correctes</div></div><span class="level-badge badge-b1">B1</span></label>
-        <label class="level-option" onclick="selectLevel(this,'espagnol','debut')"><input type="radio" name="lvl-espagnol" value="debut"/><div class="level-info"><div class="level-name">Debutant</div><div class="level-desc">Quelques bases scolaires</div></div><span class="level-badge badge-a">A1/A2</span></label>
+        <label class="level-option" onclick="selectLevel(this,'espagnol','b2')"><input type="radio" name="lvl-espagnol" value="b2"/><div class="level-info"><div class="level-name">Bilingue / Courant</div><div class="level-desc">Je m’exprime aisément</div></div><span class="level-badge badge-b2">B2 +</span></label>
+        <label class="level-option" onclick="selectLevel(this,'espagnol','b1')"><input type="radio" name="lvl-espagnol" value="b1"/><div class="level-info"><div class="level-name">Intermédiaire</div><div class="level-desc">Notions correctes</div></div><span class="level-badge badge-b1">B1</span></label>
+        <label class="level-option" onclick="selectLevel(this,'espagnol','debut')"><input type="radio" name="lvl-espagnol" value="debut"/><div class="level-info"><div class="level-name">Débutant</div><div class="level-desc">Quelques bases scolaires</div></div><span class="level-badge badge-a">A1/A2</span></label>
         <label class="level-option" onclick="selectLevel(this,'espagnol','aucun')"><input type="radio" name="lvl-espagnol" value="aucun"/><div class="level-info"><div class="level-name">Aucune connaissance</div><div class="level-desc">Je ne parle pas espagnol</div></div><span class="level-badge badge-none">—</span></label>
       </div>
     </div>
@@ -944,9 +940,9 @@ select.nt-matiere:focus { border-color: var(--violet); }
         <span class="lang-required-dot"></span><span class="lang-card-toggle" id="lct-anglais">+</span>
       </div>
       <div class="lang-level-options" id="llo-anglais">
-        <label class="level-option" onclick="selectLevel(this,'anglais','b2')"><input type="radio" name="lvl-anglais" value="b2"/><div class="level-info"><div class="level-name">Bilingue / Courant</div><div class="level-desc">Je m'exprime aisement en anglais</div></div><span class="level-badge badge-b2">B2 +</span></label>
-        <label class="level-option" onclick="selectLevel(this,'anglais','b1')"><input type="radio" name="lvl-anglais" value="b1"/><div class="level-info"><div class="level-name">Intermediaire</div><div class="level-desc">Conversations courantes</div></div><span class="level-badge badge-b1">B1</span></label>
-        <label class="level-option" onclick="selectLevel(this,'anglais','debut')"><input type="radio" name="lvl-anglais" value="debut"/><div class="level-info"><div class="level-name">Debutant</div><div class="level-desc">Quelques bases scolaires</div></div><span class="level-badge badge-a">A1/A2</span></label>
+        <label class="level-option" onclick="selectLevel(this,'anglais','b2')"><input type="radio" name="lvl-anglais" value="b2"/><div class="level-info"><div class="level-name">Bilingue / Courant</div><div class="level-desc">Je m’exprime aisément en anglais</div></div><span class="level-badge badge-b2">B2 +</span></label>
+        <label class="level-option" onclick="selectLevel(this,'anglais','b1')"><input type="radio" name="lvl-anglais" value="b1"/><div class="level-info"><div class="level-name">Intermédiaire</div><div class="level-desc">Conversations courantes</div></div><span class="level-badge badge-b1">B1</span></label>
+        <label class="level-option" onclick="selectLevel(this,'anglais','debut')"><input type="radio" name="lvl-anglais" value="debut"/><div class="level-info"><div class="level-name">Débutant</div><div class="level-desc">Quelques bases scolaires</div></div><span class="level-badge badge-a">A1/A2</span></label>
         <label class="level-option" onclick="selectLevel(this,'anglais','aucun')"><input type="radio" name="lvl-anglais" value="aucun"/><div class="level-info"><div class="level-name">Aucune connaissance</div><div class="level-desc">Je ne parle pas anglais</div></div><span class="level-badge badge-none">—</span></label>
       </div>
     </div>
@@ -958,9 +954,9 @@ select.nt-matiere:focus { border-color: var(--violet); }
         <span class="lang-required-dot"></span><span class="lang-card-toggle" id="lct-italien">+</span>
       </div>
       <div class="lang-level-options" id="llo-italien">
-        <label class="level-option" onclick="selectLevel(this,'italien','b2')"><input type="radio" name="lvl-italien" value="b2"/><div class="level-info"><div class="level-name">Bilingue / Courant</div><div class="level-desc">Je m'exprime aisement en italien</div></div><span class="level-badge badge-b2">B2 +</span></label>
-        <label class="level-option" onclick="selectLevel(this,'italien','b1')"><input type="radio" name="lvl-italien" value="b1"/><div class="level-info"><div class="level-name">Intermediaire</div><div class="level-desc">Notions correctes</div></div><span class="level-badge badge-b1">B1</span></label>
-        <label class="level-option" onclick="selectLevel(this,'italien','debut')"><input type="radio" name="lvl-italien" value="debut"/><div class="level-info"><div class="level-name">Debutant</div><div class="level-desc">Quelques bases</div></div><span class="level-badge badge-a">A1/A2</span></label>
+        <label class="level-option" onclick="selectLevel(this,'italien','b2')"><input type="radio" name="lvl-italien" value="b2"/><div class="level-info"><div class="level-name">Bilingue / Courant</div><div class="level-desc">Je m’exprime aisément en italien</div></div><span class="level-badge badge-b2">B2 +</span></label>
+        <label class="level-option" onclick="selectLevel(this,'italien','b1')"><input type="radio" name="lvl-italien" value="b1"/><div class="level-info"><div class="level-name">Intermédiaire</div><div class="level-desc">Notions correctes</div></div><span class="level-badge badge-b1">B1</span></label>
+        <label class="level-option" onclick="selectLevel(this,'italien','debut')"><input type="radio" name="lvl-italien" value="debut"/><div class="level-info"><div class="level-name">Débutant</div><div class="level-desc">Quelques bases</div></div><span class="level-badge badge-a">A1/A2</span></label>
         <label class="level-option" onclick="selectLevel(this,'italien','aucun')"><input type="radio" name="lvl-italien" value="aucun"/><div class="level-info"><div class="level-name">Aucune connaissance</div><div class="level-desc">Je ne parle pas italien</div></div><span class="level-badge badge-none">—</span></label>
       </div>
     </div>
@@ -972,9 +968,9 @@ select.nt-matiere:focus { border-color: var(--violet); }
         <span class="lang-required-dot"></span><span class="lang-card-toggle" id="lct-portugais">+</span>
       </div>
       <div class="lang-level-options" id="llo-portugais">
-        <label class="level-option" onclick="selectLevel(this,'portugais','b2')"><input type="radio" name="lvl-portugais" value="b2"/><div class="level-info"><div class="level-name">Bilingue / Courant</div><div class="level-desc">Je m'exprime aisement</div></div><span class="level-badge badge-b2">B2 +</span></label>
-        <label class="level-option" onclick="selectLevel(this,'portugais','b1')"><input type="radio" name="lvl-portugais" value="b1"/><div class="level-info"><div class="level-name">Intermediaire</div><div class="level-desc">Notions correctes</div></div><span class="level-badge badge-b1">B1</span></label>
-        <label class="level-option" onclick="selectLevel(this,'portugais','debut')"><input type="radio" name="lvl-portugais" value="debut"/><div class="level-info"><div class="level-name">Debutant</div><div class="level-desc">Quelques bases</div></div><span class="level-badge badge-a">A1/A2</span></label>
+        <label class="level-option" onclick="selectLevel(this,'portugais','b2')"><input type="radio" name="lvl-portugais" value="b2"/><div class="level-info"><div class="level-name">Bilingue / Courant</div><div class="level-desc">Je m’exprime aisément</div></div><span class="level-badge badge-b2">B2 +</span></label>
+        <label class="level-option" onclick="selectLevel(this,'portugais','b1')"><input type="radio" name="lvl-portugais" value="b1"/><div class="level-info"><div class="level-name">Intermédiaire</div><div class="level-desc">Notions correctes</div></div><span class="level-badge badge-b1">B1</span></label>
+        <label class="level-option" onclick="selectLevel(this,'portugais','debut')"><input type="radio" name="lvl-portugais" value="debut"/><div class="level-info"><div class="level-name">Débutant</div><div class="level-desc">Quelques bases</div></div><span class="level-badge badge-a">A1/A2</span></label>
         <label class="level-option" onclick="selectLevel(this,'portugais','aucun')"><input type="radio" name="lvl-portugais" value="aucun"/><div class="level-info"><div class="level-name">Aucune connaissance</div><div class="level-desc">Je ne parle pas portugais</div></div><span class="level-badge badge-none">—</span></label>
       </div>
     </div>
@@ -996,39 +992,29 @@ select.nt-matiere:focus { border-color: var(--violet); }
   <div class="analyzing-box">
     <div class="analyzing-spinner"></div>
     <div class="analyzing-title">Envoi en cours...</div>
-    <div class="analyzing-text">Votre candidature est en cours de transmission a notre equipe.</div>
+    <div class="analyzing-text">Votre candidature est en cours de transmission à notre équipe.</div>
   </div>
 </div>
 
 <footer class="site-footer">
-  © 2026 EDUMOVE · <a href="https://edumove.fr" target="_blank">edumove.fr</a> · Tous droits reserves
+  © 2026 EDUMOVE · <a href="https://edumove.fr" target="_blank">edumove.fr</a> · Tous droits réservés
 </footer>
 
 <script>
 // ── AUTH CHECK ──
 let currentUser = null;
 let userProfile = {};
-let authChecked = false;
 
-auth.onAuthStateChanged(async (user) => {
-  if (authChecked) return;
-  if (!user) {
-    // Firebase Auth may fire with null before restoring session from IndexedDB.
-    // Wait and re-check before redirecting.
-    await new Promise(r => setTimeout(r, 2000));
-    user = auth.currentUser;
-    if (!user) {
-      window.location.href = 'index.html';
-      return;
-    }
-  }
-  authChecked = true;
+(async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  const user = session?.user;
+  if (!user) { window.location.href = 'index.html'; return; }
   currentUser = user;
 
   // Check if already has a candidature
   try {
-    const snap = await db.collection('candidatures').where('userId', '==', user.uid).limit(1).get();
-    if (!snap.empty) {
+    const { data } = await supabase.from('candidatures').select('id').eq('user_id', user.id).limit(1).maybeSingle();
+    if (data) {
       window.location.href = 'espace.html';
       return;
     }
@@ -1036,16 +1022,16 @@ auth.onAuthStateChanged(async (user) => {
 
   // Load user profile
   try {
-    const userDoc = await db.collection('users').doc(user.uid).get();
-    if (userDoc.exists) {
-      userProfile = userDoc.data();
+    const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+    if (profileData) {
+      userProfile = profileData;
       fillProfilDropdown();
     }
   } catch(e) { console.error('Load profile error:', e); }
-});
+})();
 
 function logout() {
-  auth.signOut().then(() => { window.location.href = 'index.html'; });
+  supabase.auth.signOut().then(() => { window.location.href = 'index.html'; });
 }
 
 // ── PROFILE DROPDOWN ──
@@ -1100,7 +1086,7 @@ async function saveProfil() {
   const dep = document.getElementById('pe-dep').value.trim();
   if (!nom || !prenom || !tel || !dep) { alert('Veuillez remplir tous les champs.'); return; }
   try {
-    await db.collection('users').doc(currentUser.uid).update({ nom, prenom, tel, departement: dep });
+    await supabase.from('profiles').update({ nom, prenom, tel, departement: dep }).eq('id', currentUser.id);
     userProfile.nom = nom;
     userProfile.prenom = prenom;
     userProfile.tel = tel;
@@ -1384,8 +1370,8 @@ async function submitCandidature() {
       nom: v(p+'-nom'), t1: v(p+'-t1'), t2: v(p+'-t2'), t3: v(p+'-t3'), moy: v(p+'-moy')
     })).filter(n => n.nom);
 
-    const docRef = await db.collection('candidatures').add({
-      userId: currentUser.uid,
+    const { data: docRef, error: insertError } = await supabase.from('candidatures').insert({
+      user_id: currentUser.id,
       nom: userProfile.nom || '',
       prenom: userProfile.prenom || '',
       email: userProfile.email || currentUser.email,
@@ -1398,26 +1384,26 @@ async function submitCandidature() {
         annee: v('reori-annee'),
         motif: v('reori-motif')
       } : null,
-      notesPremiere,
-      notesTerminale,
-      moyennePremiere: document.getElementById('moy-premiere-val')?.textContent || '',
-      moyenneTerminale: document.getElementById('moy-terminale-val')?.textContent || '',
+      notes_premiere: notesPremiere,
+      notes_terminale: notesTerminale,
+      moyenne_premiere: document.getElementById('moy-premiere-val')?.textContent || '',
+      moyenne_terminale: document.getElementById('moy-terminale-val')?.textContent || '',
       score: score,
       langues: { ...state.langLevels, autre: v('autre-langue') },
-      classementDestinations: state.ranking,
+      classement_destinations: state.ranking,
       destination: ori.dest,
       universite: ori.uni,
       niveau: ori.level,
       documents: {},
       status: 'en_attente',
-      statusHistory: [{ status: 'en_attente', at: firebase.firestore.Timestamp.now(), by: 'system' }],
-      manualOverride: false,
-      autoResponseText: null,
-      autoResponseGeneratedAt: null,
-      callbackRequested: false,
-      callbackRequestedAt: null,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+      status_history: [{ status: 'en_attente', at: new Date().toISOString(), by: 'system' }],
+      manual_override: false,
+      auto_response_text: null,
+      auto_response_generated_at: null,
+      callback_requested: false,
+      callback_requested_at: null
+    }).select().single();
+    if (insertError) throw insertError;
 
     // Sync vers HubSpot (non-bloquant)
     syncToHubSpot({

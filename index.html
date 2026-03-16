@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Edumove — Etudes superieures en Europe</title>
+<title>Edumove — Études supérieures en Europe</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
@@ -369,12 +369,8 @@ body {
   .auth-field-row { grid-template-columns: 1fr; }
 }
 </style>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
-<script src="firebase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 </head>
 <body>
 
@@ -394,7 +390,7 @@ body {
       <path fill="white" d="M84.64,55.74v-22.54h22.8l17.4-16.6L107.43,0H40.19v27.79h-22.78L0,44.4l17.41,16.6h22.78v27.96h67.24l17.4-16.6-17.41-16.61h-22.79ZM45.51,5.32h59.79l11.83,11.28-11.83,11.29h-59.79V5.32ZM19.53,55.68l-11.83-11.28,11.83-11.29h59.78v22.57H19.53ZM105.3,83.64h-59.79v-22.57h59.79l11.83,11.29-11.83,11.28Z"/>
     </svg>
   </div>
-  <div class="header-right">Etudes superieures en Europe · 2026 – 2027</div>
+  <div class="header-right">Études supérieures en Europe · 2026 – 2027</div>
 </header>
 
 <!-- HERO -->
@@ -405,15 +401,15 @@ body {
     <span></span><span></span><span></span><span></span><span></span>
     <span></span><span></span><span></span><span></span><span></span>
   </div>
-  <div class="hero-eyebrow">Etudes superieures en Europe · 2026 – 2027</div>
-  <h1 class="hero-title"><em>Envole-toi</em> pour les meilleures<br/>universites de sante d'Europe !</h1>
-  <div class="hero-sub">Analyse personnalisee · Accompagnement individuel · Universites partenaires</div>
+  <div class="hero-eyebrow">Études supérieures en Europe · 2026 – 2027</div>
+  <h1 class="hero-title"><em>Envole-toi</em> pour les meilleures<br/>universités de santé d'Europe&nbsp;!</h1>
+  <div class="hero-sub">Analyse personnalisée · Accompagnement individuel · Universités partenaires</div>
   <div class="hero-filieres">
-    <span class="fil-pill on">Medecine</span>
+    <span class="fil-pill on">Médecine</span>
     <span class="fil-pill on">Odontologie</span>
     <span class="fil-pill on">Pharmacie</span>
-    <span class="fil-pill on">Kinesitherapie</span>
-    <span class="fil-pill soon">Autres filieres — Bientot disponibles</span>
+    <span class="fil-pill on">Kinésithérapie</span>
+    <span class="fil-pill soon">Autres filières — Bientôt disponibles</span>
   </div>
 </div>
 
@@ -421,14 +417,14 @@ body {
 <div class="auth-section">
   <div class="auth-tabs">
     <button class="auth-tab active" onclick="switchTab('login')">Se connecter</button>
-    <button class="auth-tab" onclick="switchTab('signup')">S'inscrire</button>
+    <button class="auth-tab" onclick="switchTab('signup')">S’inscrire</button>
   </div>
   <div class="auth-card">
 
     <!-- LOGIN FORM -->
     <div id="form-login" class="auth-form active">
       <div class="auth-title">Connexion</div>
-      <div class="auth-subtitle">Accedez a votre espace candidat EDUMOVE</div>
+      <div class="auth-subtitle">Accédez à votre espace candidat EDUMOVE</div>
       <div class="auth-field">
         <label>Adresse email <span class="req">*</span></label>
         <input type="email" id="login-email" placeholder="exemple@email.com"/>
@@ -443,16 +439,16 @@ body {
 
     <!-- SIGNUP FORM -->
     <div id="form-signup" class="auth-form">
-      <div class="auth-title">Creer un compte</div>
-      <div class="auth-subtitle">Inscrivez-vous pour demarrer votre candidature</div>
+      <div class="auth-title">Créer un compte</div>
+      <div class="auth-subtitle">Inscrivez-vous pour démarrer votre candidature</div>
       <div class="auth-field-row">
         <div class="auth-field">
           <label>Nom <span class="req">*</span></label>
           <input type="text" id="signup-nom" placeholder="Votre nom"/>
         </div>
         <div class="auth-field">
-          <label>Prenom <span class="req">*</span></label>
-          <input type="text" id="signup-prenom" placeholder="Votre prenom"/>
+          <label>Prénom <span class="req">*</span></label>
+          <input type="text" id="signup-prenom" placeholder="Votre prénom"/>
         </div>
       </div>
       <div class="auth-field">
@@ -461,23 +457,23 @@ body {
       </div>
       <div class="auth-field-row">
         <div class="auth-field">
-          <label>Telephone <span class="req">*</span></label>
+        <label>Téléphone <span class="req">*</span></label>
           <input type="tel" id="signup-tel" placeholder="+33 6 XX XX XX XX"/>
         </div>
         <div class="auth-field">
-          <label>Departement <span class="req">*</span></label>
+        <label>Département <span class="req">*</span></label>
           <input type="text" id="signup-departement" placeholder="Ex : 75, 13, 69..." maxlength="3"/>
         </div>
       </div>
       <div class="auth-field">
         <label>Mot de passe <span class="req">*</span></label>
-        <input type="password" id="signup-pass" placeholder="Minimum 6 caracteres"/>
+        <input type="password" id="signup-pass" placeholder="Minimum 6 caractères"/>
       </div>
       <div class="auth-field">
         <label>Confirmer le mot de passe <span class="req">*</span></label>
         <input type="password" id="signup-pass2" placeholder="Retapez votre mot de passe"/>
       </div>
-      <button class="btn-auth" onclick="doSignup()">Creer mon compte</button>
+      <button class="btn-auth" onclick="doSignup()">Créer mon compte</button>
       <div class="auth-error" id="signup-error"></div>
       <div class="auth-success" id="signup-success"></div>
     </div>
@@ -494,23 +490,22 @@ body {
 </div>
 
 <footer class="site-footer">
-  © 2026 EDUMOVE · <a href="https://edumove.fr" target="_blank">edumove.fr</a> · Tous droits reserves
+  © 2026 EDUMOVE · <a href="https://edumove.fr" target="_blank">edumove.fr</a> · Tous droits réservés
 </footer>
 
 <script>
 // ── AUTH STATE ──
-let authChecked = false;
-auth.onAuthStateChanged(async (user) => {
-  if (authChecked) return;
+(async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  const user = session?.user;
   if (user) {
-    authChecked = true;
     showSpinner();
 
     // Check if admin
     let isAdmin = false;
     try {
-      const adminDoc = await db.collection('admins').doc(user.email).get();
-      if (adminDoc.exists) isAdmin = true;
+      const { data: adminData } = await supabase.from('admins').select('id').eq('id', user.id).maybeSingle();
+      if (adminData) isAdmin = true;
     } catch(e) { /* Not admin or no permission — continue */ }
 
     if (isAdmin) {
@@ -520,19 +515,18 @@ auth.onAuthStateChanged(async (user) => {
 
     // Check if student has a candidature
     try {
-      const snap = await db.collection('candidatures').where('userId', '==', user.uid).limit(1).get();
-      if (!snap.empty) {
+      const { data } = await supabase.from('candidatures').select('id').eq('user_id', user.id).limit(1).maybeSingle();
+      if (data) {
         window.location.href = 'espace.html';
       } else {
         window.location.href = 'candidature.html';
       }
     } catch(e) {
       console.error('Candidature check error:', e);
-      // Fallback: go to candidature
       window.location.href = 'candidature.html';
     }
   }
-});
+})();
 
 // ── TABS ──
 function switchTab(tab) {
@@ -560,18 +554,19 @@ async function doLogin() {
 
   try {
     showSpinner();
-    await auth.signInWithEmailAndPassword(email, pass);
-    // onAuthStateChanged will handle redirect
+    const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+    if (error) throw error;
+    // Redirect based on role
+    const user = (await supabase.auth.getUser()).data?.user;
+    if (user) {
+      const { data: adminData } = await supabase.from('admins').select('id').eq('id', user.id).maybeSingle();
+      if (adminData) { window.location.href = 'admin.html'; return; }
+      const { data: candData } = await supabase.from('candidatures').select('id').eq('user_id', user.id).limit(1).maybeSingle();
+      window.location.href = candData ? 'espace.html' : 'candidature.html';
+    }
   } catch (err) {
     hideSpinner();
-    const msgs = {
-      'auth/user-not-found': 'Aucun compte avec cet email.',
-      'auth/wrong-password': 'Mot de passe incorrect.',
-      'auth/invalid-email': 'Email invalide.',
-      'auth/invalid-credential': 'Identifiants incorrects.',
-      'auth/too-many-requests': 'Trop de tentatives. Reessayez plus tard.'
-    };
-    showAuthError(errEl, msgs[err.code] || 'Erreur de connexion.');
+    showAuthError(errEl, 'Identifiants incorrects.');
   }
 }
 
@@ -590,30 +585,33 @@ async function doSignup() {
   successEl.classList.remove('visible');
 
   if (!nom || !prenom || !email || !tel || !departement || !pass || !pass2) { showAuthError(errEl, 'Veuillez remplir tous les champs.'); return; }
-  if (pass.length < 6) { showAuthError(errEl, 'Le mot de passe doit contenir au moins 6 caracteres.'); return; }
+  if (pass.length < 6) { showAuthError(errEl, 'Le mot de passe doit contenir au moins 6 caractères.'); return; }
   if (pass !== pass2) { showAuthError(errEl, 'Les mots de passe ne correspondent pas.'); return; }
 
   try {
     showSpinner();
-    const cred = await auth.createUserWithEmailAndPassword(email, pass);
-    // Create user doc in Firestore with profile info
-    await db.collection('users').doc(cred.user.uid).set({
-      nom: nom,
-      prenom: prenom,
-      email: email,
-      tel: tel,
-      departement: departement,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    // onAuthStateChanged will redirect to candidature.html
+    const { data: signupData, error: signupError } = await supabase.auth.signUp({ email, password: pass });
+    if (signupError) throw signupError;
+    const uid = signupData?.user?.id;
+    if (uid) {
+      await supabase.from('profiles').insert({
+        id: uid,
+        nom: nom,
+        prenom: prenom,
+        email: email,
+        tel: tel,
+        departement: departement
+      });
+    }
+    window.location.href = 'candidature.html';
   } catch (err) {
     hideSpinner();
     const msgs = {
-      'auth/email-already-in-use': 'Un compte existe deja avec cet email.',
-      'auth/invalid-email': 'Adresse email invalide.',
-      'auth/weak-password': 'Mot de passe trop faible (minimum 6 caracteres).'
+      'User already registered': 'Un compte existe déjà avec cet e-mail.',
+      'invalid_email': 'Adresse e-mail invalide.',
+      'weak_password': 'Mot de passe trop faible (minimum 6 caractères).'
     };
-    showAuthError(errEl, msgs[err.code] || 'Erreur lors de la creation du compte.');
+    showAuthError(errEl, msgs[err.message] || 'Erreur lors de la création du compte.');
   }
 }
 

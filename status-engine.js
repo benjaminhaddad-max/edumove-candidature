@@ -76,10 +76,11 @@ function businessMinutesElapsed(startDate) {
   return elapsed;
 }
 
-// ── Helper: convertir Firestore timestamp ──
+// ── Helper: convertir timestamp ──
 
 function toDate(ts) {
   if (!ts) return null;
+  if (ts instanceof Date) return ts;
   if (ts.toDate) return ts.toDate();
   if (ts.seconds) return new Date(ts.seconds * 1000);
   return new Date(ts);
@@ -92,62 +93,53 @@ async function checkAndAdvanceStatus(candidatureId, data) {
   const now = new Date();
 
   // TRANSITION 1: en_attente → en_cours (2h ouvrables = 120 min)
-  if (data.status === 'en_attente' && data.createdAt) {
-    const submittedAt = toDate(data.createdAt);
+  if (data.status === 'en_attente' && data.created_at) {
+    const submittedAt = toDate(data.created_at);
     if (!submittedAt) return false;
     const elapsed = businessMinutesElapsed(submittedAt);
 
     if (elapsed >= 120) {
       const transitionTime = addBusinessMinutes(submittedAt, 120);
-      await db.collection('candidatures').doc(candidatureId).update({
+      const existing = Array.isArray(data.status_history) ? data.status_history : [];
+      await supabase.from('candidatures').update({
         status: 'en_cours',
-        statusHistory: firebase.firestore.FieldValue.arrayUnion({
-          status: 'en_cours',
-          at: firebase.firestore.Timestamp.fromDate(transitionTime),
-          by: 'auto'
-        })
-      });
+        status_history: [...existing, { status: 'en_cours', at: transitionTime.toISOString(), by: 'auto' }]
+      }).eq('id', candidatureId);
       return true;
     }
   }
 
   // TRANSITION 2: en_cours → reponse_edumove (24h reelles)
   if (data.status === 'en_cours') {
-    const history = data.statusHistory || [];
+    const history = data.status_history || [];
     const enCoursEntry = history.find(h => h.status === 'en_cours');
     if (enCoursEntry) {
       const enCoursAt = toDate(enCoursEntry.at);
       if (enCoursAt && (now.getTime() - enCoursAt.getTime()) >= 24 * 60 * 60 * 1000) {
         const responseText = generateReponseEdumove(data);
-        await db.collection('candidatures').doc(candidatureId).update({
+        const existing = Array.isArray(data.status_history) ? data.status_history : [];
+        await supabase.from('candidatures').update({
           status: 'reponse_edumove',
-          autoResponseText: responseText,
-          autoResponseGeneratedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          statusHistory: firebase.firestore.FieldValue.arrayUnion({
-            status: 'reponse_edumove',
-            at: firebase.firestore.Timestamp.now(),
-            by: 'auto'
-          })
-        });
+          auto_response_text: responseText,
+          auto_response_generated_at: new Date().toISOString(),
+          status_history: [...existing, { status: 'reponse_edumove', at: new Date().toISOString(), by: 'auto' }]
+        }).eq('id', candidatureId);
         return true;
       }
     } else {
-      // Pas d'entree en_cours dans l'historique, utiliser createdAt + 2h comme estimation
-      const submittedAt = toDate(data.createdAt);
+      // Pas d'entree en_cours dans l'historique, utiliser created_at + 2h comme estimation
+      const submittedAt = toDate(data.created_at);
       if (submittedAt) {
         const estimatedEnCours = addBusinessMinutes(submittedAt, 120);
         if ((now.getTime() - estimatedEnCours.getTime()) >= 24 * 60 * 60 * 1000) {
           const responseText = generateReponseEdumove(data);
-          await db.collection('candidatures').doc(candidatureId).update({
+          const existing = Array.isArray(data.status_history) ? data.status_history : [];
+          await supabase.from('candidatures').update({
             status: 'reponse_edumove',
-            autoResponseText: responseText,
-            autoResponseGeneratedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            statusHistory: firebase.firestore.FieldValue.arrayUnion({
-              status: 'reponse_edumove',
-              at: firebase.firestore.Timestamp.now(),
-              by: 'auto'
-            })
-          });
+            auto_response_text: responseText,
+            auto_response_generated_at: new Date().toISOString(),
+            status_history: [...existing, { status: 'reponse_edumove', at: new Date().toISOString(), by: 'auto' }]
+          }).eq('id', candidatureId);
           return true;
         }
       }
@@ -279,8 +271,8 @@ function generateAdminSuggestion(c) {
   }
   html += '</div>';
 
-  if (c.callbackRequested) {
-    const cbDate = c.callbackRequestedAt ? toDate(c.callbackRequestedAt) : null;
+  if (c.callback_requested) {
+    const cbDate = c.callback_requested_at ? toDate(c.callback_requested_at) : null;
     html += `<div style="padding:10px 12px;background:#fff3e0;border-radius:6px;border-left:3px solid #e65100;">`;
     html += `<strong style="color:#e65100;">📞 Rappel telephonique demande</strong>`;
     if (cbDate) {

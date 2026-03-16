@@ -106,11 +106,8 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 </head>
 <body>
 
@@ -232,27 +229,29 @@ function applyUniTheme(uni) {
 }
 
 // ── AUTH ──
-auth.onAuthStateChanged(async (user) => {
+(async () => {
+  const { data: { session } } = await supabase.auth.getSession();
   document.getElementById('loading-screen').style.display = 'none';
-  if (!user) {
+  if (!session?.user) {
     document.getElementById('login-wrap').style.display = 'flex';
     return;
   }
-  // Check fac_admins collection
-  const doc = await db.collection('fac_admins').doc(user.email).get();
-  if (!doc.exists) {
-    auth.signOut();
+  const user = session.user;
+  // Check fac_admins table
+  const { data: facAdminData } = await supabase.from('fac_admins').select('*').eq('id', user.id).single();
+  if (!facAdminData) {
+    await supabase.auth.signOut();
     document.getElementById('login-wrap').style.display = 'flex';
     showLoginError("Ce compte n'a pas accès à l'espace université.");
     return;
   }
-  currentUniversity = doc.data().university;
+  currentUniversity = facAdminData.university;
   applyUniTheme(currentUniversity);
   document.getElementById('header-right').style.display = 'flex';
   document.getElementById('header-user').textContent = user.email;
   document.getElementById('dashboard').style.display = 'block';
   loadCandidatures();
-});
+})();
 
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
@@ -261,7 +260,23 @@ async function doLogin() {
   errEl.style.display = 'none';
   if (!email || !pass) { showLoginError('Veuillez remplir tous les champs.'); return; }
   try {
-    await auth.signInWithEmailAndPassword(email, pass);
+    const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+    if (error) throw error;
+    const user = (await supabase.auth.getUser()).data?.user;
+    if (!user) throw new Error('No user');
+    const { data: facAdminData } = await supabase.from('fac_admins').select('*').eq('id', user.id).single();
+    if (!facAdminData) {
+      await supabase.auth.signOut();
+      showLoginError("Ce compte n'a pas accès à l'espace université.");
+      return;
+    }
+    currentUniversity = facAdminData.university;
+    applyUniTheme(currentUniversity);
+    document.getElementById('header-right').style.display = 'flex';
+    document.getElementById('header-user').textContent = user.email;
+    document.getElementById('login-wrap').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadCandidatures();
   } catch (e) {
     showLoginError('Email ou mot de passe incorrect.');
   }
@@ -274,7 +289,7 @@ function showLoginError(msg) {
 }
 
 function logout() {
-  auth.signOut();
+  supabase.auth.signOut();
   document.getElementById('dashboard').style.display = 'none';
   document.getElementById('header-right').style.display = 'none';
   document.getElementById('login-wrap').style.display = 'flex';
@@ -283,28 +298,37 @@ function logout() {
 }
 
 // ── LOAD CANDIDATURES ──
-function loadCandidatures() {
-  db.collection('candidatures').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-    const all = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-    allCandidatures = all.filter(c => matchUniversity(c));
-    renderStats();
-    renderTable(allCandidatures);
-  });
+async function loadCandidatures() {
+  const { data, error } = await supabase.from('candidatures').select('*').order('created_at', { ascending: false });
+  if (error) { console.error('Load candidatures error:', error); return; }
+  allCandidatures = (data || []).filter(c => matchUniversity(c));
+  renderStats();
+  renderTable(allCandidatures);
+
+  // Realtime updates
+  supabase.channel('fac-candidatures')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'candidatures' }, async () => {
+      const { data: fresh } = await supabase.from('candidatures').select('*').order('created_at', { ascending: false });
+      allCandidatures = (fresh || []).filter(c => matchUniversity(c));
+      renderStats();
+      renderTable(allCandidatures);
+    })
+    .subscribe();
 }
 
 function matchUniversity(c) {
-  if (currentUniversity === 'ue')   return c.ueChoices != null;
-  if (currentUniversity === 'ucjc') return c.ucjcDocsConfirmed === true;
-  if (currentUniversity === 'link') return c.linkDocsConfirmed === true;
+  if (currentUniversity === 'ue')   return c.ue_choices != null;
+  if (currentUniversity === 'ucjc') return c.ucjc_docs_confirmed === true;
+  if (currentUniversity === 'link') return c.link_docs_confirmed === true;
   return false;
 }
 
 function renderStats() {
   document.getElementById('stat-total').textContent = allCandidatures.length;
   const confirmed = allCandidatures.filter(c => {
-    if (currentUniversity === 'ue')   return c.ueChoices != null;
-    if (currentUniversity === 'ucjc') return c.ucjcDocsConfirmed === true;
-    if (currentUniversity === 'link') return c.linkDocsConfirmed === true;
+    if (currentUniversity === 'ue')   return c.ue_choices != null;
+    if (currentUniversity === 'ucjc') return c.ucjc_docs_confirmed === true;
+    if (currentUniversity === 'link') return c.link_docs_confirmed === true;
   }).length;
   document.getElementById('stat-confirmed').textContent = confirmed;
   const totalDocs = allCandidatures.reduce((acc, c) => acc + Object.keys(c.documents || {}).length, 0);
@@ -340,17 +364,17 @@ function renderTable(list) {
     const email = esc(c.email || '—');
     const phone = esc(c.telephone || c.phone || '—');
     const docsCount = Object.keys(c.documents || {}).length;
-    const date = c.createdAt ? new Date(c.createdAt.seconds * 1000).toLocaleDateString('fr-FR') : '—';
+    const date = c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '—';
 
     // University-specific column
     let uniCell = '';
-    if (currentUniversity === 'ue' && c.ueChoices) {
-      uniCell = `<span class="badge badge-uni">${esc(c.ueChoices.ville)} · ${esc(c.ueChoices.filiere)} · ${esc(c.ueChoices.langue)}</span>`;
+    if (currentUniversity === 'ue' && c.ue_choices) {
+      uniCell = `<span class="badge badge-uni">${esc(c.ue_choices.ville)} · ${esc(c.ue_choices.filiere)} · ${esc(c.ue_choices.langue)}</span>`;
     } else if (currentUniversity === 'ucjc') {
-      const d = c.ucjcDocsConfirmedAt ? new Date(c.ucjcDocsConfirmedAt.seconds * 1000).toLocaleDateString('fr-FR') : '';
+      const d = c.ucjc_docs_confirmed_at ? new Date(c.ucjc_docs_confirmed_at).toLocaleDateString('fr-FR') : '';
       uniCell = `<span class="badge badge-confirmed">✅ Confirmé${d ? ' le ' + d : ''}</span>`;
     } else if (currentUniversity === 'link') {
-      const d = c.linkDocsConfirmedAt ? new Date(c.linkDocsConfirmedAt.seconds * 1000).toLocaleDateString('fr-FR') : '';
+      const d = c.link_docs_confirmed_at ? new Date(c.link_docs_confirmed_at).toLocaleDateString('fr-FR') : '';
       uniCell = `<span class="badge badge-confirmed">✅ Confirmé${d ? ' le ' + d : ''}</span>`;
     }
 
@@ -410,30 +434,30 @@ function buildDetail(c) {
 
   // University-specific info
   let uniInfo = '';
-  if (currentUniversity === 'ue' && c.ueChoices) {
+  if (currentUniversity === 'ue' && c.ue_choices) {
     uniInfo = `
       <div class="detail-section">
         <div class="detail-section-title">🇪🇸 Choix Universidad Europea</div>
-        <div class="detail-row"><label>Ville / Campus</label><span>${esc(c.ueChoices.ville)}</span></div>
-        <div class="detail-row"><label>Filière</label><span>${esc(c.ueChoices.filiere)}</span></div>
-        <div class="detail-row"><label>Langue d'enseignement</label><span>${esc(c.ueChoices.langue)}</span></div>
-        ${c.ueChoicesAt ? `<div class="detail-row"><label>Date de confirmation</label><span>${new Date(c.ueChoicesAt.seconds*1000).toLocaleDateString('fr-FR')}</span></div>` : ''}
+        <div class="detail-row"><label>Ville / Campus</label><span>${esc(c.ue_choices.ville)}</span></div>
+        <div class="detail-row"><label>Filière</label><span>${esc(c.ue_choices.filiere)}</span></div>
+        <div class="detail-row"><label>Langue d'enseignement</label><span>${esc(c.ue_choices.langue)}</span></div>
+        ${c.ue_choices_at ? `<div class="detail-row"><label>Date de confirmation</label><span>${new Date(c.ue_choices_at).toLocaleDateString('fr-FR')}</span></div>` : ''}
       </div>`;
   } else if (currentUniversity === 'ucjc') {
     uniInfo = `
       <div class="detail-section">
         <div class="detail-section-title">🎓 UCJC — Détails</div>
         <div class="detail-row"><label>Cours</label><span>100% en espagnol</span></div>
-        <div class="detail-row"><label>Documents confirmés</label><span>${c.ucjcDocsConfirmed ? '✅ Oui' : '⏳ En attente'}</span></div>
-        ${c.ucjcDocsConfirmedAt ? `<div class="detail-row"><label>Date confirmation</label><span>${new Date(c.ucjcDocsConfirmedAt.seconds*1000).toLocaleDateString('fr-FR')}</span></div>` : ''}
+        <div class="detail-row"><label>Documents confirmés</label><span>${c.ucjc_docs_confirmed ? '✅ Oui' : '⏳ En attente'}</span></div>
+        ${c.ucjc_docs_confirmed_at ? `<div class="detail-row"><label>Date confirmation</label><span>${new Date(c.ucjc_docs_confirmed_at).toLocaleDateString('fr-FR')}</span></div>` : ''}
       </div>`;
   } else if (currentUniversity === 'link') {
     uniInfo = `
       <div class="detail-section">
         <div class="detail-section-title">🏛 LINK Campus — Détails</div>
         <div class="detail-row"><label>Test d'admission</label><span>15 avril 2026</span></div>
-        <div class="detail-row"><label>Documents confirmés</label><span>${c.linkDocsConfirmed ? '✅ Oui' : '⏳ En attente'}</span></div>
-        ${c.linkDocsConfirmedAt ? `<div class="detail-row"><label>Date confirmation</label><span>${new Date(c.linkDocsConfirmedAt.seconds*1000).toLocaleDateString('fr-FR')}</span></div>` : ''}
+        <div class="detail-row"><label>Documents confirmés</label><span>${c.link_docs_confirmed ? '✅ Oui' : '⏳ En attente'}</span></div>
+        ${c.link_docs_confirmed_at ? `<div class="detail-row"><label>Date confirmation</label><span>${new Date(c.link_docs_confirmed_at).toLocaleDateString('fr-FR')}</span></div>` : ''}
       </div>`;
   }
 

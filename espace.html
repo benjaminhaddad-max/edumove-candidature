@@ -849,12 +849,8 @@ body {
   .profil-dropdown { width: 280px; right: -10px; }
 }
 </style>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
-<script src="firebase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 <script src="status-engine.js"></script>
 </head>
 <body>
@@ -1252,26 +1248,21 @@ let userProfile = {};
 let authChecked = false;
 
 // ── AUTH ──
-auth.onAuthStateChanged(async (user) => {
-  if (authChecked) return;
+(async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  const user = session?.user;
   if (!user) {
-    // Firebase Auth may fire with null before restoring session from IndexedDB.
-    await new Promise(r => setTimeout(r, 2000));
-    user = auth.currentUser;
-    if (!user) {
-      sessionStorage.removeItem('edumove_just_submitted');
-      window.location.href = 'index.html';
-      return;
-    }
+    sessionStorage.removeItem('edumove_just_submitted');
+    window.location.href = 'index.html';
+    return;
   }
-  authChecked = true;
   currentUser = user;
 
   // Load user profile for dropdown
   try {
-    const userDoc = await db.collection('users').doc(user.uid).get();
-    if (userDoc.exists) {
-      userProfile = userDoc.data();
+    const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+    if (profileData) {
+      userProfile = profileData;
       fillProfilDropdown();
     }
   } catch(e) { console.error('Load profile error:', e); }
@@ -1280,26 +1271,26 @@ auth.onAuthStateChanged(async (user) => {
   const urlCid = new URLSearchParams(window.location.search).get('cid') || sessionStorage.getItem('edumove_just_submitted');
   sessionStorage.removeItem('edumove_just_submitted');
   try {
-    let snap;
     if (urlCid) {
-      const doc = await db.collection('candidatures').doc(urlCid).get();
-      if (doc.exists && doc.data().userId === user.uid) {
+      const { data: doc } = await supabase.from('candidatures').select('*').eq('id', urlCid).single();
+      if (doc && doc.user_id === user.id) {
         candidatureId = doc.id;
-        candidatureData = doc.data();
+        candidatureData = doc;
       }
     }
     if (!candidatureId) {
-      snap = await db.collection('candidatures').where('userId', '==', user.uid).limit(1).get();
-      if (snap.empty) {
+      let { data } = await supabase.from('candidatures').select('*').eq('user_id', user.id).limit(1).maybeSingle();
+      if (!data) {
         await new Promise(r => setTimeout(r, 2000));
-        snap = await db.collection('candidatures').where('userId', '==', user.uid).limit(1).get();
+        const res = await supabase.from('candidatures').select('*').eq('user_id', user.id).limit(1).maybeSingle();
+        data = res.data;
       }
-      if (!snap || snap.empty) {
+      if (!data) {
         window.location.href = 'candidature.html';
         return;
       }
-      candidatureId = snap.docs[0].id;
-      candidatureData = snap.docs[0].data();
+      candidatureId = data.id;
+      candidatureData = data;
     }
   } catch(e) {
     console.error('Load candidature error:', e);
@@ -1314,8 +1305,8 @@ auth.onAuthStateChanged(async (user) => {
   // Auto-advance status if needed
   const advanced = await checkAndAdvanceStatus(candidatureId, candidatureData);
   if (advanced) {
-    const freshDoc = await db.collection('candidatures').doc(candidatureId).get();
-    if (freshDoc.exists) candidatureData = freshDoc.data();
+    const { data: freshDoc } = await supabase.from('candidatures').select('*').eq('id', candidatureId).single();
+    if (freshDoc) candidatureData = freshDoc;
   }
 
   renderDashboard();
@@ -1324,11 +1315,11 @@ auth.onAuthStateChanged(async (user) => {
 
   document.getElementById('loading').style.display = 'none';
   document.getElementById('main-content').style.display = 'block';
-});
+})();
 
 function logout() {
   if (messagesUnsubscribe) messagesUnsubscribe();
-  auth.signOut().then(() => { window.location.href = 'index.html'; });
+  supabase.auth.signOut().then(() => { window.location.href = 'index.html'; });
 }
 
 // ── PROFILE DROPDOWN ──
@@ -1383,7 +1374,7 @@ async function saveProfil() {
   const dep = document.getElementById('pe-dep').value.trim();
   if (!nom || !prenom || !tel || !dep) { alert('Veuillez remplir tous les champs.'); return; }
   try {
-    await db.collection('users').doc(currentUser.uid).update({ nom, prenom, tel, departement: dep });
+    await supabase.from('profiles').update({ nom, prenom, tel, departement: dep }).eq('id', currentUser.id);
     userProfile.nom = nom;
     userProfile.prenom = prenom;
     userProfile.tel = tel;
@@ -1404,8 +1395,8 @@ function renderDashboard() {
   updateStatusDisplay(c.status);
 
   // Date
-  if (c.createdAt) {
-    document.getElementById('status-date').textContent = 'Soumis le ' + new Date(c.createdAt.seconds * 1000).toLocaleDateString('fr-FR');
+  if (c.created_at) {
+    document.getElementById('status-date').textContent = 'Soumis le ' + new Date(c.created_at).toLocaleDateString('fr-FR');
   }
 
   // Recap
@@ -1422,25 +1413,25 @@ function renderDashboard() {
   </div>`;
 
   // Notes Premiere
-  if (c.notesPremiere && c.notesPremiere.length > 0) {
+  if (c.notes_premiere && c.notes_premiere.length > 0) {
     html += `<hr class="recap-divider"/>
     <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--violet);margin-bottom:8px;">Notes de Première</div>
     <table class="notes-table">
       <thead><tr><th>Matiere</th><th>T1</th><th>T2</th><th>T3</th><th>Moy.</th></tr></thead>
-      <tbody>${c.notesPremiere.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'—'}</td><td>${n.t2||'—'}</td><td>${n.t3||'—'}</td><td style="font-weight:600;">${n.moy||'—'}</td></tr>`).join('')}</tbody>
+      <tbody>${c.notes_premiere.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'—'}</td><td>${n.t2||'—'}</td><td>${n.t3||'—'}</td><td style="font-weight:600;">${n.moy||'—'}</td></tr>`).join('')}</tbody>
     </table>`;
-    if (c.moyennePremiere) html += `<div style="margin-top:8px;font-size:13px;color:var(--navy);">Moyenne : <strong>${esc(c.moyennePremiere)}</strong></div>`;
+    if (c.moyenne_premiere) html += `<div style="margin-top:8px;font-size:13px;color:var(--navy);">Moyenne : <strong>${esc(c.moyenne_premiere)}</strong></div>`;
   }
 
   // Notes Terminale
-  if (c.notesTerminale && c.notesTerminale.length > 0) {
+  if (c.notes_terminale && c.notes_terminale.length > 0) {
     html += `<hr class="recap-divider"/>
     <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--violet);margin-bottom:8px;">Notes de Terminale</div>
     <table class="notes-table">
       <thead><tr><th>Matiere</th><th>T1</th><th>T2</th><th>T3</th><th>Moy.</th></tr></thead>
-      <tbody>${c.notesTerminale.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'—'}</td><td>${n.t2||'—'}</td><td>${n.t3||'—'}</td><td style="font-weight:600;">${n.moy||'—'}</td></tr>`).join('')}</tbody>
+      <tbody>${c.notes_terminale.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'—'}</td><td>${n.t2||'—'}</td><td>${n.t3||'—'}</td><td style="font-weight:600;">${n.moy||'—'}</td></tr>`).join('')}</tbody>
     </table>`;
-    if (c.moyenneTerminale) html += `<div style="margin-top:8px;font-size:13px;color:var(--navy);">Moyenne : <strong>${esc(c.moyenneTerminale)}</strong></div>`;
+    if (c.moyenne_terminale) html += `<div style="margin-top:8px;font-size:13px;color:var(--navy);">Moyenne : <strong>${esc(c.moyenne_terminale)}</strong></div>`;
   }
 
   // Langues
@@ -1456,54 +1447,54 @@ function renderDashboard() {
   }
 
   // Classement
-  if (c.classementDestinations && c.classementDestinations.length > 0) {
+  if (c.classement_destinations && c.classement_destinations.length > 0) {
     html += `<hr class="recap-divider"/>
     <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--violet);margin-bottom:8px;">Classement des destinations</div>
-    <div style="font-size:13px;">${c.classementDestinations.map((d,i) => `<span style="font-weight:600;color:var(--navy);">${i+1}.</span> ${esc(d)}`).join(' &nbsp;|&nbsp; ')}</div>`;
+    <div style="font-size:13px;">${c.classement_destinations.map((d,i) => `<span style="font-weight:600;color:var(--navy);">${i+1}.</span> ${esc(d)}`).join(' &nbsp;|&nbsp; ')}</div>`;
   }
 
   document.getElementById('recap-body').innerHTML = html;
 
   // Show reponse EDUMOVE card if applicable
-  if (['reponse_edumove', 'dossier_soumis', 'accepte', 'refuse', 'abandon'].includes(c.status) && c.autoResponseText) {
+  if (['reponse_edumove', 'dossier_soumis', 'accepte', 'refuse', 'abandon'].includes(c.status) && c.auto_response_text) {
     document.getElementById('reponse-edumove-card').style.display = 'block';
-    document.getElementById('reponse-text').textContent = c.autoResponseText;
-    if (c.callbackRequested) {
+    document.getElementById('reponse-text').textContent = c.auto_response_text;
+    if (c.callback_requested) {
       document.getElementById('btn-callback').style.display = 'none';
       document.getElementById('callback-confirmed').style.display = 'block';
     }
   }
 
   // Show LINK Campus form if applicable
-  if (c.status === 'reponse_edumove' && c.autoResponseText && /link campus|unilink|università.*link/i.test(c.autoResponseText)) {
+  if (c.status === 'reponse_edumove' && c.auto_response_text && /link campus|unilink|università.*link/i.test(c.auto_response_text)) {
     document.getElementById('link-form-card').style.display = 'block';
-    if (c.linkDocsConfirmed) {
+    if (c.link_docs_confirmed) {
       document.getElementById('link-form-fields').style.display = 'none';
       document.getElementById('link-saved-banner').style.display = 'flex';
     }
   }
 
   // Show UCJC form if applicable
-  if (c.status === 'reponse_edumove' && c.autoResponseText && /ucjc|camilo jos/i.test(c.autoResponseText)) {
+  if (c.status === 'reponse_edumove' && c.auto_response_text && /ucjc|camilo jos/i.test(c.auto_response_text)) {
     document.getElementById('ucjc-form-card').style.display = 'block';
-    if (c.ucjcDocsConfirmed) {
+    if (c.ucjc_docs_confirmed) {
       document.getElementById('ucjc-form-fields').style.display = 'none';
       document.getElementById('ucjc-saved-banner').style.display = 'flex';
     }
   }
 
   // Show Universidad Europea form if applicable
-  if (c.status === 'reponse_edumove' && c.autoResponseText && /universidad europea/i.test(c.autoResponseText)) {
+  if (c.status === 'reponse_edumove' && c.auto_response_text && /universidad europea/i.test(c.auto_response_text)) {
     document.getElementById('ue-form-card').style.display = 'block';
-    if (c.ueChoices) {
-      showUESavedBanner(c.ueChoices.ville, c.ueChoices.filiere, c.ueChoices.langue);
+    if (c.ue_choices) {
+      showUESavedBanner(c.ue_choices.ville, c.ue_choices.filiere, c.ue_choices.langue);
     }
   }
 
   // Show confirm docs button for reponse_edumove status
   if (c.status === 'reponse_edumove') {
     document.getElementById('confirm-docs-wrap').style.display = 'block';
-    if (c.docsConfirmed) {
+    if (c.docs_confirmed) {
       document.getElementById('btn-confirm-docs').style.display = 'none';
       document.getElementById('docs-confirmed-banner').style.display = 'flex';
     }
@@ -1554,17 +1545,15 @@ async function requestCallback() {
   btn.disabled = true;
   btn.textContent = 'Envoi en cours...';
   try {
-    await db.collection('candidatures').doc(candidatureId).update({
-      callbackRequested: true,
-      callbackRequestedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    await db.collection('messages').add({
-      candidatureId: candidatureId,
-      senderId: currentUser.uid,
-      senderName: (candidatureData.prenom || '') + ' ' + (candidatureData.nom || ''),
-      senderRole: 'etudiant',
-      text: '📞 Je souhaite etre rappele(e) pour discuter de ma recommandation EDUMOVE.',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    await supabase.from('candidatures').update({
+      callback_requested: true,
+      callback_requested_at: new Date().toISOString()
+    }).eq('id', candidatureId);
+    await supabase.from('messages').insert({
+      candidature_id: candidatureId,
+      user_id: currentUser.id,
+      content: '📞 Je souhaite etre rappele(e) pour discuter de ma recommandation EDUMOVE.',
+      sender: 'etudiant'
     });
     btn.style.display = 'none';
     document.getElementById('callback-confirmed').style.display = 'block';
@@ -1577,14 +1566,14 @@ async function requestCallback() {
 }
 
 function listenForStatusChanges() {
-  db.collection('candidatures').doc(candidatureId).onSnapshot(doc => {
-    if (doc.exists) {
-      const data = doc.data();
+  supabase.channel('candidature-' + candidatureId)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'candidatures', filter: 'id=eq.' + candidatureId }, (payload) => {
+      const data = payload.new;
       candidatureData = data;
       updateStatusDisplay(data.status);
       renderDocuments();
-    }
-  });
+    })
+    .subscribe();
 }
 
 // ── DOCUMENTS ──
@@ -1625,22 +1614,25 @@ async function uploadDocument(input) {
   try {
     const timestamp = Date.now();
     const path = `candidatures/${candidatureId}/docs_${timestamp}_${file.name}`;
-    const snap = await storage.ref(path).put(file);
-    const url = await snap.ref.getDownloadURL();
+    const { error: uploadError } = await supabase.storage.from(‘candidature-docs’).upload(path, file);
+    if (uploadError) throw uploadError;
+    const url = supabase.storage.from(‘candidature-docs’).getPublicUrl(path).data.publicUrl;
 
     // Save to candidature documents
-    const docKey = 'doc_' + timestamp;
-    await db.collection('candidatures').doc(candidatureId).update({
-      [`documents.${docKey}`]: url
-    });
+    const docKey = ‘doc_’ + timestamp;
+    const { data: currentCand } = await supabase.from(‘candidatures’).select(‘documents’).eq(‘id’, candidatureId).single();
+    const updatedDocs = { ...(currentCand?.documents || {}), [docKey]: url };
+    await supabase.from(‘candidatures’).update({ documents: updatedDocs }).eq(‘id’, candidatureId);
+    candidatureData.documents = updatedDocs;
+    renderDocuments();
 
-    progressEl.textContent = 'Document envoyé !';
-    setTimeout(() => { progressEl.style.display = 'none'; }, 2000);
-    input.value = '';
+    progressEl.textContent = ‘Document envoyé !’;
+    setTimeout(() => { progressEl.style.display = ‘none’; }, 2000);
+    input.value = ‘’;
   } catch (err) {
-    console.error('Upload error:', err);
-    progressEl.textContent = 'Erreur lors de l’envoi.';
-    setTimeout(() => { progressEl.style.display = 'none'; }, 3000);
+    console.error(‘Upload error:’, err);
+    progressEl.textContent = ‘Erreur lors de l\’envoi.’;
+    setTimeout(() => { progressEl.style.display = ‘none’; }, 3000);
   }
 }
 
@@ -1657,10 +1649,10 @@ async function saveLINKConfirm() {
   btn.disabled = true;
   btn.textContent = 'Enregistrement...';
   try {
-    await db.collection('candidatures').doc(candidatureId).update({
-      linkDocsConfirmed: true,
-      linkDocsConfirmedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    await supabase.from('candidatures').update({
+      link_docs_confirmed: true,
+      link_docs_confirmed_at: new Date().toISOString()
+    }).eq('id', candidatureId);
     document.getElementById('link-form-fields').style.display = 'none';
     document.getElementById('link-saved-banner').style.display = 'flex';
   } catch (err) {
@@ -1676,10 +1668,10 @@ async function saveUCJCConfirm() {
   btn.disabled = true;
   btn.textContent = 'Enregistrement...';
   try {
-    await db.collection('candidatures').doc(candidatureId).update({
-      ucjcDocsConfirmed: true,
-      ucjcDocsConfirmedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    await supabase.from('candidatures').update({
+      ucjc_docs_confirmed: true,
+      ucjc_docs_confirmed_at: new Date().toISOString()
+    }).eq('id', candidatureId);
     document.getElementById('ucjc-form-fields').style.display = 'none';
     document.getElementById('ucjc-saved-banner').style.display = 'flex';
   } catch (err) {
@@ -1798,10 +1790,10 @@ async function saveUEChoices() {
   btn.textContent = 'Enregistrement...';
 
   try {
-    await db.collection('candidatures').doc(candidatureId).update({
-      ueChoices: { ville, filiere, langue },
-      ueChoicesAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    await supabase.from('candidatures').update({
+      ue_choices: { ville, filiere, langue },
+      ue_choices_at: new Date().toISOString()
+    }).eq('id', candidatureId);
     showUESavedBanner(ville, filiere, langue);
   } catch (err) {
     console.error('UE save error:', err);
@@ -1824,10 +1816,10 @@ async function confirmDocumentsSubmitted() {
   btn.disabled = true;
   btn.textContent = 'Confirmation en cours...';
   try {
-    await db.collection('candidatures').doc(candidatureId).update({
-      docsConfirmed: true,
-      docsConfirmedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    await supabase.from('candidatures').update({
+      docs_confirmed: true,
+      docs_confirmed_at: new Date().toISOString()
+    }).eq('id', candidatureId);
     btn.style.display = 'none';
     document.getElementById('docs-confirmed-banner').style.display = 'flex';
   } catch (err) {
@@ -1838,46 +1830,48 @@ async function confirmDocumentsSubmitted() {
 }
 
 // ── MESSAGING ──
-function loadMessages() {
+async function loadMessages() {
   const container = document.getElementById('messages-container');
   const emptyEl = document.getElementById('messages-empty');
 
-  messagesUnsubscribe = db.collection('messages')
-    .where('candidatureId', '==', candidatureId)
-    .orderBy('createdAt', 'asc')
-    .onSnapshot(snapshot => {
-      if (snapshot.empty) {
-        emptyEl.style.display = 'block';
-        return;
+  const renderMessages = (msgs) => {
+    container.querySelectorAll('.message').forEach(m => m.remove());
+    if (!msgs || msgs.length === 0) {
+      emptyEl.style.display = 'block';
+      return;
+    }
+    emptyEl.style.display = 'none';
+    msgs.forEach(msg => {
+      const div = document.createElement('div');
+      div.className = 'message message-' + msg.sender;
+      let inner = '';
+      if (msg.sender === 'admin') {
+        inner += `<div class="message-sender">Equipe EDUMOVE</div>`;
       }
-      emptyEl.style.display = 'none';
-
-      // Clear and re-render
-      container.querySelectorAll('.message').forEach(m => m.remove());
-
-      snapshot.docs.forEach(doc => {
-        const msg = doc.data();
-        const div = document.createElement('div');
-        div.className = 'message message-' + msg.senderRole;
-
-        let inner = '';
-        if (msg.senderRole === 'admin') {
-          inner += `<div class="message-sender">Equipe EDUMOVE</div>`;
-        }
-        inner += `<div>${esc(msg.text)}</div>`;
-        if (msg.createdAt) {
-          const date = new Date(msg.createdAt.seconds * 1000);
-          inner += `<div class="message-meta">${date.toLocaleDateString('fr-FR')} ${date.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'})}</div>`;
-        }
-        div.innerHTML = inner;
-        container.appendChild(div);
-      });
-
-      // Scroll to bottom
-      container.scrollTop = container.scrollHeight;
-    }, err => {
-      console.error('Messages query error (index needed?):', err);
+      inner += `<div>${esc(msg.content)}</div>`;
+      if (msg.created_at) {
+        const date = new Date(msg.created_at);
+        inner += `<div class="message-meta">${date.toLocaleDateString('fr-FR')} ${date.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'})}</div>`;
+      }
+      div.innerHTML = inner;
+      container.appendChild(div);
     });
+    container.scrollTop = container.scrollHeight;
+  };
+
+  // Initial load
+  const { data: initialMsgs } = await supabase.from('messages').select('*').eq('candidature_id', candidatureId).order('created_at', { ascending: true });
+  renderMessages(initialMsgs);
+
+  // Realtime subscription
+  const channel = supabase.channel('messages-' + candidatureId)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'candidature_id=eq.' + candidatureId }, async () => {
+      const { data: msgs } = await supabase.from('messages').select('*').eq('candidature_id', candidatureId).order('created_at', { ascending: true });
+      renderMessages(msgs);
+    })
+    .subscribe();
+
+  messagesUnsubscribe = () => supabase.removeChannel(channel);
 }
 
 async function sendMessage() {
@@ -1889,18 +1883,16 @@ async function sendMessage() {
   btn.disabled = true;
 
   try {
-    await db.collection('messages').add({
-      candidatureId: candidatureId,
-      senderId: currentUser.uid,
-      senderName: candidatureData.prenom + ' ' + candidatureData.nom,
-      senderRole: 'etudiant',
-      text: text,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    await supabase.from(‘messages’).insert({
+      candidature_id: candidatureId,
+      user_id: currentUser.id,
+      content: text,
+      sender: ‘etudiant’
     });
-    input.value = '';
+    input.value = ‘’;
   } catch (err) {
-    console.error('Message error:', err);
-    alert('Erreur lors de l’envoi du message.');
+    console.error(‘Message error:’, err);
+    alert(‘Erreur lors de l\’envoi du message.’);
   }
   btn.disabled = false;
 }
