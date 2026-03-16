@@ -401,6 +401,135 @@ body {
 }
 .docs-confirmed-banner span { font-size: 20px; }
 
+/* ── LINK FORM ── */
+.link-card-header {
+  background: linear-gradient(135deg, #004d40 0%, #00796b 100%);
+}
+.link-deadline-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fff8e1;
+  border: 1px solid #ffca28;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #e65100;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.link-deadline-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+.link-deadline-dates { display: flex; flex-direction: column; gap: 4px; }
+.link-deadline-dates span { font-weight: 700; }
+.link-deadline-dates small { font-weight: 400; color: #795548; font-size: 12px; }
+.link-docs-list {
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  background: var(--bg);
+  border-radius: 8px;
+}
+.link-docs-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #004d40;
+  margin-bottom: 10px;
+}
+.link-doc-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--navy);
+}
+.link-doc-item:last-child { border-bottom: none; }
+.link-doc-note { font-size: 11px; color: var(--text-muted); font-style: italic; }
+.btn-link-dl {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  background: #004d40;
+  color: white;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.btn-link-dl:hover { background: #00695c; }
+.link-contact-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  background: #e0f2f1;
+  border: 1px solid #80cbc4;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #004d40;
+  margin-bottom: 20px;
+}
+.link-contact-icon { font-size: 20px; flex-shrink: 0; }
+.link-test-toggle {
+  width: 100%;
+  background: none;
+  border: 1.5px solid #004d40;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #004d40;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  transition: background 0.2s;
+}
+.link-test-toggle:hover { background: #e0f2f1; }
+.link-test-toggle-arrow { transition: transform 0.2s; font-size: 12px; }
+.link-test-toggle.open .link-test-toggle-arrow { transform: rotate(180deg); }
+.link-test-preview { display: none; background: var(--bg); border-radius: 8px; padding: 16px; margin-bottom: 20px; font-size: 13px; }
+.link-test-preview.open { display: block; }
+.link-test-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #004d40; margin: 14px 0 8px; }
+.link-test-section-title:first-child { margin-top: 0; }
+.link-test-q { margin-bottom: 10px; padding: 10px 12px; background: white; border-radius: 6px; border-left: 3px solid #00796b; }
+.link-test-q-text { font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+.link-test-q-options { color: var(--text-muted); line-height: 1.7; font-size: 12px; }
+.link-test-disclaimer { font-size: 11px; color: var(--text-muted); font-style: italic; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+.btn-link-save {
+  background: #004d40;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%;
+}
+.btn-link-save:hover { background: #00695c; }
+.link-saved-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #2e7d32;
+}
+.link-saved-banner-icon { font-size: 20px; flex-shrink: 0; }
+
 /* ── UCJC FORM ── */
 .ucjc-card-header {
   background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
@@ -831,6 +960,126 @@ body {
     </div>
   </div>
 
+  <!-- LINK CAMPUS — FORMULAIRE CANDIDATURE -->
+  <div class="section-card" id="link-form-card" style="display:none;">
+    <div class="section-card-header link-card-header">
+      <div class="section-card-title">🎓 Candidature LINK Campus — Università degli Studi LINK</div>
+    </div>
+    <div class="section-card-body">
+
+      <!-- Dates urgentes -->
+      <div class="link-deadline-banner">
+        <span class="link-deadline-icon">⏰</span>
+        <div class="link-deadline-dates">
+          <span>📅 Date limite d'inscription : <u>9 avril 2026</u></span>
+          <span>🧪 Test d'admission : <u>15 avril 2026</u></span>
+          <small>Ne tardez pas — les places sont limitées !</small>
+        </div>
+      </div>
+
+      <div id="link-form-fields">
+
+        <!-- Documents -->
+        <div class="link-docs-list">
+          <div class="link-docs-title">Documents à préparer pour votre inscription</div>
+
+          <div class="link-doc-item">
+            <div>
+              <div>📋 Formulaire de pré-candidature LINK</div>
+              <div class="link-doc-note">À remplir, signer et re-uploader sur votre espace</div>
+            </div>
+            <a class="btn-link-dl" href="formulaire-precandidature-link.pdf" download="Formulaire-PreCandidature-LINK.pdf">⬇ Télécharger</a>
+          </div>
+
+          <div class="link-doc-item">
+            <span>🪪 Carte d'identité ou Passeport</span>
+          </div>
+
+          <div class="link-doc-item">
+            <div>
+              <div>🎓 Relevé de notes / Diplôme du Baccalauréat</div>
+              <div class="link-doc-note">Optionnel — à fournir si vous l'avez déjà obtenu</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info contact + paiement -->
+        <div class="link-contact-info">
+          <span class="link-contact-icon">💬</span>
+          <div>Après réception de vos documents, <strong>un interlocuteur francophone de l'équipe LINK</strong> vous contactera directement pour organiser le règlement des <strong>200 € de frais de test</strong>. Vous n'avez rien d'autre à faire pour l'instant.</div>
+        </div>
+
+        <!-- Aperçu du test -->
+        <button class="link-test-toggle" id="link-test-toggle" onclick="toggleLinkTest()">
+          <span>✨ Aperçu du test d'admission — quelques exemples de questions</span>
+          <span class="link-test-toggle-arrow">▼</span>
+        </button>
+
+        <div class="link-test-preview" id="link-test-preview">
+          <div class="link-test-section-title">📖 Compréhension de texte &amp; Culture générale</div>
+          <div class="link-test-q">
+            <div class="link-test-q-text">Quel est le plus petit État du monde ?</div>
+            <div class="link-test-q-options">A) État du Vatican &nbsp; B) Îles Marshall &nbsp; C) Saint-Marin &nbsp; D) Principauté de Monaco &nbsp; E) Liechtenstein</div>
+          </div>
+          <div class="link-test-q">
+            <div class="link-test-q-text">Qui a été le premier homme à marcher sur la Lune ?</div>
+            <div class="link-test-q-options">A) Neil Armstrong &nbsp; B) Yuri Gagarine &nbsp; C) Lance Armstrong &nbsp; D) John Glenn &nbsp; E) Louis Armstrong</div>
+          </div>
+
+          <div class="link-test-section-title">🧠 Raisonnement logique</div>
+          <div class="link-test-q">
+            <div class="link-test-q-text">Dix amis sortent dîner. L'addition totale est de 360 €. Ils décident de ne pas faire payer celui qui fête son anniversaire. Combien chacun des autres devra-t-il payer ?</div>
+            <div class="link-test-q-options">A) 40 € &nbsp; B) 30 € &nbsp; C) 25 € &nbsp; D) 50 € &nbsp; E) 45 €</div>
+          </div>
+          <div class="link-test-q">
+            <div class="link-test-q-text">Quelle série complète la suivante : 173, 170, 167, ?, 161 ?</div>
+            <div class="link-test-q-options">A) 164 &nbsp; B) 171 &nbsp; C) 172 &nbsp; D) 160 &nbsp; E) 163</div>
+          </div>
+
+          <div class="link-test-section-title">🧬 Biologie</div>
+          <div class="link-test-q">
+            <div class="link-test-q-text">Quelle est la fonction principale de l'ARN messager (ARNm) ?</div>
+            <div class="link-test-q-options">A) Transférer l'information génétique de l'ADN aux ribosomes &nbsp; B) Transporter les acides aminés &nbsp; C) Synthétiser l'ADN &nbsp; D) Constituer les ribosomes &nbsp; E) Inhiber les réactions chimiques</div>
+          </div>
+          <div class="link-test-q">
+            <div class="link-test-q-text">Quel organite est responsable de la modification et du tri des protéines synthétisées ?</div>
+            <div class="link-test-q-options">A) Appareil de Golgi &nbsp; B) Ribosome &nbsp; C) Mitochondrie &nbsp; D) Lysosome &nbsp; E) Noyau</div>
+          </div>
+
+          <div class="link-test-section-title">⚗️ Chimie</div>
+          <div class="link-test-q">
+            <div class="link-test-q-text">Calculer le pH d'une solution 0,01 M de HCl.</div>
+            <div class="link-test-q-options">A) 2 &nbsp; B) 1 &nbsp; C) 7 &nbsp; D) 12 &nbsp; E) &gt;2</div>
+          </div>
+
+          <div class="link-test-section-title">📐 Physique &amp; Mathématiques</div>
+          <div class="link-test-q">
+            <div class="link-test-q-text">Résoudre l'inéquation : −x + 5 ≥ 0</div>
+            <div class="link-test-q-options">A) x ≤ 5 &nbsp; B) Toujours vraie &nbsp; C) Aucune solution &nbsp; D) x ≥ 5 &nbsp; E) x ≥ −5</div>
+          </div>
+          <div class="link-test-q">
+            <div class="link-test-q-text">Calculer l'aire d'un triangle isocèle dont le côté oblique mesure 5 cm et la base 8 cm.</div>
+            <div class="link-test-q-options">A) 12 cm² &nbsp; B) 20 cm² &nbsp; C) 25 cm² &nbsp; D) 40 cm² &nbsp; E) 24 cm²</div>
+          </div>
+
+          <div class="link-test-disclaimer">💡 Ces questions sont tirées d'un test officiel LINK. Le jour du test (15 avril), toutes les questions seront traduites et présentées en français.</div>
+
+          <div style="margin-top:12px;">
+            <a class="btn-link-dl" href="exemple-test-link.pdf" download="Exemple-Test-LINK.pdf" style="width:fit-content;">⬇ Télécharger l'exemple de test complet</a>
+          </div>
+        </div>
+
+        <button class="btn-link-save" onclick="saveLINKConfirm()">✅ J'ai préparé mes documents et compris les étapes</button>
+      </div>
+
+      <div class="link-saved-banner" id="link-saved-banner" style="display:none;">
+        <span class="link-saved-banner-icon">✅</span>
+        <div>Parfait ! Vos documents seront vérifiés par l'équipe EDUMOVE. Un contact francophone de LINK vous joindra prochainement pour le règlement des 200 € et la confirmation de votre inscription au test du 15 avril.</div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- UCJC — FORMULAIRE CANDIDATURE -->
   <div class="section-card" id="ucjc-form-card" style="display:none;">
     <div class="section-card-header ucjc-card-header">
@@ -1225,6 +1474,15 @@ function renderDashboard() {
     }
   }
 
+  // Show LINK Campus form if applicable
+  if (c.status === 'reponse_edumove' && c.autoResponseText && /link campus|unilink|università.*link/i.test(c.autoResponseText)) {
+    document.getElementById('link-form-card').style.display = 'block';
+    if (c.linkDocsConfirmed) {
+      document.getElementById('link-form-fields').style.display = 'none';
+      document.getElementById('link-saved-banner').style.display = 'flex';
+    }
+  }
+
   // Show UCJC form if applicable
   if (c.status === 'reponse_edumove' && c.autoResponseText && /ucjc|camilo jos/i.test(c.autoResponseText)) {
     document.getElementById('ucjc-form-card').style.display = 'block';
@@ -1383,6 +1641,32 @@ async function uploadDocument(input) {
     console.error('Upload error:', err);
     progressEl.textContent = 'Erreur lors de l’envoi.';
     setTimeout(() => { progressEl.style.display = 'none'; }, 3000);
+  }
+}
+
+// ── LINK CAMPUS ──
+function toggleLinkTest() {
+  const btn = document.getElementById('link-test-toggle');
+  const panel = document.getElementById('link-test-preview');
+  btn.classList.toggle('open');
+  panel.classList.toggle('open');
+}
+
+async function saveLINKConfirm() {
+  const btn = document.querySelector('.btn-link-save');
+  btn.disabled = true;
+  btn.textContent = 'Enregistrement...';
+  try {
+    await db.collection('candidatures').doc(candidatureId).update({
+      linkDocsConfirmed: true,
+      linkDocsConfirmedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    document.getElementById('link-form-fields').style.display = 'none';
+    document.getElementById('link-saved-banner').style.display = 'flex';
+  } catch (err) {
+    console.error('LINK confirm error:', err);
+    btn.disabled = false;
+    btn.textContent = '✅ J\'ai préparé mes documents et compris les étapes';
   }
 }
 
