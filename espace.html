@@ -1635,23 +1635,56 @@ const uniSelections = { LINK: null, UCJC: null, UE: null };
 const uniUploads = { LINK: {}, UCJC: {}, UE: {} };
 
 // UE data
+// Places completes
 const UE_COMPLETS = [
   { ville: 'Malaga',   filiere: 'Dentaire',       langue: 'Espagnol' },
   { ville: 'Malaga',   filiere: 'Dentaire',       langue: 'Anglais' },
   { ville: 'Alicante', filiere: 'Dentaire',       langue: 'Espagnol' },
-  { ville: 'Alicante', filiere: 'Dentaire',       langue: 'Anglais' },
   { ville: 'Valence',  filiere: 'Kinesitherapie', langue: 'Espagnol' },
   { ville: 'Alicante', filiere: 'Kinesitherapie', langue: 'Espagnol' },
+  { ville: 'Valence',  filiere: 'Dentaire',       langue: 'Anglais' },
 ];
 
 function isUEComplet(v, f, l) {
   return UE_COMPLETS.some(c => c.ville === v && c.filiere === f && c.langue === l);
 }
 
+// Villes disponibles par filiere
+function getUEVilles(filiere) {
+  if (filiere === 'medecine' || filiere === 'Medecine') return ['Madrid', 'Canaries'];
+  if (filiere === 'pharmacie' || filiere === 'Pharmacie') return ['Madrid'];
+  if (filiere === 'veterinaire' || filiere === 'Veterinaire') return ['Madrid'];
+  // Dentaire et Kine: toutes les villes
+  return ['Madrid', 'Malaga', 'Valence', 'Alicante', 'Canaries'];
+}
+
+// Filieres disponibles par ville
+function getUEFilieresForVille(ville) {
+  if (ville === 'Malaga') return ['Medecine', 'Dentaire', 'Kinesitherapie']; // pas pharmacie, pas veterinaire
+  // Madrid, Valence, Alicante, Canaries: toutes (sauf medecine hors Madrid/Canaries)
+  return null; // pas de restriction speciale par ville (gere par getUEVilles)
+}
+
+// Langues disponibles par ville + filiere
 function getUELangues(ville, filiere) {
+  // Medecine: espagnol uniquement partout
   if (filiere === 'Medecine') return ['Espagnol'];
-  if (filiere === 'Prepa dentaire') return ['Espagnol', 'Anglais'];
-  if (filiere === 'Kinesitherapie' && ville === 'Madrid') return ['Espagnol', 'Anglais', 'Francais'];
+  // Pharmacie: espagnol uniquement (Madrid only)
+  if (filiere === 'Pharmacie') return ['Espagnol'];
+  // Veterinaire: espagnol uniquement (Madrid only)
+  if (filiere === 'Veterinaire') return ['Espagnol'];
+  // Kinesitherapie
+  if (filiere === 'Kinesitherapie') {
+    if (ville === 'Madrid') return ['Espagnol', 'Anglais', 'Francais'];
+    // Malaga, Valence, Alicante, Canaries: espagnol seulement
+    return ['Espagnol'];
+  }
+  // Dentaire
+  if (filiere === 'Dentaire') {
+    if (ville === 'Alicante') return ['Espagnol']; // pas anglais a Alicante
+    return ['Espagnol', 'Anglais'];
+  }
+  // Default
   return ['Espagnol', 'Anglais'];
 }
 
@@ -2180,7 +2213,7 @@ function buildUECard(filieres) {
   h += '<div class="uni-filiere-grid">';
   filieres.forEach(f => {
     // Check if at least one ville is eligible for this filiere
-    const allVilles = (f.id === 'medecine') ? ['Madrid', 'Canaries'] : ['Madrid', 'Malaga', 'Valence', 'Alicante', 'Canaries'];
+    const allVilles = getUEVilles(f.id);
     let anyEligible = false;
     let lastReason = '';
     allVilles.forEach(v => {
@@ -2308,8 +2341,7 @@ function selectUEFiliere(filiereId, filiereLabel) {
   const langueLabel = document.getElementById('ue-langue-label');
 
   // Determine available villes for this filiere
-  let villes = ['Madrid', 'Malaga', 'Valence', 'Alicante', 'Canaries'];
-  if (filiereId === 'medecine') villes = ['Madrid', 'Canaries'];
+  let villes = getUEVilles(filiereId);
 
   let vh = '';
   villes.forEach(v => {
