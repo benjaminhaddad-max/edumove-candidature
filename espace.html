@@ -694,7 +694,6 @@ body {
   border-bottom: 1px solid var(--border);
 }
 .ue-doc-item:last-child { border-bottom: none; }
-.ue-doc-item::before { content: '📄'; font-size: 14px; }
 .ue-saved-banner {
   display: flex;
   align-items: flex-start;
@@ -1165,8 +1164,8 @@ body {
           <div class="ue-docs-required-title">Documents requis pour cette candidature</div>
           <div class="ue-doc-item">📄 <strong>3 bulletins de Première</strong> fusionnés en 1 seul PDF</div>
           <div class="ue-doc-item">🪪 <strong>Carte d'identité ou Passeport</strong></div>
-          <div class="ue-doc-item" style="flex-direction:column;align-items:flex-start;">
-            <div>📋 <strong>Rapport technique académique</strong> (obligatoire — 60 €)</div>
+          <div class="ue-doc-item" style="flex-direction:column;align-items:stretch;gap:0;">
+            <div style="padding:5px 0;">📋 <strong>Rapport technique académique</strong> (obligatoire — 60 €)</div>
             <div style="margin-top:10px;padding:14px;background:#f0f7ff;border-radius:8px;font-size:12px;line-height:1.8;color:var(--text);">
               <div style="font-weight:700;margin-bottom:6px;font-size:13px;">📌 Comment obtenir le rapport technique :</div>
               <div><strong>1.</strong> Rendez-vous sur <a href="https://hostudents.com/servicios-legales/informe-tecnico-academico/" target="_blank" style="color:var(--violet);font-weight:600;">hostudents.com</a> et remplissez le formulaire avec vos informations.</div>
