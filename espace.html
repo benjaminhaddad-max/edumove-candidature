@@ -1847,17 +1847,8 @@ function renderInteractiveResponse(c) {
   let html = '';
 
   // ─── LINK Campus ───
-  html += buildUniCard('LINK', 'LINK Campus University', 'Italie — Rome', 'link-hdr',
-    filieres,
-    'Cours en italien — pas de prerequis linguistique a l\'inscription',
-    [
-      { key: 'formulaire_link', label: 'Formulaire de pre-candidature LINK', note: 'A remplir, signer et uploader', download: { href: 'formulaire-precandidature-link.pdf', name: 'Formulaire-PreCandidature-LINK.pdf' } },
-      { key: 'identite_link', label: 'Carte d\'identite ou Passeport' },
-      { key: 'releve_bac_link', label: 'Releve du baccalaureat', optional: true }
-    ],
-    '<strong>Apres reception de vos documents</strong>, un interlocuteur francophone de l\'equipe LINK vous contactera pour organiser le reglement des <strong>200 euros de frais de test</strong>.',
-    'link'
-  );
+  // LINK has dynamic content based on selected filiere (test vs no test for pharmacie)
+  html += buildLINKCard(filieres);
 
   // ─── UCJC ───
   html += buildUniCard('UCJC', 'UCJC — Universidad Camilo Jose Cela', 'Espagne — Madrid', 'ucjc-hdr',
@@ -1937,6 +1928,176 @@ function buildUniCard(uniKey, uniName, country, hdrClass, filieres, langueInfo, 
   h += '</div>';
 
   h += '</div>';
+  return h;
+}
+
+function buildLINKCard(filieres) {
+  const uniKey = 'LINK';
+  let h = '<div class="uni-partner-card" id="card-LINK">';
+  h += '<div class="uni-partner-header link-hdr">';
+  h += '<div><div class="uni-name">LINK Campus University</div><div class="uni-country">Italie — Rome</div></div>';
+  h += '<div class="uni-badge">Selectionne</div>';
+  h += '</div>';
+
+  h += '<div class="uni-filiere-subtitle">Langue : Cours en italien — pas de prerequis linguistique a l\'inscription — Selectionnez une filiere :</div>';
+
+  // Filiere chips
+  h += '<div class="uni-filiere-grid">';
+  filieres.forEach(f => {
+    const elig = checkEligibility('LINK', f.id, studentProfile, {});
+    if (elig.eligible) {
+      let noteHtml = '';
+      if (elig.note) noteHtml = ' <span style="font-size:10px;color:var(--text-muted);">(' + elig.note + ')</span>';
+      h += '<button class="uni-filiere-chip" data-uni="LINK" data-filiere="' + f.id + '" onclick="selectLINKFiliere(\'' + f.id + '\',\'' + f.label + '\')">' + f.label + noteHtml + '</button>';
+    } else {
+      h += '<div class="uni-filiere-chip disabled" title="' + elig.reason + '">' + f.label + '<div style="font-size:10px;font-weight:400;color:var(--error);margin-top:2px;">' + elig.reason + '</div></div>';
+    }
+  });
+  h += '</div>';
+
+  // Docs section — content changes based on filiere (filled dynamically by selectLINKFiliere)
+  h += '<div class="uni-docs-section" id="docs-LINK">';
+  h += '<div id="link-dynamic-content"></div>';
+  h += '</div>';
+
+  h += '</div>';
+  return h;
+}
+
+// LINK: dynamic content based on selected filiere
+function selectLINKFiliere(filiereId, filiereLabel) {
+  // Toggle
+  if (uniSelections.LINK && uniSelections.LINK.filiere === filiereId) {
+    uniSelections.LINK = null;
+    document.getElementById('card-LINK').classList.remove('selected');
+    document.querySelectorAll('[data-uni="LINK"]').forEach(b => b.classList.remove('active'));
+    document.getElementById('docs-LINK').classList.remove('open');
+    updateConfirmButton();
+    return;
+  }
+
+  uniSelections.LINK = { filiere: filiereId, label: filiereLabel };
+  document.getElementById('card-LINK').classList.add('selected');
+  document.querySelectorAll('[data-uni="LINK"]').forEach(b => {
+    b.classList.toggle('active', b.dataset.filiere === filiereId);
+  });
+
+  // Build dynamic content based on filiere
+  const container = document.getElementById('link-dynamic-content');
+  let h = '';
+
+  if (filiereId === 'pharmacie') {
+    // Pharmacie: pas de test, inscription directe
+    h += '<div class="uni-extra-info link-info" style="margin-bottom:16px;">';
+    h += '<strong>Aucun test n\'est requis pour Pharmacie.</strong> Vous serez rappele directement par l\'universite pour finaliser votre inscription.';
+    h += '</div>';
+    h += '<div class="uni-docs-title link-dt">Documents requis</div>';
+    const docs = [
+      { key: 'formulaire_link', label: 'Formulaire de pre-candidature LINK', note: 'A remplir, signer et uploader', dlHref: 'formulaire-precandidature-link.pdf', dlName: 'Formulaire-PreCandidature-LINK.pdf' },
+      { key: 'identite_link', label: 'Carte d\'identite ou Passeport' },
+      { key: 'releve_bac_link', label: 'Releve du baccalaureat', optional: true }
+    ];
+    docs.forEach(d => { h += buildDocRow(d, 'LINK', 'link'); });
+  } else {
+    // Med, Dent, Kine: test a Paris
+    h += '<div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:#fff8e1;border:1px solid #ffca28;border-radius:8px;font-size:13px;color:#e65100;font-weight:600;margin-bottom:16px;">';
+    h += '<span style="font-size:22px;flex-shrink:0;">🧪</span>';
+    h += '<div>';
+    h += '<div>Test d\'admission a Paris en francais — <u>15 avril 2026</u></div>';
+    h += '<div style="font-weight:400;font-size:12px;color:#795548;margin-top:4px;">Date limite d\'inscription : <u>9 avril 2026</u>. Ne tardez pas, les places sont limitees !</div>';
+    h += '</div>';
+    h += '</div>';
+
+    h += '<div class="uni-docs-title link-dt">Documents requis</div>';
+    const docs = [
+      { key: 'formulaire_link', label: 'Formulaire de pre-candidature LINK', note: 'A remplir, signer et uploader', dlHref: 'formulaire-precandidature-link.pdf', dlName: 'Formulaire-PreCandidature-LINK.pdf' },
+      { key: 'identite_link', label: 'Carte d\'identite ou Passeport' },
+      { key: 'releve_bac_link', label: 'Releve du baccalaureat', optional: true }
+    ];
+    docs.forEach(d => { h += buildDocRow(d, 'LINK', 'link'); });
+
+    // Extra info: frais de test
+    h += '<div class="uni-extra-info link-info" style="margin-top:12px;margin-bottom:16px;">';
+    h += '<strong>Apres reception de vos documents</strong>, un interlocuteur francophone de l\'equipe LINK vous contactera pour organiser le reglement des <strong>200 euros de frais de test</strong>.';
+    h += '</div>';
+
+    // Exemple de test
+    h += '<button style="width:100%;background:none;border:1.5px solid #1a2744;border-radius:8px;padding:12px 16px;font-size:13px;font-weight:600;color:#1a2744;cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;transition:background 0.2s;font-family:inherit;" onclick="this.classList.toggle(\'open\');this.nextElementSibling.classList.toggle(\'open\');this.querySelector(\'.toggle-arrow\').style.transform=this.classList.contains(\'open\')?\'rotate(180deg)\':\'rotate(0)\'" onmouseover="this.style.background=\'#eef2f7\'" onmouseout="this.style.background=\'none\'">';
+    h += '<span>✨ Apercu du test d\'admission — quelques exemples de questions</span>';
+    h += '<span class="toggle-arrow" style="transition:transform 0.2s;font-size:12px;">▼</span>';
+    h += '</button>';
+    h += '<div style="display:none;background:var(--bg);border-radius:8px;padding:16px;margin-bottom:16px;font-size:13px;" class="">';
+    h += buildTestExamples();
+    h += '</div>';
+  }
+
+  container.innerHTML = h;
+  document.getElementById('docs-LINK').classList.add('open');
+  updateConfirmButton();
+}
+
+function buildDocRow(d, uniKey, colorKey) {
+  let h = '<div class="uni-doc-row">';
+  h += '<div>';
+  h += '<div>' + d.label;
+  if (d.optional) h += ' <span class="uni-doc-optional">(Optionnel)</span>';
+  h += '</div>';
+  if (d.note) h += '<div class="uni-doc-note">' + d.note + '</div>';
+  h += '</div>';
+  if (d.dlHref) {
+    h += '<a class="uni-doc-dl ' + colorKey + '-dl" href="' + d.dlHref + '" download="' + d.dlName + '">Telecharger</a>';
+  }
+  h += '</div>';
+  // Upload field
+  h += '<div style="margin: 4px 0 12px;">';
+  h += '<label style="display:flex;align-items:center;gap:8px;padding:10px 14px;border:1.5px dashed var(--border);border-radius:8px;cursor:pointer;transition:all 0.2s;font-size:12px;color:var(--text-muted);" onmouseover="this.style.borderColor=\'var(--violet)\'" onmouseout="this.style.borderColor=\'var(--border)\'">';
+  h += '<span style="font-size:18px;">📎</span>';
+  h += '<span id="upload-label-' + d.key + '">Cliquez pour uploader</span>';
+  h += '<input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleDocUpload(this, \'' + uniKey + '\', \'' + d.key + '\')" />';
+  h += '</label>';
+  h += '<div id="upload-status-' + d.key + '" style="display:none;font-size:11px;color:var(--success);margin-top:4px;padding-left:4px;"></div>';
+  h += '</div>';
+  return h;
+}
+
+function buildTestExamples() {
+  let h = '';
+  h += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#1a2744;margin-bottom:8px;">📖 Comprehension de texte &amp; Culture generale</div>';
+  h += '<div style="margin-bottom:10px;padding:10px 12px;background:white;border-radius:6px;border-left:3px solid #263a5e;">';
+  h += '<div style="font-weight:600;color:var(--navy);margin-bottom:6px;">Quel est le plus petit Etat du monde ?</div>';
+  h += '<div style="color:var(--text-muted);line-height:1.7;font-size:12px;">A) Etat du Vatican &nbsp; B) Iles Marshall &nbsp; C) Saint-Marin &nbsp; D) Principaute de Monaco &nbsp; E) Liechtenstein</div>';
+  h += '</div>';
+  h += '<div style="margin-bottom:10px;padding:10px 12px;background:white;border-radius:6px;border-left:3px solid #263a5e;">';
+  h += '<div style="font-weight:600;color:var(--navy);margin-bottom:6px;">Qui a ete le premier homme a marcher sur la Lune ?</div>';
+  h += '<div style="color:var(--text-muted);line-height:1.7;font-size:12px;">A) Neil Armstrong &nbsp; B) Yuri Gagarine &nbsp; C) Lance Armstrong &nbsp; D) John Glenn &nbsp; E) Louis Armstrong</div>';
+  h += '</div>';
+
+  h += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#1a2744;margin:14px 0 8px;">🧠 Raisonnement logique</div>';
+  h += '<div style="margin-bottom:10px;padding:10px 12px;background:white;border-radius:6px;border-left:3px solid #263a5e;">';
+  h += '<div style="font-weight:600;color:var(--navy);margin-bottom:6px;">Dix amis sortent diner. L\'addition totale est de 360 euros. Ils decident de ne pas faire payer celui qui fete son anniversaire. Combien chacun des autres devra-t-il payer ?</div>';
+  h += '<div style="color:var(--text-muted);line-height:1.7;font-size:12px;">A) 40 euros &nbsp; B) 30 euros &nbsp; C) 25 euros &nbsp; D) 50 euros &nbsp; E) 45 euros</div>';
+  h += '</div>';
+
+  h += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#1a2744;margin:14px 0 8px;">🧬 Biologie</div>';
+  h += '<div style="margin-bottom:10px;padding:10px 12px;background:white;border-radius:6px;border-left:3px solid #263a5e;">';
+  h += '<div style="font-weight:600;color:var(--navy);margin-bottom:6px;">Quelle est la fonction principale de l\'ARN messager (ARNm) ?</div>';
+  h += '<div style="color:var(--text-muted);line-height:1.7;font-size:12px;">A) Transferer l\'information genetique de l\'ADN aux ribosomes &nbsp; B) Transporter les acides amines &nbsp; C) Synthetiser l\'ADN &nbsp; D) Constituer les ribosomes &nbsp; E) Inhiber les reactions chimiques</div>';
+  h += '</div>';
+
+  h += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#1a2744;margin:14px 0 8px;">⚗️ Chimie</div>';
+  h += '<div style="margin-bottom:10px;padding:10px 12px;background:white;border-radius:6px;border-left:3px solid #263a5e;">';
+  h += '<div style="font-weight:600;color:var(--navy);margin-bottom:6px;">Calculer le pH d\'une solution 0,01 M de HCl.</div>';
+  h += '<div style="color:var(--text-muted);line-height:1.7;font-size:12px;">A) 2 &nbsp; B) 1 &nbsp; C) 7 &nbsp; D) 12 &nbsp; E) &gt;2</div>';
+  h += '</div>';
+
+  h += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#1a2744;margin:14px 0 8px;">📐 Physique &amp; Mathematiques</div>';
+  h += '<div style="margin-bottom:10px;padding:10px 12px;background:white;border-radius:6px;border-left:3px solid #263a5e;">';
+  h += '<div style="font-weight:600;color:var(--navy);margin-bottom:6px;">Resoudre l\'inequation : -x + 5 &ge; 0</div>';
+  h += '<div style="color:var(--text-muted);line-height:1.7;font-size:12px;">A) x &le; 5 &nbsp; B) Toujours vraie &nbsp; C) Aucune solution &nbsp; D) x &ge; 5 &nbsp; E) x &ge; -5</div>';
+  h += '</div>';
+
+  h += '<div style="font-size:11px;color:var(--text-muted);font-style:italic;margin-top:12px;padding-top:10px;border-top:1px solid var(--border);">💡 Ces questions sont tirees d\'un test officiel LINK. Le jour du test (15 avril), toutes les questions seront traduites et presentees en francais.</div>';
+  h += '<div style="margin-top:12px;"><a class="uni-doc-dl link-dl" href="exemple-test-link.pdf" download="Exemple-Test-LINK.pdf" style="width:fit-content;">Telecharger l\'exemple de test complet</a></div>';
   return h;
 }
 
