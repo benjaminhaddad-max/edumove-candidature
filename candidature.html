@@ -1214,7 +1214,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── NOTES CALC ──
+function clampNote(el) {
+  if (el && el.value !== '') {
+    let v = parseFloat(el.value);
+    if (v < 0) el.value = 0;
+    if (v > 20) el.value = 20;
+  }
+}
 function calcMoy(prefix) {
+  ['t1','t2','t3'].forEach(t => clampNote(document.getElementById(prefix+'-'+t)));
   const t1 = parseFloat(document.getElementById(prefix+'-t1')?.value);
   const t2 = parseFloat(document.getElementById(prefix+'-t2')?.value);
   const t3 = parseFloat(document.getElementById(prefix+'-t3')?.value);
