@@ -1728,6 +1728,7 @@ function checkEligibility(uniKey, filiereId, profile, extra) {
   // ─── LINK: accepte tout le monde ───
   if (uniKey === 'LINK') {
     if (filiereId === 'veterinaire') return { eligible: false, reason: 'LINK ne propose pas Veterinaire.' };
+    if (filiereId === 'pharmacie') return { eligible: true, note: 'Aucun test requis — inscription directe' };
     return { eligible: true };
   }
 
@@ -2300,11 +2301,22 @@ function showSelectionsSaved(selections) {
   });
 
   // For each selected university, add the next-step message
-  const nextSteps = {
-    LINK: '✅ Votre dossier de candidature au test est bien complet. La faculte reviendra rapidement vers vous pour payer les frais d\'inscription au test.',
-    UCJC: '✅ Votre dossier est bien complet et a bien ete envoye a la faculte. Ils reviendront vers vous tres prochainement pour vous donner un acces a la plateforme de test.',
-    UE: '✅ Votre dossier est bien complet et a bien ete envoye a la faculte. Ils reviendront vers vous tres prochainement pour vous donner un acces a la plateforme de test.'
-  };
+  // Dynamic next steps based on filiere
+  function getNextStep(uniKey, sel) {
+    if (uniKey === 'LINK') {
+      if (sel.filiere === 'pharmacie') {
+        return '✅ Aucun test n\'est requis pour Pharmacie. Vous serez rappele directement par l\'universite pour finaliser votre inscription.';
+      }
+      return '✅ Votre dossier de candidature au test est bien complet. La faculte reviendra rapidement vers vous pour payer les frais d\'inscription au test.';
+    }
+    if (uniKey === 'UCJC') {
+      return '✅ Votre dossier est bien complet et a bien ete envoye a la faculte. Ils reviendront vers vous tres prochainement pour vous donner un acces a la plateforme de test.';
+    }
+    if (uniKey === 'UE') {
+      return '✅ Votre dossier est bien complet et a bien ete envoye a la faculte. Ils reviendront vers vous tres prochainement pour vous donner un acces a la plateforme de test.';
+    }
+    return '';
+  }
   const stepClasses = { LINK: 'link-step', UCJC: 'ucjc-step', UE: 'ue-step' };
 
   ['LINK', 'UCJC', 'UE'].forEach(uniKey => {
@@ -2336,7 +2348,7 @@ function showSelectionsSaved(selections) {
       if (uniKey === 'UE' && selections.UE.ville) {
         detail = ' <span style="font-size:12px;opacity:0.8;">(' + selections.UE.ville + ' — ' + (selections.UE.langue || '') + ')</span>';
       }
-      overlay.innerHTML = '<div class="locked-next-step ' + stepClasses[uniKey] + '">' + nextSteps[uniKey] + detail + '</div>';
+      overlay.innerHTML = '<div class="locked-next-step ' + stepClasses[uniKey] + '">' + getNextStep(uniKey, selections[uniKey]) + detail + '</div>';
       card.appendChild(overlay);
     }
   });
