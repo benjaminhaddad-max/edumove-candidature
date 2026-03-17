@@ -152,66 +152,124 @@ async function checkAndAdvanceStatus(candidatureId, data) {
 // ── Generation de la reponse EDUMOVE (cote etudiant) ──
 
 function generateReponseEdumove(c) {
-  const score = parseFloat(c.score) || 0;
   const langues = c.langues || {};
   const dest = c.destination;
-  const uni = c.universite;
+  const uni = (c.universite || '').toUpperCase();
   const prenom = c.prenom || 'Candidat(e)';
-
-  const langLabels = {
-    b2: 'bilingue/courant (B2+)',
-    b1: 'intermediaire (B1)',
-    debut: 'debutant (A1/A2)',
-    aucun: 'aucune connaissance'
-  };
+  const filieres = c.classement_filieres || ['medecine','dentaire','kinesitherapie','pharmacie','veterinaire'];
+  const score = parseFloat(c.score) || 0;
 
   const esp = langues.espagnol || 'aucun';
   const eng = langues.anglais || 'aucun';
 
+  // Map filiere IDs to labels
+  const fLabels = { medecine: 'Medecine', dentaire: 'Dentaire', kinesitherapie: 'Kinesitherapie', pharmacie: 'Pharmacie', veterinaire: 'Veterinaire' };
+
+  // Build university full names
+  const uniNames = {
+    UEM: 'Universidad Europea',
+    UCJC: 'Universidad Camilo Jose Cela (UCJC)',
+    LINK: 'LINK Campus University (Italie)'
+  };
+  const uniName = uniNames[uni] || uni;
+
+  // Determine available options based on profile
+  const options = [];
+
+  // UE options per filiere
+  const ueVilles = ['Madrid', 'Malaga', 'Valence', 'Alicante', 'Canaries'];
+  const complets = [
+    'Malaga-Dentaire-Espagnol', 'Malaga-Dentaire-Anglais',
+    'Alicante-Dentaire-Espagnol', 'Alicante-Dentaire-Anglais',
+    'Valence-Kinesitherapie-Espagnol', 'Alicante-Kinesitherapie-Espagnol'
+  ];
+
+  filieres.forEach(f => {
+    const fl = fLabels[f] || f;
+    if (f === 'medecine') {
+      // Medecine only in Madrid and Canaries, espagnol only
+      options.push({ filiere: fl, uni: 'Universidad Europea - Madrid', langue: 'Espagnol', complet: false });
+      options.push({ filiere: fl, uni: 'Universidad Europea - Canaries', langue: 'Espagnol', complet: false });
+      // LINK also offers medicine
+      options.push({ filiere: fl, uni: 'LINK Campus University (Italie)', langue: 'Pas de prerequis linguistique', complet: false });
+    } else {
+      // UE: all cities for other filieres
+      ueVilles.forEach(v => {
+        const languesDispos = [];
+        if (f === 'kinesitherapie' && v === 'Madrid') {
+          languesDispos.push('Espagnol', 'Anglais', 'Francais');
+        } else {
+          languesDispos.push('Espagnol', 'Anglais');
+        }
+        languesDispos.forEach(l => {
+          const key = v + '-' + fl + '-' + l;
+          const isComplet = complets.includes(key);
+          options.push({ filiere: fl, uni: 'Universidad Europea - ' + v, langue: l, complet: isComplet });
+        });
+      });
+      // LINK for this filiere
+      options.push({ filiere: fl, uni: 'LINK Campus University (Italie)', langue: 'Pas de prerequis linguistique', complet: false });
+    }
+    // UCJC for each filiere
+    options.push({ filiere: fl, uni: 'UCJC - Madrid', langue: 'Espagnol (B2 facultatif)', complet: false });
+  });
+
+  // Get top recommendation (first filiere, best match)
+  const topFiliere = fLabels[filieres[0]] || filieres[0];
+
   let t = '';
   t += `Bonjour ${prenom},\n\n`;
-  t += `Apres analyse approfondie de votre dossier par notre equipe, nous sommes heureux de vous presenter notre recommandation personnalisee.\n\n`;
+  t += `Apres analyse approfondie de votre dossier, notre equipe est heureuse de vous presenter votre orientation personnalisee.\n\n`;
 
-  // Profil academique
-  t += `📚 VOTRE PROFIL ACADEMIQUE\n`;
-  t += `Votre moyenne academique est de ${score.toFixed(1)}/20. `;
+  // Evaluation
+  t += `📚 EVALUATION DE VOTRE DOSSIER\n`;
   if (score >= 13) {
-    t += `C'est un excellent dossier qui vous ouvre les portes des meilleures universites partenaires EDUMOVE.\n\n`;
+    t += `Votre dossier academique est excellent. Vous avez acces a l'ensemble de nos universites partenaires et a toutes les filieres disponibles.\n\n`;
   } else if (score >= 10) {
-    t += `C'est un dossier solide qui vous permet d'acceder a plusieurs universites partenaires de qualite.\n\n`;
+    t += `Votre dossier academique est solide et vous ouvre l'acces a plusieurs universites partenaires de qualite.\n\n`;
   } else {
-    t += `Nous avons identifie des options adaptees a votre profil pour vous accompagner au mieux dans votre projet d'etudes en Europe.\n\n`;
+    t += `Nous avons identifie des options parfaitement adaptees a votre profil pour vous accompagner dans votre projet d'etudes de sante en Europe.\n\n`;
   }
 
-  // Langues
-  t += `🌍 VOS COMPETENCES LINGUISTIQUES\n`;
-  t += `Espagnol : ${langLabels[esp] || esp}\n`;
-  t += `Anglais : ${langLabels[eng] || eng}\n`;
-  if (langues.italien && langues.italien !== 'aucun') t += `Italien : ${langLabels[langues.italien] || langues.italien}\n`;
-  if (langues.portugais && langues.portugais !== 'aucun') t += `Portugais : ${langLabels[langues.portugais] || langues.portugais}\n`;
+  // Top recommendation
+  t += `🎯 NOTRE RECOMMANDATION PRINCIPALE\n`;
+  t += `Filiere : ${topFiliere}\n`;
+  t += `Universite : ${uniName}`;
+  if (uni === 'UEM') {
+    t += ' - Madrid';
+  }
+  t += '\n\n';
+
+  // All available options for top 2 filieres
+  t += `📋 VOS OPTIONS DISPONIBLES\n`;
+  const topFilieres = filieres.slice(0, 3);
+  topFilieres.forEach(f => {
+    const fl = fLabels[f] || f;
+    t += `\n--- ${fl.toUpperCase()} ---\n`;
+    const fopts = options.filter(o => o.filiere === fl && !o.complet);
+    if (fopts.length === 0) {
+      t += `Pas de place disponible actuellement.\n`;
+    } else {
+      // Group by uni
+      const grouped = {};
+      fopts.forEach(o => {
+        if (!grouped[o.uni]) grouped[o.uni] = [];
+        grouped[o.uni].push(o.langue);
+      });
+      Object.keys(grouped).forEach(u => {
+        t += `  • ${u} (${grouped[u].join(' / ')})\n`;
+      });
+    }
+  });
+
   t += '\n';
 
-  // Recommandation
-  t += `🎯 NOTRE RECOMMANDATION\n`;
-  t += `Destination : ${dest === 'espagne' ? 'Espagne 🇪🇸' : 'Italie 🇮🇹'}\n`;
-  t += `Universite : ${uni}\n\n`;
-
-  // Justification
-  t += `💡 POURQUOI CETTE RECOMMANDATION ?\n`;
-  if (dest === 'espagne' && esp === 'b2') {
-    t += `Votre niveau bilingue en espagnol est un atout majeur. Il vous permet d'integrer directement les cursus de sante en espagnol proposes par l'UCJC et l'UEM a Madrid. Ces universites sont reconnues en France et offrent un cadre d'etudes de tres haute qualite.\n\n`;
-  } else if (dest === 'espagne' && (eng === 'b2' || eng === 'b1')) {
-    t += `Votre bon niveau en anglais (${langLabels[eng]}) vous ouvre l'acces a l'UEM en Espagne, qui propose des cursus de sante en anglais. C'est une excellente option pour les profils anglophones souhaitant etudier dans un environnement international.\n\n`;
-  } else {
-    t += `LINK Campus University en Italie est notre universite partenaire ideale pour votre profil. Aucun prerequis en italien n'est necessaire : vous beneficierez d'un accompagnement linguistique integre tout au long de votre parcours. De nombreux etudiants francophones y reussissent brillamment chaque annee.\n\n`;
-  }
-
-  // Prochaines etapes
-  t += `📋 PROCHAINES ETAPES\n`;
-  t += `1. Prenez connaissance de cette recommandation\n`;
-  t += `2. Si vous souhaitez en discuter, demandez un rappel telephonique avec un conseiller EDUMOVE\n`;
-  t += `3. Notre equipe vous accompagnera dans la preparation de votre dossier d'inscription\n\n`;
-  t += `N'hesitez pas a nous contacter pour toute question.\n\n`;
+  // Next steps
+  t += `📌 PROCHAINES ETAPES\n`;
+  t += `1. Choisissez votre combinaison ville / filiere / langue ci-dessous\n`;
+  t += `2. Preparez les documents demandes\n`;
+  t += `3. L'equipe EDUMOVE verifiera votre dossier et lancera votre inscription\n\n`;
+  t += `Si vous souhaitez en discuter, demandez un rappel telephonique.\n\n`;
   t += `Cordialement,\nL'equipe EDUMOVE`;
 
   return t;

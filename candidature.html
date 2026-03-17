@@ -904,6 +904,60 @@ select.nt-matiere:focus { border-color: var(--violet); }
 
   <hr class="form-divider"/>
 
+  <!-- CLASSEMENT FILIERES -->
+  <div class="form-section-label">Classement de vos filières</div>
+  <div class="section-desc" style="margin-bottom:16px;">Classez les filières de santé par ordre de préférence. Cela nous permet de vous proposer la meilleure orientation possible.</div>
+
+  <div class="ranking-list" id="filiere-ranking-list">
+    <div class="ranking-item" data-value="medecine" draggable="true">
+      <span class="ranking-num">1</span>
+      <span class="flag-icon">🩺</span>
+      <span class="ranking-label">Médecine</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveRankFiliere(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveRankFiliere(this,1)">&#9660;</button>
+      </span>
+    </div>
+    <div class="ranking-item" data-value="dentaire" draggable="true">
+      <span class="ranking-num">2</span>
+      <span class="flag-icon">🦷</span>
+      <span class="ranking-label">Dentaire</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveRankFiliere(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveRankFiliere(this,1)">&#9660;</button>
+      </span>
+    </div>
+    <div class="ranking-item" data-value="kinesitherapie" draggable="true">
+      <span class="ranking-num">3</span>
+      <span class="flag-icon">💪</span>
+      <span class="ranking-label">Kinésithérapie</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveRankFiliere(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveRankFiliere(this,1)">&#9660;</button>
+      </span>
+    </div>
+    <div class="ranking-item" data-value="pharmacie" draggable="true">
+      <span class="ranking-num">4</span>
+      <span class="flag-icon">💊</span>
+      <span class="ranking-label">Pharmacie</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveRankFiliere(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveRankFiliere(this,1)">&#9660;</button>
+      </span>
+    </div>
+    <div class="ranking-item" data-value="veterinaire" draggable="true">
+      <span class="ranking-num">5</span>
+      <span class="flag-icon">🐾</span>
+      <span class="ranking-label">Vétérinaire</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveRankFiliere(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveRankFiliere(this,1)">&#9660;</button>
+      </span>
+    </div>
+  </div>
+
+  <hr class="form-divider"/>
+
   <!-- LANGUES -->
   <div class="form-section-label">Compétences linguistiques</div>
   <div class="lang-section-desc">
@@ -1095,6 +1149,7 @@ const state = {
   profil: '',
   langLevels: {},
   ranking: ['pass_las','roumanie','italie','portugal','espagne'],
+  filiereRanking: ['medecine','dentaire','kinesitherapie','pharmacie','veterinaire'],
   termSpe: []
 };
 
@@ -1205,6 +1260,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     document.querySelectorAll('.ranking-item').forEach(i => i.classList.remove('drag-over'));
   });
+});
+
+// ── FILIERE RANKING ──
+function moveRankFiliere(btn, dir) {
+  const item = btn.closest('.ranking-item');
+  const list = document.getElementById('filiere-ranking-list');
+  const items = Array.from(list.children);
+  const idx = items.indexOf(item);
+  if (idx + dir < 0 || idx + dir >= items.length) return;
+  if (dir === -1) list.insertBefore(item, items[idx - 1]);
+  else list.insertBefore(items[idx + 1], item);
+  updateFiliereRankNums();
+}
+function updateFiliereRankNums() {
+  const items = document.querySelectorAll('#filiere-ranking-list .ranking-item');
+  state.filiereRanking = [];
+  items.forEach((item, i) => {
+    item.querySelector('.ranking-num').textContent = i + 1;
+    state.filiereRanking.push(item.dataset.value);
+  });
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const flist = document.getElementById('filiere-ranking-list');
+  let fDragItem = null;
+  flist.addEventListener('dragstart', e => { fDragItem = e.target.closest('.ranking-item'); if (fDragItem) fDragItem.style.opacity = '0.5'; });
+  flist.addEventListener('dragend', e => { if (fDragItem) fDragItem.style.opacity = '1'; flist.querySelectorAll('.ranking-item').forEach(i => i.classList.remove('drag-over')); fDragItem = null; });
+  flist.addEventListener('dragover', e => { e.preventDefault(); const t = e.target.closest('.ranking-item'); if (t && t !== fDragItem) { flist.querySelectorAll('.ranking-item').forEach(i => i.classList.remove('drag-over')); t.classList.add('drag-over'); } });
+  flist.addEventListener('drop', e => { e.preventDefault(); const t = e.target.closest('.ranking-item'); if (t && t !== fDragItem && fDragItem) { const items = Array.from(flist.children); if (items.indexOf(fDragItem) < items.indexOf(t)) flist.insertBefore(fDragItem, t.nextSibling); else flist.insertBefore(fDragItem, t); updateFiliereRankNums(); } flist.querySelectorAll('.ranking-item').forEach(i => i.classList.remove('drag-over')); });
 });
 
 // ── NOTES CALC ──
@@ -1400,6 +1483,7 @@ async function submitCandidature() {
       score: score,
       langues: { ...state.langLevels, autre: v('autre-langue') },
       classement_destinations: state.ranking,
+      classement_filieres: state.filiereRanking,
       destination: ori.dest,
       universite: ori.uni,
       niveau: ori.level,
