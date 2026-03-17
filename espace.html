@@ -1663,31 +1663,48 @@ function getAvailableFilieres(c) {
 
 // ── CARD BUILDERS ──
 function buildChipsWithEligibility(filieres, uniKey) {
-  let html = '';
+  const eligible = [];
+  const ineligible = [];
   filieres.forEach(f => {
     const elig = checkEligibility(uniKey, f.id, studentProfile, {});
-    if (elig.eligible) {
-      html += '<button class="uni-filiere-chip" id="chip-' + uniKey + '-' + f.id + '" onclick="selectFiliere(\'' + uniKey + '\',\'' + f.id + '\',\'' + f.label + '\')">' + f.label + '</button>';
-    } else {
-      html += '<div class="uni-filiere-chip disabled" id="chip-' + uniKey + '-' + f.id + '" title="' + esc(elig.reason) + '">';
-      html += f.label;
-      html += '<div style="font-size:10px;font-weight:400;color:var(--error);margin-top:3px;line-height:1.3;">' + elig.reason + '</div>';
-      html += '</div>';
-    }
+    if (elig.eligible) eligible.push(f);
+    else ineligible.push({ ...f, reason: elig.reason });
   });
-  return html;
+
+  let chipsHtml = '';
+  eligible.forEach(f => {
+    chipsHtml += '<button class="uni-filiere-chip" id="chip-' + uniKey + '-' + f.id + '" onclick="selectFiliere(\'' + uniKey + '\',\'' + f.id + '\',\'' + f.label + '\')">' + f.label + '</button>';
+  });
+
+  let ineligibleHtml = '';
+  if (ineligible.length > 0) {
+    ineligibleHtml += '<div style="padding:0 20px 12px;">';
+    ineligibleHtml += '<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:500;">Non disponible pour votre profil :</div>';
+    ineligibleHtml += '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+    ineligible.forEach(f => {
+      ineligibleHtml += '<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#f8f8f8;border:1px dashed #ddd;border-radius:6px;font-size:11px;color:var(--text-muted);cursor:help;" title="' + esc(f.reason) + '">';
+      ineligibleHtml += '<span style="text-decoration:line-through;">' + f.label + '</span>';
+      ineligibleHtml += '<span style="font-size:9px;">ℹ️</span>';
+      ineligibleHtml += '</span>';
+    });
+    ineligibleHtml += '</div>';
+    ineligibleHtml += '<div style="font-size:10px;color:var(--text-muted);margin-top:6px;font-style:italic;">Survolez pour voir les conditions requises</div>';
+    ineligibleHtml += '</div>';
+  }
+
+  return { chips: chipsHtml, ineligible: ineligibleHtml };
 }
 
 function buildLINKCard(filieres) {
+  const { chips, ineligible } = buildChipsWithEligibility(filieres, 'LINK');
   let html = '<div class="uni-partner-card" id="card-LINK">';
   html += '<div class="uni-partner-header link-hdr">';
   html += '<div><div class="uni-name">LINK Campus — Università degli Studi LINK</div><div class="uni-country">Italie — Rome</div></div>';
   html += '<div class="uni-badge">Sélectionné</div>';
   html += '</div>';
   html += '<div class="uni-filiere-subtitle">Cours en italien — Pas de prérequis linguistique</div>';
-  html += '<div class="uni-filiere-grid">';
-  html += buildChipsWithEligibility(filieres, 'LINK');
-  html += '</div>';
+  html += '<div class="uni-filiere-grid">' + chips + '</div>';
+  html += ineligible;
   html += '<div id="link-sub-options" class="uni-sub-options"></div>';
   html += '<div class="uni-docs-section" id="docs-LINK"></div>';
   html += '<div class="uni-next-step" id="next-step-LINK"></div>';
@@ -1696,15 +1713,15 @@ function buildLINKCard(filieres) {
 }
 
 function buildUCJCCard(filieres) {
+  const { chips, ineligible } = buildChipsWithEligibility(filieres, 'UCJC');
   let html = '<div class="uni-partner-card" id="card-UCJC">';
   html += '<div class="uni-partner-header ucjc-hdr">';
   html += '<div><div class="uni-name">UCJC — Universidad Camilo José Cela</div><div class="uni-country">Espagne — Madrid</div></div>';
   html += '<div class="uni-badge">Sélectionné</div>';
   html += '</div>';
   html += '<div class="uni-filiere-subtitle">Cours 100% en espagnol</div>';
-  html += '<div class="uni-filiere-grid">';
-  html += buildChipsWithEligibility(filieres, 'UCJC');
-  html += '</div>';
+  html += '<div class="uni-filiere-grid">' + chips + '</div>';
+  html += ineligible;
   html += '<div id="ucjc-sub-options" class="uni-sub-options"></div>';
   html += '<div class="uni-docs-section" id="docs-UCJC"></div>';
   html += '<div class="uni-next-step" id="next-step-UCJC"></div>';
@@ -1713,15 +1730,15 @@ function buildUCJCCard(filieres) {
 }
 
 function buildUECard(filieres) {
+  const { chips, ineligible } = buildChipsWithEligibility(filieres, 'UE');
   let html = '<div class="uni-partner-card" id="card-UE">';
   html += '<div class="uni-partner-header ue-hdr">';
   html += '<div><div class="uni-name">Universidad Europea</div><div class="uni-country">Espagne — Plusieurs campus</div></div>';
   html += '<div class="uni-badge">Sélectionné</div>';
   html += '</div>';
   html += '<div class="uni-filiere-subtitle">Cours en espagnol, anglais ou français selon campus</div>';
-  html += '<div class="uni-filiere-grid">';
-  html += buildChipsWithEligibility(filieres, 'UE');
-  html += '</div>';
+  html += '<div class="uni-filiere-grid">' + chips + '</div>';
+  html += ineligible;
   html += '<div id="ue-sub-options" class="uni-sub-options"></div>';
   html += '<div class="uni-docs-section" id="docs-UE"></div>';
   html += '<div class="uni-next-step" id="next-step-UE"></div>';
