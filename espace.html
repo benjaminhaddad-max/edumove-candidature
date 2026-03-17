@@ -1163,9 +1163,26 @@ body {
 
         <div class="ue-docs-required" id="ue-docs-required" style="display:none;">
           <div class="ue-docs-required-title">Documents requis pour cette candidature</div>
-          <div class="ue-doc-item">Rapport technique académique</div>
-          <div class="ue-doc-item">3 bulletins scolaires de Première</div>
-          <div class="ue-doc-item">Passeport (pages photo + validité)</div>
+          <div class="ue-doc-item">📄 <strong>3 bulletins de Première</strong> fusionnés en 1 seul PDF</div>
+          <div class="ue-doc-item">🪪 <strong>Carte d'identité ou Passeport</strong></div>
+          <div class="ue-doc-item" style="flex-direction:column;align-items:flex-start;">
+            <div>📋 <strong>Rapport technique académique</strong> (obligatoire — 60 €)</div>
+            <div style="margin-top:10px;padding:14px;background:#f0f7ff;border-radius:8px;font-size:12px;line-height:1.8;color:var(--text);">
+              <div style="font-weight:700;margin-bottom:6px;font-size:13px;">📌 Comment obtenir le rapport technique :</div>
+              <div><strong>1.</strong> Rendez-vous sur <a href="https://hostudents.com/servicios-legales/informe-tecnico-academico/" target="_blank" style="color:var(--violet);font-weight:600;">hostudents.com</a> et remplissez le formulaire avec vos informations.</div>
+              <div><strong>2.</strong> Vous recevrez un email avec un lien vers le portail. Cliquez sur « Connexion » puis « Nouveau sur Homologation Student Service » pour créer votre compte.</div>
+              <div><strong>3.</strong> Activez votre compte via l'email d'activation, puis connectez-vous au portail.</div>
+              <div><strong>4.</strong> Remplissez les informations demandées :
+                <ul style="margin:4px 0 4px 16px;list-style:disc;">
+                  <li>Type de service : <strong>Rapport technique académique</strong></li>
+                  <li>Université : <strong>Universidad Europea</strong></li>
+                  <li>Type d'étude : <strong>Licence</strong></li>
+                </ul>
+              </div>
+              <div><strong>5.</strong> Réglez les frais d'évaluation de <strong>60 €</strong> par carte bancaire lorsque le portail vous le demande.</div>
+              <div><strong>6.</strong> Vous recevrez votre rapport par email avec une note sur une échelle de 0 à 20. <strong>Ce document est indispensable</strong> pour finaliser votre candidature.</div>
+            </div>
+          </div>
         </div>
 
         <button class="btn-ue-save" id="btn-ue-save" onclick="saveUEChoices()" disabled>Confirmer mes choix</button>
@@ -1689,34 +1706,39 @@ async function saveUCJCConfirm() {
 }
 
 // ── UNIVERSIDAD EUROPEA ──
-const UE_FILIERES_BASE = ['Médecine', 'Dentaire', 'Pharmacie', 'Vétérinaire', 'Kinésithérapie'];
+// Combinaisons déjà complètes
 const UE_COMPLETS = [
-  { ville: 'Malaga',   filiere: 'Dentaire',        langue: null },
+  { ville: 'Malaga',   filiere: 'Dentaire',        langue: 'Espagnol' },
+  { ville: 'Malaga',   filiere: 'Dentaire',        langue: 'Anglais' },
+  { ville: 'Alicante', filiere: 'Dentaire',        langue: 'Espagnol' },
+  { ville: 'Alicante', filiere: 'Dentaire',        langue: 'Anglais' },
   { ville: 'Valence',  filiere: 'Kinésithérapie',  langue: 'Espagnol' },
   { ville: 'Alicante', filiere: 'Kinésithérapie',  langue: 'Espagnol' },
 ];
 
 function isUEComplet(ville, filiere, langue) {
   return UE_COMPLETS.some(c =>
-    c.ville === ville && c.filiere === filiere && (c.langue === null || c.langue === langue)
+    c.ville === ville && c.filiere === filiere && c.langue === langue
   );
 }
 
+// Langues disponibles par ville + filière
 function getUELangues(ville, filiere) {
   if (filiere === 'Médecine') return ['Espagnol'];
-  if (filiere === 'Kinésithérapie' && (ville === 'Valence' || ville === 'Alicante')) return ['Espagnol'];
-  return ['Espagnol', 'Anglais', 'Français'];
+  if (filiere === 'Prépa dentaire') return ['Espagnol', 'Anglais'];
+  if (filiere === 'Kinésithérapie' && ville === 'Madrid') return ['Espagnol', 'Anglais', 'Français'];
+  return ['Espagnol', 'Anglais'];
 }
 
 // Villes où Médecine est disponible
 const UE_MEDECINE_VILLES = ['Madrid', 'Canaries'];
 
+// Filières disponibles par ville
 function getUEFilieres(ville) {
-  const list = UE_FILIERES_BASE.filter(f => {
-    if (f === 'Médecine') return UE_MEDECINE_VILLES.includes(ville);
-    return true;
-  });
-  if (ville === 'Alicante') list.splice(list.indexOf('Dentaire') + 1, 0, 'Prépa dentaire');
+  const list = [];
+  if (UE_MEDECINE_VILLES.includes(ville)) list.push('Médecine');
+  list.push('Dentaire', 'Pharmacie', 'Vétérinaire', 'Kinésithérapie');
+  if (ville === 'Alicante') list.push('Prépa dentaire');
   return list;
 }
 
