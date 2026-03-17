@@ -1489,8 +1489,13 @@ function renderDashboard() {
     }
   }
 
-  // Show LINK Campus form if applicable
-  if (c.status === 'reponse_edumove' && c.auto_response_text && /link campus|unilink|università.*link/i.test(c.auto_response_text)) {
+  // Show university-specific forms based on universite field or auto_response_text
+  const uni = (c.universite || '').toUpperCase();
+  const txt = (c.auto_response_text || '').toLowerCase();
+  const isReponse = ['reponse_edumove', 'dossier_soumis', 'accepte'].includes(c.status);
+
+  // Show LINK Campus form
+  if (isReponse && (uni === 'LINK' || /link campus|unilink|università.*link/i.test(txt))) {
     document.getElementById('link-form-card').style.display = 'block';
     if (c.link_docs_confirmed) {
       document.getElementById('link-form-fields').style.display = 'none';
@@ -1498,8 +1503,8 @@ function renderDashboard() {
     }
   }
 
-  // Show UCJC form if applicable
-  if (c.status === 'reponse_edumove' && c.auto_response_text && /ucjc|camilo jos/i.test(c.auto_response_text)) {
+  // Show UCJC form
+  if (isReponse && (uni === 'UCJC' || /ucjc|camilo jos/i.test(txt))) {
     document.getElementById('ucjc-form-card').style.display = 'block';
     if (c.ucjc_docs_confirmed) {
       document.getElementById('ucjc-form-fields').style.display = 'none';
@@ -1507,8 +1512,8 @@ function renderDashboard() {
     }
   }
 
-  // Show Universidad Europea form if applicable
-  if (c.status === 'reponse_edumove' && c.auto_response_text && /universidad europea/i.test(c.auto_response_text)) {
+  // Show Universidad Europea form
+  if (isReponse && (uni === 'UEM' || uni === 'UE' || /universidad europea|uem/i.test(txt))) {
     document.getElementById('ue-form-card').style.display = 'block';
     if (c.ue_choices) {
       showUESavedBanner(c.ue_choices.ville, c.ue_choices.filiere, c.ue_choices.langue);
