@@ -821,7 +821,7 @@ tr:hover { background: rgba(97,92,165,0.03); }
   </div>
   <div class="header-right" id="header-right" style="display:none;">
     <span class="header-user" id="header-user"></span>
-    <button class="btn-logout" onclick="logout()">Deconnexion</button>
+    <button class="btn-logout" onclick="logout()">Déconnexion</button>
   </div>
 </header>
 
@@ -832,7 +832,7 @@ tr:hover { background: rgba(97,92,165,0.03); }
   <div class="login-wrap">
     <div class="login-card">
       <h2>Connexion Admin</h2>
-      <p>Acces reserve aux administrateurs EDUMOVE</p>
+      <p>Accès réservé aux administrateurs EDUMOVE</p>
       <input type="email" class="login-field" id="login-email" placeholder="Email"/>
       <input type="password" class="login-field" id="login-pass" placeholder="Mot de passe"/>
       <button class="btn-login" onclick="doLogin()">Se connecter</button>
@@ -855,12 +855,12 @@ tr:hover { background: rgba(97,92,165,0.03); }
       <div class="stat-card violet"><div class="stat-label">En cours</div><div class="stat-value" id="stat-encours">0</div></div>
       <div class="stat-card" style="border-top:3px solid #1565c0;"><div class="stat-label">R&eacute;ponse Edumove</div><div class="stat-value" id="stat-reponse" style="color:#1565c0;">0</div></div>
       <div class="stat-card green"><div class="stat-label">Inscrits</div><div class="stat-value" id="stat-inscrit">0</div></div>
-      <div class="stat-card" style="border-top:3px solid #e65100;"><div class="stat-label">Rappels demandes</div><div class="stat-value" id="stat-rappel" style="color:#e65100;">0</div></div>
+      <div class="stat-card" style="border-top:3px solid #e65100;"><div class="stat-label">Rappels demandés</div><div class="stat-value" id="stat-rappel" style="color:#e65100;">0</div></div>
     </div>
 
     <!-- Toolbar -->
     <div class="toolbar">
-      <input type="text" class="search-input" id="search-input" placeholder="Rechercher par nom, prenom ou email..." oninput="applyFilters()"/>
+      <input type="text" class="search-input" id="search-input" placeholder="Rechercher par nom, prénom ou email..." oninput="applyFilters()"/>
       <select class="filter-select" id="filter-destination" onchange="applyFilters()">
         <option value="">Toutes destinations</option>
         <option value="italie">Italie</option>
@@ -906,7 +906,7 @@ tr:hover { background: rgba(97,92,165,0.03); }
       </div>
       <div id="empty-state" class="empty-state" style="display:none;">
         <div class="empty-state-icon">📂</div>
-        <p>Aucune candidature trouvee</p>
+        <p>Aucune candidature trouvée</p>
       </div>
       <div class="pagination" id="pagination"></div>
     </div>
@@ -918,7 +918,7 @@ tr:hover { background: rgba(97,92,165,0.03); }
 ══════════════════════════════════════════ -->
 <div id="detail-page" class="detail-page">
   <div class="detail-page-header">
-    <a class="detail-back-link" onclick="backToList()">&#8592; Retour a la liste</a>
+    <a class="detail-back-link" onclick="backToList()">&#8592; Retour à la liste</a>
     <div class="detail-page-title-row">
       <h1 class="detail-page-title" id="detail-page-title"></h1>
       <span id="detail-page-badge"></span>
@@ -939,41 +939,41 @@ tr:hover { background: rgba(97,92,165,0.03); }
     </div>
     <div class="modal-body">
 
-      <!-- 1. Identite -->
+      <!-- 1. Identité -->
       <div class="add-section">
-        <div class="add-section-title">1. Identite &amp; Identifiants</div>
+        <div class="add-section-title">1. Identité &amp; Identifiants</div>
         <div class="add-grid">
           <div class="add-field"><label>Nom *</label><input type="text" id="add-nom" required/></div>
-          <div class="add-field"><label>Prenom *</label><input type="text" id="add-prenom" required/></div>
+          <div class="add-field"><label>Prénom *</label><input type="text" id="add-prenom" required/></div>
           <div class="add-field"><label>Email *</label><input type="email" id="add-email" required/></div>
-          <div class="add-field"><label>Telephone</label><input type="tel" id="add-tel" placeholder="06 XX XX XX XX"/></div>
-          <div class="add-field"><label>Departement</label><input type="text" id="add-departement" placeholder="75"/></div>
+          <div class="add-field"><label>Téléphone</label><input type="tel" id="add-tel" placeholder="06 XX XX XX XX"/></div>
+          <div class="add-field"><label>Département</label><input type="text" id="add-departement" placeholder="75"/></div>
           <div class="add-field"><label>Profil *</label>
             <select id="add-profil">
               <option value="terminale">Terminale</option>
-              <option value="reorientation">Reorientation</option>
+              <option value="reorientation">Réorientation</option>
             </select>
           </div>
           <div class="add-field full">
             <label>Mot de passe *</label>
             <div class="password-row">
-              <input type="text" id="add-password" placeholder="Min. 6 caracteres"/>
-              <button type="button" class="btn-gen-pass" onclick="generatePassword()">Generer</button>
+              <input type="text" id="add-password" placeholder="Min. 6 caractères"/>
+              <button type="button" class="btn-gen-pass" onclick="generatePassword()">Générer</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 2. Academique -->
+      <!-- 2. Académique -->
       <div class="add-section">
-        <div class="add-section-title">2. Informations academiques</div>
+        <div class="add-section-title">2. Informations académiques</div>
         <div class="add-grid">
           <div class="add-field">
-            <label>Moy. spes scientifiques 1ere (/20)</label>
+            <label>Moy. spés scientifiques 1ère (/20)</label>
             <input type="number" id="add-moy-spes" min="0" max="20" step="0.1"/>
           </div>
           <div class="add-field">
-            <label>Nb specialites scientifiques</label>
+            <label>Nb spécialités scientifiques</label>
             <select id="add-nb-spes">
               <option value="">—</option>
               <option value="1">1</option>
@@ -982,15 +982,15 @@ tr:hover { background: rgba(97,92,165,0.03); }
             </select>
           </div>
           <div class="add-field">
-            <label>Moyenne generale 1ere (/20)</label>
+            <label>Moyenne générale 1ère (/20)</label>
             <input type="number" id="add-moy-premiere" min="0" max="20" step="0.1"/>
           </div>
           <div class="add-field">
-            <label>Moyenne generale Terminale (/20)</label>
+            <label>Moyenne générale Terminale (/20)</label>
             <input type="number" id="add-moy-terminale" min="0" max="20" step="0.1"/>
           </div>
           <div class="add-field">
-            <label>Score academique global (/20)</label>
+            <label>Score académique global (/20)</label>
             <input type="number" id="add-score" min="0" max="20" step="0.1"/>
           </div>
         </div>
@@ -1005,8 +1005,8 @@ tr:hover { background: rgba(97,92,165,0.03); }
             <select id="add-lang-esp">
               <option value="">—</option>
               <option value="b2">B2+ / Bilingue</option>
-              <option value="b1">B1 / Intermediaire</option>
-              <option value="debut">A1-A2 / Debutant</option>
+              <option value="b1">B1 / Intermédiaire</option>
+              <option value="debut">A1-A2 / Débutant</option>
               <option value="aucun">Aucun</option>
             </select>
           </div>
@@ -1015,8 +1015,8 @@ tr:hover { background: rgba(97,92,165,0.03); }
             <select id="add-lang-ang">
               <option value="">—</option>
               <option value="b2">B2+ / Bilingue</option>
-              <option value="b1">B1 / Intermediaire</option>
-              <option value="debut">A1-A2 / Debutant</option>
+              <option value="b1">B1 / Intermédiaire</option>
+              <option value="debut">A1-A2 / Débutant</option>
               <option value="aucun">Aucun</option>
             </select>
           </div>
@@ -1025,35 +1025,35 @@ tr:hover { background: rgba(97,92,165,0.03); }
             <select id="add-lang-ita">
               <option value="">—</option>
               <option value="b2">B2+ / Bilingue</option>
-              <option value="b1">B1 / Intermediaire</option>
-              <option value="debut">A1-A2 / Debutant</option>
+              <option value="b1">B1 / Intermédiaire</option>
+              <option value="debut">A1-A2 / Débutant</option>
               <option value="aucun">Aucun</option>
             </select>
           </div>
         </div>
       </div>
 
-      <!-- 4. Destinations & Filieres -->
+      <!-- 4. Destinations & Filières -->
       <div class="add-section">
-        <div class="add-section-title">4. Destinations &amp; Filieres</div>
+        <div class="add-section-title">4. Destinations &amp; Filières</div>
         <div class="add-grid">
           <div class="add-field">
-            <label>Classement filieres (cocher et ordonner)</label>
+            <label>Classement filières (cocher et ordonner)</label>
             <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
               <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
-                <input type="checkbox" value="medecine" class="cb-filiere"/> Medecine
+                <input type="checkbox" value="medecine" class="cb-filiere"/> Médecine
               </label>
               <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
                 <input type="checkbox" value="dentaire" class="cb-filiere"/> Dentaire
               </label>
               <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
-                <input type="checkbox" value="kine" class="cb-filiere"/> Kinesitherapie
+                <input type="checkbox" value="kine" class="cb-filiere"/> Kinésithérapie
               </label>
               <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
                 <input type="checkbox" value="pharmacie" class="cb-filiere"/> Pharmacie
               </label>
               <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
-                <input type="checkbox" value="veterinaire" class="cb-filiere"/> Veterinaire
+                <input type="checkbox" value="veterinaire" class="cb-filiere"/> Vétérinaire
               </label>
             </div>
           </div>
@@ -1074,9 +1074,9 @@ tr:hover { background: rgba(97,92,165,0.03); }
         </div>
       </div>
 
-      <!-- 5. Selections universites -->
+      <!-- 5. Sélections universités -->
       <div class="add-section">
-        <div class="add-section-title">5. Selections universites</div>
+        <div class="add-section-title">5. Sélections universités</div>
 
         <!-- LINK -->
         <div class="uni-toggle" id="toggle-link">
@@ -1087,11 +1087,11 @@ tr:hover { background: rgba(97,92,165,0.03); }
           <div class="uni-toggle-body" id="body-link">
             <div class="add-grid">
               <div class="add-field">
-                <label>Filiere</label>
+                <label>Filière</label>
                 <select id="add-link-filiere">
-                  <option value="medecine">Medecine</option>
+                  <option value="medecine">Médecine</option>
                   <option value="dentaire">Dentaire</option>
-                  <option value="kine">Kinesitherapie</option>
+                  <option value="kine">Kinésithérapie</option>
                   <option value="pharmacie">Pharmacie</option>
                 </select>
               </div>
@@ -1108,10 +1108,10 @@ tr:hover { background: rgba(97,92,165,0.03); }
           <div class="uni-toggle-body" id="body-ucjc">
             <div class="add-grid">
               <div class="add-field">
-                <label>Filiere</label>
+                <label>Filière</label>
                 <select id="add-ucjc-filiere">
                   <option value="dentaire">Dentaire</option>
-                  <option value="kine">Kinesitherapie</option>
+                  <option value="kine">Kinésithérapie</option>
                   <option value="pharmacie">Pharmacie</option>
                 </select>
               </div>
@@ -1128,13 +1128,13 @@ tr:hover { background: rgba(97,92,165,0.03); }
           <div class="uni-toggle-body" id="body-ue">
             <div class="add-grid three">
               <div class="add-field">
-                <label>Filiere</label>
+                <label>Filière</label>
                 <select id="add-ue-filiere" onchange="updateUeOptions()">
-                  <option value="medecine">Medecine</option>
+                  <option value="medecine">Médecine</option>
                   <option value="dentaire">Dentaire</option>
-                  <option value="kine">Kinesitherapie</option>
+                  <option value="kine">Kinésithérapie</option>
                   <option value="pharmacie">Pharmacie</option>
-                  <option value="veterinaire">Veterinaire</option>
+                  <option value="veterinaire">Vétérinaire</option>
                 </select>
               </div>
               <div class="add-field">
@@ -1152,7 +1152,7 @@ tr:hover { background: rgba(97,92,165,0.03); }
                 <select id="add-ue-langue">
                   <option value="Espagnol">Espagnol</option>
                   <option value="Anglais">Anglais</option>
-                  <option value="Francais">Francais</option>
+                  <option value="Francais">Français</option>
                 </select>
               </div>
             </div>
@@ -1164,7 +1164,7 @@ tr:hover { background: rgba(97,92,165,0.03); }
       <div class="add-section">
         <div class="add-section-title">6. Documents (optionnel)</div>
         <div id="add-docs-container">
-          <div style="color:#999;font-size:13px;padding:8px 0;">Selectionnez au moins une universite pour voir les documents requis.</div>
+          <div style="color:#999;font-size:13px;padding:8px 0;">Sélectionnez au moins une université pour voir les documents requis.</div>
         </div>
       </div>
 
@@ -1175,13 +1175,13 @@ tr:hover { background: rgba(97,92,165,0.03); }
           <div class="add-field">
             <label>Statut</label>
             <select id="add-status" disabled>
-              <option value="reponse_edumove" selected>Reponse Edumove</option>
+              <option value="reponse_edumove" selected>Réponse Edumove</option>
             </select>
           </div>
         </div>
       </div>
 
-      <button class="btn-submit-dossier" id="btn-submit-dossier" onclick="submitManualDossier()">Creer le dossier</button>
+      <button class="btn-submit-dossier" id="btn-submit-dossier" onclick="submitManualDossier()">Créer le dossier</button>
       <div class="add-error" id="add-error"></div>
       <div class="add-success" id="add-success"></div>
 
@@ -1484,7 +1484,7 @@ function viewDetail(id) {
 
 function renderDetailPage(c) {
   const statusLabels = { en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove' };
-  const langLabels = { b2: 'B2+ / Bilingue', b1: 'B1 / Intermediaire', debut: 'A1/A2 / Debutant', aucun: 'Aucun' };
+  const langLabels = { b2: 'B2+ / Bilingue', b1: 'B1 / Intermédiaire', debut: 'A1/A2 / Débutant', aucun: 'Aucun' };
   const filiereLabels = { medecine: 'M\u00e9decine', dentaire: 'Dentaire', kinesitherapie: 'Kin\u00e9sith\u00e9rapie', kine: 'Kin\u00e9sith\u00e9rapie', pharmacie: 'Pharmacie', veterinaire: 'V\u00e9t\u00e9rinaire' };
 
   // Header
@@ -1500,14 +1500,14 @@ function renderDetailPage(c) {
 
   // ── Card 1: INFORMATIONS ETUDIANT ── (collapsed by default)
   html += `<div class="detail-card">
-    <div class="detail-card-title collapsed" onclick="toggleCard(this)">Informations etudiant</div>
+    <div class="detail-card-title collapsed" onclick="toggleCard(this)">Informations étudiant</div>
     <div class="detail-card-body collapsed">
     <div class="detail-grid">
       <div class="detail-item"><span class="detail-item-label">Nom</span><span class="detail-item-value">${esc(c.nom)}</span></div>
-      <div class="detail-item"><span class="detail-item-label">Prenom</span><span class="detail-item-value">${esc(c.prenom)}</span></div>
+      <div class="detail-item"><span class="detail-item-label">Prénom</span><span class="detail-item-value">${esc(c.prenom)}</span></div>
       <div class="detail-item"><span class="detail-item-label">Email</span><span class="detail-item-value">${esc(c.email)}</span></div>
-      <div class="detail-item"><span class="detail-item-label">Telephone</span><span class="detail-item-value">${esc(c.tel || '\u2014')}</span></div>
-      <div class="detail-item"><span class="detail-item-label">Departement</span><span class="detail-item-value">${esc(c.departement || c.codePostal || '\u2014')}</span></div>
+      <div class="detail-item"><span class="detail-item-label">Téléphone</span><span class="detail-item-value">${esc(c.tel || '\u2014')}</span></div>
+      <div class="detail-item"><span class="detail-item-label">Département</span><span class="detail-item-value">${esc(c.departement || c.codePostal || '\u2014')}</span></div>
       <div class="detail-item"><span class="detail-item-label">Profil</span><span class="detail-item-value">${c.profil === 'reorientation' ? 'R\u00e9orientation' : 'Terminale'}</span></div>
     </div>
     </div>
@@ -1517,12 +1517,12 @@ function renderDetailPage(c) {
   if (c.profil === 'reorientation' && c.reorientation) {
     const r = c.reorientation;
     html += `<div class="detail-card">
-      <div class="detail-card-title collapsed" onclick="toggleCard(this)">Reorientation</div>
+      <div class="detail-card-title collapsed" onclick="toggleCard(this)">Réorientation</div>
       <div class="detail-card-body collapsed">
       <div class="detail-grid">
         <div class="detail-item"><span class="detail-item-label">Formation actuelle</span><span class="detail-item-value">${esc(r.formation)}</span></div>
-        <div class="detail-item"><span class="detail-item-label">Etablissement</span><span class="detail-item-value">${esc(r.etablissement)}</span></div>
-        <div class="detail-item"><span class="detail-item-label">Annee en cours</span><span class="detail-item-value">${esc(r.annee)}</span></div>
+        <div class="detail-item"><span class="detail-item-label">Établissement</span><span class="detail-item-value">${esc(r.etablissement)}</span></div>
+        <div class="detail-item"><span class="detail-item-label">Année en cours</span><span class="detail-item-value">${esc(r.annee)}</span></div>
         <div class="detail-item" style="grid-column:1/-1"><span class="detail-item-label">Motif</span><span class="detail-item-value">${esc(r.motif)}</span></div>
       </div>
       </div>
@@ -1532,10 +1532,10 @@ function renderDetailPage(c) {
   // ── Card 2: NOTES DE PREMIERE ──
   if (c.notes_premiere && c.notes_premiere.length > 0) {
     html += `<div class="detail-card">
-      <div class="detail-card-title collapsed" onclick="toggleCard(this)">Notes de Premiere</div>
+      <div class="detail-card-title collapsed" onclick="toggleCard(this)">Notes de Première</div>
       <div class="detail-card-body collapsed">
       <table class="notes-table">
-        <thead><tr><th>Matiere</th><th>T1</th><th>T2</th><th>T3</th><th>Moyenne</th></tr></thead>
+        <thead><tr><th>Matière</th><th>T1</th><th>T2</th><th>T3</th><th>Moyenne</th></tr></thead>
         <tbody>${c.notes_premiere.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'\u2014'}</td><td>${n.t2||'\u2014'}</td><td>${n.t3||'\u2014'}</td><td style="font-weight:600;">${n.moy||'\u2014'}</td></tr>`).join('')}</tbody>
       </table>
       </div>
@@ -1548,7 +1548,7 @@ function renderDetailPage(c) {
       <div class="detail-card-title collapsed" onclick="toggleCard(this)">Notes de Terminale</div>
       <div class="detail-card-body collapsed">
       <table class="notes-table">
-        <thead><tr><th>Matiere</th><th>T1</th><th>T2</th><th>T3</th><th>Moyenne</th></tr></thead>
+        <thead><tr><th>Matière</th><th>T1</th><th>T2</th><th>T3</th><th>Moyenne</th></tr></thead>
         <tbody>${c.notes_terminale.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'\u2014'}</td><td>${n.t2||'\u2014'}</td><td>${n.t3||'\u2014'}</td><td style="font-weight:600;">${n.moy||'\u2014'}</td></tr>`).join('')}</tbody>
       </table>
       </div>
@@ -1560,11 +1560,11 @@ function renderDetailPage(c) {
     <div class="detail-card-title collapsed" onclick="toggleCard(this)">Orientation</div>
     <div class="detail-card-body collapsed">
     <div class="detail-grid">
-      <div class="detail-item"><span class="detail-item-label">Score academique</span><span class="detail-item-value">${c.score ? parseFloat(c.score).toFixed(1) : '\u2014'}/20</span></div>
+      <div class="detail-item"><span class="detail-item-label">Score académique</span><span class="detail-item-value">${c.score ? parseFloat(c.score).toFixed(1) : '\u2014'}/20</span></div>
       <div class="detail-item"><span class="detail-item-label">Niveau</span><span class="detail-item-value">${esc(c.niveau || '\u2014')}</span></div>
       <div class="detail-item" style="grid-column:1/-1"><span class="detail-item-label">Classement destinations</span><span class="detail-item-value">${(c.classement_destinations||[]).map((d,i) => (i+1)+'. '+d).join(' | ') || '\u2014'}</span></div>
-      <div class="detail-item"><span class="detail-item-label">Destination recommandee</span><span class="detail-item-value">${esc(c.destination || '\u2014')}</span></div>
-      <div class="detail-item"><span class="detail-item-label">Universite</span><span class="detail-item-value">${esc(c.universite || '\u2014')}</span></div>
+      <div class="detail-item"><span class="detail-item-label">Destination recommandée</span><span class="detail-item-value">${esc(c.destination || '\u2014')}</span></div>
+      <div class="detail-item"><span class="detail-item-label">Université</span><span class="detail-item-value">${esc(c.universite || '\u2014')}</span></div>
     </div>
     </div>
   </div>`;
@@ -1587,21 +1587,21 @@ function renderDetailPage(c) {
     }
   }
 
-  // ── Card 6: REPONSE EDUMOVE — SELECTIONS UNIVERSITES ──
+  // ── Card 6: RÉPONSE EDUMOVE — SÉLECTIONS UNIVERSITÉS ──
   const uniSel = c.uni_selections || {};
   const uniTracking = c.uni_tracking || {};
 
   html += `<div class="detail-card" style="background:#f0f4ff;border:2px solid #c5cae9;">
-    <div class="detail-card-title" onclick="toggleCard(this)" style="color:#1a237e;border-color:#c5cae9;font-size:14px;">REPONSE EDUMOVE — SELECTIONS UNIVERSITES</div>
+    <div class="detail-card-title" onclick="toggleCard(this)" style="color:#1a237e;border-color:#c5cae9;font-size:14px;">RÉPONSE EDUMOVE — SÉLECTIONS UNIVERSITÉS</div>
     <div class="detail-card-body">`;
 
   // Doc labels & helper
   const docs = c.documents || {};
   const docLabels = {
-    LINK_formulaire: 'Formulaire pre-candidature', LINK_identite: 'Piece d\'identite', LINK_releves: 'Releve de notes bac',
-    UCJC_lettre_motivation: 'Lettre de motivation', UCJC_identite: 'Piece d\'identite', UCJC_formulaire: 'Formulaire admission', UCJC_attestation_esp: 'Attestation espagnol',
-    UE_bulletins: 'Bulletins de Premiere', UE_identite: 'Piece d\'identite', UE_rapport_technique: 'Rapport technique academique', UE_rapport_demarche: 'Demarche rapport lancee',
-    passeport: 'Passeport', bulletins: 'Bulletins', formulaire: 'Formulaire', rapport_technique: 'Rapport technique', identite: 'Piece d\'identite', releves: 'Releves de notes', lettre_motivation: 'Lettre de motivation'
+    LINK_formulaire: 'Formulaire pré-candidature', LINK_identite: 'Pièce d\'identité', LINK_releves: 'Relevé de notes bac',
+    UCJC_lettre_motivation: 'Lettre de motivation', UCJC_identite: 'Pièce d\'identité', UCJC_formulaire: 'Formulaire admission', UCJC_attestation_esp: 'Attestation espagnol',
+    UE_bulletins: 'Bulletins de Première', UE_identite: 'Pièce d\'identité', UE_rapport_technique: 'Rapport technique académique', UE_rapport_demarche: 'Démarche rapport lancée',
+    passeport: 'Passeport', bulletins: 'Bulletins', formulaire: 'Formulaire', rapport_technique: 'Rapport technique', identite: 'Pièce d\'identité', releves: 'Relevés de notes', lettre_motivation: 'Lettre de motivation'
   };
   function renderDocsForUni(prefix) {
     const uniDocs = Object.entries(docs).filter(([k]) => k.startsWith(prefix + '_'));
@@ -1613,7 +1613,7 @@ function renderDetailPage(c) {
     let h = '<div style="margin-top:10px;padding-top:8px;border-top:1px dashed #ddd;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);font-weight:600;margin-bottom:6px;">Documents</div><div style="display:flex;flex-wrap:wrap;gap:6px;">';
     allDocs.forEach(([k, url]) => {
       if (k === 'UE_rapport_demarche') {
-        if (url) h += '<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#fff8e1;border:1px solid #f9a825;border-radius:6px;font-size:10px;font-weight:500;">Demarche rapport lancee</span>';
+        if (url) h += '<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#fff8e1;border:1px solid #f9a825;border-radius:6px;font-size:10px;font-weight:500;">Démarche rapport lancée</span>';
       } else if (typeof url === 'string' && url.startsWith('http')) {
         h += '<a href="' + url + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:10px;color:var(--violet);text-decoration:none;font-weight:500;">' + (docLabels[k] || k) + '</a>';
       }
@@ -1627,7 +1627,7 @@ function renderDetailPage(c) {
     if (selectedCount <= 1) return ''; // already merged into the single uni card
     const genericDocs = Object.entries(docs).filter(([k]) => !k.startsWith('LINK_') && !k.startsWith('UCJC_') && !k.startsWith('UE_') && typeof docs[k] === 'string' && docs[k].startsWith('http'));
     if (genericDocs.length === 0) return '';
-    let h = '<div style="margin-top:10px;padding-top:8px;border-top:1px dashed #ddd;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);font-weight:600;margin-bottom:6px;">Documents generaux</div><div style="display:flex;flex-wrap:wrap;gap:6px;">';
+    let h = '<div style="margin-top:10px;padding-top:8px;border-top:1px dashed #ddd;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);font-weight:600;margin-bottom:6px;">Documents généraux</div><div style="display:flex;flex-wrap:wrap;gap:6px;">';
     genericDocs.forEach(([k, url]) => {
       h += '<a href="' + url + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:10px;color:var(--violet);text-decoration:none;font-weight:500;">' + (docLabels[k] || k) + '</a>';
     });
@@ -1636,7 +1636,7 @@ function renderDetailPage(c) {
   }
 
   if (!uniSel.LINK && !uniSel.UCJC && !uniSel.UE) {
-    html += `<div style="color:var(--text-muted);font-size:13px;padding:12px 0;">L'etudiant n'a pas encore fait ses choix d'universites.</div>`;
+    html += `<div style="color:var(--text-muted);font-size:13px;padding:12px 0;">L'étudiant n'a pas encore fait ses choix d'universités.</div>`;
   } else {
     // LINK
     if (uniSel.LINK) {
@@ -1647,22 +1647,22 @@ function renderDetailPage(c) {
           <div style="font-weight:700;font-size:14px;color:#1a2744;">LINK Campus University — Rome</div>
           <select id="track-LINK-${c.id}" onchange="updateUniTracking('${c.id}','LINK','status',this.value)" style="padding:4px 10px;border-radius:6px;border:1.5px solid #ccc;font-size:11px;font-family:inherit;">
             <option value="en_attente" ${linkStatus==='en_attente'?'selected':''}>En attente</option>
-            <option value="dossier_envoye" ${linkStatus==='dossier_envoye'?'selected':''}>Dossier envoye a la fac</option>
-            <option value="test_paye" ${linkStatus==='test_paye'?'selected':''}>Test paye</option>
-            <option value="test_passe" ${linkStatus==='test_passe'?'selected':''}>Test passe</option>
-            <option value="accepte" ${linkStatus==='accepte'?'selected':''}>Accepte</option>
-            <option value="refuse" ${linkStatus==='refuse'?'selected':''}>Refuse</option>
+            <option value="dossier_envoye" ${linkStatus==='dossier_envoye'?'selected':''}>Dossier envoyé à la fac</option>
+            <option value="test_paye" ${linkStatus==='test_paye'?'selected':''}>Test payé</option>
+            <option value="test_passe" ${linkStatus==='test_passe'?'selected':''}>Test passé</option>
+            <option value="accepte" ${linkStatus==='accepte'?'selected':''}>Accepté</option>
+            <option value="refuse" ${linkStatus==='refuse'?'selected':''}>Refusé</option>
             <option value="inscrit" ${linkStatus==='inscrit'?'selected':''}>Inscrit</option>
           </select>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px;">
-          <div><span style="color:var(--text-muted);">Filiere :</span> <strong>${filiereLabels[uniSel.LINK.filiere] || uniSel.LINK.filiereLabel || '\u2014'}</strong></div>
+          <div><span style="color:var(--text-muted);">Filière :</span> <strong>${filiereLabels[uniSel.LINK.filiere] || uniSel.LINK.filiereLabel || '\u2014'}</strong></div>
           <div><span style="color:var(--text-muted);">Test :</span> <strong>15 avril 2026 — Paris</strong></div>
           <div style="display:flex;align-items:center;gap:6px;">
             <span style="color:var(--text-muted);">Frais test 200\u20ac :</span>
             <label style="display:flex;align-items:center;gap:4px;cursor:pointer;">
               <input type="checkbox" ${linkPaid?'checked':''} onchange="updateUniTracking('${c.id}','LINK','test_paid',this.checked)" style="width:16px;height:16px;accent-color:#2e7d52;">
-              <span style="font-weight:600;color:${linkPaid?'#2e7d52':'#d63031'};">${linkPaid?'Regle':'Non regle'}</span>
+              <span style="font-weight:600;color:${linkPaid?'#2e7d52':'#d63031'};">${linkPaid?'Réglé':'Non réglé'}</span>
             </label>
           </div>
         </div>
@@ -1678,16 +1678,16 @@ function renderDetailPage(c) {
           <div style="font-weight:700;font-size:14px;color:#96234a;">UCJC — Madrid</div>
           <select id="track-UCJC-${c.id}" onchange="updateUniTracking('${c.id}','UCJC','status',this.value)" style="padding:4px 10px;border-radius:6px;border:1.5px solid #ccc;font-size:11px;font-family:inherit;">
             <option value="en_attente" ${ucjcStatus==='en_attente'?'selected':''}>En attente</option>
-            <option value="dossier_envoye" ${ucjcStatus==='dossier_envoye'?'selected':''}>Dossier envoye a la fac</option>
-            <option value="entretien_planifie" ${ucjcStatus==='entretien_planifie'?'selected':''}>Entretien planifie</option>
-            <option value="entretien_passe" ${ucjcStatus==='entretien_passe'?'selected':''}>Entretien passe</option>
-            <option value="accepte" ${ucjcStatus==='accepte'?'selected':''}>Accepte</option>
-            <option value="refuse" ${ucjcStatus==='refuse'?'selected':''}>Refuse</option>
+            <option value="dossier_envoye" ${ucjcStatus==='dossier_envoye'?'selected':''}>Dossier envoyé à la fac</option>
+            <option value="entretien_planifie" ${ucjcStatus==='entretien_planifie'?'selected':''}>Entretien planifié</option>
+            <option value="entretien_passe" ${ucjcStatus==='entretien_passe'?'selected':''}>Entretien passé</option>
+            <option value="accepte" ${ucjcStatus==='accepte'?'selected':''}>Accepté</option>
+            <option value="refuse" ${ucjcStatus==='refuse'?'selected':''}>Refusé</option>
             <option value="inscrit" ${ucjcStatus==='inscrit'?'selected':''}>Inscrit</option>
           </select>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;">
-          <div><span style="color:var(--text-muted);">Filiere :</span> <strong>${filiereLabels[uniSel.UCJC.filiere] || uniSel.UCJC.filiereLabel || '\u2014'}</strong></div>
+          <div><span style="color:var(--text-muted);">Filière :</span> <strong>${filiereLabels[uniSel.UCJC.filiere] || uniSel.UCJC.filiereLabel || '\u2014'}</strong></div>
           <div><span style="color:var(--text-muted);">Admission :</span> <strong>Entretien uniquement (pas de test)</strong></div>
         </div>
         ${renderDocsForUni('UCJC')}
@@ -1702,16 +1702,16 @@ function renderDetailPage(c) {
           <div style="font-weight:700;font-size:14px;color:#003da5;">Universidad Europea — ${esc(uniSel.UE.ville || '\u2014')}</div>
           <select id="track-UE-${c.id}" onchange="updateUniTracking('${c.id}','UE','status',this.value)" style="padding:4px 10px;border-radius:6px;border:1.5px solid #ccc;font-size:11px;font-family:inherit;">
             <option value="en_attente" ${ueStatus==='en_attente'?'selected':''}>En attente</option>
-            <option value="dossier_envoye" ${ueStatus==='dossier_envoye'?'selected':''}>Dossier envoye a la fac</option>
-            <option value="tests_passes" ${ueStatus==='tests_passes'?'selected':''}>Tests passes</option>
-            <option value="accepte" ${ueStatus==='accepte'?'selected':''}>Accepte</option>
-            <option value="acompte_verse" ${ueStatus==='acompte_verse'?'selected':''}>Acompte 2500\u20ac verse</option>
-            <option value="refuse" ${ueStatus==='refuse'?'selected':''}>Refuse</option>
+            <option value="dossier_envoye" ${ueStatus==='dossier_envoye'?'selected':''}>Dossier envoyé à la fac</option>
+            <option value="tests_passes" ${ueStatus==='tests_passes'?'selected':''}>Tests passés</option>
+            <option value="accepte" ${ueStatus==='accepte'?'selected':''}>Accepté</option>
+            <option value="acompte_verse" ${ueStatus==='acompte_verse'?'selected':''}>Acompte 2500\u20ac versé</option>
+            <option value="refuse" ${ueStatus==='refuse'?'selected':''}>Refusé</option>
             <option value="inscrit" ${ueStatus==='inscrit'?'selected':''}>Inscrit</option>
           </select>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px;">
-          <div><span style="color:var(--text-muted);">Filiere :</span> <strong>${filiereLabels[uniSel.UE.filiere] || uniSel.UE.filiereLabel || '\u2014'}</strong></div>
+          <div><span style="color:var(--text-muted);">Filière :</span> <strong>${filiereLabels[uniSel.UE.filiere] || uniSel.UE.filiereLabel || '\u2014'}</strong></div>
           <div><span style="color:var(--text-muted);">Campus :</span> <strong>${esc(uniSel.UE.ville || '\u2014')}</strong></div>
           <div><span style="color:var(--text-muted);">Langue :</span> <strong>${esc(uniSel.UE.langue || '\u2014')}</strong></div>
         </div>
@@ -1723,20 +1723,20 @@ function renderDetailPage(c) {
     html += renderGenericDocs();
 
     if (c.uni_selections_at) {
-      html += `<div style="font-size:11px;color:var(--text-muted);margin-top:8px;">Choix confirmes le ${new Date(c.uni_selections_at).toLocaleDateString('fr-FR')} a ${new Date(c.uni_selections_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>`;
+      html += `<div style="font-size:11px;color:var(--text-muted);margin-top:8px;">Choix confirmés le ${new Date(c.uni_selections_at).toLocaleDateString('fr-FR')} à ${new Date(c.uni_selections_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>`;
     }
   }
   html += `</div></div>`;
 
   // ── Card 8: MESSAGERIE ──
   html += `<div class="detail-card">
-    <div class="detail-card-title" onclick="toggleCard(this)" style="color:var(--orange);border-color:var(--orange);">Messagerie avec l'etudiant</div>
+    <div class="detail-card-title" onclick="toggleCard(this)" style="color:var(--orange);border-color:var(--orange);">Messagerie avec l'étudiant</div>
     <div class="detail-card-body">
     <div class="msg-container" id="msg-container-${c.id}">
       <div class="msg-empty" id="msg-empty-${c.id}">Aucun message</div>
     </div>
     <div class="msg-input-row">
-      <textarea class="msg-input" id="msg-input-${c.id}" placeholder="Ecrire un message..."></textarea>
+      <textarea class="msg-input" id="msg-input-${c.id}" placeholder="Écrire un message..."></textarea>
       <button class="btn-msg-send" onclick="sendAdminMessage('${c.id}')">Envoyer</button>
     </div>
     </div>
@@ -1780,7 +1780,7 @@ async function loadMessagesForCandidature(candidatureId) {
     msgs.forEach(msg => {
       const div = document.createElement('div');
       div.className = 'msg-bubble ' + msg.sender;
-      let inner = `<div class="msg-sender">${msg.sender === 'admin' ? 'Equipe EDUMOVE' : esc('Etudiant')}</div>`;
+      let inner = `<div class="msg-sender">${msg.sender === 'admin' ? 'Équipe EDUMOVE' : esc('Étudiant')}</div>`;
       inner += `<div>${esc(msg.content)}</div>`;
       if (msg.created_at) {
         const date = new Date(msg.created_at);
@@ -1844,7 +1844,7 @@ async function updateUniTracking(candidatureId, uniKey, field, value) {
     if (el) { el.style.boxShadow = '0 0 0 2px #2e7d52'; setTimeout(() => el.style.boxShadow = '', 1500); }
   } catch (err) {
     console.error('Update uni tracking error:', err);
-    alert('Erreur lors de la mise a jour.');
+    alert('Erreur lors de la mise à jour.');
   }
 }
 
@@ -1853,11 +1853,11 @@ async function updateUniTracking(candidatureId, uniKey, field, value) {
 // ══════════════════════════════════════════
 function exportCSV() {
   const data = filteredCandidatures.length > 0 ? filteredCandidatures : allCandidatures;
-  if (data.length === 0) { alert('Aucune donnee a exporter.'); return; }
+  if (data.length === 0) { alert('Aucune donnée à exporter.'); return; }
 
-  const headers = ['Nom','Prenom','Email','Telephone','Departement','Profil','Score','Destination','Universite','Niveau','Statut','Date',
+  const headers = ['Nom','Prénom','Email','Téléphone','Département','Profil','Score','Destination','Université','Niveau','Statut','Date',
     'Espagnol','Anglais','Italien','Portugais','Autre langue',
-    'Moyenne Premiere','Moyenne Terminale','Classement destinations'];
+    'Moyenne Première','Moyenne Terminale','Classement destinations'];
 
   const rows = data.map(c => {
     const date = c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '';
@@ -1953,7 +1953,7 @@ function resetAddForm() {
   suc.classList.remove('visible'); suc.textContent = '';
 
   document.getElementById('btn-submit-dossier').disabled = false;
-  document.getElementById('btn-submit-dossier').textContent = 'Creer le dossier';
+  document.getElementById('btn-submit-dossier').textContent = 'Créer le dossier';
 }
 
 function generatePassword() {
@@ -1985,17 +1985,17 @@ function updateAddDocs() {
   const ucjcOn = document.getElementById('cb-ucjc')?.checked;
   const ueOn = document.getElementById('cb-ue')?.checked;
   if (!linkOn && !ucjcOn && !ueOn) {
-    container.innerHTML = '<div style="color:#999;font-size:13px;padding:8px 0;">Selectionnez au moins une universite pour voir les documents requis.</div>';
+    container.innerHTML = '<div style="color:#999;font-size:13px;padding:8px 0;">Sélectionnez au moins une université pour voir les documents requis.</div>';
     return;
   }
   let h = '<div class="add-grid">';
   // Generic docs always shown
-  h += '<div class="add-field"><label>Carte d\'identite / Passeport</label><input type="file" id="add-doc-identite" accept=".pdf,.jpg,.jpeg,.png"/></div>';
+  h += '<div class="add-field"><label>Carte d\'identité / Passeport</label><input type="file" id="add-doc-identite" accept=".pdf,.jpg,.jpeg,.png"/></div>';
   h += '<div class="add-field"><label>Bulletins scolaires</label><input type="file" id="add-doc-bulletins" accept=".pdf,.jpg,.jpeg,.png"/></div>';
   // LINK-specific
   if (linkOn) {
     h += '<div class="add-field"><label>Formulaire LINK</label><input type="file" id="add-doc-LINK_formulaire" accept=".pdf,.jpg,.jpeg,.png"/></div>';
-    h += '<div class="add-field"><label>Releve de notes bac (LINK)</label><input type="file" id="add-doc-LINK_releves" accept=".pdf,.jpg,.jpeg,.png"/></div>';
+    h += '<div class="add-field"><label>Relevé de notes bac (LINK)</label><input type="file" id="add-doc-LINK_releves" accept=".pdf,.jpg,.jpeg,.png"/></div>';
   }
   // UCJC-specific
   if (ucjcOn) {
@@ -2006,7 +2006,7 @@ function updateAddDocs() {
   // UE-specific
   if (ueOn) {
     h += '<div class="add-field"><label>Rapport technique (UE)</label><input type="file" id="add-doc-UE_rapport_technique" accept=".pdf,.jpg,.jpeg,.png"/></div>';
-    h += '<div class="add-field"><label>Bulletins Premiere (UE)</label><input type="file" id="add-doc-UE_bulletins" accept=".pdf,.jpg,.jpeg,.png"/></div>';
+    h += '<div class="add-field"><label>Bulletins Première (UE)</label><input type="file" id="add-doc-UE_bulletins" accept=".pdf,.jpg,.jpeg,.png"/></div>';
   }
   h += '</div>';
   container.innerHTML = h;
@@ -2033,7 +2033,7 @@ function updateUeLangues() {
     options = [
       { value: 'Espagnol', label: 'Espagnol' },
       { value: 'Anglais', label: 'Anglais' },
-      { value: 'Francais', label: 'Francais' }
+      { value: 'Francais', label: 'Français' }
     ];
   }
 
@@ -2061,7 +2061,7 @@ function showAddSuccess(msg) {
 async function submitManualDossier() {
   const btn = document.getElementById('btn-submit-dossier');
   btn.disabled = true;
-  btn.textContent = 'Creation en cours...';
+  btn.textContent = 'Création en cours...';
   document.getElementById('add-error').classList.remove('visible');
   document.getElementById('add-success').classList.remove('visible');
 
@@ -2083,15 +2083,15 @@ async function submitManualDossier() {
 
     // Validate required
     if (!nom || !prenom || !email || !password) {
-      showAddError('Veuillez remplir les champs obligatoires : Nom, Prenom, Email, Mot de passe.');
+      showAddError('Veuillez remplir les champs obligatoires : Nom, Prénom, Email, Mot de passe.');
       btn.disabled = false;
-      btn.textContent = 'Creer le dossier';
+      btn.textContent = 'Créer le dossier';
       return;
     }
     if (password.length < 6) {
-      showAddError('Le mot de passe doit contenir au moins 6 caracteres.');
+      showAddError('Le mot de passe doit contenir au moins 6 caractères.');
       btn.disabled = false;
-      btn.textContent = 'Creer le dossier';
+      btn.textContent = 'Créer le dossier';
       return;
     }
 
@@ -2127,7 +2127,7 @@ async function submitManualDossier() {
 
     // Uni selections
     const uniSelections = {};
-    const filiereLabelsMap = { medecine: 'Medecine', dentaire: 'Dentaire', kine: 'Kinesitherapie', pharmacie: 'Pharmacie', veterinaire: 'Veterinaire' };
+    const filiereLabelsMap = { medecine: 'Médecine', dentaire: 'Dentaire', kine: 'Kinésithérapie', pharmacie: 'Pharmacie', veterinaire: 'Vétérinaire' };
 
     if (document.getElementById('cb-link').checked) {
       const fil = document.getElementById('add-link-filiere').value;
@@ -2158,18 +2158,18 @@ async function submitManualDossier() {
     // Build notes_premiere from moySpes and nbSpes (simplified)
     let notesPremiere = [];
     if (moySpes !== null && nbSpes) {
-      const sciNames = ['Mathematiques', 'Physique-Chimie', 'SVT'];
+      const sciNames = ['Mathématiques', 'Physique-Chimie', 'SVT'];
       for (let i = 0; i < Math.min(nbSpes, 3); i++) {
-        notesPremiere.push({ nom: sciNames[i] || 'Specialite ' + (i+1), moy: moySpes.toString(), t1: '', t2: '', t3: '' });
+        notesPremiere.push({ nom: sciNames[i] || 'Spécialité ' + (i+1), moy: moySpes.toString(), t1: '', t2: '', t3: '' });
       }
     }
 
     // ── 1. Save admin session, create user via signUp ──
     const { data: { session: adminSession } } = await supabase.auth.getSession();
     if (!adminSession) {
-      showAddError('Session admin expiree. Veuillez vous reconnecter.');
+      showAddError('Session admin expirée. Veuillez vous reconnecter.');
       btn.disabled = false;
-      btn.textContent = 'Creer le dossier';
+      btn.textContent = 'Créer le dossier';
       return;
     }
 
@@ -2184,9 +2184,9 @@ async function submitManualDossier() {
         access_token: adminSession.access_token,
         refresh_token: adminSession.refresh_token
       });
-      showAddError('Erreur creation compte : ' + signUpError.message);
+      showAddError('Erreur création compte : ' + signUpError.message);
       btn.disabled = false;
-      btn.textContent = 'Creer le dossier';
+      btn.textContent = 'Créer le dossier';
       return;
     }
 
@@ -2196,9 +2196,9 @@ async function submitManualDossier() {
         access_token: adminSession.access_token,
         refresh_token: adminSession.refresh_token
       });
-      showAddError('Erreur : impossible de recuperer l\'ID utilisateur.');
+      showAddError('Erreur : impossible de récupérer l\'ID utilisateur.');
       btn.disabled = false;
-      btn.textContent = 'Creer le dossier';
+      btn.textContent = 'Créer le dossier';
       return;
     }
 
@@ -2211,7 +2211,7 @@ async function submitManualDossier() {
       console.error('Failed to restore admin session:', restoreError);
       showAddError('Erreur restauration session admin. Veuillez vous reconnecter.');
       btn.disabled = false;
-      btn.textContent = 'Creer le dossier';
+      btn.textContent = 'Créer le dossier';
       return;
     }
 
@@ -2261,9 +2261,9 @@ async function submitManualDossier() {
 
     if (candidatureError) {
       console.error('Candidature insert error:', candidatureError);
-      showAddError('Erreur creation candidature : ' + candidatureError.message);
+      showAddError('Erreur création candidature : ' + candidatureError.message);
       btn.disabled = false;
-      btn.textContent = 'Creer le dossier';
+      btn.textContent = 'Créer le dossier';
       return;
     }
 
@@ -2318,8 +2318,8 @@ async function submitManualDossier() {
     }
 
     // ── 7. Success ──
-    showAddSuccess('Dossier cree avec succes pour ' + prenom + ' ' + nom + ' (' + email + ')');
-    btn.textContent = 'Dossier cree !';
+    showAddSuccess('Dossier créé avec succès pour ' + prenom + ' ' + nom + ' (' + email + ')');
+    btn.textContent = 'Dossier créé !';
 
     // Refresh dashboard
     await loadCandidatures();
@@ -2333,7 +2333,7 @@ async function submitManualDossier() {
     console.error('submitManualDossier error:', err);
     showAddError('Erreur inattendue : ' + (err.message || err));
     btn.disabled = false;
-    btn.textContent = 'Creer le dossier';
+    btn.textContent = 'Créer le dossier';
   }
 }
 </script>
