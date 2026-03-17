@@ -263,6 +263,21 @@ tr:hover { background: rgba(97,92,165,0.03); }
 .td-email { color: var(--text-muted); font-size: 12px; }
 .td-date { color: var(--text-muted); font-size: 12px; white-space: nowrap; }
 
+/* ── UNI BADGES IN TABLE ── */
+.uni-badges { display: flex; gap: 4px; flex-wrap: wrap; }
+.uni-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.uni-badge.link { background: #e8eaf6; color: #1a2744; }
+.uni-badge.ucjc { background: #fce4ec; color: #96234a; }
+.uni-badge.ue { background: #e3f2fd; color: #003da5; }
+
 /* ── STATUS BADGES ── */
 .status-badge {
   display: inline-block;
@@ -315,88 +330,97 @@ tr:hover { background: rgba(97,92,165,0.03); }
 .empty-state-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.4; }
 .empty-state p { font-size: 14px; }
 
-/* ── MODAL ── */
-.modal-overlay {
+/* ══════════════════════════════════════════
+   DETAIL PAGE (full page, replaces dashboard)
+══════════════════════════════════════════ */
+.detail-page {
   display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(27,29,58,0.5);
-  z-index: 200;
-  align-items: flex-start;
-  justify-content: center;
-  overflow-y: auto;
-  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 40px 60px;
 }
-.modal-overlay.active { display: flex; }
-.modal {
-  background: white;
-  border-radius: 16px;
-  max-width: 800px;
-  width: 100%;
-  box-shadow: 0 8px 40px rgba(27,29,58,0.15);
-  animation: fadeUp 0.3s ease;
-}
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 24px 32px;
-  border-bottom: 1px solid var(--border);
-}
-.modal-header h3 {
-  font-size: 18px;
-  font-weight: 700;
-}
-.modal-close {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: none;
-  background: var(--bg);
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-}
-.modal-close:hover { background: var(--border); }
-.modal-body { padding: 28px 32px; }
+.detail-page.active { display: block; }
 
-.detail-section {
-  margin-bottom: 24px;
+.detail-page-header {
+  margin-bottom: 32px;
 }
-.detail-section-title {
+.detail-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--violet);
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: color 0.2s;
+}
+.detail-back-link:hover { color: var(--orange); }
+
+.detail-page-title-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.detail-page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--navy);
+}
+.detail-page-status-select {
+  padding: 8px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+  background: white;
+  margin-left: auto;
+}
+
+/* ── DETAIL CARDS ── */
+.detail-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.detail-card {
+  background: white;
+  border-radius: 12px;
+  padding: 28px 32px;
+  box-shadow: 0 2px 12px rgba(27,29,58,0.05);
+}
+.detail-card-title {
   font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: var(--violet);
-  font-weight: 600;
-  margin-bottom: 12px;
-  padding-bottom: 6px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  padding-bottom: 8px;
   border-bottom: 2px solid var(--bg);
 }
 .detail-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
+  gap: 16px;
 }
-.detail-item label {
+.detail-item {}
+.detail-item-label {
   display: block;
-  font-size: 11px;
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   color: var(--text-muted);
-  font-weight: 500;
-  margin-bottom: 2px;
+  font-weight: 600;
+  margin-bottom: 3px;
 }
-.detail-item span {
+.detail-item-value {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--navy);
 }
 
@@ -418,6 +442,18 @@ tr:hover { background: rgba(97,92,165,0.03); }
   text-transform: uppercase;
 }
 
+/* ── UNI SELECTION CARDS (inside detail) ── */
+.uni-selection-card {
+  background: white;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.uni-selection-card.link-card { border-left: 4px solid #1a2744; }
+.uni-selection-card.ucjc-card { border-left: 4px solid #96234a; }
+.uni-selection-card.ue-card { border-left: 4px solid #003da5; }
+
+/* ── DOCUMENTS ── */
 .doc-link {
   display: inline-flex;
   align-items: center;
@@ -434,48 +470,7 @@ tr:hover { background: rgba(97,92,165,0.03); }
 }
 .doc-link:hover { background: var(--border); }
 
-/* ── PAGINATION ── */
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 20px;
-  border-top: 1px solid var(--border);
-}
-.page-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  border: 1.5px solid var(--border);
-  background: white;
-  font-family: inherit;
-  font-size: 13px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-.page-btn:hover { border-color: var(--violet); color: var(--violet); }
-.page-btn.active { background: var(--violet); color: white; border-color: var(--violet); }
-.page-btn:disabled { opacity: 0.4; cursor: default; }
-.page-info { font-size: 12px; color: var(--text-muted); margin: 0 8px; }
-
 /* ── MESSAGING (admin) ── */
-.msg-section {
-  margin-top: 24px;
-  border-top: 2px solid var(--border);
-  padding-top: 20px;
-}
-.msg-section-title {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--orange);
-  font-weight: 600;
-  margin-bottom: 12px;
-}
 .msg-container {
   max-height: 300px;
   overflow-y: auto;
@@ -552,6 +547,34 @@ tr:hover { background: rgba(97,92,165,0.03); }
 }
 .btn-msg-send:hover { background: #d45c08; }
 
+/* ── PAGINATION ── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px;
+  border-top: 1px solid var(--border);
+}
+.page-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: white;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.page-btn:hover { border-color: var(--violet); color: var(--violet); }
+.page-btn.active { background: var(--violet); color: white; border-color: var(--violet); }
+.page-btn:disabled { opacity: 0.4; cursor: default; }
+.page-info { font-size: 12px; color: var(--text-muted); margin: 0 8px; }
+
 /* ── ADD DOSSIER MODAL ── */
 .add-modal-overlay {
   display: none;
@@ -573,14 +596,41 @@ tr:hover { background: rgba(97,92,165,0.03); }
   box-shadow: 0 8px 40px rgba(27,29,58,0.18);
   animation: fadeUp 0.3s ease;
 }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 .add-modal .modal-header {
   position: sticky;
   top: 0;
   background: white;
   border-radius: 16px 16px 0 0;
   z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--border);
+}
+.add-modal .modal-header h3 {
+  font-size: 18px;
+  font-weight: 700;
 }
 .add-modal .modal-body { padding: 24px 32px 32px; }
+.modal-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.modal-close:hover { background: var(--border); }
 .add-section {
   margin-bottom: 28px;
 }
@@ -716,10 +766,9 @@ tr:hover { background: rgba(97,92,165,0.03); }
 @media (max-width: 768px) {
   .site-header { padding: 0 16px; }
   .dash-content { padding: 20px 16px; }
+  .detail-page { padding: 20px 16px; }
   .toolbar { flex-direction: column; }
   .search-input { min-width: 100%; }
-  .modal-body { padding: 20px 16px; }
-  .modal-header { padding: 16px; }
   .stats-row { grid-template-columns: 1fr 1fr; }
   .msg-bubble { max-width: 90%; }
   .add-grid { grid-template-columns: 1fr; }
@@ -727,6 +776,10 @@ tr:hover { background: rgba(97,92,165,0.03); }
   .add-modal .modal-body { padding: 20px 16px; }
   .add-modal-overlay { padding: 10px; }
   .password-row { flex-direction: column; }
+  .detail-card { padding: 20px 16px; }
+  .detail-page-title { font-size: 22px; }
+  .detail-page-title-row { flex-direction: column; align-items: flex-start; }
+  .detail-page-status-select { margin-left: 0; }
 }
 </style>
 
@@ -766,7 +819,7 @@ tr:hover { background: rgba(97,92,165,0.03); }
 </div>
 
 <!-- ══════════════════════════════════════════
-     DASHBOARD
+     DASHBOARD (list view)
 ══════════════════════════════════════════ -->
 <div id="dashboard" class="dashboard">
   <div class="dash-content">
@@ -806,10 +859,16 @@ tr:hover { background: rgba(97,92,165,0.03); }
       <select class="filter-select" id="filter-profil" onchange="applyFilters()">
         <option value="">Tous profils</option>
         <option value="terminale">Terminale</option>
-        <option value="reorientation">Réorientation</option>
+        <option value="reorientation">R&eacute;orientation</option>
+      </select>
+      <select class="filter-select" id="filter-universite" onchange="applyFilters()">
+        <option value="">Toutes universit&eacute;s</option>
+        <option value="LINK">LINK</option>
+        <option value="UCJC">UCJC</option>
+        <option value="UE">UE</option>
       </select>
       <button class="btn-export" onclick="exportCSV()">Exporter CSV</button>
-      <button class="btn-export" style="background:var(--orange);" onclick="openAddDossierModal()">➕ Ajouter un dossier</button>
+      <button class="btn-export" style="background:var(--orange);" onclick="openAddDossierModal()">+ Ajouter un dossier</button>
     </div>
 
     <!-- Table -->
@@ -818,14 +877,11 @@ tr:hover { background: rgba(97,92,165,0.03); }
         <table>
           <thead>
             <tr>
-              <th>Nom</th>
-              <th>Email</th>
-              <th>Profil</th>
-              <th>Score</th>
-              <th>Destination</th>
-              <th>Universite</th>
-              <th>Statut</th>
+              <th>Nom - Pr&eacute;nom</th>
+              <th>Formation</th>
+              <th>Universit&eacute;s</th>
               <th>Date</th>
+              <th>Statut</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -842,16 +898,18 @@ tr:hover { background: rgba(97,92,165,0.03); }
 </div>
 
 <!-- ══════════════════════════════════════════
-     MODAL DETAIL
+     DETAIL PAGE (full page, replaces dashboard)
 ══════════════════════════════════════════ -->
-<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 id="modal-title">Detail du dossier</h3>
-      <button class="modal-close" onclick="closeModal()">x</button>
+<div id="detail-page" class="detail-page">
+  <div class="detail-page-header">
+    <a class="detail-back-link" onclick="backToList()">&#8592; Retour a la liste</a>
+    <div class="detail-page-title-row">
+      <h1 class="detail-page-title" id="detail-page-title"></h1>
+      <span id="detail-page-badge"></span>
+      <select class="detail-page-status-select" id="detail-page-status-select" onchange="updateStatusFromDetail(this.value)"></select>
     </div>
-    <div class="modal-body" id="modal-body"></div>
   </div>
+  <div class="detail-cards" id="detail-cards"></div>
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -860,7 +918,7 @@ tr:hover { background: rgba(97,92,165,0.03); }
 <div class="add-modal-overlay" id="add-modal-overlay" onclick="if(event.target===this)closeAddModal()">
   <div class="add-modal">
     <div class="modal-header">
-      <h3>➕ Ajouter un dossier manuellement</h3>
+      <h3>+ Ajouter un dossier manuellement</h3>
       <button class="modal-close" onclick="closeAddModal()">x</button>
     </div>
     <div class="modal-body">
@@ -1106,7 +1164,7 @@ tr:hover { background: rgba(97,92,165,0.03); }
           <div class="add-field">
             <label>Statut</label>
             <select id="add-status" disabled>
-              <option value="reponse_edumove" selected>Réponse Edumove</option>
+              <option value="reponse_edumove" selected>Reponse Edumove</option>
             </select>
           </div>
         </div>
@@ -1128,6 +1186,7 @@ let allCandidatures = [];
 let filteredCandidatures = [];
 let currentPage = 1;
 const perPage = 15;
+let currentDetailId = null;
 
 // ══════════════════════════════════════════
 // AUTH
@@ -1181,6 +1240,7 @@ function logout() {
 function showLogin() {
   document.getElementById('login-view').style.display = 'block';
   document.getElementById('dashboard').classList.remove('active');
+  document.getElementById('detail-page').classList.remove('active');
   document.getElementById('header-right').style.display = 'none';
 }
 
@@ -1193,6 +1253,7 @@ function showLoginError(msg) {
 function showDashboard(user) {
   document.getElementById('login-view').style.display = 'none';
   document.getElementById('dashboard').classList.add('active');
+  document.getElementById('detail-page').classList.remove('active');
   document.getElementById('header-right').style.display = 'flex';
   document.getElementById('header-user').textContent = user.email;
   loadCandidatures();
@@ -1208,6 +1269,12 @@ async function loadCandidatures() {
   allCandidatures = data || [];
   updateStats();
   applyFilters();
+
+  // If detail page is open, refresh it
+  if (currentDetailId) {
+    const fresh = allCandidatures.find(x => x.id === currentDetailId);
+    if (fresh) renderDetailPage(fresh);
+  }
 
   // Auto-advance statuses (run once)
   if (!autoAdvanceRunning) {
@@ -1227,6 +1294,11 @@ async function loadCandidatures() {
       allCandidatures = fresh || [];
       updateStats();
       applyFilters();
+      // Refresh detail page if open
+      if (currentDetailId) {
+        const c = allCandidatures.find(x => x.id === currentDetailId);
+        if (c) renderDetailPage(c);
+      }
     })
     .subscribe();
 }
@@ -1258,12 +1330,17 @@ function applyFilters() {
   const dest = document.getElementById('filter-destination').value;
   const status = document.getElementById('filter-status').value;
   const profil = document.getElementById('filter-profil').value;
+  const uni = document.getElementById('filter-universite').value;
 
   filteredCandidatures = allCandidatures.filter(c => {
     if (search && !(`${c.nom} ${c.prenom} ${c.email}`).toLowerCase().includes(search)) return false;
     if (dest && c.destination !== dest) return false;
     if (status && c.status !== status) return false;
     if (profil && c.profil !== profil) return false;
+    if (uni) {
+      const sel = c.uni_selections || {};
+      if (!sel[uni]) return false;
+    }
     return true;
   });
 
@@ -1290,23 +1367,24 @@ function renderTable() {
   empty.style.display = 'none';
 
   const statusLabels = { en_attente: 'En attente', en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', dossier_soumis: 'Dossier soumis', accepte: 'Accept\u00e9', refuse: 'Refus\u00e9', abandon: 'Abandon' };
-  const destLabels = { italie: 'Italie', espagne: 'Espagne' };
+  const filiereLabels = { medecine: 'M\u00e9decine', dentaire: 'Dentaire', kine: 'Kin\u00e9sith\u00e9rapie', pharmacie: 'Pharmacie', veterinaire: 'V\u00e9t\u00e9rinaire' };
 
   tbody.innerHTML = pageItems.map(c => {
-    const date = c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '—';
+    const date = c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '\u2014';
+    const filiere = c.filiere ? (filiereLabels[c.filiere] || c.filiere) : '\u2014';
+    const sel = c.uni_selections || {};
+    let uniBadges = '';
+    if (sel.LINK) uniBadges += '<span class="uni-badge link">LINK</span>';
+    if (sel.UCJC) uniBadges += '<span class="uni-badge ucjc">UCJC</span>';
+    if (sel.UE) uniBadges += '<span class="uni-badge ue">UE</span>';
+    if (!uniBadges) uniBadges = '<span style="color:var(--text-muted);font-size:11px;">\u2014</span>';
+
     return `<tr>
       <td><div class="td-name">${esc(c.nom)} ${esc(c.prenom)}</div></td>
-      <td class="td-email">${esc(c.email)}</td>
-      <td>${c.profil === 'reorientation' ? 'Reo.' : 'Term.'}</td>
-      <td>${c.score ? parseFloat(c.score).toFixed(1) : '—'}/20</td>
-      <td>${destLabels[c.destination] || '—'}</td>
-      <td>${esc(c.universite || '—')}</td>
-      <td>
-        <select class="status-select" onchange="updateStatus('${c.id}', this.value)">
-          ${Object.entries(statusLabels).map(([k,v]) => `<option value="${k}" ${c.status===k?'selected':''}>${v}</option>`).join('')}
-        </select>
-      </td>
+      <td>${filiere}</td>
+      <td><div class="uni-badges">${uniBadges}</div></td>
       <td class="td-date">${date}</td>
+      <td><span class="status-badge status-${c.status}">${statusLabels[c.status] || c.status}</span></td>
       <td><button class="btn-view" onclick="viewDetail('${c.id}')">Voir</button></td>
     </tr>`;
   }).join('');
@@ -1357,122 +1435,158 @@ async function updateStatus(id, newStatus) {
   await supabase.from('candidatures').update(updateData).eq('id', id);
 }
 
+function updateStatusFromDetail(newStatus) {
+  if (currentDetailId) {
+    updateStatus(currentDetailId, newStatus);
+  }
+}
+
 // ══════════════════════════════════════════
-// DETAIL MODAL
+// DETAIL PAGE VIEW
 // ══════════════════════════════════════════
 function viewDetail(id) {
   const c = allCandidatures.find(x => x.id === id);
   if (!c) return;
 
-  document.getElementById('modal-title').textContent = `${c.prenom} ${c.nom}`;
+  currentDetailId = id;
+
+  // Hide dashboard, show detail page
+  document.getElementById('dashboard').classList.remove('active');
+  document.getElementById('detail-page').classList.add('active');
+  window.scrollTo(0, 0);
+
+  renderDetailPage(c);
+  loadMessagesForCandidature(id);
+}
+
+function renderDetailPage(c) {
   const statusLabels = { en_attente: 'En attente', en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', dossier_soumis: 'Dossier soumis', accepte: 'Accept\u00e9', refuse: 'Refus\u00e9', abandon: 'Abandon' };
   const langLabels = { b2: 'B2+ / Bilingue', b1: 'B1 / Intermediaire', debut: 'A1/A2 / Debutant', aucun: 'Aucun' };
+  const filiereLabels = { medecine: 'M\u00e9decine', dentaire: 'Dentaire', kinesitherapie: 'Kin\u00e9sith\u00e9rapie', kine: 'Kin\u00e9sith\u00e9rapie', pharmacie: 'Pharmacie', veterinaire: 'V\u00e9t\u00e9rinaire' };
 
+  // Header
+  document.getElementById('detail-page-title').textContent = c.prenom + ' ' + c.nom;
+  document.getElementById('detail-page-badge').innerHTML = `<span class="status-badge status-${c.status}">${statusLabels[c.status] || c.status}</span>`;
+
+  // Status select
+  const statusSelect = document.getElementById('detail-page-status-select');
+  statusSelect.innerHTML = Object.entries(statusLabels).map(([k, v]) => `<option value="${k}" ${c.status === k ? 'selected' : ''}>${v}</option>`).join('');
+
+  // Build cards
   let html = '';
 
-  // Infos personnelles
-  html += `<div class="detail-section">
-    <div class="detail-section-title">Informations personnelles</div>
+  // ── Card 1: INFORMATIONS ETUDIANT ──
+  html += `<div class="detail-card">
+    <div class="detail-card-title">Informations etudiant</div>
     <div class="detail-grid">
-      <div class="detail-item"><label>Nom</label><span>${esc(c.nom)}</span></div>
-      <div class="detail-item"><label>Prenom</label><span>${esc(c.prenom)}</span></div>
-      <div class="detail-item"><label>Email</label><span>${esc(c.email)}</span></div>
-      <div class="detail-item"><label>Telephone</label><span>${esc(c.tel)}</span></div>
-      <div class="detail-item"><label>Departement</label><span>${esc(c.departement || c.codePostal || '')}</span></div>
-      <div class="detail-item"><label>Profil</label><span>${c.profil === 'reorientation' ? 'Réorientation' : 'Terminale'}</span></div>
-      <div class="detail-item"><label>Statut</label><span class="status-badge status-${c.status}">${statusLabels[c.status] || c.status}</span></div>
+      <div class="detail-item"><span class="detail-item-label">Nom</span><span class="detail-item-value">${esc(c.nom)}</span></div>
+      <div class="detail-item"><span class="detail-item-label">Prenom</span><span class="detail-item-value">${esc(c.prenom)}</span></div>
+      <div class="detail-item"><span class="detail-item-label">Email</span><span class="detail-item-value">${esc(c.email)}</span></div>
+      <div class="detail-item"><span class="detail-item-label">Telephone</span><span class="detail-item-value">${esc(c.tel || '\u2014')}</span></div>
+      <div class="detail-item"><span class="detail-item-label">Departement</span><span class="detail-item-value">${esc(c.departement || c.codePostal || '\u2014')}</span></div>
+      <div class="detail-item"><span class="detail-item-label">Profil</span><span class="detail-item-value">${c.profil === 'reorientation' ? 'R\u00e9orientation' : 'Terminale'}</span></div>
     </div>
   </div>`;
 
-  // Reorientation
+  // ── Reorientation info ──
   if (c.profil === 'reorientation' && c.reorientation) {
     const r = c.reorientation;
-    html += `<div class="detail-section">
-      <div class="detail-section-title">Réorientation</div>
+    html += `<div class="detail-card">
+      <div class="detail-card-title">Reorientation</div>
       <div class="detail-grid">
-        <div class="detail-item"><label>Formation actuelle</label><span>${esc(r.formation)}</span></div>
-        <div class="detail-item"><label>Etablissement</label><span>${esc(r.etablissement)}</span></div>
-        <div class="detail-item"><label>Annee en cours</label><span>${esc(r.annee)}</span></div>
-        <div class="detail-item" style="grid-column:1/-1"><label>Motif</label><span>${esc(r.motif)}</span></div>
+        <div class="detail-item"><span class="detail-item-label">Formation actuelle</span><span class="detail-item-value">${esc(r.formation)}</span></div>
+        <div class="detail-item"><span class="detail-item-label">Etablissement</span><span class="detail-item-value">${esc(r.etablissement)}</span></div>
+        <div class="detail-item"><span class="detail-item-label">Annee en cours</span><span class="detail-item-value">${esc(r.annee)}</span></div>
+        <div class="detail-item" style="grid-column:1/-1"><span class="detail-item-label">Motif</span><span class="detail-item-value">${esc(r.motif)}</span></div>
       </div>
     </div>`;
   }
 
-  // Notes
-  const renderNotes = (notes, title) => {
-    if (!notes || notes.length === 0) return '';
-    return `<div class="detail-section">
-      <div class="detail-section-title">${title}</div>
+  // ── Card 2: NOTES DE PREMIERE ──
+  if (c.notes_premiere && c.notes_premiere.length > 0) {
+    html += `<div class="detail-card">
+      <div class="detail-card-title">Notes de Premiere</div>
       <table class="notes-table">
         <thead><tr><th>Matiere</th><th>T1</th><th>T2</th><th>T3</th><th>Moyenne</th></tr></thead>
-        <tbody>${notes.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'—'}</td><td>${n.t2||'—'}</td><td>${n.t3||'—'}</td><td style="font-weight:600;">${n.moy||'—'}</td></tr>`).join('')}</tbody>
+        <tbody>${c.notes_premiere.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'\u2014'}</td><td>${n.t2||'\u2014'}</td><td>${n.t3||'\u2014'}</td><td style="font-weight:600;">${n.moy||'\u2014'}</td></tr>`).join('')}</tbody>
       </table>
     </div>`;
-  };
-  html += renderNotes(c.notes_premiere, 'Notes de Premiere');
-  html += renderNotes(c.notes_terminale, 'Notes de Terminale');
+  }
 
-  // Score & orientation
-  html += `<div class="detail-section">
-    <div class="detail-section-title">Orientation</div>
+  // ── Card 3: NOTES DE TERMINALE ──
+  if (c.notes_terminale && c.notes_terminale.length > 0) {
+    html += `<div class="detail-card">
+      <div class="detail-card-title">Notes de Terminale</div>
+      <table class="notes-table">
+        <thead><tr><th>Matiere</th><th>T1</th><th>T2</th><th>T3</th><th>Moyenne</th></tr></thead>
+        <tbody>${c.notes_terminale.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'\u2014'}</td><td>${n.t2||'\u2014'}</td><td>${n.t3||'\u2014'}</td><td style="font-weight:600;">${n.moy||'\u2014'}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>`;
+  }
+
+  // ── Card 4: ORIENTATION ──
+  html += `<div class="detail-card">
+    <div class="detail-card-title">Orientation</div>
     <div class="detail-grid">
-      <div class="detail-item"><label>Score académique</label><span>${c.score ? parseFloat(c.score).toFixed(1) : '—'}/20</span></div>
-      <div class="detail-item"><label>Niveau</label><span>${esc(c.niveau || '—')}</span></div>
-      <div class="detail-item" style="grid-column:1/-1"><label>Classement destinations</label><span>${(c.classement_destinations||[]).map((d,i) => (i+1)+'. '+d).join(' | ') || '—'}</span></div>
-      <div class="detail-item"><label>Destination recommandee</label><span>${esc(c.destination || '—')}</span></div>
-      <div class="detail-item"><label>Universite</label><span>${esc(c.universite || '—')}</span></div>
+      <div class="detail-item"><span class="detail-item-label">Score academique</span><span class="detail-item-value">${c.score ? parseFloat(c.score).toFixed(1) : '\u2014'}/20</span></div>
+      <div class="detail-item"><span class="detail-item-label">Niveau</span><span class="detail-item-value">${esc(c.niveau || '\u2014')}</span></div>
+      <div class="detail-item" style="grid-column:1/-1"><span class="detail-item-label">Classement destinations</span><span class="detail-item-value">${(c.classement_destinations||[]).map((d,i) => (i+1)+'. '+d).join(' | ') || '\u2014'}</span></div>
+      <div class="detail-item"><span class="detail-item-label">Destination recommandee</span><span class="detail-item-value">${esc(c.destination || '\u2014')}</span></div>
+      <div class="detail-item"><span class="detail-item-label">Universite</span><span class="detail-item-value">${esc(c.universite || '\u2014')}</span></div>
     </div>
   </div>`;
 
-  // Langues
+  // ── Card 5: LANGUES ──
   if (c.langues) {
-    html += `<div class="detail-section">
-      <div class="detail-section-title">Langues</div>
-      <div class="detail-grid">
-        ${['espagnol','anglais','italien','portugais'].map(l =>
-          c.langues[l] ? `<div class="detail-item"><label>${l.charAt(0).toUpperCase()+l.slice(1)}</label><span>${langLabels[c.langues[l]] || c.langues[l]}</span></div>` : ''
-        ).join('')}
-        ${c.langues.autre ? `<div class="detail-item"><label>Autre langue</label><span>${esc(c.langues.autre)}</span></div>` : ''}
-      </div>
-    </div>`;
+    const hasLang = ['espagnol','anglais','italien','portugais'].some(l => c.langues[l]) || c.langues.autre;
+    if (hasLang) {
+      html += `<div class="detail-card">
+        <div class="detail-card-title">Langues</div>
+        <div class="detail-grid">
+          ${['espagnol','anglais','italien','portugais'].map(l =>
+            c.langues[l] ? `<div class="detail-item"><span class="detail-item-label">${l.charAt(0).toUpperCase()+l.slice(1)}</span><span class="detail-item-value">${langLabels[c.langues[l]] || c.langues[l]}</span></div>` : ''
+          ).join('')}
+          ${c.langues.autre ? `<div class="detail-item"><span class="detail-item-label">Autre langue</span><span class="detail-item-value">${esc(c.langues.autre)}</span></div>` : ''}
+        </div>
+      </div>`;
+    }
   }
 
-  // ── SÉLECTIONS UNIVERSITÉS (section principale) ──
+  // ── Card 6: REPONSE EDUMOVE — SELECTIONS UNIVERSITES ──
   const uniSel = c.uni_selections || {};
   const uniTracking = c.uni_tracking || {};
-  const filiereLabels = { medecine: 'Médecine', dentaire: 'Dentaire', kinesitherapie: 'Kinésithérapie', pharmacie: 'Pharmacie', veterinaire: 'Vétérinaire' };
 
-  html += `<div class="detail-section" style="background:#f0f4ff;border:2px solid #c5cae9;border-radius:12px;padding:20px;">
-    <div class="detail-section-title" style="color:#1a237e;border-color:#c5cae9;font-size:16px;">🎓 Réponse EDUMOVE — Sélections universités</div>`;
+  html += `<div class="detail-card" style="background:#f0f4ff;border:2px solid #c5cae9;">
+    <div class="detail-card-title" style="color:#1a237e;border-color:#c5cae9;font-size:14px;">REPONSE EDUMOVE — SELECTIONS UNIVERSITES</div>`;
 
   if (!uniSel.LINK && !uniSel.UCJC && !uniSel.UE) {
-    html += `<div style="color:var(--text-muted);font-size:13px;padding:12px 0;">L'étudiant n'a pas encore fait ses choix d'universités.</div>`;
+    html += `<div style="color:var(--text-muted);font-size:13px;padding:12px 0;">L'etudiant n'a pas encore fait ses choix d'universites.</div>`;
   } else {
     // LINK
     if (uniSel.LINK) {
       const linkStatus = uniTracking.LINK_status || 'en_attente';
       const linkPaid = uniTracking.LINK_test_paid || false;
-      html += `<div style="background:white;border-radius:10px;padding:16px;margin-bottom:12px;border-left:4px solid #1a2744;">
+      html += `<div class="uni-selection-card link-card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <div style="font-weight:700;font-size:14px;color:#1a2744;">🇮🇹 LINK Campus University — Rome</div>
+          <div style="font-weight:700;font-size:14px;color:#1a2744;">LINK Campus University — Rome</div>
           <select id="track-LINK-${c.id}" onchange="updateUniTracking('${c.id}','LINK','status',this.value)" style="padding:4px 10px;border-radius:6px;border:1.5px solid #ccc;font-size:11px;font-family:inherit;">
-            <option value="en_attente" ${linkStatus==='en_attente'?'selected':''}>⏳ En attente</option>
-            <option value="dossier_envoye" ${linkStatus==='dossier_envoye'?'selected':''}>📤 Dossier envoyé à la fac</option>
-            <option value="test_paye" ${linkStatus==='test_paye'?'selected':''}>💳 Test payé</option>
-            <option value="test_passe" ${linkStatus==='test_passe'?'selected':''}>✅ Test passé</option>
-            <option value="accepte" ${linkStatus==='accepte'?'selected':''}>🎉 Accepté</option>
-            <option value="refuse" ${linkStatus==='refuse'?'selected':''}>❌ Refusé</option>
-            <option value="inscrit" ${linkStatus==='inscrit'?'selected':''}>🏫 Inscrit</option>
+            <option value="en_attente" ${linkStatus==='en_attente'?'selected':''}>En attente</option>
+            <option value="dossier_envoye" ${linkStatus==='dossier_envoye'?'selected':''}>Dossier envoye a la fac</option>
+            <option value="test_paye" ${linkStatus==='test_paye'?'selected':''}>Test paye</option>
+            <option value="test_passe" ${linkStatus==='test_passe'?'selected':''}>Test passe</option>
+            <option value="accepte" ${linkStatus==='accepte'?'selected':''}>Accepte</option>
+            <option value="refuse" ${linkStatus==='refuse'?'selected':''}>Refuse</option>
+            <option value="inscrit" ${linkStatus==='inscrit'?'selected':''}>Inscrit</option>
           </select>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px;">
-          <div><span style="color:var(--text-muted);">Filière :</span> <strong>${filiereLabels[uniSel.LINK.filiere] || uniSel.LINK.filiereLabel || '—'}</strong></div>
+          <div><span style="color:var(--text-muted);">Filiere :</span> <strong>${filiereLabels[uniSel.LINK.filiere] || uniSel.LINK.filiereLabel || '\u2014'}</strong></div>
           <div><span style="color:var(--text-muted);">Test :</span> <strong>15 avril 2026 — Paris</strong></div>
           <div style="display:flex;align-items:center;gap:6px;">
-            <span style="color:var(--text-muted);">Frais test 200€ :</span>
+            <span style="color:var(--text-muted);">Frais test 200\u20ac :</span>
             <label style="display:flex;align-items:center;gap:4px;cursor:pointer;">
               <input type="checkbox" ${linkPaid?'checked':''} onchange="updateUniTracking('${c.id}','LINK','test_paid',this.checked)" style="width:16px;height:16px;accent-color:#2e7d52;">
-              <span style="font-weight:600;color:${linkPaid?'#2e7d52':'#d63031'};">${linkPaid?'Réglé':'Non réglé'}</span>
+              <span style="font-weight:600;color:${linkPaid?'#2e7d52':'#d63031'};">${linkPaid?'Regle':'Non regle'}</span>
             </label>
           </div>
         </div>
@@ -1482,21 +1596,21 @@ function viewDetail(id) {
     // UCJC
     if (uniSel.UCJC) {
       const ucjcStatus = uniTracking.UCJC_status || 'en_attente';
-      html += `<div style="background:white;border-radius:10px;padding:16px;margin-bottom:12px;border-left:4px solid #96234a;">
+      html += `<div class="uni-selection-card ucjc-card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <div style="font-weight:700;font-size:14px;color:#96234a;">🇪🇸 UCJC — Madrid</div>
+          <div style="font-weight:700;font-size:14px;color:#96234a;">UCJC — Madrid</div>
           <select id="track-UCJC-${c.id}" onchange="updateUniTracking('${c.id}','UCJC','status',this.value)" style="padding:4px 10px;border-radius:6px;border:1.5px solid #ccc;font-size:11px;font-family:inherit;">
-            <option value="en_attente" ${ucjcStatus==='en_attente'?'selected':''}>⏳ En attente</option>
-            <option value="dossier_envoye" ${ucjcStatus==='dossier_envoye'?'selected':''}>📤 Dossier envoyé à la fac</option>
-            <option value="entretien_planifie" ${ucjcStatus==='entretien_planifie'?'selected':''}>📅 Entretien planifié</option>
-            <option value="entretien_passe" ${ucjcStatus==='entretien_passe'?'selected':''}>✅ Entretien passé</option>
-            <option value="accepte" ${ucjcStatus==='accepte'?'selected':''}>🎉 Accepté</option>
-            <option value="refuse" ${ucjcStatus==='refuse'?'selected':''}>❌ Refusé</option>
-            <option value="inscrit" ${ucjcStatus==='inscrit'?'selected':''}>🏫 Inscrit</option>
+            <option value="en_attente" ${ucjcStatus==='en_attente'?'selected':''}>En attente</option>
+            <option value="dossier_envoye" ${ucjcStatus==='dossier_envoye'?'selected':''}>Dossier envoye a la fac</option>
+            <option value="entretien_planifie" ${ucjcStatus==='entretien_planifie'?'selected':''}>Entretien planifie</option>
+            <option value="entretien_passe" ${ucjcStatus==='entretien_passe'?'selected':''}>Entretien passe</option>
+            <option value="accepte" ${ucjcStatus==='accepte'?'selected':''}>Accepte</option>
+            <option value="refuse" ${ucjcStatus==='refuse'?'selected':''}>Refuse</option>
+            <option value="inscrit" ${ucjcStatus==='inscrit'?'selected':''}>Inscrit</option>
           </select>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;">
-          <div><span style="color:var(--text-muted);">Filière :</span> <strong>${filiereLabels[uniSel.UCJC.filiere] || uniSel.UCJC.filiereLabel || '—'}</strong></div>
+          <div><span style="color:var(--text-muted);">Filiere :</span> <strong>${filiereLabels[uniSel.UCJC.filiere] || uniSel.UCJC.filiereLabel || '\u2014'}</strong></div>
           <div><span style="color:var(--text-muted);">Admission :</span> <strong>Entretien uniquement (pas de test)</strong></div>
         </div>
       </div>`;
@@ -1505,81 +1619,92 @@ function viewDetail(id) {
     // UE
     if (uniSel.UE) {
       const ueStatus = uniTracking.UE_status || 'en_attente';
-      html += `<div style="background:white;border-radius:10px;padding:16px;margin-bottom:12px;border-left:4px solid #003da5;">
+      html += `<div class="uni-selection-card ue-card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <div style="font-weight:700;font-size:14px;color:#003da5;">🇪🇸 Universidad Europea — ${esc(uniSel.UE.ville || '—')}</div>
+          <div style="font-weight:700;font-size:14px;color:#003da5;">Universidad Europea — ${esc(uniSel.UE.ville || '\u2014')}</div>
           <select id="track-UE-${c.id}" onchange="updateUniTracking('${c.id}','UE','status',this.value)" style="padding:4px 10px;border-radius:6px;border:1.5px solid #ccc;font-size:11px;font-family:inherit;">
-            <option value="en_attente" ${ueStatus==='en_attente'?'selected':''}>⏳ En attente</option>
-            <option value="dossier_envoye" ${ueStatus==='dossier_envoye'?'selected':''}>📤 Dossier envoyé à la fac</option>
-            <option value="tests_passes" ${ueStatus==='tests_passes'?'selected':''}>✅ Tests passés</option>
-            <option value="accepte" ${ueStatus==='accepte'?'selected':''}>🎉 Accepté</option>
-            <option value="acompte_verse" ${ueStatus==='acompte_verse'?'selected':''}>💰 Acompte 2500€ versé</option>
-            <option value="refuse" ${ueStatus==='refuse'?'selected':''}>❌ Refusé</option>
-            <option value="inscrit" ${ueStatus==='inscrit'?'selected':''}>🏫 Inscrit</option>
+            <option value="en_attente" ${ueStatus==='en_attente'?'selected':''}>En attente</option>
+            <option value="dossier_envoye" ${ueStatus==='dossier_envoye'?'selected':''}>Dossier envoye a la fac</option>
+            <option value="tests_passes" ${ueStatus==='tests_passes'?'selected':''}>Tests passes</option>
+            <option value="accepte" ${ueStatus==='accepte'?'selected':''}>Accepte</option>
+            <option value="acompte_verse" ${ueStatus==='acompte_verse'?'selected':''}>Acompte 2500\u20ac verse</option>
+            <option value="refuse" ${ueStatus==='refuse'?'selected':''}>Refuse</option>
+            <option value="inscrit" ${ueStatus==='inscrit'?'selected':''}>Inscrit</option>
           </select>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px;">
-          <div><span style="color:var(--text-muted);">Filière :</span> <strong>${filiereLabels[uniSel.UE.filiere] || uniSel.UE.filiereLabel || '—'}</strong></div>
-          <div><span style="color:var(--text-muted);">Campus :</span> <strong>${esc(uniSel.UE.ville || '—')}</strong></div>
-          <div><span style="color:var(--text-muted);">Langue :</span> <strong>${esc(uniSel.UE.langue || '—')}</strong></div>
+          <div><span style="color:var(--text-muted);">Filiere :</span> <strong>${filiereLabels[uniSel.UE.filiere] || uniSel.UE.filiereLabel || '\u2014'}</strong></div>
+          <div><span style="color:var(--text-muted);">Campus :</span> <strong>${esc(uniSel.UE.ville || '\u2014')}</strong></div>
+          <div><span style="color:var(--text-muted);">Langue :</span> <strong>${esc(uniSel.UE.langue || '\u2014')}</strong></div>
         </div>
       </div>`;
     }
 
     if (c.uni_selections_at) {
-      html += `<div style="font-size:11px;color:var(--text-muted);margin-top:8px;">Choix confirmés le ${new Date(c.uni_selections_at).toLocaleDateString('fr-FR')} à ${new Date(c.uni_selections_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>`;
+      html += `<div style="font-size:11px;color:var(--text-muted);margin-top:8px;">Choix confirmes le ${new Date(c.uni_selections_at).toLocaleDateString('fr-FR')} a ${new Date(c.uni_selections_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>`;
     }
   }
   html += `</div>`;
 
-  // Documents (amélioré avec labels par université)
+  // ── Card 7: DOCUMENTS ENVOYES ──
   if (c.documents && Object.keys(c.documents).length > 0) {
     const docLabels = {
-      LINK_formulaire: '📋 LINK — Formulaire pré-candidature',
-      LINK_identite: '🪪 LINK — Pièce d\'identité',
-      LINK_releves: '🎓 LINK — Relevé de notes bac',
-      UCJC_lettre_motivation: '📝 UCJC — Lettre de motivation',
-      UCJC_identite: '🪪 UCJC — Pièce d\'identité',
-      UCJC_formulaire: '📋 UCJC — Formulaire admission',
-      UCJC_attestation_esp: '🌐 UCJC — Attestation espagnol',
-      UE_bulletins: '📄 UE — Bulletins de Première',
-      UE_identite: '🪪 UE — Pièce d\'identité',
-      UE_rapport_technique: '📋 UE — Rapport technique académique',
-      UE_rapport_demarche: '⏳ UE — Démarche rapport lancée',
-      passeport: '🪪 Passeport', bulletins: '📄 Bulletins', formulaire: '📋 Formulaire',
-      rapport_technique: '📋 Rapport technique', identite: '🪪 Pièce d\'identité',
-      releves: '🎓 Relevés de notes', lettre_motivation: '📝 Lettre de motivation'
+      LINK_formulaire: 'LINK — Formulaire pre-candidature',
+      LINK_identite: 'LINK — Piece d\'identite',
+      LINK_releves: 'LINK — Releve de notes bac',
+      UCJC_lettre_motivation: 'UCJC — Lettre de motivation',
+      UCJC_identite: 'UCJC — Piece d\'identite',
+      UCJC_formulaire: 'UCJC — Formulaire admission',
+      UCJC_attestation_esp: 'UCJC — Attestation espagnol',
+      UE_bulletins: 'UE — Bulletins de Premiere',
+      UE_identite: 'UE — Piece d\'identite',
+      UE_rapport_technique: 'UE — Rapport technique academique',
+      UE_rapport_demarche: 'UE — Demarche rapport lancee',
+      passeport: 'Passeport', bulletins: 'Bulletins', formulaire: 'Formulaire',
+      rapport_technique: 'Rapport technique', identite: 'Piece d\'identite',
+      releves: 'Releves de notes', lettre_motivation: 'Lettre de motivation'
     };
-    html += `<div class="detail-section">
-      <div class="detail-section-title">Documents envoyés</div>
+    html += `<div class="detail-card">
+      <div class="detail-card-title">Documents envoyes</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px;">${Object.entries(c.documents).map(([k, url]) => {
         if (k === 'UE_rapport_demarche') {
-          return url ? `<span style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:#fff8e1;border:1px solid #f9a825;border-radius:6px;font-size:11px;font-weight:500;">⏳ Rapport technique : démarche lancée</span>` : '';
+          return url ? `<span style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:#fff8e1;border:1px solid #f9a825;border-radius:6px;font-size:11px;font-weight:500;">Rapport technique : demarche lancee</span>` : '';
         }
-        return `<a href="${url}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:white;border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--violet);text-decoration:none;font-weight:500;transition:all 0.2s;" onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background='white'">${docLabels[k] || '📄 ' + k}</a>`;
+        return `<a href="${url}" target="_blank" rel="noopener" class="doc-link">${docLabels[k] || k}</a>`;
       }).join('')}</div>
     </div>`;
   }
 
-  // Messagerie
-  html += `<div class="msg-section">
-    <div class="msg-section-title">Messagerie avec l'étudiant</div>
-    <div class="msg-container" id="msg-container-${id}">
-      <div class="msg-empty" id="msg-empty-${id}">Aucun message</div>
+  // ── Card 8: MESSAGERIE ──
+  html += `<div class="detail-card">
+    <div class="detail-card-title" style="color:var(--orange);border-color:var(--orange);">Messagerie avec l'etudiant</div>
+    <div class="msg-container" id="msg-container-${c.id}">
+      <div class="msg-empty" id="msg-empty-${c.id}">Aucun message</div>
     </div>
     <div class="msg-input-row">
-      <textarea class="msg-input" id="msg-input-${id}" placeholder="Ecrire un message..."></textarea>
-      <button class="btn-msg-send" onclick="sendAdminMessage('${id}')">Envoyer</button>
+      <textarea class="msg-input" id="msg-input-${c.id}" placeholder="Ecrire un message..."></textarea>
+      <button class="btn-msg-send" onclick="sendAdminMessage('${c.id}')">Envoyer</button>
     </div>
   </div>`;
 
-  document.getElementById('modal-body').innerHTML = html;
-  document.getElementById('modal-overlay').classList.add('active');
-
-  // Load messages for this candidature
-  loadMessagesForCandidature(id);
+  document.getElementById('detail-cards').innerHTML = html;
 }
 
+function backToList() {
+  // Clean up messaging subscription
+  if (currentMsgUnsubscribe) {
+    currentMsgUnsubscribe();
+    currentMsgUnsubscribe = null;
+  }
+  currentDetailId = null;
+
+  document.getElementById('detail-page').classList.remove('active');
+  document.getElementById('dashboard').classList.add('active');
+}
+
+// ══════════════════════════════════════════
+// MESSAGING
+// ══════════════════════════════════════════
 let currentMsgUnsubscribe = null;
 
 async function loadMessagesForCandidature(candidatureId) {
@@ -1587,6 +1712,8 @@ async function loadMessagesForCandidature(candidatureId) {
 
   const container = document.getElementById('msg-container-' + candidatureId);
   const emptyEl = document.getElementById('msg-empty-' + candidatureId);
+
+  if (!container || !emptyEl) return;
 
   const renderMsgs = (msgs) => {
     container.querySelectorAll('.msg-bubble').forEach(m => m.remove());
@@ -1598,7 +1725,7 @@ async function loadMessagesForCandidature(candidatureId) {
     msgs.forEach(msg => {
       const div = document.createElement('div');
       div.className = 'msg-bubble ' + msg.sender;
-      let inner = `<div class="msg-sender">${msg.sender === 'admin' ? 'Équipe EDUMOVE' : esc('Étudiant')}</div>`;
+      let inner = `<div class="msg-sender">${msg.sender === 'admin' ? 'Equipe EDUMOVE' : esc('Etudiant')}</div>`;
       inner += `<div>${esc(msg.content)}</div>`;
       if (msg.created_at) {
         const date = new Date(msg.created_at);
@@ -1642,14 +1769,9 @@ async function sendAdminMessage(candidatureId) {
   }
 }
 
-function closeModal() {
-  if (currentMsgUnsubscribe) {
-    currentMsgUnsubscribe();
-    currentMsgUnsubscribe = null;
-  }
-  document.getElementById('modal-overlay').classList.remove('active');
-}
-
+// ══════════════════════════════════════════
+// UNI TRACKING
+// ══════════════════════════════════════════
 async function updateUniTracking(candidatureId, uniKey, field, value) {
   try {
     const c = allCandidatures.find(x => x.id === candidatureId);
@@ -1662,7 +1784,7 @@ async function updateUniTracking(candidatureId, uniKey, field, value) {
     if (el) { el.style.boxShadow = '0 0 0 2px #2e7d52'; setTimeout(() => el.style.boxShadow = '', 1500); }
   } catch (err) {
     console.error('Update uni tracking error:', err);
-    alert('Erreur lors de la mise à jour.');
+    alert('Erreur lors de la mise a jour.');
   }
 }
 
@@ -1684,7 +1806,6 @@ async function applyAiAction(id, action) {
 
   try {
     await supabase.from('candidatures').update(updates).eq('id', id);
-    closeModal();
   } catch(e) {
     console.error('Apply action error:', e);
     alert('Erreur lors de la mise a jour.');
@@ -1967,7 +2088,7 @@ async function submitManualDossier() {
     // ── 1. Save admin session, create user via signUp ──
     const { data: { session: adminSession } } = await supabase.auth.getSession();
     if (!adminSession) {
-      showAddError('Session admin expirée. Veuillez vous reconnecter.');
+      showAddError('Session admin expiree. Veuillez vous reconnecter.');
       btn.disabled = false;
       btn.textContent = 'Creer le dossier';
       return;
