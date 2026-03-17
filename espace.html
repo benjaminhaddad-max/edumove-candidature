@@ -1758,13 +1758,17 @@ async function saveUCJCConfirm() {
 
 // ── UNIVERSIDAD EUROPEA ──
 // Combinaisons déjà complètes
-const UE_COMPLETS = [
-  { ville: 'Malaga',   filiere: 'Dentaire',        langue: 'Espagnol' },
-  { ville: 'Malaga',   filiere: 'Dentaire',        langue: 'Anglais' },
-  { ville: 'Alicante', filiere: 'Dentaire',        langue: 'Espagnol' },
-  { ville: 'Alicante', filiere: 'Dentaire',        langue: 'Anglais' },
-  { ville: 'Valence',  filiere: 'Kinésithérapie',  langue: 'Espagnol' },
-  { ville: 'Alicante', filiere: 'Kinésithérapie',  langue: 'Espagnol' },
+// Aucune combinaison completement fermee (mars 2026)
+const UE_COMPLETS = [];
+
+// Combinaisons en liste d'attente (places limitees)
+const UE_LISTE_ATTENTE = [
+  { ville: 'Madrid',   filiere: 'Vétérinaire',    langue: 'Espagnol',  note: 'Liste d\'attente bientôt' },
+  { ville: 'Madrid',   filiere: 'Kinésithérapie', langue: 'Anglais',   note: 'Liste d\'attente' },
+  { ville: 'Valence',  filiere: 'Kinésithérapie', langue: 'Espagnol',  note: 'Liste d\'attente' },
+  { ville: 'Malaga',   filiere: 'Dentaire',       langue: 'Espagnol',  note: 'Liste d\'attente' },
+  { ville: 'Malaga',   filiere: 'Dentaire',       langue: 'Anglais',   note: 'Liste d\'attente' },
+  { ville: 'Alicante', filiere: 'Kinésithérapie', langue: 'Espagnol',  note: 'Liste d\'attente' },
 ];
 
 function isUEComplet(ville, filiere, langue) {
@@ -1773,24 +1777,39 @@ function isUEComplet(ville, filiere, langue) {
   );
 }
 
-// Langues disponibles par ville + filière
+function isUEListeAttente(ville, filiere, langue) {
+  return UE_LISTE_ATTENTE.find(c =>
+    c.ville === ville && c.filiere === filiere && c.langue === langue
+  );
+}
+
+// Langues disponibles par ville + filière (source: récap UE mars 2026)
 function getUELangues(ville, filiere) {
   if (filiere === 'Médecine') return ['Espagnol'];
-  if (filiere === 'Prépa dentaire') return ['Espagnol', 'Anglais'];
-  if (filiere === 'Kinésithérapie' && ville === 'Madrid') return ['Espagnol', 'Anglais', 'Français'];
+  if (filiere === 'Pharmacie') return ['Espagnol'];
+  if (filiere === 'Vétérinaire') return ['Espagnol'];
+  if (filiere === 'Kinésithérapie') {
+    if (ville === 'Madrid') return ['Français', 'Espagnol', 'Anglais'];
+    return ['Espagnol'];
+  }
+  if (filiere === 'Dentaire') {
+    if (ville === 'Canaries') return ['Espagnol'];
+    return ['Espagnol', 'Anglais'];
+  }
   return ['Espagnol', 'Anglais'];
 }
 
 // Villes où Médecine est disponible
 const UE_MEDECINE_VILLES = ['Madrid', 'Canaries'];
 
-// Filières disponibles par ville
+// Filières disponibles par ville (source: récap UE mars 2026)
 function getUEFilieres(ville) {
-  const list = [];
-  if (UE_MEDECINE_VILLES.includes(ville)) list.push('Médecine');
-  list.push('Dentaire', 'Pharmacie', 'Vétérinaire', 'Kinésithérapie');
-  if (ville === 'Alicante') list.push('Prépa dentaire');
-  return list;
+  if (ville === 'Madrid') return ['Médecine', 'Dentaire', 'Pharmacie', 'Vétérinaire', 'Kinésithérapie'];
+  if (ville === 'Canaries') return ['Médecine', 'Dentaire', 'Kinésithérapie'];
+  if (ville === 'Malaga') return ['Dentaire', 'Kinésithérapie'];
+  if (ville === 'Valence') return ['Dentaire', 'Kinésithérapie'];
+  if (ville === 'Alicante') return ['Dentaire', 'Kinésithérapie'];
+  return ['Dentaire', 'Kinésithérapie'];
 }
 
 function onUEVilleChange() {
@@ -1809,11 +1828,17 @@ function onUEVilleChange() {
   filieres.forEach(f => {
     const opt = document.createElement('option');
     opt.value = f;
-    const isFull = isUEComplet(ville, f, null) || isUEComplet(ville, f, 'Espagnol');
-    // Only mark as complet if ALL langues for this combo are complet
     const langues = getUELangues(ville, f);
     const allFull = langues.every(l => isUEComplet(ville, f, l));
-    opt.textContent = allFull ? f + ' (Complet)' : f;
+    const allLA = langues.every(l => isUEListeAttente(ville, f, l));
+    if (allFull) {
+      opt.textContent = f + ' (Complet)';
+      opt.disabled = true;
+    } else if (allLA) {
+      opt.textContent = f + ' ⚠️ Places limitées';
+    } else {
+      opt.textContent = f;
+    }
     selFiliere.appendChild(opt);
   });
   updateUEState();
@@ -1834,7 +1859,15 @@ function onUEFiliereChange() {
     const opt = document.createElement('option');
     opt.value = l;
     const full = isUEComplet(ville, filiere, l);
-    opt.textContent = full ? l + ' (Complet)' : l;
+    const la = isUEListeAttente(ville, filiere, l);
+    if (full) {
+      opt.textContent = l + ' (Complet)';
+      opt.disabled = true;
+    } else if (la) {
+      opt.textContent = l + ' ⚠️ Places limitées';
+    } else {
+      opt.textContent = l;
+    }
     selLangue.appendChild(opt);
   });
   // Auto-select if only one option
@@ -1854,8 +1887,39 @@ function updateUEState() {
 
   const allSelected = ville && filiere && langue;
   const complet = allSelected && isUEComplet(ville, filiere, langue);
+  const la = allSelected && isUEListeAttente(ville, filiere, langue);
 
-  warn.style.display = complet ? 'flex' : 'none';
+  if (complet) {
+    warn.style.display = 'flex';
+    warn.innerHTML = '⚠️ Cette combinaison est <strong style="margin-left:4px;">actuellement complète</strong>. Vous pouvez tout de même soumettre votre dossier — nous vous informerons en cas de désistement.';
+    warn.style.background = '#fce4ec';
+    warn.style.borderColor = '#ef5350';
+    warn.style.color = '#c62828';
+  } else if (la) {
+    warn.style.display = 'flex';
+    warn.innerHTML = '⚠️ <strong style="margin-left:4px;">Places limitées</strong> — cette combinaison est en liste d\'attente. Déposez votre dossier rapidement pour maximiser vos chances !';
+    warn.style.background = '#fff3e0';
+    warn.style.borderColor = '#ffb74d';
+    warn.style.color = '#e65100';
+  } else {
+    warn.style.display = 'none';
+  }
+
+  // Note spéciale: Kiné en Français à Madrid
+  let noteEl = document.getElementById('ue-note-fr');
+  if (!noteEl) {
+    noteEl = document.createElement('div');
+    noteEl.id = 'ue-note-fr';
+    noteEl.style.cssText = 'display:none;align-items:center;gap:12px;padding:12px 16px;background:#e3f2fd;border:1px solid #90caf9;border-radius:8px;font-size:13px;color:#1565c0;margin-top:12px;';
+    warn.parentNode.insertBefore(noteEl, warn.nextSibling);
+  }
+  if (allSelected && filiere === 'Kinésithérapie' && langue === 'Français' && ville === 'Madrid') {
+    noteEl.style.display = 'flex';
+    noteEl.innerHTML = 'ℹ️ <div>La 1ère année se déroule en <strong>français</strong>. À partir de la 2ème année (stage), les cours passent en <strong>espagnol</strong>.</div>';
+  } else {
+    noteEl.style.display = 'none';
+  }
+
   docs.style.display = allSelected ? 'block' : 'none';
   btn.disabled = !allSelected;
 }
