@@ -1208,10 +1208,12 @@ let currentAdminUser = null;
   const { data: { session } } = await supabase.auth.getSession();
   if (session?.user) {
     const user = session.user;
-    const { data: adminData } = await supabase.from('admins').select('id').eq('id', user.id).maybeSingle();
+    const { data: adminData } = await supabase.from('admins').select('id, role').eq('id', user.id).maybeSingle();
     if (adminData) {
       currentAdminUser = user;
+      window.adminRole = adminData.role || 'super_admin';
       showDashboard(user);
+      applyRoleRestrictions();
     } else {
       await supabase.auth.signOut();
       showLoginError("Ce compte n'a pas les droits administrateur.");
@@ -1230,10 +1232,12 @@ async function doLogin() {
     if (error) throw error;
     const user = (await supabase.auth.getUser()).data?.user;
     if (!user) throw new Error('No user');
-    const { data: adminData } = await supabase.from('admins').select('id').eq('id', user.id).maybeSingle();
+    const { data: adminData } = await supabase.from('admins').select('id, role').eq('id', user.id).maybeSingle();
     if (adminData) {
       currentAdminUser = user;
+      window.adminRole = adminData.role || 'super_admin';
       showDashboard(user);
+      applyRoleRestrictions();
     } else {
       await supabase.auth.signOut();
       showLoginError("Ce compte n'a pas les droits administrateur.");
@@ -1261,6 +1265,35 @@ function showLoginError(msg) {
   el.classList.add('visible');
 }
 
+function applyRoleRestrictions() {
+  const role = window.adminRole;
+  if (role === 'super_admin') return; // Full access
+
+  // Hide add dossier button and export CSV for fac users
+  document.querySelectorAll('.btn-export').forEach(btn => btn.style.display = 'none');
+
+  // Hide status filter (not relevant for fac)
+  const statusFilter = document.getElementById('filter-status');
+  if (statusFilter) statusFilter.style.display = 'none';
+
+  // Hide destination filter
+  const destFilter = document.getElementById('filter-destination');
+  if (destFilter) destFilter.style.display = 'none';
+
+  // Hide profil filter
+  const profilFilter = document.getElementById('filter-profil');
+  if (profilFilter) profilFilter.style.display = 'none';
+
+  // Update title
+  const titleMap = { fac_link: 'LINK Campus University', fac_ucjc: 'UCJC Madrid', fac_ue: 'Universidad Europea' };
+  document.querySelector('.dash-title').textContent = titleMap[role] || 'Tableau de bord';
+  document.querySelector('.dash-subtitle').textContent = 'Suivi des candidatures';
+
+  // Update navbar text
+  const navBrand = document.querySelector('.logo-wordmark');
+  if (navBrand) navBrand.innerHTML = '<strong>EDUMOVE</strong> ' + (titleMap[role] || 'Admin');
+}
+
 function showDashboard(user) {
   document.getElementById('login-view').style.display = 'none';
   document.getElementById('dashboard').classList.add('active');
@@ -1278,6 +1311,16 @@ async function loadCandidatures() {
   const { data, error } = await supabase.from('candidatures').select('*').order('created_at', { ascending: false });
   if (error) { console.error('Load candidatures error:', error); return; }
   allCandidatures = data || [];
+  // Filter for fac role
+  if (window.adminRole && window.adminRole !== 'super_admin') {
+    const uniKey = window.adminRole === 'fac_link' ? 'LINK' : window.adminRole === 'fac_ucjc' ? 'UCJC' : window.adminRole === 'fac_ue' ? 'UE' : null;
+    if (uniKey) {
+      allCandidatures = allCandidatures.filter(c => {
+        const sel = c.uni_selections || {};
+        return !!sel[uniKey];
+      });
+    }
+  }
   updateStats();
   applyFilters();
 
@@ -1303,6 +1346,16 @@ async function loadCandidatures() {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'candidatures' }, async () => {
       const { data: fresh } = await supabase.from('candidatures').select('*').order('created_at', { ascending: false });
       allCandidatures = fresh || [];
+      // Filter for fac role
+      if (window.adminRole && window.adminRole !== 'super_admin') {
+        const uniKey = window.adminRole === 'fac_link' ? 'LINK' : window.adminRole === 'fac_ucjc' ? 'UCJC' : window.adminRole === 'fac_ue' ? 'UE' : null;
+        if (uniKey) {
+          allCandidatures = allCandidatures.filter(c => {
+            const sel = c.uni_selections || {};
+            return !!sel[uniKey];
+          });
+        }
+      }
       updateStats();
       applyFilters();
       // Refresh detail page if open
@@ -1491,9 +1544,15 @@ function renderDetailPage(c) {
   document.getElementById('detail-page-title').textContent = c.prenom + ' ' + c.nom;
   document.getElementById('detail-page-badge').innerHTML = `<span class="status-badge status-${c.status}">${statusLabels[c.status] || c.status}</span>`;
 
-  // Status select - only 2 global statuses
+  // Status select - only 2 global statuses (super_admin only)
   const statusSelect = document.getElementById('detail-page-status-select');
-  statusSelect.innerHTML = '<option value="en_cours" ' + (c.status === 'en_cours' ? 'selected' : '') + '>En cours de traitement</option><option value="reponse_edumove" ' + (c.status === 'reponse_edumove' ? 'selected' : '') + '>R\u00e9ponse Edumove</option>';
+  if (window.adminRole === 'super_admin' || !window.adminRole) {
+    statusSelect.innerHTML = '<option value="en_cours" ' + (c.status === 'en_cours' ? 'selected' : '') + '>En cours de traitement</option><option value="reponse_edumove" ' + (c.status === 'reponse_edumove' ? 'selected' : '') + '>R\u00e9ponse Edumove</option>';
+    statusSelect.style.display = '';
+  } else {
+    statusSelect.style.display = 'none';
+  }
+
 
   // Build cards
   let html = '';
@@ -1638,8 +1697,8 @@ function renderDetailPage(c) {
   if (!uniSel.LINK && !uniSel.UCJC && !uniSel.UE) {
     html += `<div style="color:var(--text-muted);font-size:13px;padding:12px 0;">L'étudiant n'a pas encore fait ses choix d'universités.</div>`;
   } else {
-    // LINK
-    if (uniSel.LINK) {
+    // LINK - only show for super_admin or fac_link
+    if (uniSel.LINK && (!window.adminRole || window.adminRole === 'super_admin' || window.adminRole === 'fac_link')) {
       const linkStatus = uniTracking.LINK_status || 'en_attente';
       const linkPaid = uniTracking.LINK_test_paid || false;
       html += `<div class="uni-selection-card link-card">
@@ -1670,8 +1729,8 @@ function renderDetailPage(c) {
       </div>`;
     }
 
-    // UCJC
-    if (uniSel.UCJC) {
+    // UCJC - only show for super_admin or fac_ucjc
+    if (uniSel.UCJC && (!window.adminRole || window.adminRole === 'super_admin' || window.adminRole === 'fac_ucjc')) {
       const ucjcStatus = uniTracking.UCJC_status || 'en_attente';
       html += `<div class="uni-selection-card ucjc-card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -1694,8 +1753,8 @@ function renderDetailPage(c) {
       </div>`;
     }
 
-    // UE
-    if (uniSel.UE) {
+    // UE - only show for super_admin or fac_ue
+    if (uniSel.UE && (!window.adminRole || window.adminRole === 'super_admin' || window.adminRole === 'fac_ue')) {
       const ueStatus = uniTracking.UE_status || 'en_attente';
       html += `<div class="uni-selection-card ue-card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -1728,21 +1787,38 @@ function renderDetailPage(c) {
   }
   html += `</div></div>`;
 
-  // ── Card 8: MESSAGERIE ──
-  html += `<div class="detail-card">
-    <div class="detail-card-title" onclick="toggleCard(this)" style="color:var(--orange);border-color:var(--orange);">Messagerie avec l'étudiant</div>
-    <div class="detail-card-body">
-    <div class="msg-container" id="msg-container-${c.id}">
-      <div class="msg-empty" id="msg-empty-${c.id}">Aucun message</div>
-    </div>
-    <div class="msg-input-row">
-      <textarea class="msg-input" id="msg-input-${c.id}" placeholder="Écrire un message..."></textarea>
-      <button class="btn-msg-send" onclick="sendAdminMessage('${c.id}')">Envoyer</button>
-    </div>
-    </div>
-  </div>`;
+  // ── Card 8: MESSAGERIE ── (super_admin only)
+  if (window.adminRole === 'super_admin' || !window.adminRole) {
+    html += `<div class="detail-card">
+      <div class="detail-card-title" onclick="toggleCard(this)" style="color:var(--orange);border-color:var(--orange);">Messagerie avec l'étudiant</div>
+      <div class="detail-card-body">
+      <div class="msg-container" id="msg-container-${c.id}">
+        <div class="msg-empty" id="msg-empty-${c.id}">Aucun message</div>
+      </div>
+      <div class="msg-input-row">
+        <textarea class="msg-input" id="msg-input-${c.id}" placeholder="Écrire un message..."></textarea>
+        <button class="btn-msg-send" onclick="sendAdminMessage('${c.id}')">Envoyer</button>
+      </div>
+      </div>
+    </div>`;
+  }
 
   document.getElementById('detail-cards').innerHTML = html;
+
+  // For fac users, hide detailed student info cards
+  if (window.adminRole && window.adminRole !== 'super_admin') {
+    setTimeout(() => {
+      document.querySelectorAll('.detail-card').forEach((card, i) => {
+        const title = card.querySelector('.detail-card-title');
+        if (!title) return;
+        const text = title.textContent.toLowerCase();
+        // Only show the REPONSE EDUMOVE card and university selections
+        if (!text.includes('réponse') && !text.includes('reponse') && !text.includes('sélection') && !text.includes('selection')) {
+          card.style.display = 'none';
+        }
+      });
+    }, 0);
+  }
 }
 
 function backToList() {
@@ -1828,6 +1904,15 @@ async function sendAdminMessage(candidatureId) {
 // UNI TRACKING
 // ══════════════════════════════════════════
 async function updateUniTracking(candidatureId, uniKey, field, value) {
+  // Check fac role permissions
+  const role = window.adminRole;
+  if (role && role !== 'super_admin') {
+    const allowedUni = role === 'fac_link' ? 'LINK' : role === 'fac_ucjc' ? 'UCJC' : role === 'fac_ue' ? 'UE' : null;
+    if (uniKey !== allowedUni) {
+      alert('Vous n\'avez pas les permissions pour modifier cette université.');
+      return;
+    }
+  }
   try {
     const c = allCandidatures.find(x => x.id === candidatureId);
     const tracking = c?.uni_tracking || {};
