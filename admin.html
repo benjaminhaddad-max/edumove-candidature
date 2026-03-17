@@ -852,12 +852,9 @@ tr:hover { background: rgba(97,92,165,0.03); }
     <!-- Stats -->
     <div class="stats-row">
       <div class="stat-card"><div class="stat-label">Total candidatures</div><div class="stat-value" id="stat-total">0</div></div>
-      <div class="stat-card orange"><div class="stat-label">En attente</div><div class="stat-value" id="stat-attente">0</div></div>
       <div class="stat-card violet"><div class="stat-label">En cours</div><div class="stat-value" id="stat-encours">0</div></div>
       <div class="stat-card" style="border-top:3px solid #1565c0;"><div class="stat-label">R&eacute;ponse Edumove</div><div class="stat-value" id="stat-reponse" style="color:#1565c0;">0</div></div>
-      <div class="stat-card" style="border-top:3px solid #7b1fa2;"><div class="stat-label">Dossier soumis</div><div class="stat-value" id="stat-dossier" style="color:#7b1fa2;">0</div></div>
-      <div class="stat-card green"><div class="stat-label">Accept&eacute;s</div><div class="stat-value" id="stat-accepte">0</div></div>
-      <div class="stat-card red"><div class="stat-label">Refus&eacute;s</div><div class="stat-value" id="stat-refuse">0</div></div>
+      <div class="stat-card green"><div class="stat-label">Inscrits</div><div class="stat-value" id="stat-inscrit">0</div></div>
       <div class="stat-card" style="border-top:3px solid #e65100;"><div class="stat-label">Rappels demandes</div><div class="stat-value" id="stat-rappel" style="color:#e65100;">0</div></div>
     </div>
 
@@ -871,13 +868,8 @@ tr:hover { background: rgba(97,92,165,0.03); }
       </select>
       <select class="filter-select" id="filter-status" onchange="applyFilters()">
         <option value="">Tous statuts</option>
-        <option value="en_attente">En attente</option>
         <option value="en_cours">En cours de traitement</option>
         <option value="reponse_edumove">R&eacute;ponse Edumove</option>
-        <option value="dossier_soumis">Dossier soumis</option>
-        <option value="accepte">Accept&eacute;</option>
-        <option value="refuse">Refus&eacute;</option>
-        <option value="abandon">Abandon</option>
       </select>
       <select class="filter-select" id="filter-profil" onchange="applyFilters()">
         <option value="">Tous profils</option>
@@ -901,8 +893,9 @@ tr:hover { background: rgba(97,92,165,0.03); }
           <thead>
             <tr>
               <th>Nom - Pr&eacute;nom</th>
-              <th>Formation</th>
+              <th>Fili&egrave;re</th>
               <th>Universit&eacute;s</th>
+              <th>Suivi par fac</th>
               <th>Date</th>
               <th>Statut</th>
               <th>Actions</th>
@@ -1323,20 +1316,17 @@ async function loadCandidatures() {
 
 function updateStats() {
   const total = allCandidatures.length;
-  const attente = allCandidatures.filter(c => c.status === 'en_attente').length;
   const encours = allCandidatures.filter(c => c.status === 'en_cours').length;
   const reponse = allCandidatures.filter(c => c.status === 'reponse_edumove').length;
-  const dossier = allCandidatures.filter(c => c.status === 'dossier_soumis').length;
-  const accepte = allCandidatures.filter(c => c.status === 'accepte').length;
-  const refuse = allCandidatures.filter(c => c.status === 'refuse').length;
+  const inscrit = allCandidatures.filter(c => {
+    const t = c.uni_tracking || {};
+    return ['LINK_status', 'UCJC_status', 'UE_status'].some(k => t[k] === 'inscrit');
+  }).length;
   const rappel = allCandidatures.filter(c => c.callback_requested).length;
   document.getElementById('stat-total').textContent = total;
-  document.getElementById('stat-attente').textContent = attente;
   document.getElementById('stat-encours').textContent = encours;
   document.getElementById('stat-reponse').textContent = reponse;
-  document.getElementById('stat-dossier').textContent = dossier;
-  document.getElementById('stat-accepte').textContent = accepte;
-  document.getElementById('stat-refuse').textContent = refuse;
+  document.getElementById('stat-inscrit').textContent = inscrit;
   document.getElementById('stat-rappel').textContent = rappel;
 }
 
@@ -1384,23 +1374,38 @@ function renderTable() {
   }
   empty.style.display = 'none';
 
-  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', dossier_soumis: 'Dossier soumis', accepte: 'Accept\u00e9', refuse: 'Refus\u00e9', abandon: 'Abandon' };
+  const statusLabels = { en_cours: 'En cours', reponse_edumove: 'R\u00e9ponse Edumove' };
   const filiereLabels = { medecine: 'M\u00e9decine', dentaire: 'Dentaire', kine: 'Kin\u00e9sith\u00e9rapie', pharmacie: 'Pharmacie', veterinaire: 'V\u00e9t\u00e9rinaire' };
+  const trackLabels = { en_attente: 'En attente', dossier_envoye: 'Envoy\u00e9', test_paye: 'Test pay\u00e9', test_passe: 'Test pass\u00e9', tests_passes: 'Tests pass\u00e9s', entretien_planifie: 'Entretien', entretien_passe: 'Entretien OK', accepte: 'Accept\u00e9', acompte_verse: 'Acompte', refuse: 'Refus\u00e9', inscrit: 'Inscrit' };
+  const trackColors = { en_attente: '#999', dossier_envoye: '#1565c0', test_paye: '#6a1b9a', test_passe: '#6a1b9a', tests_passes: '#6a1b9a', entretien_planifie: '#e65100', entretien_passe: '#e65100', accepte: '#2e7d32', acompte_verse: '#2e7d32', refuse: '#d32f2f', inscrit: '#1b5e20' };
 
   tbody.innerHTML = pageItems.map(c => {
     const date = c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '\u2014';
     const filiere = c.filiere ? (filiereLabels[c.filiere] || c.filiere) : '\u2014';
     const sel = c.uni_selections || {};
+    const tracking = c.uni_tracking || {};
     let uniBadges = '';
     if (sel.LINK) uniBadges += '<span class="uni-badge link">LINK</span>';
     if (sel.UCJC) uniBadges += '<span class="uni-badge ucjc">UCJC</span>';
     if (sel.UE) uniBadges += '<span class="uni-badge ue">UE</span>';
     if (!uniBadges) uniBadges = '<span style="color:var(--text-muted);font-size:11px;">\u2014</span>';
 
+    // Per-uni tracking summary
+    let trackSummary = '';
+    ['LINK', 'UCJC', 'UE'].forEach(uni => {
+      if (!sel[uni]) return;
+      const st = tracking[uni + '_status'] || 'en_attente';
+      const color = trackColors[st] || '#999';
+      const label = trackLabels[st] || st;
+      trackSummary += '<div style="display:flex;align-items:center;gap:4px;font-size:10px;margin-bottom:2px;"><span style="font-weight:600;min-width:32px;">' + uni + '</span><span style="padding:1px 6px;border-radius:4px;background:' + color + '15;color:' + color + ';font-weight:600;font-size:9px;white-space:nowrap;">' + label + '</span></div>';
+    });
+    if (!trackSummary) trackSummary = '<span style="color:var(--text-muted);font-size:10px;">\u2014</span>';
+
     return `<tr>
       <td><div class="td-name">${esc(c.nom)} ${esc(c.prenom)}</div></td>
       <td>${filiere}</td>
       <td><div class="uni-badges">${uniBadges}</div></td>
+      <td>${trackSummary}</td>
       <td class="td-date">${date}</td>
       <td><span class="status-badge status-${c.status}">${statusLabels[c.status] || c.status}</span></td>
       <td><button class="btn-view" onclick="viewDetail('${c.id}')">Voir</button></td>
@@ -1478,7 +1483,7 @@ function viewDetail(id) {
 }
 
 function renderDetailPage(c) {
-  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', dossier_soumis: 'Dossier soumis', accepte: 'Accept\u00e9', refuse: 'Refus\u00e9', abandon: 'Abandon' };
+  const statusLabels = { en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove' };
   const langLabels = { b2: 'B2+ / Bilingue', b1: 'B1 / Intermediaire', debut: 'A1/A2 / Debutant', aucun: 'Aucun' };
   const filiereLabels = { medecine: 'M\u00e9decine', dentaire: 'Dentaire', kinesitherapie: 'Kin\u00e9sith\u00e9rapie', kine: 'Kin\u00e9sith\u00e9rapie', pharmacie: 'Pharmacie', veterinaire: 'V\u00e9t\u00e9rinaire' };
 
@@ -1486,9 +1491,9 @@ function renderDetailPage(c) {
   document.getElementById('detail-page-title').textContent = c.prenom + ' ' + c.nom;
   document.getElementById('detail-page-badge').innerHTML = `<span class="status-badge status-${c.status}">${statusLabels[c.status] || c.status}</span>`;
 
-  // Status select
+  // Status select - only 2 global statuses
   const statusSelect = document.getElementById('detail-page-status-select');
-  statusSelect.innerHTML = Object.entries(statusLabels).map(([k, v]) => `<option value="${k}" ${c.status === k ? 'selected' : ''}>${v}</option>`).join('');
+  statusSelect.innerHTML = '<option value="en_cours" ' + (c.status === 'en_cours' ? 'selected' : '') + '>En cours de traitement</option><option value="reponse_edumove" ' + (c.status === 'reponse_edumove' ? 'selected' : '') + '>R\u00e9ponse Edumove</option>';
 
   // Build cards
   let html = '';
@@ -1843,30 +1848,6 @@ async function updateUniTracking(candidatureId, uniKey, field, value) {
   }
 }
 
-async function applyAiAction(id, action) {
-  const adminEmail = currentAdminUser?.email || 'admin';
-  const c = allCandidatures.find(x => x.id === id);
-  const existing = Array.isArray(c?.status_history) ? c.status_history : [];
-  const updates = {
-    status: action,
-    manual_override: true,
-    status_history: [...existing, { status: action, at: new Date().toISOString(), by: adminEmail }]
-  };
-
-  // If sending reponse_edumove, generate the response text
-  if (action === 'reponse_edumove' && c) {
-    updates.auto_response_text = generateReponseEdumove(c);
-    updates.auto_response_generated_at = new Date().toISOString();
-  }
-
-  try {
-    await supabase.from('candidatures').update(updates).eq('id', id);
-  } catch(e) {
-    console.error('Apply action error:', e);
-    alert('Erreur lors de la mise a jour.');
-  }
-}
-
 // ══════════════════════════════════════════
 // EXPORT CSV
 // ══════════════════════════════════════════
@@ -1880,7 +1861,7 @@ function exportCSV() {
 
   const rows = data.map(c => {
     const date = c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '';
-    const statusLabels = { en_attente:'En attente', en_cours:'En cours de traitement', reponse_edumove:'R\u00e9ponse Edumove', dossier_soumis:'Dossier soumis', accepte:'Accept\u00e9', refuse:'Refus\u00e9', abandon:'Abandon' };
+    const statusLabels = { en_cours:'En cours de traitement', reponse_edumove:'R\u00e9ponse Edumove' };
     return [
       c.nom, c.prenom, c.email, c.tel, c.departement || '', c.profil,
       c.score ? parseFloat(c.score).toFixed(1) : '', c.destination, c.universite, c.niveau,
