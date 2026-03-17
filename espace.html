@@ -2153,7 +2153,7 @@ function selectUCJCFiliere(filiereId, filiereLabel) {
     { key: 'lettre_ucjc', label: 'Lettre de motivation en espagnol' },
     { key: 'identite_ucjc', label: 'Carte d\'identite ou Passeport' },
     { key: 'formulaire_ucjc', label: 'Formulaire d\'admission UCJC', note: 'A remplir et signer', dlHref: 'formulaire-admission-ucjc.pdf', dlName: 'Formulaire-Admission-UCJC.pdf' },
-    { key: 'attestation_b2_ucjc', label: 'Attestation de niveau B2 en espagnol', optional: true }
+    { key: 'attestation_b2_ucjc', label: 'Attestation de niveau d\'espagnol', note: 'Meme un certificat non-officiel de formation e-learning est apprecie', optional: true }
   ];
   docs.forEach(d => { h += buildDocRow(d, 'UCJC', 'ucjc'); });
 
