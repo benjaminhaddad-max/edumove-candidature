@@ -864,6 +864,72 @@ body {
 }
 .site-footer a { color: var(--orange); text-decoration: none; }
 
+/* ── Interactive Response System ── */
+.reponse-welcome { font-size: 14px; line-height: 1.7; color: var(--text); margin-bottom: 20px; }
+.reponse-welcome strong { color: var(--navy); }
+.reponse-eval { padding: 14px 18px; border-radius: 10px; font-size: 13px; margin-bottom: 20px; }
+.reponse-eval.excellent { background: #e8f5e9; border: 1px solid #a5d6a7; color: #2e7d32; }
+.reponse-eval.solide { background: #e3f2fd; border: 1px solid #90caf9; color: #1565c0; }
+.reponse-eval.adapte { background: #fff3e0; border: 1px solid #ffcc80; color: #e65100; }
+.reponse-section-title { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+
+.uni-partner-card { border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 20px; transition: all 0.3s; }
+.uni-partner-card.selected { border-color: var(--violet); box-shadow: 0 0 0 2px rgba(97,92,165,0.15); }
+.uni-partner-card.locked { opacity: 0.6; pointer-events: none; position: relative; }
+
+.uni-partner-header { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
+.uni-partner-header.link-hdr { background: linear-gradient(135deg, #1a2744, #2a3d66); color: #fff; }
+.uni-partner-header.ucjc-hdr { background: linear-gradient(135deg, #96234a, #b84068); color: #fff; }
+.uni-partner-header.ue-hdr { background: linear-gradient(135deg, #003da5, #1565c0); color: #fff; }
+
+.uni-name { font-size: 15px; font-weight: 700; }
+.uni-country { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+.uni-badge { display: none; font-size: 11px; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+.uni-partner-card.selected .uni-badge { display: block; }
+
+.uni-filiere-subtitle { padding: 12px 20px 0; font-size: 12px; color: var(--text-muted); }
+.uni-filiere-grid { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 20px; }
+
+.uni-filiere-chip { padding: 10px 18px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; font-family: inherit; }
+.uni-filiere-chip:hover { border-color: var(--violet); background: #f5f5fb; }
+.uni-filiere-chip.active { background: var(--violet); color: #fff; border-color: var(--violet); }
+.uni-filiere-chip.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; background: #f9f9f9; }
+
+.uni-docs-section { display: none; padding: 16px 20px 20px; border-top: 1px solid var(--border); }
+.uni-docs-section.open { display: block; }
+.uni-docs-title { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+
+.uni-sub-options { display: none; padding: 0 20px 12px; }
+.uni-sub-options.open { display: block; }
+.uni-sub-label { font-size: 12px; font-weight: 600; color: var(--text-muted); margin: 8px 0 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+.uni-sub-chip { padding: 8px 14px; border: 1.5px solid var(--border); border-radius: 6px; background: #fff; cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.2s; font-family: inherit; display: inline-block; margin: 0 6px 6px 0; }
+.uni-sub-chip:hover { border-color: var(--violet); }
+.uni-sub-chip.active { background: var(--violet); color: #fff; border-color: var(--violet); }
+
+.btn-confirm-selections { display: block; width: 100%; padding: 16px; border: none; border-radius: 10px; background: var(--violet); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 20px; transition: all 0.3s; }
+.btn-confirm-selections:hover:not(:disabled) { background: var(--navy); }
+.btn-confirm-selections:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-unlock-selections { background: none; border: 1.5px solid var(--border); padding: 10px 24px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; color: var(--text-muted); transition: all 0.2s; margin-top: 16px; }
+.btn-unlock-selections:hover { border-color: var(--violet); color: var(--violet); }
+
+.uni-next-step { display: none; padding: 14px 20px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text); }
+.uni-next-step.visible { display: block; }
+
+.uni-pricing-bandeau { padding: 12px 20px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.uni-pricing-bandeau.link-pricing { background: #e8eaf6; color: #1a2744; }
+.uni-pricing-bandeau.ucjc-pricing { background: #fce4ec; color: #96234a; }
+.uni-pricing-bandeau.ue-pricing { background: #e3f2fd; color: #003da5; }
+
+.uni-info-bandeau { padding: 10px 20px; font-size: 12px; line-height: 1.6; }
+.uni-warning-bandeau { padding: 10px 20px; font-size: 12px; background: #fff3e0; color: #e65100; }
+
+.uni-doc-upload-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.uni-doc-upload-row:last-child { border-bottom: none; }
+.uni-doc-upload-status { font-size: 11px; color: var(--success); font-weight: 500; }
+.uni-doc-upload-btn { padding: 5px 12px; background: var(--violet); color: #fff; border: none; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.uni-doc-upload-btn:hover { background: var(--navy); }
+
 /* ── RESPONSIVE ── */
 @media (max-width: 600px) {
   .site-header { padding: 0 20px; }
@@ -875,6 +941,9 @@ body {
   .message { max-width: 90%; }
   .btn-profil-name { display: none; }
   .profil-dropdown { width: 280px; right: -10px; }
+  .uni-filiere-grid { padding: 12px 12px; }
+  .uni-sub-options { padding: 0 12px 12px; }
+  .uni-docs-section { padding: 16px 12px 20px; }
 }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -979,259 +1048,30 @@ body {
     <div class="timeline-step" id="step-reponse"><div class="tl-dot"></div><div class="tl-label">R&eacute;ponse</div></div>
   </div>
 
-  <!-- REPONSE EDUMOVE -->
+  <!-- REPONSE EDUMOVE — Interactive Card System -->
   <div class="section-card" id="reponse-edumove-card" style="display:none;">
     <div class="section-card-header reponse-card-header">
       <div class="section-card-title">Recommandation EDUMOVE</div>
     </div>
     <div class="section-card-body">
-      <div class="reponse-text" id="reponse-text"></div>
+      <div class="reponse-welcome" id="reponse-welcome"></div>
+      <div id="reponse-eval" style="display:none;"></div>
+
+      <div class="reponse-section-title" id="reponse-parcours-title" style="display:none;">Choisissez votre parcours</div>
+      <p id="reponse-parcours-subtitle" style="font-size:12px;color:var(--text-muted);margin-bottom:16px;display:none;">Sélectionnez une filière pour chaque université qui vous intéresse. Vous pouvez candidater à plusieurs universités en même temps.</p>
+
+      <div id="uni-partner-cards"></div>
+
+      <button class="btn-confirm-selections" id="btn-confirm-selections" onclick="confirmAllSelections()" disabled>Confirmer mes choix et envoyer mes documents</button>
+
+      <div id="unlock-wrap" style="display:none;text-align:center;">
+        <button class="btn-unlock-selections" onclick="unlockSelections()">&#x1F513; Une modification à faire ?</button>
+      </div>
+
       <div id="callback-btn-wrap" style="margin-top:24px; text-align:center;">
-        <button class="btn-callback" onclick="requestCallback()" id="btn-callback">📞 Demander un rappel téléphonique</button>
+        <button class="btn-callback" onclick="requestCallback()" id="btn-callback">&#x1F4DE; Demander un rappel téléphonique</button>
         <div class="callback-confirmed" id="callback-confirmed" style="display:none;">
-          ✅ Votre demande de rappel a été enregistrée. Un conseiller EDUMOVE vous contactera prochainement.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- LINK CAMPUS — FORMULAIRE CANDIDATURE -->
-  <div class="section-card" id="link-form-card" style="display:none;">
-    <div class="section-card-header link-card-header">
-      <div class="section-card-title">🎓 Candidature LINK Campus — Università degli Studi LINK</div>
-    </div>
-    <div class="section-card-body">
-
-      <!-- Dates urgentes -->
-      <div class="link-deadline-banner">
-        <span class="link-deadline-icon">⏰</span>
-        <div class="link-deadline-dates">
-          <span>📅 Date limite d'inscription : <u>9 avril 2026</u></span>
-          <span>🧪 Test d'admission : <u>15 avril 2026</u></span>
-          <small>Ne tardez pas — les places sont limitées !</small>
-        </div>
-      </div>
-
-      <div id="link-form-fields">
-
-        <!-- Documents -->
-        <div class="link-docs-list">
-          <div class="link-docs-title">Documents à préparer pour votre inscription</div>
-
-          <div class="link-doc-item">
-            <div>
-              <div>📋 Formulaire de pré-candidature LINK</div>
-              <div class="link-doc-note">À remplir, signer et re-uploader sur votre espace</div>
-            </div>
-            <a class="btn-link-dl" href="formulaire-precandidature-link.pdf" download="Formulaire-PreCandidature-LINK.pdf">⬇ Télécharger</a>
-          </div>
-
-          <div class="link-doc-item">
-            <span>🪪 Carte d'identité ou Passeport</span>
-          </div>
-
-          <div class="link-doc-item">
-            <div>
-              <div>🎓 Relevé de notes / Diplôme du Baccalauréat</div>
-              <div class="link-doc-note">Optionnel — à fournir si vous l'avez déjà obtenu</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Info contact + paiement -->
-        <div class="link-contact-info">
-          <span class="link-contact-icon">💬</span>
-          <div>Après réception de vos documents, <strong>un interlocuteur francophone de l'équipe LINK</strong> vous contactera directement pour organiser le règlement des <strong>200 € de frais de test</strong>. Vous n'avez rien d'autre à faire pour l'instant.</div>
-        </div>
-
-        <!-- Aperçu du test -->
-        <button class="link-test-toggle" id="link-test-toggle" onclick="toggleLinkTest()">
-          <span>✨ Aperçu du test d'admission — quelques exemples de questions</span>
-          <span class="link-test-toggle-arrow">▼</span>
-        </button>
-
-        <div class="link-test-preview" id="link-test-preview">
-          <div class="link-test-section-title">📖 Compréhension de texte &amp; Culture générale</div>
-          <div class="link-test-q">
-            <div class="link-test-q-text">Quel est le plus petit État du monde ?</div>
-            <div class="link-test-q-options">A) État du Vatican &nbsp; B) Îles Marshall &nbsp; C) Saint-Marin &nbsp; D) Principauté de Monaco &nbsp; E) Liechtenstein</div>
-          </div>
-          <div class="link-test-q">
-            <div class="link-test-q-text">Qui a été le premier homme à marcher sur la Lune ?</div>
-            <div class="link-test-q-options">A) Neil Armstrong &nbsp; B) Yuri Gagarine &nbsp; C) Lance Armstrong &nbsp; D) John Glenn &nbsp; E) Louis Armstrong</div>
-          </div>
-
-          <div class="link-test-section-title">🧠 Raisonnement logique</div>
-          <div class="link-test-q">
-            <div class="link-test-q-text">Dix amis sortent dîner. L'addition totale est de 360 €. Ils décident de ne pas faire payer celui qui fête son anniversaire. Combien chacun des autres devra-t-il payer ?</div>
-            <div class="link-test-q-options">A) 40 € &nbsp; B) 30 € &nbsp; C) 25 € &nbsp; D) 50 € &nbsp; E) 45 €</div>
-          </div>
-          <div class="link-test-q">
-            <div class="link-test-q-text">Quelle série complète la suivante : 173, 170, 167, ?, 161 ?</div>
-            <div class="link-test-q-options">A) 164 &nbsp; B) 171 &nbsp; C) 172 &nbsp; D) 160 &nbsp; E) 163</div>
-          </div>
-
-          <div class="link-test-section-title">🧬 Biologie</div>
-          <div class="link-test-q">
-            <div class="link-test-q-text">Quelle est la fonction principale de l'ARN messager (ARNm) ?</div>
-            <div class="link-test-q-options">A) Transférer l'information génétique de l'ADN aux ribosomes &nbsp; B) Transporter les acides aminés &nbsp; C) Synthétiser l'ADN &nbsp; D) Constituer les ribosomes &nbsp; E) Inhiber les réactions chimiques</div>
-          </div>
-          <div class="link-test-q">
-            <div class="link-test-q-text">Quel organite est responsable de la modification et du tri des protéines synthétisées ?</div>
-            <div class="link-test-q-options">A) Appareil de Golgi &nbsp; B) Ribosome &nbsp; C) Mitochondrie &nbsp; D) Lysosome &nbsp; E) Noyau</div>
-          </div>
-
-          <div class="link-test-section-title">⚗️ Chimie</div>
-          <div class="link-test-q">
-            <div class="link-test-q-text">Calculer le pH d'une solution 0,01 M de HCl.</div>
-            <div class="link-test-q-options">A) 2 &nbsp; B) 1 &nbsp; C) 7 &nbsp; D) 12 &nbsp; E) &gt;2</div>
-          </div>
-
-          <div class="link-test-section-title">📐 Physique &amp; Mathématiques</div>
-          <div class="link-test-q">
-            <div class="link-test-q-text">Résoudre l'inéquation : −x + 5 ≥ 0</div>
-            <div class="link-test-q-options">A) x ≤ 5 &nbsp; B) Toujours vraie &nbsp; C) Aucune solution &nbsp; D) x ≥ 5 &nbsp; E) x ≥ −5</div>
-          </div>
-          <div class="link-test-q">
-            <div class="link-test-q-text">Calculer l'aire d'un triangle isocèle dont le côté oblique mesure 5 cm et la base 8 cm.</div>
-            <div class="link-test-q-options">A) 12 cm² &nbsp; B) 20 cm² &nbsp; C) 25 cm² &nbsp; D) 40 cm² &nbsp; E) 24 cm²</div>
-          </div>
-
-          <div class="link-test-disclaimer">💡 Ces questions sont tirées d'un test officiel LINK. Le jour du test (15 avril), toutes les questions seront traduites et présentées en français.</div>
-
-          <div style="margin-top:12px;">
-            <a class="btn-link-dl" href="exemple-test-link.pdf" download="Exemple-Test-LINK.pdf" style="width:fit-content;">⬇ Télécharger l'exemple de test complet</a>
-          </div>
-        </div>
-
-        <button class="btn-link-save" onclick="saveLINKConfirm()">✅ J'ai préparé mes documents et compris les étapes</button>
-      </div>
-
-      <div class="link-saved-banner" id="link-saved-banner" style="display:none;">
-        <span class="link-saved-banner-icon">✅</span>
-        <div>Parfait ! Vos documents seront vérifiés par l'équipe EDUMOVE. Un contact francophone de LINK vous joindra prochainement pour le règlement des 200 € et la confirmation de votre inscription au test du 15 avril.</div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- UCJC — FORMULAIRE CANDIDATURE -->
-  <div class="section-card" id="ucjc-form-card" style="display:none;">
-    <div class="section-card-header ucjc-card-header">
-      <div class="section-card-title">🎓 Candidature UCJC — Universidad Camilo José Cela</div>
-    </div>
-    <div class="section-card-body">
-
-      <div class="ucjc-lang-banner">
-        <span class="ucjc-lang-banner-icon">🇪🇸</span>
-        <div>Tous les cours à l'UCJC sont dispensés <strong>100% en espagnol</strong>. Un niveau B2 minimum est requis pour candidater.</div>
-      </div>
-
-      <div id="ucjc-form-fields">
-        <div class="ucjc-docs-list">
-          <div class="ucjc-docs-title">Documents à soumettre avec votre dossier</div>
-
-          <div class="ucjc-doc-item">
-            <span class="ucjc-doc-name">📄 Lettre de motivation <strong style="margin-left:4px;">en espagnol</strong></span>
-          </div>
-
-          <div class="ucjc-doc-item">
-            <span class="ucjc-doc-name">🪪 Carte d'identité ou Passeport</span>
-          </div>
-
-          <div class="ucjc-doc-item">
-            <span class="ucjc-doc-name">📋 Formulaire d'admission UCJC <span style="font-size:11px;color:var(--text-muted);margin-left:4px;">(à remplir et signer)</span></span>
-            <a class="btn-ucjc-download" href="formulaire-admission-ucjc.pdf" download="Formulaire-Admission-UCJC.pdf">⬇ Télécharger</a>
-          </div>
-
-          <div class="ucjc-doc-item">
-            <span class="ucjc-doc-name">🌐 Attestation de niveau B2 en espagnol</span>
-            <span class="ucjc-doc-optional">Optionnel — toute certification acceptée (même en ligne)</span>
-          </div>
-        </div>
-
-        <button class="btn-ucjc-save" onclick="saveUCJCConfirm()">✅ J'ai préparé tous mes documents UCJC</button>
-      </div>
-
-      <div class="ucjc-saved-banner" id="ucjc-saved-banner" style="display:none;">
-        <span class="ucjc-saved-banner-icon">✅</span>
-        <div>Votre confirmation a bien été enregistrée. L'équipe EDUMOVE va préparer votre dossier de candidature UCJC.</div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- UNIVERSIDAD EUROPEA — FORMULAIRE CANDIDATURE -->
-  <div class="section-card" id="ue-form-card" style="display:none;">
-    <div class="section-card-header ue-form-card-header">
-      <div class="section-card-title">🇪🇸 Candidature Universidad Europea</div>
-    </div>
-    <div class="section-card-body" id="ue-form-body">
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:18px;">Sélectionnez le campus, la filière et la langue d'enseignement souhaités pour votre candidature.</p>
-
-      <div id="ue-form-fields">
-        <div class="ue-selects-grid">
-          <div>
-            <div class="ue-form-label">Ville 🏙</div>
-            <select class="ue-select" id="ue-ville" onchange="onUEVilleChange()">
-              <option value="">— Choisir —</option>
-              <option value="Madrid">Madrid</option>
-              <option value="Malaga">Málaga</option>
-              <option value="Valence">Valence</option>
-              <option value="Alicante">Alicante</option>
-              <option value="Canaries">Îles Canaries</option>
-            </select>
-          </div>
-          <div>
-            <div class="ue-form-label">Filière 📚</div>
-            <select class="ue-select" id="ue-filiere" onchange="onUEFiliereChange()" disabled>
-              <option value="">— Choisir —</option>
-            </select>
-          </div>
-          <div>
-            <div class="ue-form-label">Langue d'enseignement 🌐</div>
-            <select class="ue-select" id="ue-langue" onchange="onUELangueChange()" disabled>
-              <option value="">— Choisir —</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="ue-complet-warning" id="ue-complet-warning">
-          ⚠️ Cette combinaison est <strong style="margin-left:4px;">actuellement complète</strong>. Vous pouvez tout de même soumettre votre dossier — nous vous informerons en cas de désistement.
-        </div>
-
-        <div class="ue-docs-required" id="ue-docs-required" style="display:none;">
-          <div class="ue-docs-required-title">Documents requis pour cette candidature</div>
-          <div class="ue-doc-item">📄 <strong>3 bulletins de Première</strong> fusionnés en 1 seul PDF</div>
-          <div class="ue-doc-item">🪪 <strong>Carte d'identité ou Passeport</strong></div>
-          <div class="ue-doc-item" style="flex-direction:column;align-items:flex-start;">
-            <div>📋 <strong>Rapport technique académique</strong> (obligatoire — 60 €)</div>
-            <div style="margin-top:10px;padding:14px;background:#f0f7ff;border-radius:8px;font-size:12px;line-height:1.8;color:var(--text);">
-              <div style="font-weight:700;margin-bottom:6px;font-size:13px;">📌 Comment obtenir le rapport technique :</div>
-              <div><strong>1.</strong> Rendez-vous sur <a href="https://hostudents.com/servicios-legales/informe-tecnico-academico/" target="_blank" style="color:var(--violet);font-weight:600;">hostudents.com</a> et remplissez le formulaire avec vos informations.</div>
-              <div><strong>2.</strong> Vous recevrez un email avec un lien vers le portail. Cliquez sur « Connexion » puis « Nouveau sur Homologation Student Service » pour créer votre compte.</div>
-              <div><strong>3.</strong> Activez votre compte via l'email d'activation, puis connectez-vous au portail.</div>
-              <div><strong>4.</strong> Remplissez les informations demandées :
-                <ul style="margin:4px 0 4px 16px;list-style:disc;">
-                  <li>Type de service : <strong>Rapport technique académique</strong></li>
-                  <li>Université : <strong>Universidad Europea</strong></li>
-                  <li>Type d'étude : <strong>Licence</strong></li>
-                </ul>
-              </div>
-              <div><strong>5.</strong> Réglez les frais d'évaluation de <strong>60 €</strong> par carte bancaire lorsque le portail vous le demande.</div>
-              <div><strong>6.</strong> Vous recevrez votre rapport par email avec une note sur une échelle de 0 à 20. <strong>Ce document est indispensable</strong> pour finaliser votre candidature.</div>
-            </div>
-          </div>
-        </div>
-
-        <button class="btn-ue-save" id="btn-ue-save" onclick="saveUEChoices()" disabled>Confirmer mes choix</button>
-      </div>
-
-      <div class="ue-saved-banner" id="ue-saved-banner" style="display:none;">
-        <span class="ue-saved-banner-icon">✅</span>
-        <div>
-          <div>Vos choix de candidature ont été enregistrés. L'équipe EDUMOVE prépare votre dossier.</div>
-          <div class="ue-saved-details" id="ue-saved-details"></div>
+          &#x2705; Votre demande de rappel a été enregistrée. Un conseiller EDUMOVE vous contactera prochainement.
         </div>
       </div>
     </div>
@@ -1525,44 +1365,16 @@ function renderDashboard() {
   document.getElementById('recap-body').innerHTML = html;
   document.getElementById('btn-recap').style.display = '';
 
-  // Show reponse EDUMOVE card if applicable
-  if (['reponse_edumove', 'dossier_soumis', 'accepte', 'refuse', 'abandon'].includes(c.status) && c.auto_response_text) {
+  // Show interactive response card if applicable
+  if (['reponse_edumove', 'dossier_soumis', 'accepte', 'refuse', 'abandon'].includes(c.status)) {
     document.getElementById('reponse-edumove-card').style.display = 'block';
-    document.getElementById('reponse-text').textContent = c.auto_response_text;
+    renderInteractiveResponse(c);
     if (c.callback_requested) {
       document.getElementById('btn-callback').style.display = 'none';
       document.getElementById('callback-confirmed').style.display = 'block';
     }
-  }
-
-  // Show university-specific forms based on universite field or auto_response_text
-  const uni = (c.universite || '').toUpperCase();
-  const txt = (c.auto_response_text || '').toLowerCase();
-  const isReponse = ['reponse_edumove', 'dossier_soumis', 'accepte'].includes(c.status);
-
-  // Show LINK Campus form
-  if (isReponse && (uni === 'LINK' || /link campus|unilink|università.*link/i.test(txt))) {
-    document.getElementById('link-form-card').style.display = 'block';
-    if (c.link_docs_confirmed) {
-      document.getElementById('link-form-fields').style.display = 'none';
-      document.getElementById('link-saved-banner').style.display = 'flex';
-    }
-  }
-
-  // Show UCJC form
-  if (isReponse && (uni === 'UCJC' || /ucjc|camilo jos/i.test(txt))) {
-    document.getElementById('ucjc-form-card').style.display = 'block';
-    if (c.ucjc_docs_confirmed) {
-      document.getElementById('ucjc-form-fields').style.display = 'none';
-      document.getElementById('ucjc-saved-banner').style.display = 'flex';
-    }
-  }
-
-  // Show Universidad Europea form
-  if (isReponse && (uni === 'UEM' || uni === 'UE' || /universidad europea|uem/i.test(txt))) {
-    document.getElementById('ue-form-card').style.display = 'block';
-    if (c.ue_choices) {
-      showUESavedBanner(c.ue_choices.ville, c.ue_choices.filiere, c.ue_choices.langue);
+    if (c.uni_selections) {
+      showSelectionsSaved(c.uni_selections);
     }
   }
 
@@ -1711,57 +1523,38 @@ async function uploadDocument(input) {
   }
 }
 
-// ── LINK CAMPUS ──
-function toggleLinkTest() {
-  const btn = document.getElementById('link-test-toggle');
-  const panel = document.getElementById('link-test-preview');
-  btn.classList.toggle('open');
-  panel.classList.toggle('open');
-}
+// ══════════════════════════════════════════════
+// ── INTERACTIVE CARD SYSTEM ──
+// ══════════════════════════════════════════════
 
-async function saveLINKConfirm() {
-  const btn = document.querySelector('.btn-link-save');
-  btn.disabled = true;
-  btn.textContent = 'Enregistrement...';
-  try {
-    await supabase.from('candidatures').update({
-      link_docs_confirmed: true,
-      link_docs_confirmed_at: new Date().toISOString()
-    }).eq('id', candidatureId);
-    document.getElementById('link-form-fields').style.display = 'none';
-    document.getElementById('link-saved-banner').style.display = 'flex';
-  } catch (err) {
-    console.error('LINK confirm error:', err);
-    btn.disabled = false;
-    btn.textContent = '✅ J\'ai préparé mes documents et compris les étapes';
-  }
-}
+// ── PRICING DATA ──
+const uePrix = {
+  'Madrid-Médecine': { prix: '21 480', duree: '6 ans' },
+  'Madrid-Dentaire': { prix: '20 820', duree: '5 ans' },
+  'Madrid-Kinésithérapie': { prix: '10 020', duree: '4 ans' },
+  'Madrid-Pharmacie': { prix: '12 120', duree: '5 ans' },
+  'Madrid-Vétérinaire': { prix: '19 500', duree: '5 ans' },
+  'Canaries-Médecine': { prix: '21 480', duree: '6 ans' },
+  'Canaries-Dentaire': { prix: '20 820', duree: '5 ans' },
+  'Canaries-Kinésithérapie': { prix: '10 020', duree: '4 ans' },
+  'Valence-Dentaire': { prix: '20 821', duree: '5 ans' },
+  'Valence-Kinésithérapie': { prix: '10 080', duree: '4 ans' },
+  'Alicante-Dentaire': { prix: '20 821', duree: '5 ans' },
+  'Alicante-Kinésithérapie': { prix: '10 080', duree: '4 ans' },
+  'Malaga-Dentaire': { prix: '19 200', duree: '5 ans' },
+  'Malaga-Kinésithérapie': { prix: '10 020', duree: '4 ans' }
+};
 
-// ── UCJC ──
-async function saveUCJCConfirm() {
-  const btn = document.querySelector('.btn-ucjc-save');
-  btn.disabled = true;
-  btn.textContent = 'Enregistrement...';
-  try {
-    await supabase.from('candidatures').update({
-      ucjc_docs_confirmed: true,
-      ucjc_docs_confirmed_at: new Date().toISOString()
-    }).eq('id', candidatureId);
-    document.getElementById('ucjc-form-fields').style.display = 'none';
-    document.getElementById('ucjc-saved-banner').style.display = 'flex';
-  } catch (err) {
-    console.error('UCJC confirm error:', err);
-    btn.disabled = false;
-    btn.textContent = '✅ J\'ai préparé tous mes documents UCJC';
-  }
-}
+const linkPrix = {
+  medecine: { prix: '19 800', duree: '6 ans' },
+  dentaire: { prix: '19 800', duree: '6 ans' },
+  pharmacie: { prix: '7 900', duree: '5 ans' },
+  kinesitherapie: { prix: '11 900', duree: '3 ans' }
+};
 
-// ── UNIVERSIDAD EUROPEA ──
-// Combinaisons déjà complètes
-// Aucune combinaison completement fermee (mars 2026)
+// ── UE AVAILABILITY DATA ──
 const UE_COMPLETS = [];
 
-// Combinaisons en liste d'attente (places limitees)
 const UE_LISTE_ATTENTE = [
   { ville: 'Madrid',   filiere: 'Vétérinaire',    langue: 'Espagnol',  note: 'Liste d\'attente bientôt' },
   { ville: 'Madrid',   filiere: 'Kinésithérapie', langue: 'Anglais',   note: 'Liste d\'attente' },
@@ -1772,18 +1565,13 @@ const UE_LISTE_ATTENTE = [
 ];
 
 function isUEComplet(ville, filiere, langue) {
-  return UE_COMPLETS.some(c =>
-    c.ville === ville && c.filiere === filiere && c.langue === langue
-  );
+  return UE_COMPLETS.some(c => c.ville === ville && c.filiere === filiere && c.langue === langue);
 }
 
 function isUEListeAttente(ville, filiere, langue) {
-  return UE_LISTE_ATTENTE.find(c =>
-    c.ville === ville && c.filiere === filiere && c.langue === langue
-  );
+  return UE_LISTE_ATTENTE.find(c => c.ville === ville && c.filiere === filiere && c.langue === langue);
 }
 
-// Langues disponibles par ville + filière (source: récap UE mars 2026)
 function getUELangues(ville, filiere) {
   if (filiere === 'Médecine') return ['Espagnol'];
   if (filiere === 'Pharmacie') return ['Espagnol'];
@@ -1799,10 +1587,13 @@ function getUELangues(ville, filiere) {
   return ['Espagnol', 'Anglais'];
 }
 
-// Villes où Médecine est disponible
-const UE_MEDECINE_VILLES = ['Madrid', 'Canaries'];
+function getUEVilles(filiere) {
+  if (filiere === 'medecine' || filiere === 'Médecine') return ['Madrid', 'Canaries'];
+  if (filiere === 'pharmacie' || filiere === 'Pharmacie') return ['Madrid'];
+  if (filiere === 'veterinaire' || filiere === 'Vétérinaire') return ['Madrid'];
+  return ['Madrid', 'Malaga', 'Valence', 'Alicante', 'Canaries'];
+}
 
-// Filières disponibles par ville (source: récap UE mars 2026)
 function getUEFilieres(ville) {
   if (ville === 'Madrid') return ['Médecine', 'Dentaire', 'Pharmacie', 'Vétérinaire', 'Kinésithérapie'];
   if (ville === 'Canaries') return ['Médecine', 'Dentaire', 'Kinésithérapie'];
@@ -1812,146 +1603,704 @@ function getUEFilieres(ville) {
   return ['Dentaire', 'Kinésithérapie'];
 }
 
-function onUEVilleChange() {
-  const ville = document.getElementById('ue-ville').value;
-  const selFiliere = document.getElementById('ue-filiere');
-  const selLangue = document.getElementById('ue-langue');
+// ── SELECTION STATE ──
+let uniSelections = { LINK: null, UCJC: null, UE: null };
+let ueSelectedFiliere = null;
+let ueSelectedVille = null;
 
-  selFiliere.innerHTML = '<option value="">— Choisir —</option>';
-  selLangue.innerHTML = '<option value="">— Choisir —</option>';
-  selFiliere.disabled = !ville;
-  selLangue.disabled = true;
+// ── STUDENT PROFILE & ELIGIBILITY ──
+function computeStudentProfile(c) {
+  const sciNames = ['mathematiques', 'maths', 'mathématiques', 'physique-chimie', 'physique chimie', 'pc', 'svt', 'sciences de la vie', 'nsi', 'si'];
+  let sciSum = 0, sciCount = 0;
 
-  if (!ville) { updateUEState(); return; }
+  function isSci(name) {
+    const n = (name || '').toLowerCase().trim();
+    return sciNames.some(s => n.includes(s));
+  }
 
-  const filieres = getUEFilieres(ville);
+  function avgNote(note) {
+    const vals = [note.t1, note.t2, note.t3].map(v => parseFloat(v)).filter(v => !isNaN(v));
+    return vals.length ? vals.reduce((a,b) => a+b, 0) / vals.length : null;
+  }
+
+  // Premiere sci notes
+  if (c.notes_premiere) {
+    c.notes_premiere.filter(n => isSci(n.nom)).forEach(n => {
+      const avg = n.moy ? parseFloat(n.moy) : avgNote(n);
+      if (avg !== null && !isNaN(avg)) { sciSum += avg; sciCount++; }
+    });
+  }
+  // Terminale T1 sci notes
+  if (c.notes_terminale) {
+    c.notes_terminale.filter(n => isSci(n.nom)).forEach(n => {
+      const t1 = parseFloat(n.t1);
+      if (!isNaN(t1)) { sciSum += t1; sciCount++; }
+    });
+  }
+
+  const moySpeSci = sciCount > 0 ? sciSum / sciCount : 0;
+  const nbSpeSci = sciCount;
+  const moyPremiere = c.moyenne_premiere ? parseFloat(c.moyenne_premiere) : 0;
+
+  // Language levels
+  const langMap = { b2: 3, b1: 2, debut: 1, aucun: 0 };
+  const langues = c.langues || {};
+  const espLevel = langMap[langues.espagnol] ?? 0;
+  const engLevel = langMap[langues.anglais] ?? 0;
+
+  return { moySpeSci: Math.round(moySpeSci * 100) / 100, nbSpeSci, moyPremiere, espLevel, engLevel };
+}
+
+function checkEligibility(uniKey, filiereId, profile, extra) {
+  // LINK: accepts everyone (no veterinaire)
+  if (uniKey === 'LINK') {
+    if (filiereId === 'veterinaire') return { eligible: false, reason: 'Non disponible à LINK' };
+    return { eligible: true, reason: '' };
+  }
+  // UCJC: accepts everyone (no veterinaire)
+  if (uniKey === 'UCJC') {
+    if (filiereId === 'veterinaire') return { eligible: false, reason: 'Non disponible à l\'UCJC' };
+    return { eligible: true, reason: '' };
+  }
+  // UE rules (March 2026)
+  if (uniKey === 'UE') {
+    const fMap = {
+      medecine: 16,
+      dentaire: 15,
+      veterinaire: 14,
+      kinesitherapie: 13,
+      pharmacie: 0
+    };
+    const threshold = fMap[filiereId] ?? 0;
+    if (threshold > 0 && profile.moySpeSci < threshold) {
+      return { eligible: false, reason: 'Moyenne spé. scientifiques insuffisante (' + profile.moySpeSci.toFixed(1) + '/' + threshold + ' requis)' };
+    }
+    return { eligible: true, reason: '' };
+  }
+  return { eligible: true, reason: '' };
+}
+
+// ── AVAILABLE FILIERES ──
+function getAvailableFilieres(c) {
+  const ranking = c.classement_filieres || ['medecine','dentaire','kinesitherapie','pharmacie','veterinaire'];
+  const labels = { medecine: 'Médecine', dentaire: 'Dentaire', kinesitherapie: 'Kinésithérapie', pharmacie: 'Pharmacie', veterinaire: 'Vétérinaire' };
+  return ranking.map(f => ({ id: f, label: labels[f] || f }));
+}
+
+// ── CARD BUILDERS ──
+function buildLINKCard(filieres) {
+  const filtered = filieres.filter(f => f.id !== 'veterinaire');
+  let html = '<div class="uni-partner-card" id="card-LINK">';
+  html += '<div class="uni-partner-header link-hdr">';
+  html += '<div><div class="uni-name">LINK Campus — Università degli Studi LINK</div><div class="uni-country">Italie — Rome</div></div>';
+  html += '<div class="uni-badge">Sélectionné</div>';
+  html += '</div>';
+  html += '<div class="uni-filiere-subtitle">Cours en italien — Pas de prérequis linguistique</div>';
+  html += '<div class="uni-filiere-grid">';
+  filtered.forEach(f => {
+    html += '<button class="uni-filiere-chip" id="chip-LINK-' + f.id + '" onclick="selectFiliere(\'LINK\',\'' + f.id + '\',\'' + f.label + '\')">' + f.label + '</button>';
+  });
+  html += '</div>';
+  html += '<div id="link-sub-options" class="uni-sub-options"></div>';
+  html += '<div class="uni-docs-section" id="docs-LINK"></div>';
+  html += '<div class="uni-next-step" id="next-step-LINK"></div>';
+  html += '</div>';
+  return html;
+}
+
+function buildUCJCCard(filieres) {
+  const filtered = filieres.filter(f => f.id !== 'veterinaire');
+  let html = '<div class="uni-partner-card" id="card-UCJC">';
+  html += '<div class="uni-partner-header ucjc-hdr">';
+  html += '<div><div class="uni-name">UCJC — Universidad Camilo José Cela</div><div class="uni-country">Espagne — Madrid</div></div>';
+  html += '<div class="uni-badge">Sélectionné</div>';
+  html += '</div>';
+  html += '<div class="uni-filiere-subtitle">Cours 100% en espagnol</div>';
+  html += '<div class="uni-filiere-grid">';
+  filtered.forEach(f => {
+    html += '<button class="uni-filiere-chip" id="chip-UCJC-' + f.id + '" onclick="selectFiliere(\'UCJC\',\'' + f.id + '\',\'' + f.label + '\')">' + f.label + '</button>';
+  });
+  html += '</div>';
+  html += '<div id="ucjc-sub-options" class="uni-sub-options"></div>';
+  html += '<div class="uni-docs-section" id="docs-UCJC"></div>';
+  html += '<div class="uni-next-step" id="next-step-UCJC"></div>';
+  html += '</div>';
+  return html;
+}
+
+function buildUECard(filieres) {
+  let html = '<div class="uni-partner-card" id="card-UE">';
+  html += '<div class="uni-partner-header ue-hdr">';
+  html += '<div><div class="uni-name">Universidad Europea</div><div class="uni-country">Espagne — Plusieurs campus</div></div>';
+  html += '<div class="uni-badge">Sélectionné</div>';
+  html += '</div>';
+  html += '<div class="uni-filiere-subtitle">Cours en espagnol, anglais ou français selon campus</div>';
+  html += '<div class="uni-filiere-grid">';
   filieres.forEach(f => {
-    const opt = document.createElement('option');
-    opt.value = f;
-    const langues = getUELangues(ville, f);
-    const allFull = langues.every(l => isUEComplet(ville, f, l));
-    const allLA = langues.every(l => isUEListeAttente(ville, f, l));
-    if (allFull) {
-      opt.textContent = f + ' (Complet)';
-      opt.disabled = true;
-    } else if (allLA) {
-      opt.textContent = f + ' ⚠️ Places limitées';
-    } else {
-      opt.textContent = f;
-    }
-    selFiliere.appendChild(opt);
+    html += '<button class="uni-filiere-chip" id="chip-UE-' + f.id + '" onclick="selectFiliere(\'UE\',\'' + f.id + '\',\'' + f.label + '\')">' + f.label + '</button>';
   });
-  updateUEState();
+  html += '</div>';
+  html += '<div id="ue-sub-options" class="uni-sub-options"></div>';
+  html += '<div class="uni-docs-section" id="docs-UE"></div>';
+  html += '<div class="uni-next-step" id="next-step-UE"></div>';
+  html += '</div>';
+  return html;
 }
 
-function onUEFiliereChange() {
-  const ville = document.getElementById('ue-ville').value;
-  const filiere = document.getElementById('ue-filiere').value;
-  const selLangue = document.getElementById('ue-langue');
+// ── FILIERE SELECTION ──
+function selectFiliere(uniKey, filiereId, filiereLabel) {
+  if (uniKey === 'LINK') selectLINKFiliere(filiereId, filiereLabel);
+  else if (uniKey === 'UCJC') selectUCJCFiliere(filiereId, filiereLabel);
+  else if (uniKey === 'UE') selectUEFiliere(filiereId, filiereLabel);
+}
 
-  selLangue.innerHTML = '<option value="">— Choisir —</option>';
-  selLangue.disabled = !filiere;
+// ── LINK FILIERE SELECTION ──
+function selectLINKFiliere(filiereId, filiereLabel) {
+  const card = document.getElementById('card-LINK');
+  const docsEl = document.getElementById('docs-LINK');
+  const subEl = document.getElementById('link-sub-options');
 
-  if (!filiere) { updateUEState(); return; }
+  // Toggle: if already selected, deselect
+  if (uniSelections.LINK && uniSelections.LINK.filiere === filiereId) {
+    uniSelections.LINK = null;
+    card.classList.remove('selected');
+    document.querySelectorAll('#card-LINK .uni-filiere-chip').forEach(c => c.classList.remove('active'));
+    docsEl.classList.remove('open');
+    docsEl.innerHTML = '';
+    subEl.classList.remove('open');
+    subEl.innerHTML = '';
+    updateConfirmButton();
+    return;
+  }
 
-  const langues = getUELangues(ville, filiere);
+  // Select
+  uniSelections.LINK = { filiere: filiereId, filiereLabel: filiereLabel };
+  card.classList.add('selected');
+  document.querySelectorAll('#card-LINK .uni-filiere-chip').forEach(c => c.classList.remove('active'));
+  document.getElementById('chip-LINK-' + filiereId).classList.add('active');
+  subEl.classList.remove('open');
+  subEl.innerHTML = '';
+
+  // Pricing bandeau
+  const prix = linkPrix[filiereId];
+  let html = '';
+  if (prix) {
+    html += '<div class="uni-pricing-bandeau link-pricing">💰 ' + prix.prix + ' €/an — Durée des études : ' + prix.duree + '</div>';
+  }
+
+  // Test info
+  if (['medecine', 'dentaire', 'kinesitherapie'].includes(filiereId)) {
+    html += '<div class="uni-info-bandeau" style="background:#e8eaf6;color:#1a2744;">';
+    html += '<strong>🧪 Test d\'admission :</strong> 15 avril 2026 — Paris — en français<br>';
+    html += '<strong>💶 Frais d\'inscription au test :</strong> 200 €<br>';
+    html += '<span style="font-size:11px;color:var(--text-muted);">Un interlocuteur francophone de LINK vous contactera pour le règlement.</span>';
+    html += '</div>';
+
+    // Test examples toggle
+    html += '<div style="padding:8px 20px;">';
+    html += '<button class="link-test-toggle" onclick="toggleLinkTestExamples()" id="link-test-toggle-btn" style="width:100%;background:none;border:1.5px solid #1a2744;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:600;color:#1a2744;cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between;font-family:inherit;">';
+    html += '<span>Aperçu du test d\'admission — exemples de questions</span><span class="link-test-toggle-arrow" style="transition:transform 0.2s;font-size:11px;">&#x25BC;</span></button>';
+    html += '<div id="link-test-examples" style="display:none;background:var(--bg);border-radius:8px;padding:14px;margin-top:8px;font-size:12px;line-height:1.7;">';
+    html += buildLinkTestExamples();
+    html += '</div>';
+    html += '</div>';
+  } else if (filiereId === 'pharmacie') {
+    html += '<div class="uni-info-bandeau" style="background:#e8f5e9;color:#2e7d32;">';
+    html += '&#x2705; <strong>Aucun test requis</strong> — Vous serez rappelé directement par l\'université pour finaliser votre inscription.';
+    html += '</div>';
+  }
+
+  // Required docs
+  html += '<div class="uni-docs-title" style="padding:0;">Documents requis</div>';
+  html += '<div class="uni-doc-upload-row">';
+  html += '<div>&#x1F4CB; Formulaire de pré-candidature LINK <a href="formulaire-precandidature-link.pdf" download="Formulaire-PreCandidature-LINK.pdf" style="color:var(--violet);font-size:11px;font-weight:600;margin-left:6px;">&#x2B07; Télécharger</a></div>';
+  html += '<div id="upload-status-LINK-formulaire"><label class="uni-doc-upload-btn" style="cursor:pointer;">Envoyer <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleDocUpload(this,\'LINK\',\'formulaire\')"></label></div>';
+  html += '</div>';
+  html += '<div class="uni-doc-upload-row">';
+  html += '<div>&#x1FAAA; Carte d\'identité ou Passeport</div>';
+  html += '<div id="upload-status-LINK-identite"><label class="uni-doc-upload-btn" style="cursor:pointer;">Envoyer <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleDocUpload(this,\'LINK\',\'identite\')"></label></div>';
+  html += '</div>';
+  html += '<div class="uni-doc-upload-row">';
+  html += '<div>&#x1F393; Relevé de notes <span style="font-size:11px;color:var(--text-muted);">(optionnel)</span></div>';
+  html += '<div id="upload-status-LINK-releves"><label class="uni-doc-upload-btn" style="cursor:pointer;">Envoyer <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleDocUpload(this,\'LINK\',\'releves\')"></label></div>';
+  html += '</div>';
+
+  docsEl.innerHTML = html;
+  docsEl.classList.add('open');
+  updateConfirmButton();
+}
+
+function buildLinkTestExamples() {
+  let h = '';
+  h += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#1a2744;margin:10px 0 6px;">&#x1F4D6; Compréhension de texte &amp; Culture générale</div>';
+  h += '<div style="margin-bottom:8px;padding:8px 10px;background:white;border-radius:6px;border-left:3px solid #2a3d66;"><div style="font-weight:600;color:var(--navy);margin-bottom:4px;">Quel est le plus petit État du monde ?</div><div style="color:var(--text-muted);font-size:11px;">A) État du Vatican &nbsp; B) Îles Marshall &nbsp; C) Saint-Marin &nbsp; D) Principauté de Monaco &nbsp; E) Liechtenstein</div></div>';
+  h += '<div style="margin-bottom:8px;padding:8px 10px;background:white;border-radius:6px;border-left:3px solid #2a3d66;"><div style="font-weight:600;color:var(--navy);margin-bottom:4px;">Qui a été le premier homme à marcher sur la Lune ?</div><div style="color:var(--text-muted);font-size:11px;">A) Neil Armstrong &nbsp; B) Yuri Gagarine &nbsp; C) Lance Armstrong &nbsp; D) John Glenn &nbsp; E) Louis Armstrong</div></div>';
+  h += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#1a2744;margin:10px 0 6px;">&#x1F9E0; Raisonnement logique</div>';
+  h += '<div style="margin-bottom:8px;padding:8px 10px;background:white;border-radius:6px;border-left:3px solid #2a3d66;"><div style="font-weight:600;color:var(--navy);margin-bottom:4px;">Dix amis sortent dîner. L\'addition totale est de 360 €. Ils décident de ne pas faire payer celui qui fête son anniversaire. Combien chacun des autres devra-t-il payer ?</div><div style="color:var(--text-muted);font-size:11px;">A) 40 € &nbsp; B) 30 € &nbsp; C) 25 € &nbsp; D) 50 € &nbsp; E) 45 €</div></div>';
+  h += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#1a2744;margin:10px 0 6px;">&#x1F9EC; Biologie</div>';
+  h += '<div style="margin-bottom:8px;padding:8px 10px;background:white;border-radius:6px;border-left:3px solid #2a3d66;"><div style="font-weight:600;color:var(--navy);margin-bottom:4px;">Quelle est la fonction principale de l\'ARN messager (ARNm) ?</div><div style="color:var(--text-muted);font-size:11px;">A) Transférer l\'information génétique de l\'ADN aux ribosomes &nbsp; B) Transporter les acides aminés &nbsp; C) Synthétiser l\'ADN &nbsp; D) Constituer les ribosomes &nbsp; E) Inhiber les réactions chimiques</div></div>';
+  h += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#1a2744;margin:10px 0 6px;">&#x2697;&#xFE0F; Chimie</div>';
+  h += '<div style="margin-bottom:8px;padding:8px 10px;background:white;border-radius:6px;border-left:3px solid #2a3d66;"><div style="font-weight:600;color:var(--navy);margin-bottom:4px;">Calculer le pH d\'une solution 0,01 M de HCl.</div><div style="color:var(--text-muted);font-size:11px;">A) 2 &nbsp; B) 1 &nbsp; C) 7 &nbsp; D) 12 &nbsp; E) &gt;2</div></div>';
+  h += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#1a2744;margin:10px 0 6px;">&#x1F4D0; Physique &amp; Mathématiques</div>';
+  h += '<div style="margin-bottom:8px;padding:8px 10px;background:white;border-radius:6px;border-left:3px solid #2a3d66;"><div style="font-weight:600;color:var(--navy);margin-bottom:4px;">Résoudre l\'inéquation : −x + 5 ≥ 0</div><div style="color:var(--text-muted);font-size:11px;">A) x ≤ 5 &nbsp; B) Toujours vraie &nbsp; C) Aucune solution &nbsp; D) x ≥ 5 &nbsp; E) x ≥ −5</div></div>';
+  h += '<div style="font-size:11px;color:var(--text-muted);font-style:italic;margin-top:10px;padding-top:8px;border-top:1px solid var(--border);">&#x1F4A1; Ces questions sont tirées d\'un test officiel LINK. Le jour du test (15 avril), toutes les questions seront traduites et présentées en français.</div>';
+  h += '<div style="margin-top:8px;"><a href="exemple-test-link.pdf" download="Exemple-Test-LINK.pdf" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:#1a2744;color:white;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;">&#x2B07; Télécharger l\'exemple de test complet</a></div>';
+  return h;
+}
+
+function toggleLinkTestExamples() {
+  const panel = document.getElementById('link-test-examples');
+  const btn = document.getElementById('link-test-toggle-btn');
+  if (!panel) return;
+  const open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  if (btn) btn.classList.toggle('open');
+}
+
+// ── UCJC FILIERE SELECTION ──
+function selectUCJCFiliere(filiereId, filiereLabel) {
+  const card = document.getElementById('card-UCJC');
+  const docsEl = document.getElementById('docs-UCJC');
+  const subEl = document.getElementById('ucjc-sub-options');
+
+  // Toggle
+  if (uniSelections.UCJC && uniSelections.UCJC.filiere === filiereId) {
+    uniSelections.UCJC = null;
+    card.classList.remove('selected');
+    document.querySelectorAll('#card-UCJC .uni-filiere-chip').forEach(c => c.classList.remove('active'));
+    docsEl.classList.remove('open');
+    docsEl.innerHTML = '';
+    subEl.classList.remove('open');
+    subEl.innerHTML = '';
+    updateConfirmButton();
+    return;
+  }
+
+  uniSelections.UCJC = { filiere: filiereId, filiereLabel: filiereLabel };
+  card.classList.add('selected');
+  document.querySelectorAll('#card-UCJC .uni-filiere-chip').forEach(c => c.classList.remove('active'));
+  document.getElementById('chip-UCJC-' + filiereId).classList.add('active');
+  subEl.classList.remove('open');
+  subEl.innerHTML = '';
+
+  let html = '';
+  // Entretien bandeau
+  html += '<div class="uni-info-bandeau" style="background:#fce4ec;color:#96234a;">';
+  html += '<strong>&#x1F399;&#xFE0F; Entretien en visio-conférence</strong> de 15 min en espagnol<br>';
+  if (['medecine', 'dentaire'].includes(filiereId)) {
+    html += '<span style="font-size:11px;">Un niveau B1/B2 en espagnol est attendu</span>';
+  } else {
+    html += '<span style="font-size:11px;">Un niveau A1 ou A2 peut suffire</span>';
+  }
+  html += '</div>';
+
+  // Required docs
+  html += '<div class="uni-docs-title" style="padding:0;">Documents requis</div>';
+  html += '<div class="uni-doc-upload-row">';
+  html += '<div>&#x1F4DD; Lettre de motivation <strong>en espagnol</strong></div>';
+  html += '<div id="upload-status-UCJC-lettre_motivation"><label class="uni-doc-upload-btn" style="cursor:pointer;">Envoyer <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleDocUpload(this,\'UCJC\',\'lettre_motivation\')"></label></div>';
+  html += '</div>';
+  html += '<div class="uni-doc-upload-row">';
+  html += '<div>&#x1FAAA; Carte d\'identité ou Passeport</div>';
+  html += '<div id="upload-status-UCJC-identite"><label class="uni-doc-upload-btn" style="cursor:pointer;">Envoyer <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleDocUpload(this,\'UCJC\',\'identite\')"></label></div>';
+  html += '</div>';
+  html += '<div class="uni-doc-upload-row">';
+  html += '<div>&#x1F4CB; Formulaire d\'admission UCJC <a href="formulaire-admission-ucjc.pdf" download="Formulaire-Admission-UCJC.pdf" style="color:var(--violet);font-size:11px;font-weight:600;margin-left:6px;">&#x2B07; Télécharger</a></div>';
+  html += '<div id="upload-status-UCJC-formulaire"><label class="uni-doc-upload-btn" style="cursor:pointer;">Envoyer <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleDocUpload(this,\'UCJC\',\'formulaire\')"></label></div>';
+  html += '</div>';
+  html += '<div class="uni-doc-upload-row">';
+  html += '<div>&#x1F310; Attestation espagnol <span style="font-size:11px;color:var(--text-muted);">(même certificat non-officiel e-learning apprécié)</span></div>';
+  html += '<div id="upload-status-UCJC-attestation_esp"><label class="uni-doc-upload-btn" style="cursor:pointer;">Envoyer <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleDocUpload(this,\'UCJC\',\'attestation_esp\')"></label></div>';
+  html += '</div>';
+
+  docsEl.innerHTML = html;
+  docsEl.classList.add('open');
+  updateConfirmButton();
+}
+
+// ── UE FILIERE SELECTION ──
+function selectUEFiliere(filiereId, filiereLabel) {
+  const card = document.getElementById('card-UE');
+  const docsEl = document.getElementById('docs-UE');
+  const subEl = document.getElementById('ue-sub-options');
+
+  // Toggle
+  if (uniSelections.UE && uniSelections.UE.filiere === filiereId && !ueSelectedVille) {
+    uniSelections.UE = null;
+    ueSelectedFiliere = null;
+    ueSelectedVille = null;
+    card.classList.remove('selected');
+    document.querySelectorAll('#card-UE .uni-filiere-chip').forEach(c => c.classList.remove('active'));
+    docsEl.classList.remove('open');
+    docsEl.innerHTML = '';
+    subEl.classList.remove('open');
+    subEl.innerHTML = '';
+    updateConfirmButton();
+    return;
+  }
+
+  // Reset sub-selections
+  ueSelectedFiliere = filiereId;
+  ueSelectedVille = null;
+  uniSelections.UE = null;
+  card.classList.remove('selected');
+  document.querySelectorAll('#card-UE .uni-filiere-chip').forEach(c => c.classList.remove('active'));
+  document.getElementById('chip-UE-' + filiereId).classList.add('active');
+  docsEl.classList.remove('open');
+  docsEl.innerHTML = '';
+
+  // Get student profile for eligibility
+  const profile = computeStudentProfile(candidatureData);
+
+  // Show ville chips
+  const labelMap = { medecine: 'Médecine', dentaire: 'Dentaire', kinesitherapie: 'Kinésithérapie', pharmacie: 'Pharmacie', veterinaire: 'Vétérinaire' };
+  const fLabel = labelMap[filiereId] || filiereLabel;
+  const villes = getUEVilles(filiereId);
+
+  let html = '<div class="uni-sub-label">Campus</div><div>';
+  villes.forEach(v => {
+    const langues = getUELangues(v, fLabel);
+    const allComplet = langues.every(l => isUEComplet(v, fLabel, l));
+    const anyLA = langues.some(l => isUEListeAttente(v, fLabel, l));
+    // Check eligibility for this ville
+    const elig = checkEligibility('UE', filiereId, profile, {});
+    let cls = 'uni-sub-chip';
+    let extra = '';
+    if (!elig.eligible) {
+      cls += ' disabled';
+      extra = ' title="' + esc(elig.reason) + '"';
+    } else if (allComplet) {
+      cls += ' disabled';
+      extra = ' title="Complet"';
+    }
+    let label = v;
+    if (allComplet) label += ' (Complet)';
+    else if (anyLA) label += ' &#x26A0;&#xFE0F;';
+    html += '<button class="' + cls + '"' + extra + ' onclick="selectUEVille(\'' + v + '\',\'' + fLabel + '\')">' + label + '</button>';
+  });
+  html += '</div>';
+
+  subEl.innerHTML = html;
+  subEl.classList.add('open');
+  updateConfirmButton();
+}
+
+function selectUEVille(ville, filiereLabel) {
+  ueSelectedVille = ville;
+  const subEl = document.getElementById('ue-sub-options');
+  const profile = computeStudentProfile(candidatureData);
+
+  // Keep ville chips, update active state
+  subEl.querySelectorAll('.uni-sub-chip').forEach(c => c.classList.remove('active'));
+  // Find the clicked ville chip
+  subEl.querySelectorAll('.uni-sub-chip').forEach(c => {
+    if (c.textContent.trim().startsWith(ville)) c.classList.add('active');
+  });
+
+  // Remove old langue section if exists
+  const oldLang = document.getElementById('ue-langue-section');
+  if (oldLang) oldLang.remove();
+
+  // Show langue chips
+  const langues = getUELangues(ville, filiereLabel);
+
+  // Auto-select if only one langue
+  if (langues.length === 1) {
+    selectUELangue(langues[0], filiereLabel, ville);
+    return;
+  }
+
+  let html = '<div id="ue-langue-section"><div class="uni-sub-label" style="margin-top:14px;">Langue d\'enseignement</div><div>';
   langues.forEach(l => {
-    const opt = document.createElement('option');
-    opt.value = l;
-    const full = isUEComplet(ville, filiere, l);
-    const la = isUEListeAttente(ville, filiere, l);
-    if (full) {
-      opt.textContent = l + ' (Complet)';
-      opt.disabled = true;
-    } else if (la) {
-      opt.textContent = l + ' ⚠️ Places limitées';
-    } else {
-      opt.textContent = l;
-    }
-    selLangue.appendChild(opt);
+    const complet = isUEComplet(ville, filiereLabel, l);
+    const la = isUEListeAttente(ville, filiereLabel, l);
+    let cls = 'uni-sub-chip';
+    let label = l;
+    if (complet) { cls += ' disabled'; label += ' (Complet)'; }
+    else if (la) { label += ' &#x26A0;&#xFE0F;'; }
+    html += '<button class="' + cls + '" onclick="selectUELangue(\'' + l + '\',\'' + filiereLabel + '\',\'' + ville + '\')">' + label + '</button>';
   });
-  // Auto-select if only one option
-  if (langues.length === 1) { selLangue.value = langues[0]; }
-  updateUEState();
+  html += '</div></div>';
+  subEl.insertAdjacentHTML('beforeend', html);
 }
 
-function onUELangueChange() { updateUEState(); }
-
-function updateUEState() {
-  const ville   = document.getElementById('ue-ville').value;
-  const filiere = document.getElementById('ue-filiere').value;
-  const langue  = document.getElementById('ue-langue').value;
-  const warn    = document.getElementById('ue-complet-warning');
-  const docs    = document.getElementById('ue-docs-required');
-  const btn     = document.getElementById('btn-ue-save');
-
-  const allSelected = ville && filiere && langue;
-  const complet = allSelected && isUEComplet(ville, filiere, langue);
-  const la = allSelected && isUEListeAttente(ville, filiere, langue);
-
-  if (complet) {
-    warn.style.display = 'flex';
-    warn.innerHTML = '⚠️ Cette combinaison est <strong style="margin-left:4px;">actuellement complète</strong>. Vous pouvez tout de même soumettre votre dossier — nous vous informerons en cas de désistement.';
-    warn.style.background = '#fce4ec';
-    warn.style.borderColor = '#ef5350';
-    warn.style.color = '#c62828';
-  } else if (la) {
-    warn.style.display = 'flex';
-    warn.innerHTML = '⚠️ <strong style="margin-left:4px;">Places limitées</strong> — cette combinaison est en liste d\'attente. Déposez votre dossier rapidement pour maximiser vos chances !';
-    warn.style.background = '#fff3e0';
-    warn.style.borderColor = '#ffb74d';
-    warn.style.color = '#e65100';
-  } else {
-    warn.style.display = 'none';
+function selectUELangue(langue, filiereLabel, ville) {
+  if (!ville) ville = ueSelectedVille;
+  // Update active state on langue chips
+  const langSection = document.getElementById('ue-langue-section');
+  if (langSection) {
+    langSection.querySelectorAll('.uni-sub-chip').forEach(c => {
+      c.classList.remove('active');
+      if (c.textContent.trim().startsWith(langue)) c.classList.add('active');
+    });
   }
-
-  // Note spéciale: Kiné en Français à Madrid
-  let noteEl = document.getElementById('ue-note-fr');
-  if (!noteEl) {
-    noteEl = document.createElement('div');
-    noteEl.id = 'ue-note-fr';
-    noteEl.style.cssText = 'display:none;align-items:center;gap:12px;padding:12px 16px;background:#e3f2fd;border:1px solid #90caf9;border-radius:8px;font-size:13px;color:#1565c0;margin-top:12px;';
-    warn.parentNode.insertBefore(noteEl, warn.nextSibling);
-  }
-  if (allSelected && filiere === 'Kinésithérapie' && langue === 'Français' && ville === 'Madrid') {
-    noteEl.style.display = 'flex';
-    noteEl.innerHTML = 'ℹ️ <div>La 1ère année se déroule en <strong>français</strong>. À partir de la 2ème année (stage), les cours passent en <strong>espagnol</strong>.</div>';
-  } else {
-    noteEl.style.display = 'none';
-  }
-
-  docs.style.display = allSelected ? 'block' : 'none';
-  btn.disabled = !allSelected;
+  finalizeUESelection(filiereLabel, ville, langue);
 }
 
-async function saveUEChoices() {
-  const ville   = document.getElementById('ue-ville').value;
-  const filiere = document.getElementById('ue-filiere').value;
-  const langue  = document.getElementById('ue-langue').value;
-  const btn     = document.getElementById('btn-ue-save');
+function finalizeUESelection(filiereLabel, ville, langue) {
+  const card = document.getElementById('card-UE');
+  const docsEl = document.getElementById('docs-UE');
+  const filiereId = ueSelectedFiliere;
 
+  uniSelections.UE = { filiere: filiereId, filiereLabel: filiereLabel, ville: ville, langue: langue };
+  card.classList.add('selected');
+
+  let html = '';
+
+  // Pricing
+  const key = ville + '-' + filiereLabel;
+  const prix = uePrix[key];
+  if (prix) {
+    html += '<div class="uni-pricing-bandeau ue-pricing">&#x1F4B0; ' + prix.prix + ' €/an — Durée des études : ' + prix.duree + '</div>';
+  }
+
+  // Liste d'attente warning
+  const la = isUEListeAttente(ville, filiereLabel, langue);
+  if (la) {
+    html += '<div class="uni-warning-bandeau">&#x26A0;&#xFE0F; <strong>Places limitées</strong> — cette combinaison est en liste d\'attente. Déposez votre dossier rapidement !</div>';
+  }
+
+  // Note for Kiné Français Madrid
+  if (filiereLabel === 'Kinésithérapie' && langue === 'Français' && ville === 'Madrid') {
+    html += '<div class="uni-info-bandeau" style="background:#e3f2fd;color:#1565c0;">&#x2139;&#xFE0F; La 1ère année se déroule en <strong>français</strong>. À partir de la 2ème année (stage), les cours passent en <strong>espagnol</strong>.</div>';
+  }
+
+  // Required docs
+  html += '<div class="uni-docs-title" style="padding:0;">Documents requis</div>';
+  html += '<div class="uni-doc-upload-row">';
+  html += '<div>&#x1F4C4; <strong>3 bulletins de Première</strong> fusionnés en 1 seul PDF</div>';
+  html += '<div id="upload-status-UE-bulletins"><label class="uni-doc-upload-btn" style="cursor:pointer;">Envoyer <input type="file" accept=".pdf" style="display:none;" onchange="handleDocUpload(this,\'UE\',\'bulletins\')"></label></div>';
+  html += '</div>';
+  html += '<div class="uni-doc-upload-row">';
+  html += '<div>&#x1FAAA; Carte d\'identité ou Passeport</div>';
+  html += '<div id="upload-status-UE-identite"><label class="uni-doc-upload-btn" style="cursor:pointer;">Envoyer <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleDocUpload(this,\'UE\',\'identite\')"></label></div>';
+  html += '</div>';
+  html += '<div class="uni-doc-upload-row" style="flex-direction:column;align-items:flex-start;">';
+  html += '<div style="display:flex;align-items:center;justify-content:space-between;width:100%;">';
+  html += '<div>&#x1F4CB; <strong>Rapport technique académique</strong> (obligatoire — 60 €)</div>';
+  html += '<div id="upload-status-UE-rapport_technique"><label class="uni-doc-upload-btn" style="cursor:pointer;">Envoyer <input type="file" accept=".pdf" style="display:none;" onchange="handleDocUpload(this,\'UE\',\'rapport_technique\')"></label></div>';
+  html += '</div>';
+  html += '<div style="margin-top:10px;padding:12px;background:#f0f7ff;border-radius:8px;font-size:11px;line-height:1.7;color:var(--text);width:100%;">';
+  html += '<div style="font-weight:700;margin-bottom:4px;font-size:12px;">&#x1F4CC; Comment obtenir le rapport technique :</div>';
+  html += '<div><strong>1.</strong> Rendez-vous sur <a href="https://hostudents.com/servicios-legales/informe-tecnico-academico/" target="_blank" style="color:var(--violet);font-weight:600;">hostudents.com</a> et remplissez le formulaire.</div>';
+  html += '<div><strong>2.</strong> Vous recevrez un email avec un lien vers le portail. Créez votre compte.</div>';
+  html += '<div><strong>3.</strong> Activez votre compte via l\'email d\'activation.</div>';
+  html += '<div><strong>4.</strong> Remplissez : Type de service = <strong>Rapport technique académique</strong>, Université = <strong>Universidad Europea</strong>, Type d\'étude = <strong>Licence</strong></div>';
+  html += '<div><strong>5.</strong> Réglez les <strong>60 €</strong> par carte bancaire.</div>';
+  html += '<div><strong>6.</strong> Vous recevrez votre rapport par email (note sur 20). <strong>Ce document est indispensable.</strong></div>';
+  html += '</div>';
+  html += '</div>';
+
+  docsEl.innerHTML = html;
+  docsEl.classList.add('open');
+  updateConfirmButton();
+}
+
+// ── CONFIRM BUTTON ──
+function updateConfirmButton() {
+  const btn = document.getElementById('btn-confirm-selections');
+  const hasSelection = uniSelections.LINK || uniSelections.UCJC || uniSelections.UE;
+  btn.disabled = !hasSelection;
+}
+
+async function confirmAllSelections() {
+  const btn = document.getElementById('btn-confirm-selections');
   btn.disabled = true;
-  btn.textContent = 'Enregistrement...';
+  btn.textContent = 'Enregistrement en cours...';
+
+  // Build selections object
+  const selections = {};
+  if (uniSelections.LINK) {
+    selections.LINK = { filiere: uniSelections.LINK.filiere, filiereLabel: uniSelections.LINK.filiereLabel };
+  }
+  if (uniSelections.UCJC) {
+    selections.UCJC = { filiere: uniSelections.UCJC.filiere, filiereLabel: uniSelections.UCJC.filiereLabel };
+  }
+  if (uniSelections.UE) {
+    selections.UE = {
+      filiere: uniSelections.UE.filiere,
+      filiereLabel: uniSelections.UE.filiereLabel,
+      ville: uniSelections.UE.ville,
+      langue: uniSelections.UE.langue
+    };
+  }
 
   try {
     await supabase.from('candidatures').update({
-      ue_choices: { ville, filiere, langue },
-      ue_choices_at: new Date().toISOString()
+      uni_selections: selections,
+      uni_selections_at: new Date().toISOString()
     }).eq('id', candidatureId);
-    showUESavedBanner(ville, filiere, langue);
+    candidatureData.uni_selections = selections;
+    showSelectionsSaved(selections);
   } catch (err) {
-    console.error('UE save error:', err);
+    console.error('Confirm selections error:', err);
     btn.disabled = false;
-    btn.textContent = 'Confirmer mes choix';
+    btn.textContent = 'Confirmer mes choix et envoyer mes documents';
+    alert('Erreur lors de l\'enregistrement. Veuillez réessayer.');
   }
 }
 
-function showUESavedBanner(ville, filiere, langue) {
-  document.getElementById('ue-form-fields').style.display = 'none';
-  const banner = document.getElementById('ue-saved-banner');
-  banner.style.display = 'flex';
-  document.getElementById('ue-saved-details').textContent =
-    ville + ' · ' + filiere + ' · ' + langue;
+function showSelectionsSaved(selections) {
+  // Lock all cards
+  document.querySelectorAll('.uni-partner-card').forEach(card => {
+    card.classList.add('locked');
+  });
+
+  // Hide confirm button, show unlock
+  const btn = document.getElementById('btn-confirm-selections');
+  btn.style.display = 'none';
+  document.getElementById('unlock-wrap').style.display = 'block';
+
+  // Show next-step messages per uni
+  if (selections.LINK) {
+    const ns = document.getElementById('next-step-LINK');
+    ns.innerHTML = '&#x2705; Votre dossier de candidature au test est bien complet, la faculté reviendra rapidement vers vous pour payer les frais d\'inscription au test.';
+    ns.classList.add('visible');
+    // Restore card selection state visually
+    const card = document.getElementById('card-LINK');
+    card.classList.add('selected');
+    const chip = document.getElementById('chip-LINK-' + selections.LINK.filiere);
+    if (chip) chip.classList.add('active');
+  }
+  if (selections.UCJC) {
+    const ns = document.getElementById('next-step-UCJC');
+    ns.innerHTML = '&#x2705; Votre dossier est bien complet et a bien été envoyé à la faculté. Ils reviendront vers vous très prochainement pour vous donner un accès à la plateforme de test.';
+    ns.classList.add('visible');
+    const card = document.getElementById('card-UCJC');
+    card.classList.add('selected');
+    const chip = document.getElementById('chip-UCJC-' + selections.UCJC.filiere);
+    if (chip) chip.classList.add('active');
+  }
+  if (selections.UE) {
+    const ns = document.getElementById('next-step-UE');
+    ns.innerHTML = '&#x2705; Votre dossier est bien complet et a bien été envoyé à la faculté. Ils reviendront vers vous très prochainement pour vous donner un accès à la plateforme de test.';
+    ns.classList.add('visible');
+    const card = document.getElementById('card-UE');
+    card.classList.add('selected');
+    const chip = document.getElementById('chip-UE-' + selections.UE.filiere);
+    if (chip) chip.classList.add('active');
+  }
+}
+
+function unlockSelections() {
+  // Remove locked state
+  document.querySelectorAll('.uni-partner-card').forEach(card => {
+    card.classList.remove('locked');
+  });
+
+  // Reset all selections state
+  uniSelections = { LINK: null, UCJC: null, UE: null };
+  ueSelectedFiliere = null;
+  ueSelectedVille = null;
+
+  // Reset chips
+  document.querySelectorAll('.uni-filiere-chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.uni-partner-card').forEach(c => c.classList.remove('selected'));
+
+  // Clear docs sections
+  ['LINK', 'UCJC', 'UE'].forEach(key => {
+    const docs = document.getElementById('docs-' + key);
+    if (docs) { docs.classList.remove('open'); docs.innerHTML = ''; }
+    const sub = document.getElementById(key.toLowerCase() + '-sub-options') || document.getElementById('ue-sub-options');
+    if (sub) { sub.classList.remove('open'); sub.innerHTML = ''; }
+    const ns = document.getElementById('next-step-' + key);
+    if (ns) { ns.classList.remove('visible'); ns.innerHTML = ''; }
+  });
+
+  // Show confirm button, hide unlock
+  const btn = document.getElementById('btn-confirm-selections');
+  btn.style.display = 'block';
+  btn.disabled = true;
+  btn.textContent = 'Confirmer mes choix et envoyer mes documents';
+  document.getElementById('unlock-wrap').style.display = 'none';
+}
+
+// ── DOCUMENT UPLOAD PER UNI ──
+async function handleDocUpload(input, uniKey, docKey) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  if (file.size > 10 * 1024 * 1024) {
+    alert('Le fichier est trop volumineux (max 10 Mo).');
+    input.value = '';
+    return;
+  }
+
+  const statusEl = document.getElementById('upload-status-' + uniKey + '-' + docKey);
+  if (statusEl) statusEl.innerHTML = '<span style="font-size:12px;color:var(--violet);">Envoi...</span>';
+
+  try {
+    const timestamp = Date.now();
+    const path = 'candidatures/' + candidatureId + '/' + uniKey + '/' + docKey + '_' + timestamp + '_' + file.name;
+    const { error: uploadError } = await supabase.storage.from('candidature-docs').upload(path, file);
+    if (uploadError) throw uploadError;
+    const url = supabase.storage.from('candidature-docs').getPublicUrl(path).data.publicUrl;
+
+    // Save to candidature documents
+    const { data: currentCand } = await supabase.from('candidatures').select('documents').eq('id', candidatureId).single();
+    const fullKey = uniKey + '_' + docKey;
+    const updatedDocs = { ...(currentCand?.documents || {}), [fullKey]: url };
+    await supabase.from('candidatures').update({ documents: updatedDocs }).eq('id', candidatureId);
+    candidatureData.documents = updatedDocs;
+
+    if (statusEl) statusEl.innerHTML = '<span class="uni-doc-upload-status">&#x2705; Envoyé</span>';
+    input.value = '';
+  } catch (err) {
+    console.error('Upload error:', err);
+    if (statusEl) statusEl.innerHTML = '<span style="font-size:12px;color:var(--error);">Erreur</span>';
+  }
+}
+
+// ── MAIN RENDER FUNCTION ──
+function renderInteractiveResponse(c) {
+  const welcomeEl = document.getElementById('reponse-welcome');
+  const evalEl = document.getElementById('reponse-eval');
+  const titleEl = document.getElementById('reponse-parcours-title');
+  const subtitleEl = document.getElementById('reponse-parcours-subtitle');
+  const cardsContainer = document.getElementById('uni-partner-cards');
+
+  // Welcome text
+  const prenom = esc(c.prenom || '');
+  welcomeEl.innerHTML = 'Bonjour <strong>' + prenom + '</strong>,<br>Merci pour votre candidature ! Après analyse de votre dossier, voici les universités partenaires EDUMOVE auxquelles vous pouvez candidater. Sélectionnez une filière pour chaque université qui vous intéresse.';
+
+  // Eval banner
+  const profile = computeStudentProfile(c);
+  if (profile.moySpeSci >= 16) {
+    evalEl.className = 'reponse-eval excellent';
+    evalEl.innerHTML = '&#x1F31F; <strong>Excellent profil scientifique</strong> — Moyenne spé. scientifiques : ' + profile.moySpeSci.toFixed(1) + '/20. Toutes les filières vous sont accessibles.';
+    evalEl.style.display = 'block';
+  } else if (profile.moySpeSci >= 13) {
+    evalEl.className = 'reponse-eval solide';
+    evalEl.innerHTML = '&#x1F4AA; <strong>Profil solide</strong> — Moyenne spé. scientifiques : ' + profile.moySpeSci.toFixed(1) + '/20. Certaines filières exigent un seuil minimum à l\'Universidad Europea.';
+    evalEl.style.display = 'block';
+  } else if (profile.moySpeSci > 0) {
+    evalEl.className = 'reponse-eval adapte';
+    evalEl.innerHTML = '&#x1F4D6; <strong>Profil à adapter</strong> — Moyenne spé. scientifiques : ' + profile.moySpeSci.toFixed(1) + '/20. Certaines filières UE peuvent nécessiter un meilleur dossier.';
+    evalEl.style.display = 'block';
+  }
+
+  // Section title
+  titleEl.style.display = 'block';
+  subtitleEl.style.display = 'block';
+
+  // Build cards
+  const filieres = getAvailableFilieres(c);
+  let html = '';
+  html += buildLINKCard(filieres);
+  html += buildUCJCCard(filieres);
+  html += buildUECard(filieres);
+  cardsContainer.innerHTML = html;
+
+  // Mark ineligible filiere chips for UE
+  filieres.forEach(f => {
+    const elig = checkEligibility('UE', f.id, profile, {});
+    if (!elig.eligible) {
+      const chip = document.getElementById('chip-UE-' + f.id);
+      if (chip) {
+        chip.classList.add('disabled');
+        chip.title = elig.reason;
+      }
+    }
+  });
 }
 
 // ── CONFIRM DOCS ──
