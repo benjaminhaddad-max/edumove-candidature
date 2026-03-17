@@ -1989,7 +1989,7 @@ function selectLINKFiliere(filiereId, filiereLabel) {
   if (filiereId === 'pharmacie') {
     // Pharmacie: pas de test, inscription directe
     h += '<div class="uni-extra-info link-info" style="margin-bottom:16px;">';
-    h += '<strong>Aucun test n\'est requis pour Pharmacie.</strong> Vous serez rappele directement par l\'universite pour finaliser votre inscription.';
+    h += '🎓 <strong>Aucun test n\'est requis pour Pharmacie.</strong>';
     h += '</div>';
     h += '<div class="uni-docs-title link-dt">Documents requis</div>';
     const docs = [
@@ -1998,6 +1998,9 @@ function selectLINKFiliere(filiereId, filiereLabel) {
       { key: 'releve_bac_link', label: 'Releve du baccalaureat', optional: true }
     ];
     docs.forEach(d => { h += buildDocRow(d, 'LINK', 'link'); });
+    h += '<div class="uni-extra-info link-info" style="margin-top:12px;">';
+    h += '<strong>Apres reception de vos documents</strong>, un interlocuteur francophone de l\'equipe LINK vous rappellera pour finaliser votre inscription.';
+    h += '</div>';
   } else {
     // Med, Dent, Kine: test a Paris
     h += '<div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:#fff8e1;border:1px solid #ffca28;border-radius:8px;font-size:13px;color:#e65100;font-weight:600;margin-bottom:16px;">';
