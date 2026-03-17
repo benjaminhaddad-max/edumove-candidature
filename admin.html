@@ -385,12 +385,12 @@ tr:hover { background: rgba(97,92,165,0.03); }
 .detail-cards {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 }
 .detail-card {
   background: white;
   border-radius: 12px;
-  padding: 28px 32px;
+  padding: 22px 28px;
   box-shadow: 0 2px 12px rgba(27,29,58,0.05);
 }
 .detail-card-title {
@@ -399,9 +399,32 @@ tr:hover { background: rgba(97,92,165,0.03); }
   letter-spacing: 0.08em;
   color: var(--violet);
   font-weight: 700;
-  margin-bottom: 18px;
+  margin-bottom: 0;
   padding-bottom: 8px;
   border-bottom: 2px solid var(--bg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+  transition: color 0.2s;
+}
+.detail-card-title:hover { color: var(--orange); }
+.detail-card-title::after {
+  content: '▾';
+  font-size: 14px;
+  transition: transform 0.3s;
+  color: var(--text-muted);
+}
+.detail-card-title.collapsed::after {
+  transform: rotate(-90deg);
+}
+.detail-card-body {
+  margin-top: 16px;
+  transition: all 0.3s ease;
+}
+.detail-card-body.collapsed {
+  display: none;
 }
 .detail-grid {
   display: grid;
@@ -1477,7 +1500,8 @@ function renderDetailPage(c) {
 
   // ── Card 1: INFORMATIONS ETUDIANT ──
   html += `<div class="detail-card">
-    <div class="detail-card-title">Informations etudiant</div>
+    <div class="detail-card-title" onclick="toggleCard(this)">Informations etudiant</div>
+    <div class="detail-card-body">
     <div class="detail-grid">
       <div class="detail-item"><span class="detail-item-label">Nom</span><span class="detail-item-value">${esc(c.nom)}</span></div>
       <div class="detail-item"><span class="detail-item-label">Prenom</span><span class="detail-item-value">${esc(c.prenom)}</span></div>
@@ -1486,18 +1510,21 @@ function renderDetailPage(c) {
       <div class="detail-item"><span class="detail-item-label">Departement</span><span class="detail-item-value">${esc(c.departement || c.codePostal || '\u2014')}</span></div>
       <div class="detail-item"><span class="detail-item-label">Profil</span><span class="detail-item-value">${c.profil === 'reorientation' ? 'R\u00e9orientation' : 'Terminale'}</span></div>
     </div>
+    </div>
   </div>`;
 
   // ── Reorientation info ──
   if (c.profil === 'reorientation' && c.reorientation) {
     const r = c.reorientation;
     html += `<div class="detail-card">
-      <div class="detail-card-title">Reorientation</div>
+      <div class="detail-card-title" onclick="toggleCard(this)">Reorientation</div>
+      <div class="detail-card-body">
       <div class="detail-grid">
         <div class="detail-item"><span class="detail-item-label">Formation actuelle</span><span class="detail-item-value">${esc(r.formation)}</span></div>
         <div class="detail-item"><span class="detail-item-label">Etablissement</span><span class="detail-item-value">${esc(r.etablissement)}</span></div>
         <div class="detail-item"><span class="detail-item-label">Annee en cours</span><span class="detail-item-value">${esc(r.annee)}</span></div>
         <div class="detail-item" style="grid-column:1/-1"><span class="detail-item-label">Motif</span><span class="detail-item-value">${esc(r.motif)}</span></div>
+      </div>
       </div>
     </div>`;
   }
@@ -1505,34 +1532,40 @@ function renderDetailPage(c) {
   // ── Card 2: NOTES DE PREMIERE ──
   if (c.notes_premiere && c.notes_premiere.length > 0) {
     html += `<div class="detail-card">
-      <div class="detail-card-title">Notes de Premiere</div>
+      <div class="detail-card-title" onclick="toggleCard(this)">Notes de Premiere</div>
+      <div class="detail-card-body">
       <table class="notes-table">
         <thead><tr><th>Matiere</th><th>T1</th><th>T2</th><th>T3</th><th>Moyenne</th></tr></thead>
         <tbody>${c.notes_premiere.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'\u2014'}</td><td>${n.t2||'\u2014'}</td><td>${n.t3||'\u2014'}</td><td style="font-weight:600;">${n.moy||'\u2014'}</td></tr>`).join('')}</tbody>
       </table>
+      </div>
     </div>`;
   }
 
   // ── Card 3: NOTES DE TERMINALE ──
   if (c.notes_terminale && c.notes_terminale.length > 0) {
     html += `<div class="detail-card">
-      <div class="detail-card-title">Notes de Terminale</div>
+      <div class="detail-card-title" onclick="toggleCard(this)">Notes de Terminale</div>
+      <div class="detail-card-body">
       <table class="notes-table">
         <thead><tr><th>Matiere</th><th>T1</th><th>T2</th><th>T3</th><th>Moyenne</th></tr></thead>
         <tbody>${c.notes_terminale.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'\u2014'}</td><td>${n.t2||'\u2014'}</td><td>${n.t3||'\u2014'}</td><td style="font-weight:600;">${n.moy||'\u2014'}</td></tr>`).join('')}</tbody>
       </table>
+      </div>
     </div>`;
   }
 
   // ── Card 4: ORIENTATION ──
   html += `<div class="detail-card">
-    <div class="detail-card-title">Orientation</div>
+    <div class="detail-card-title" onclick="toggleCard(this)">Orientation</div>
+    <div class="detail-card-body">
     <div class="detail-grid">
       <div class="detail-item"><span class="detail-item-label">Score academique</span><span class="detail-item-value">${c.score ? parseFloat(c.score).toFixed(1) : '\u2014'}/20</span></div>
       <div class="detail-item"><span class="detail-item-label">Niveau</span><span class="detail-item-value">${esc(c.niveau || '\u2014')}</span></div>
       <div class="detail-item" style="grid-column:1/-1"><span class="detail-item-label">Classement destinations</span><span class="detail-item-value">${(c.classement_destinations||[]).map((d,i) => (i+1)+'. '+d).join(' | ') || '\u2014'}</span></div>
       <div class="detail-item"><span class="detail-item-label">Destination recommandee</span><span class="detail-item-value">${esc(c.destination || '\u2014')}</span></div>
       <div class="detail-item"><span class="detail-item-label">Universite</span><span class="detail-item-value">${esc(c.universite || '\u2014')}</span></div>
+    </div>
     </div>
   </div>`;
 
@@ -1541,12 +1574,14 @@ function renderDetailPage(c) {
     const hasLang = ['espagnol','anglais','italien','portugais'].some(l => c.langues[l]) || c.langues.autre;
     if (hasLang) {
       html += `<div class="detail-card">
-        <div class="detail-card-title">Langues</div>
+        <div class="detail-card-title" onclick="toggleCard(this)">Langues</div>
+        <div class="detail-card-body">
         <div class="detail-grid">
           ${['espagnol','anglais','italien','portugais'].map(l =>
             c.langues[l] ? `<div class="detail-item"><span class="detail-item-label">${l.charAt(0).toUpperCase()+l.slice(1)}</span><span class="detail-item-value">${langLabels[c.langues[l]] || c.langues[l]}</span></div>` : ''
           ).join('')}
           ${c.langues.autre ? `<div class="detail-item"><span class="detail-item-label">Autre langue</span><span class="detail-item-value">${esc(c.langues.autre)}</span></div>` : ''}
+        </div>
         </div>
       </div>`;
     }
@@ -1557,7 +1592,8 @@ function renderDetailPage(c) {
   const uniTracking = c.uni_tracking || {};
 
   html += `<div class="detail-card" style="background:#f0f4ff;border:2px solid #c5cae9;">
-    <div class="detail-card-title" style="color:#1a237e;border-color:#c5cae9;font-size:14px;">REPONSE EDUMOVE — SELECTIONS UNIVERSITES</div>`;
+    <div class="detail-card-title" onclick="toggleCard(this)" style="color:#1a237e;border-color:#c5cae9;font-size:14px;">REPONSE EDUMOVE — SELECTIONS UNIVERSITES</div>
+    <div class="detail-card-body">`;
 
   if (!uniSel.LINK && !uniSel.UCJC && !uniSel.UE) {
     html += `<div style="color:var(--text-muted);font-size:13px;padding:12px 0;">L'etudiant n'a pas encore fait ses choix d'universites.</div>`;
@@ -1644,7 +1680,7 @@ function renderDetailPage(c) {
       html += `<div style="font-size:11px;color:var(--text-muted);margin-top:8px;">Choix confirmes le ${new Date(c.uni_selections_at).toLocaleDateString('fr-FR')} a ${new Date(c.uni_selections_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>`;
     }
   }
-  html += `</div>`;
+  html += `</div></div>`;
 
   // ── Card 7: DOCUMENTS ENVOYES ──
   if (c.documents && Object.keys(c.documents).length > 0) {
@@ -1665,25 +1701,29 @@ function renderDetailPage(c) {
       releves: 'Releves de notes', lettre_motivation: 'Lettre de motivation'
     };
     html += `<div class="detail-card">
-      <div class="detail-card-title">Documents envoyes</div>
+      <div class="detail-card-title" onclick="toggleCard(this)">Documents envoyes</div>
+      <div class="detail-card-body">
       <div style="display:flex;flex-wrap:wrap;gap:8px;">${Object.entries(c.documents).map(([k, url]) => {
         if (k === 'UE_rapport_demarche') {
           return url ? `<span style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:#fff8e1;border:1px solid #f9a825;border-radius:6px;font-size:11px;font-weight:500;">Rapport technique : demarche lancee</span>` : '';
         }
         return `<a href="${url}" target="_blank" rel="noopener" class="doc-link">${docLabels[k] || k}</a>`;
       }).join('')}</div>
+      </div>
     </div>`;
   }
 
   // ── Card 8: MESSAGERIE ──
   html += `<div class="detail-card">
-    <div class="detail-card-title" style="color:var(--orange);border-color:var(--orange);">Messagerie avec l'etudiant</div>
+    <div class="detail-card-title" onclick="toggleCard(this)" style="color:var(--orange);border-color:var(--orange);">Messagerie avec l'etudiant</div>
+    <div class="detail-card-body">
     <div class="msg-container" id="msg-container-${c.id}">
       <div class="msg-empty" id="msg-empty-${c.id}">Aucun message</div>
     </div>
     <div class="msg-input-row">
       <textarea class="msg-input" id="msg-input-${c.id}" placeholder="Ecrire un message..."></textarea>
       <button class="btn-msg-send" onclick="sendAdminMessage('${c.id}')">Envoyer</button>
+    </div>
     </div>
   </div>`;
 
@@ -1857,6 +1897,14 @@ function esc(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+function toggleCard(titleEl) {
+  titleEl.classList.toggle('collapsed');
+  const body = titleEl.nextElementSibling;
+  if (body && body.classList.contains('detail-card-body')) {
+    body.classList.toggle('collapsed');
+  }
 }
 
 // Enter key on login fields
