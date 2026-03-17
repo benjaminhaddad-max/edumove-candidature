@@ -1735,15 +1735,6 @@ function checkEligibility(uniKey, filiereId, profile, extra) {
   // ─── UCJC ───
   if (uniKey === 'UCJC') {
     if (filiereId === 'veterinaire') return { eligible: false, reason: 'UCJC ne propose pas Veterinaire.' };
-    if (filiereId === 'kinesitherapie') return { eligible: true }; // OK quel que soit le dossier
-    if (filiereId === 'pharmacie') return { eligible: true }; // ils prennent tout le monde
-    if (filiereId === 'medecine' || filiereId === 'dentaire') {
-      // Entretien 15 min obligatoire, besoin au moins A2/B1 espagnol
-      if (profile.espLevel < 1) {
-        return { eligible: false, reason: 'Niveau A2/B1 minimum en espagnol requis pour Med/Dent a UCJC.' };
-      }
-      return { eligible: true, note: 'Entretien de 15 min obligatoire.' };
-    }
     return { eligible: true };
   }
 
@@ -1851,18 +1842,8 @@ function renderInteractiveResponse(c) {
   html += buildLINKCard(filieres);
 
   // ─── UCJC ───
-  html += buildUniCard('UCJC', 'UCJC — Universidad Camilo Jose Cela', 'Espagne — Madrid', 'ucjc-hdr',
-    filieres,
-    'Cours 100% en espagnol — B2 facultatif',
-    [
-      { key: 'lettre_ucjc', label: 'Lettre de motivation en espagnol' },
-      { key: 'identite_ucjc', label: 'Carte d\'identite ou Passeport' },
-      { key: 'formulaire_ucjc', label: 'Formulaire d\'admission UCJC', note: 'A remplir et signer', download: { href: 'formulaire-admission-ucjc.pdf', name: 'Formulaire-Admission-UCJC.pdf' } },
-      { key: 'attestation_b2_ucjc', label: 'Attestation de niveau B2 en espagnol', optional: true }
-    ],
-    'Les cours a l\'UCJC sont dispenses <strong>100% en espagnol</strong>. Le certificat B2 est facultatif mais recommande.',
-    'ucjc'
-  );
+  // ─── UCJC (dynamic like LINK) ───
+  html += buildUCJCCard(filieres);
 
   // ─── Universidad Europea ───
   html += buildUECard(filieres);
@@ -2102,6 +2083,87 @@ function buildTestExamples() {
   h += '<div style="font-size:11px;color:var(--text-muted);font-style:italic;margin-top:12px;padding-top:10px;border-top:1px solid var(--border);">💡 Ces questions sont tirees d\'un test officiel LINK. Le jour du test (15 avril), toutes les questions seront traduites et presentees en francais.</div>';
   h += '<div style="margin-top:12px;"><a class="uni-doc-dl link-dl" href="exemple-test-link.pdf" download="Exemple-Test-LINK.pdf" style="width:fit-content;">Telecharger l\'exemple de test complet</a></div>';
   return h;
+}
+
+function buildUCJCCard(filieres) {
+  let h = '<div class="uni-partner-card" id="card-UCJC">';
+  h += '<div class="uni-partner-header ucjc-hdr">';
+  h += '<div><div class="uni-name">UCJC — Universidad Camilo Jose Cela</div><div class="uni-country">Espagne — Madrid</div></div>';
+  h += '<div class="uni-badge">Selectionne</div>';
+  h += '</div>';
+
+  h += '<div class="uni-filiere-subtitle">Langue : Cours 100% en espagnol — B2 facultatif — Selectionnez une filiere :</div>';
+
+  h += '<div class="uni-filiere-grid">';
+  filieres.forEach(f => {
+    const elig = checkEligibility('UCJC', f.id, studentProfile, {});
+    if (elig.eligible) {
+      h += '<button class="uni-filiere-chip" data-uni="UCJC" data-filiere="' + f.id + '" onclick="selectUCJCFiliere(\'' + f.id + '\',\'' + f.label + '\')">' + f.label + '</button>';
+    } else {
+      h += '<div class="uni-filiere-chip disabled" title="' + elig.reason + '">' + f.label + '<div style="font-size:10px;font-weight:400;color:var(--error);margin-top:2px;">' + elig.reason + '</div></div>';
+    }
+  });
+  h += '</div>';
+
+  h += '<div class="uni-docs-section" id="docs-UCJC">';
+  h += '<div id="ucjc-dynamic-content"></div>';
+  h += '</div>';
+
+  h += '</div>';
+  return h;
+}
+
+function selectUCJCFiliere(filiereId, filiereLabel) {
+  // Toggle
+  if (uniSelections.UCJC && uniSelections.UCJC.filiere === filiereId) {
+    uniSelections.UCJC = null;
+    document.getElementById('card-UCJC').classList.remove('selected');
+    document.querySelectorAll('[data-uni="UCJC"]').forEach(b => b.classList.remove('active'));
+    document.getElementById('docs-UCJC').classList.remove('open');
+    updateConfirmButton();
+    return;
+  }
+
+  uniSelections.UCJC = { filiere: filiereId, label: filiereLabel };
+  document.getElementById('card-UCJC').classList.add('selected');
+  document.querySelectorAll('[data-uni="UCJC"]').forEach(b => {
+    b.classList.toggle('active', b.dataset.filiere === filiereId);
+  });
+
+  const container = document.getElementById('ucjc-dynamic-content');
+  let h = '';
+
+  // Bandeau entretien (toujours present)
+  h += '<div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:#fdf0f4;border:1px solid #e8b3c3;border-radius:8px;font-size:13px;color:#96234a;margin-bottom:16px;">';
+  h += '<span style="font-size:22px;flex-shrink:0;">🎥</span>';
+  h += '<div>';
+  h += '<div style="font-weight:700;">Entretien en visioconference de 15 min en espagnol</div>';
+  h += '<div style="font-weight:400;font-size:12px;margin-top:4px;">';
+  if (filiereId === 'medecine' || filiereId === 'dentaire') {
+    h += 'Pour Medecine et Dentaire, un niveau <strong>B1/B2 en espagnol</strong> est attendu lors de l\'entretien.';
+  } else {
+    h += 'Pour Pharmacie et Kinesitherapie, un niveau <strong>A1/A2 en espagnol</strong> peut suffire.';
+  }
+  h += '</div>';
+  h += '</div>';
+  h += '</div>';
+
+  h += '<div class="uni-docs-title ucjc-dt">Documents requis</div>';
+  const docs = [
+    { key: 'lettre_ucjc', label: 'Lettre de motivation en espagnol' },
+    { key: 'identite_ucjc', label: 'Carte d\'identite ou Passeport' },
+    { key: 'formulaire_ucjc', label: 'Formulaire d\'admission UCJC', note: 'A remplir et signer', dlHref: 'formulaire-admission-ucjc.pdf', dlName: 'Formulaire-Admission-UCJC.pdf' },
+    { key: 'attestation_b2_ucjc', label: 'Attestation de niveau B2 en espagnol', optional: true }
+  ];
+  docs.forEach(d => { h += buildDocRow(d, 'UCJC', 'ucjc'); });
+
+  h += '<div class="uni-extra-info ucjc-info" style="margin-top:12px;">';
+  h += '<strong>Apres reception de vos documents</strong>, l\'equipe UCJC vous contactera pour planifier votre entretien en visioconference.';
+  h += '</div>';
+
+  container.innerHTML = h;
+  document.getElementById('docs-UCJC').classList.add('open');
+  updateConfirmButton();
 }
 
 function buildUECard(filieres) {
