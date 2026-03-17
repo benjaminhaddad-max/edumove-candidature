@@ -2012,34 +2012,51 @@ function updateAddDocs() {
   container.innerHTML = h;
 }
 
+function getAdminUEVilles(filiere) {
+  if (filiere === 'medecine') return ['Madrid', 'Canaries'];
+  if (filiere === 'pharmacie') return ['Madrid'];
+  if (filiere === 'veterinaire') return ['Madrid'];
+  // dentaire + kine: toutes les villes
+  return ['Madrid', 'Malaga', 'Valence', 'Alicante', 'Canaries'];
+}
+
+function getAdminUELangues(filiere, ville) {
+  if (filiere === 'medecine') return ['Espagnol'];
+  if (filiere === 'pharmacie') return ['Espagnol'];
+  if (filiere === 'veterinaire') return ['Espagnol'];
+  if (filiere === 'kine') {
+    if (ville === 'Madrid') return ['Français', 'Espagnol', 'Anglais'];
+    return ['Espagnol'];
+  }
+  if (filiere === 'dentaire') {
+    if (ville === 'Canaries') return ['Espagnol'];
+    return ['Espagnol', 'Anglais'];
+  }
+  return ['Espagnol', 'Anglais'];
+}
+
 function updateUeOptions() {
-  // Placeholder for future dynamic filtering of UE ville/langue based on filiere
+  const filiere = document.getElementById('add-ue-filiere').value;
+  const villeSelect = document.getElementById('add-ue-ville');
+  const currentVille = villeSelect.value;
+  const villes = getAdminUEVilles(filiere);
+
+  villeSelect.innerHTML = villes.map(v => `<option value="${v}">${v}</option>`).join('');
+  if (villes.includes(currentVille)) {
+    villeSelect.value = currentVille;
+  }
+  updateUeLangues();
 }
 
 function updateUeLangues() {
-  // Adjust language options based on selected city
+  const filiere = document.getElementById('add-ue-filiere').value;
   const ville = document.getElementById('add-ue-ville').value;
   const langSelect = document.getElementById('add-ue-langue');
   const currentVal = langSelect.value;
 
-  // Most cities offer Espagnol and Anglais; some offer Francais
-  let options = [];
-  if (ville === 'Madrid' || ville === 'Malaga') {
-    options = [
-      { value: 'Espagnol', label: 'Espagnol' },
-      { value: 'Anglais', label: 'Anglais' }
-    ];
-  } else if (ville === 'Canaries' || ville === 'Valence' || ville === 'Alicante') {
-    options = [
-      { value: 'Espagnol', label: 'Espagnol' },
-      { value: 'Anglais', label: 'Anglais' },
-      { value: 'Francais', label: 'Français' }
-    ];
-  }
-
-  langSelect.innerHTML = options.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
-  // Restore previous selection if still available
-  if (options.some(o => o.value === currentVal)) {
+  const langues = getAdminUELangues(filiere, ville);
+  langSelect.innerHTML = langues.map(l => `<option value="${l}">${l}</option>`).join('');
+  if (langues.includes(currentVal)) {
     langSelect.value = currentVal;
   }
 }
