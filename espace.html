@@ -1728,7 +1728,7 @@ function checkEligibility(uniKey, filiereId, profile, extra) {
   // ─── LINK: accepte tout le monde ───
   if (uniKey === 'LINK') {
     if (filiereId === 'veterinaire') return { eligible: false, reason: 'LINK ne propose pas Veterinaire.' };
-    if (filiereId === 'pharmacie') return { eligible: true, note: 'Aucun test requis — inscription directe' };
+    if (filiereId === 'pharmacie') return { eligible: true };
     return { eligible: true };
   }
 
