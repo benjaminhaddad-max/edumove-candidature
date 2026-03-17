@@ -824,26 +824,20 @@ select.nt-matiere:focus { border-color: var(--violet); }
     <table class="notes-table" id="table-terminale">
       <thead>
         <tr>
-          <th style="width:32%">Spécialité gardée</th>
+          <th style="width:40%">Spécialité gardée</th>
           <th>T1</th>
-          <th>T2</th>
-          <th>T3</th>
-          <th>Moy. connue</th>
+          <th>Moy. annuelle</th>
         </tr>
       </thead>
       <tbody>
         <tr id="term-row-1" style="display:none;">
           <td><strong id="t1-nom-display"></strong><input type="hidden" id="t1-nom"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t1-t1" oninput="calcMoy('t1')"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t1-t2" oninput="calcMoy('t1')"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t1-t3" oninput="calcMoy('t1')"/></td>
+          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t1-t1" oninput="calcMoyTerm('t1')"/></td>
           <td><input type="number" class="nt-moy nt-moy-auto" placeholder="auto" id="t1-moy" readonly/></td>
         </tr>
         <tr id="term-row-2" style="display:none;">
           <td><strong id="t2-nom-display"></strong><input type="hidden" id="t2-nom"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t2-t1" oninput="calcMoy('t2')"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t2-t2" oninput="calcMoy('t2')"/></td>
-          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t2-t3" oninput="calcMoy('t2')"/></td>
+          <td><input type="number" class="nt-note" placeholder="/20" min="0" max="20" step="0.5" id="t2-t1" oninput="calcMoyTerm('t2')"/></td>
           <td><input type="number" class="nt-moy nt-moy-auto" placeholder="auto" id="t2-moy" readonly/></td>
         </tr>
       </tbody>
@@ -1231,6 +1225,13 @@ function calcMoy(prefix) {
   moyEl.value = vals.length > 0 ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2) : '';
   updateGlobalMoy();
 }
+function calcMoyTerm(prefix) {
+  clampNote(document.getElementById(prefix+'-t1'));
+  const t1 = parseFloat(document.getElementById(prefix+'-t1')?.value);
+  const moyEl = document.getElementById(prefix+'-moy');
+  moyEl.value = !isNaN(t1) ? t1.toFixed(2) : '';
+  updateGlobalMoy();
+}
 
 function updateGlobalMoy() {
   const moysPrem = ['p1','p2','p3'].map(p => parseFloat(document.getElementById(p+'-moy')?.value)).filter(n => !isNaN(n));
@@ -1375,7 +1376,7 @@ async function submitCandidature() {
     })).filter(n => n.nom);
 
     const notesTerminale = ['t1','t2'].map(p => ({
-      nom: v(p+'-nom'), t1: v(p+'-t1'), t2: v(p+'-t2'), t3: v(p+'-t3'), moy: v(p+'-moy')
+      nom: v(p+'-nom'), t1: v(p+'-t1'), moy: v(p+'-moy')
     })).filter(n => n.nom);
 
     const { data: docRef, error: insertError } = await supabase.from('candidatures').insert({
