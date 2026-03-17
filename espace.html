@@ -1647,8 +1647,7 @@ function checkEligibility(uniKey, filiereId, profile, extra) {
     };
     const threshold = fMap[filiereId] ?? 0;
     if (threshold > 0 && profile.moySpeSci < threshold) {
-      const filiereNames = { medecine: 'Médecine', dentaire: 'Dentaire', veterinaire: 'Vétérinaire', kinesitherapie: 'Kinésithérapie' };
-      return { eligible: false, reason: filiereNames[filiereId] + ' requiert une moyenne de ' + threshold + '/20 en spé. scientifiques (la vôtre : ' + profile.moySpeSci.toFixed(1) + '/20)' };
+      return { eligible: false, reason: 'L\'Universidad Europea exige ≥ ' + threshold + '/20 en spé. scientifiques pour cette filière (vous avez ' + profile.moySpeSci.toFixed(1) + '/20). Tous les campus sont concernés.' };
     }
     return { eligible: true, reason: '' };
   }
