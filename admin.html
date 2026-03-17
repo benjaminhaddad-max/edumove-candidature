@@ -1437,54 +1437,140 @@ function viewDetail(id) {
     </div>`;
   }
 
-  // Universite data
-  if (c.universiteData && c.universiteData.type) {
-    const ud = c.universiteData;
-    const typeLabel = { link: 'LINK Campus University', uem: 'UEM', ucjc: 'UCJC' }[ud.type] || ud.type;
-    html += `<div class="detail-section">
-      <div class="detail-section-title">Dossier ${typeLabel}</div>
-      <div class="detail-grid">
-        ${ud.nom ? `<div class="detail-item"><label>Nom</label><span>${esc(ud.nom)}</span></div>` : ''}
-        ${ud.prenom ? `<div class="detail-item"><label>Prenom</label><span>${esc(ud.prenom)}</span></div>` : ''}
-        ${ud.email ? `<div class="detail-item"><label>Email</label><span>${esc(ud.email)}</span></div>` : ''}
-        ${ud.tel ? `<div class="detail-item"><label>Telephone</label><span>${esc(ud.tel)}</span></div>` : ''}
-        ${ud.cp ? `<div class="detail-item"><label>Code postal</label><span>${esc(ud.cp)}</span></div>` : ''}
-        ${ud.ville ? `<div class="detail-item"><label>Ville</label><span>${esc(ud.ville)}</span></div>` : ''}
-        ${ud.langue ? `<div class="detail-item"><label>Langue</label><span>${esc(ud.langue)}</span></div>` : ''}
-        ${ud.filiere ? `<div class="detail-item"><label>Filière</label><span>${esc(ud.filiere)}</span></div>` : ''}
-        ${ud.test !== undefined ? `<div class="detail-item"><label>Test admission</label><span>${ud.test ? 'Oui' : 'Non'}</span></div>` : ''}
-      </div>
-    </div>`;
-  }
+  // ── SÉLECTIONS UNIVERSITÉS (section principale) ──
+  const uniSel = c.uni_selections || {};
+  const uniTracking = c.uni_tracking || {};
+  const filiereLabels = { medecine: 'Médecine', dentaire: 'Dentaire', kinesitherapie: 'Kinésithérapie', pharmacie: 'Pharmacie', veterinaire: 'Vétérinaire' };
 
-  // Documents
+  html += `<div class="detail-section" style="background:#f0f4ff;border:2px solid #c5cae9;border-radius:12px;padding:20px;">
+    <div class="detail-section-title" style="color:#1a237e;border-color:#c5cae9;font-size:16px;">🎓 Réponse EDUMOVE — Sélections universités</div>`;
+
+  if (!uniSel.LINK && !uniSel.UCJC && !uniSel.UE) {
+    html += `<div style="color:var(--text-muted);font-size:13px;padding:12px 0;">L'étudiant n'a pas encore fait ses choix d'universités.</div>`;
+  } else {
+    // LINK
+    if (uniSel.LINK) {
+      const linkStatus = uniTracking.LINK_status || 'en_attente';
+      const linkPaid = uniTracking.LINK_test_paid || false;
+      html += `<div style="background:white;border-radius:10px;padding:16px;margin-bottom:12px;border-left:4px solid #1a2744;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="font-weight:700;font-size:14px;color:#1a2744;">🇮🇹 LINK Campus University — Rome</div>
+          <select id="track-LINK-${c.id}" onchange="updateUniTracking('${c.id}','LINK','status',this.value)" style="padding:4px 10px;border-radius:6px;border:1.5px solid #ccc;font-size:11px;font-family:inherit;">
+            <option value="en_attente" ${linkStatus==='en_attente'?'selected':''}>⏳ En attente</option>
+            <option value="dossier_envoye" ${linkStatus==='dossier_envoye'?'selected':''}>📤 Dossier envoyé à la fac</option>
+            <option value="test_planifie" ${linkStatus==='test_planifie'?'selected':''}>📅 Test planifié</option>
+            <option value="test_passe" ${linkStatus==='test_passe'?'selected':''}>✅ Test passé</option>
+            <option value="accepte" ${linkStatus==='accepte'?'selected':''}>🎉 Accepté</option>
+            <option value="refuse" ${linkStatus==='refuse'?'selected':''}>❌ Refusé</option>
+            <option value="inscrit" ${linkStatus==='inscrit'?'selected':''}>🏫 Inscrit</option>
+          </select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px;">
+          <div><span style="color:var(--text-muted);">Filière :</span> <strong>${filiereLabels[uniSel.LINK.filiere] || uniSel.LINK.filiereLabel || '—'}</strong></div>
+          <div><span style="color:var(--text-muted);">Test :</span> <strong>15 avril 2026 — Paris</strong></div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="color:var(--text-muted);">Frais test 200€ :</span>
+            <label style="display:flex;align-items:center;gap:4px;cursor:pointer;">
+              <input type="checkbox" ${linkPaid?'checked':''} onchange="updateUniTracking('${c.id}','LINK','test_paid',this.checked)" style="width:16px;height:16px;accent-color:#2e7d52;">
+              <span style="font-weight:600;color:${linkPaid?'#2e7d52':'#d63031'};">${linkPaid?'Réglé':'Non réglé'}</span>
+            </label>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    // UCJC
+    if (uniSel.UCJC) {
+      const ucjcStatus = uniTracking.UCJC_status || 'en_attente';
+      html += `<div style="background:white;border-radius:10px;padding:16px;margin-bottom:12px;border-left:4px solid #96234a;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="font-weight:700;font-size:14px;color:#96234a;">🇪🇸 UCJC — Madrid</div>
+          <select id="track-UCJC-${c.id}" onchange="updateUniTracking('${c.id}','UCJC','status',this.value)" style="padding:4px 10px;border-radius:6px;border:1.5px solid #ccc;font-size:11px;font-family:inherit;">
+            <option value="en_attente" ${ucjcStatus==='en_attente'?'selected':''}>⏳ En attente</option>
+            <option value="dossier_envoye" ${ucjcStatus==='dossier_envoye'?'selected':''}>📤 Dossier envoyé à la fac</option>
+            <option value="entretien_planifie" ${ucjcStatus==='entretien_planifie'?'selected':''}>📅 Entretien planifié</option>
+            <option value="entretien_passe" ${ucjcStatus==='entretien_passe'?'selected':''}>✅ Entretien passé</option>
+            <option value="accepte" ${ucjcStatus==='accepte'?'selected':''}>🎉 Accepté</option>
+            <option value="refuse" ${ucjcStatus==='refuse'?'selected':''}>❌ Refusé</option>
+            <option value="inscrit" ${ucjcStatus==='inscrit'?'selected':''}>🏫 Inscrit</option>
+          </select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;">
+          <div><span style="color:var(--text-muted);">Filière :</span> <strong>${filiereLabels[uniSel.UCJC.filiere] || uniSel.UCJC.filiereLabel || '—'}</strong></div>
+          <div><span style="color:var(--text-muted);">Admission :</span> <strong>Entretien uniquement (pas de test)</strong></div>
+        </div>
+      </div>`;
+    }
+
+    // UE
+    if (uniSel.UE) {
+      const ueStatus = uniTracking.UE_status || 'en_attente';
+      html += `<div style="background:white;border-radius:10px;padding:16px;margin-bottom:12px;border-left:4px solid #003da5;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="font-weight:700;font-size:14px;color:#003da5;">🇪🇸 Universidad Europea — ${esc(uniSel.UE.ville || '—')}</div>
+          <select id="track-UE-${c.id}" onchange="updateUniTracking('${c.id}','UE','status',this.value)" style="padding:4px 10px;border-radius:6px;border:1.5px solid #ccc;font-size:11px;font-family:inherit;">
+            <option value="en_attente" ${ueStatus==='en_attente'?'selected':''}>⏳ En attente</option>
+            <option value="dossier_envoye" ${ueStatus==='dossier_envoye'?'selected':''}>📤 Dossier envoyé à la fac</option>
+            <option value="tests_ouverts" ${ueStatus==='tests_ouverts'?'selected':''}>📋 Tests ouverts</option>
+            <option value="tests_passes" ${ueStatus==='tests_passes'?'selected':''}>✅ Tests passés</option>
+            <option value="accepte" ${ueStatus==='accepte'?'selected':''}>🎉 Accepté</option>
+            <option value="acompte_verse" ${ueStatus==='acompte_verse'?'selected':''}>💰 Acompte 2500€ versé</option>
+            <option value="refuse" ${ueStatus==='refuse'?'selected':''}>❌ Refusé</option>
+            <option value="inscrit" ${ueStatus==='inscrit'?'selected':''}>🏫 Inscrit</option>
+          </select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px;">
+          <div><span style="color:var(--text-muted);">Filière :</span> <strong>${filiereLabels[uniSel.UE.filiere] || uniSel.UE.filiereLabel || '—'}</strong></div>
+          <div><span style="color:var(--text-muted);">Campus :</span> <strong>${esc(uniSel.UE.ville || '—')}</strong></div>
+          <div><span style="color:var(--text-muted);">Langue :</span> <strong>${esc(uniSel.UE.langue || '—')}</strong></div>
+        </div>
+      </div>`;
+    }
+
+    if (c.uni_selections_at) {
+      html += `<div style="font-size:11px;color:var(--text-muted);margin-top:8px;">Choix confirmés le ${new Date(c.uni_selections_at).toLocaleDateString('fr-FR')} à ${new Date(c.uni_selections_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>`;
+    }
+  }
+  html += `</div>`;
+
+  // Documents (amélioré avec labels par université)
   if (c.documents && Object.keys(c.documents).length > 0) {
     const docLabels = {
-      passeport: 'Passeport', bulletins: 'Bulletins', formulaire: 'Formulaire',
-      rapport_technique: 'Rapport technique', identite: 'Piece d\'identite',
-      releves: 'Releves de notes', attestation_b2: 'Attestation B2',
-      lettre_motivation: 'Lettre de motivation'
+      LINK_formulaire: '📋 LINK — Formulaire pré-candidature',
+      LINK_identite: '🪪 LINK — Pièce d\'identité',
+      LINK_releves: '🎓 LINK — Relevé de notes bac',
+      UCJC_lettre_motivation: '📝 UCJC — Lettre de motivation',
+      UCJC_identite: '🪪 UCJC — Pièce d\'identité',
+      UCJC_formulaire: '📋 UCJC — Formulaire admission',
+      UCJC_attestation_esp: '🌐 UCJC — Attestation espagnol',
+      UE_bulletins: '📄 UE — Bulletins de Première',
+      UE_identite: '🪪 UE — Pièce d\'identité',
+      UE_rapport_technique: '📋 UE — Rapport technique académique',
+      UE_rapport_demarche: '⏳ UE — Démarche rapport lancée',
+      passeport: '🪪 Passeport', bulletins: '📄 Bulletins', formulaire: '📋 Formulaire',
+      rapport_technique: '📋 Rapport technique', identite: '🪪 Pièce d\'identité',
+      releves: '🎓 Relevés de notes', lettre_motivation: '📝 Lettre de motivation'
     };
     html += `<div class="detail-section">
-      <div class="detail-section-title">Documents</div>
-      <div>${Object.entries(c.documents).map(([k, url]) =>
-        `<a href="${url}" target="_blank" rel="noopener" class="doc-link">📄 ${docLabels[k] || k}</a>`
-      ).join('')}</div>
+      <div class="detail-section-title">Documents envoyés</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">${Object.entries(c.documents).map(([k, url]) => {
+        if (k === 'UE_rapport_demarche') {
+          return url ? `<span style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:#fff8e1;border:1px solid #f9a825;border-radius:6px;font-size:11px;font-weight:500;">⏳ Rapport technique : démarche lancée</span>` : '';
+        }
+        return `<a href="${url}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:white;border:1px solid var(--border);border-radius:6px;font-size:11px;color:var(--violet);text-decoration:none;font-weight:500;transition:all 0.2s;" onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background='white'">${docLabels[k] || '📄 ' + k}</a>`;
+      }).join('')}</div>
     </div>`;
   }
 
-  // Suggestion IA
-  html += `<div class="detail-section" style="background:#fffde7;border:1px solid #fff9c4;border-radius:8px;padding:20px;">
-    <div class="detail-section-title" style="color:#f57f17;border-color:#fff9c4;">💡 Suggestion IA</div>
-    ${generateAdminSuggestion(c)}
-    <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
-      ${c.status !== 'reponse_edumove' ? `<button class="btn-view" style="background:#1565c0;padding:8px 16px;" onclick="applyAiAction('${c.id}','reponse_edumove')">📩 Envoyer r\u00e9ponse</button>` : ''}
+  // Actions rapides
+  html += `<div class="detail-section" style="background:#f5f5f5;border-radius:10px;padding:16px;">
+    <div class="detail-section-title" style="font-size:13px;">⚡ Actions rapides — Statut global</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
       <button class="btn-view" style="background:#7b1fa2;padding:8px 16px;" onclick="applyAiAction('${c.id}','dossier_soumis')">🎓 Dossier soumis</button>
-      <button class="btn-view" style="background:var(--success);padding:8px 16px;" onclick="applyAiAction('${c.id}','accepte')">✅ Accept\u00e9</button>
-      <button class="btn-view" style="background:var(--error);padding:8px 16px;" onclick="applyAiAction('${c.id}','refuse')">❌ Refus\u00e9</button>
+      <button class="btn-view" style="background:var(--success);padding:8px 16px;" onclick="applyAiAction('${c.id}','accepte')">✅ Accepté</button>
+      <button class="btn-view" style="background:var(--error);padding:8px 16px;" onclick="applyAiAction('${c.id}','refuse')">❌ Refusé</button>
       <button class="btn-view" style="background:#757575;padding:8px 16px;" onclick="applyAiAction('${c.id}','abandon')">🚫 Abandon</button>
     </div>
-    ${c.manual_override ? '<div style="margin-top:10px;font-size:11px;color:var(--text-muted);font-style:italic;">⚠️ L\'auto-progression est desactivee (intervention manuelle detectee)</div>' : '<div style="margin-top:10px;font-size:11px;color:var(--text-muted);">🤖 L\'auto-progression est active</div>'}
   </div>`;
 
   // Messagerie
@@ -1574,6 +1660,22 @@ function closeModal() {
     currentMsgUnsubscribe = null;
   }
   document.getElementById('modal-overlay').classList.remove('active');
+}
+
+async function updateUniTracking(candidatureId, uniKey, field, value) {
+  try {
+    const c = allCandidatures.find(x => x.id === candidatureId);
+    const tracking = c?.uni_tracking || {};
+    tracking[uniKey + '_' + field] = value;
+    await supabase.from('candidatures').update({ uni_tracking: tracking }).eq('id', candidatureId);
+    if (c) c.uni_tracking = tracking;
+    // Visual feedback
+    const el = document.getElementById('track-' + uniKey + '-' + candidatureId);
+    if (el) { el.style.boxShadow = '0 0 0 2px #2e7d52'; setTimeout(() => el.style.boxShadow = '', 1500); }
+  } catch (err) {
+    console.error('Update uni tracking error:', err);
+    alert('Erreur lors de la mise à jour.');
+  }
 }
 
 async function applyAiAction(id, action) {
