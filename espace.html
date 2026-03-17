@@ -2000,6 +2000,21 @@ function selectLINKFiliere(filiereId, filiereLabel) {
   const container = document.getElementById('link-dynamic-content');
   let h = '';
 
+  // Prix et duree par filiere LINK
+  const linkPrix = {
+    medecine: { prix: '19 800', duree: '6 ans' },
+    dentaire: { prix: '19 800', duree: '6 ans' },
+    pharmacie: { prix: '7 900', duree: '5 ans' },
+    kinesitherapie: { prix: '11 900', duree: '3 ans' }
+  };
+  const pInfo = linkPrix[filiereId];
+  if (pInfo) {
+    h += '<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#eef2f7;border:1px solid #c5d1e0;border-radius:8px;font-size:13px;color:#1a2744;margin-bottom:16px;">';
+    h += '<span style="font-size:20px;flex-shrink:0;">💰</span>';
+    h += '<div><strong>' + filiereLabel + '</strong> — ' + pInfo.prix + ' euros / an pendant ' + pInfo.duree + '</div>';
+    h += '</div>';
+  }
+
   if (filiereId === 'pharmacie') {
     // Pharmacie: pas de test, inscription directe
     h += '<div class="uni-extra-info link-info" style="margin-bottom:16px;">';
