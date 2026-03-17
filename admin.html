@@ -1035,6 +1035,7 @@ tr:last-child td { border-bottom: none; }
                 <tr><td><strong>Kinésithérapie</strong></td><td>Madrid, Malaga, Valence, Alicante, Canaries</td><td>Madrid: FR/ES/EN — Autres: ES seul</td><td>Non sauf français à Madrid — 4 épreuves</td></tr>
                 <tr><td><strong>Pharmacie</strong></td><td>Madrid</td><td>Espagnol uniquement</td><td>❌ Non — admission directe</td></tr>
                 <tr><td><strong>Vétérinaire</strong></td><td>Madrid</td><td>Espagnol uniquement</td><td>Oui — 4 épreuves</td></tr>
+                <tr><td><strong>Prépa Dentaire</strong></td><td>Alicante</td><td>Anglais uniquement (B2 requis)</td><td>❌ Non — admission directe</td></tr>
               </tbody>
             </table>
             <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">* Pharmacie partout et Kinésithérapie partout (sauf Kiné en français à Madrid) : pas de test, admission sur dossier + places disponibles.</p>
@@ -1060,6 +1061,13 @@ tr:last-child td { border-bottom: none; }
               <li>Carte d'identité / Passeport</li>
               <li>Rapport technique académique (60€ via hostudents.com)</li>
             </ul>
+          </div>
+          <div class="guide-info-card">
+            <h4>💰 Tarif Prépa Dentaire — Alicante</h4>
+            <p><strong>17 000€/an</strong> pour l'année de préparation (en anglais)</p>
+            <p>Puis intégration en Dentaire classique : <strong>20 821€/an</strong> pendant 5 ans</p>
+            <p><strong>Durée totale : 6 ans</strong> (1 an prépa + 5 ans dentaire)</p>
+            <p style="font-size:12px;color:var(--text-muted);">Prérequis : niveau B2 en anglais. Pas de test d'admission.</p>
           </div>
         </div>
 
@@ -1360,6 +1368,7 @@ tr:last-child td { border-bottom: none; }
                   <option value="kine">Kinésithérapie</option>
                   <option value="pharmacie">Pharmacie</option>
                   <option value="veterinaire">Vétérinaire</option>
+                  <option value="prepa_dentaire">Prépa Dentaire</option>
                 </select>
               </div>
               <div class="add-field">
@@ -1656,7 +1665,7 @@ function renderTable() {
   empty.style.display = 'none';
 
   const statusLabels = { en_cours: 'En cours', reponse_edumove: 'R\u00e9ponse Edumove' };
-  const filiereLabels = { medecine: 'M\u00e9decine', dentaire: 'Dentaire', kine: 'Kin\u00e9sith\u00e9rapie', pharmacie: 'Pharmacie', veterinaire: 'V\u00e9t\u00e9rinaire' };
+  const filiereLabels = { medecine: 'M\u00e9decine', dentaire: 'Dentaire', kine: 'Kin\u00e9sith\u00e9rapie', pharmacie: 'Pharmacie', veterinaire: 'V\u00e9t\u00e9rinaire', prepa_dentaire: 'Pr\u00e9pa Dentaire' };
   const trackLabels = { en_attente: 'En attente', dossier_envoye: 'Envoy\u00e9', test_paye: 'Test pay\u00e9', test_passe: 'Test pass\u00e9', tests_passes: 'Tests pass\u00e9s', entretien_planifie: 'Entretien', entretien_passe: 'Entretien OK', accepte: 'Accept\u00e9', acompte_verse: 'Acompte', refuse: 'Refus\u00e9', inscrit: 'Inscrit' };
   const trackColors = { en_attente: '#999', dossier_envoye: '#1565c0', test_paye: '#6a1b9a', test_passe: '#6a1b9a', tests_passes: '#6a1b9a', entretien_planifie: '#e65100', entretien_passe: '#e65100', accepte: '#2e7d32', acompte_verse: '#2e7d32', refuse: '#d32f2f', inscrit: '#1b5e20' };
 
@@ -1766,7 +1775,7 @@ function viewDetail(id) {
 function renderDetailPage(c) {
   const statusLabels = { en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove' };
   const langLabels = { b2: 'B2+ / Bilingue', b1: 'B1 / Intermédiaire', debut: 'A1/A2 / Débutant', aucun: 'Aucun' };
-  const filiereLabels = { medecine: 'M\u00e9decine', dentaire: 'Dentaire', kinesitherapie: 'Kin\u00e9sith\u00e9rapie', kine: 'Kin\u00e9sith\u00e9rapie', pharmacie: 'Pharmacie', veterinaire: 'V\u00e9t\u00e9rinaire' };
+  const filiereLabels = { medecine: 'M\u00e9decine', dentaire: 'Dentaire', kinesitherapie: 'Kin\u00e9sith\u00e9rapie', kine: 'Kin\u00e9sith\u00e9rapie', pharmacie: 'Pharmacie', veterinaire: 'V\u00e9t\u00e9rinaire', prepa_dentaire: 'Pr\u00e9pa Dentaire' };
 
   // Header
   document.getElementById('detail-page-title').textContent = c.prenom + ' ' + c.nom;
@@ -2333,11 +2342,13 @@ function getAdminUEVilles(filiere) {
   if (filiere === 'medecine') return ['Madrid', 'Canaries'];
   if (filiere === 'pharmacie') return ['Madrid'];
   if (filiere === 'veterinaire') return ['Madrid'];
+  if (filiere === 'prepa_dentaire') return ['Alicante'];
   // dentaire + kine: toutes les villes
   return ['Madrid', 'Malaga', 'Valence', 'Alicante', 'Canaries'];
 }
 
 function getAdminUELangues(filiere, ville) {
+  if (filiere === 'prepa_dentaire') return ['Anglais'];
   if (filiere === 'medecine') return ['Espagnol'];
   if (filiere === 'pharmacie') return ['Espagnol'];
   if (filiere === 'veterinaire') return ['Espagnol'];
@@ -2461,7 +2472,7 @@ async function submitManualDossier() {
 
     // Uni selections
     const uniSelections = {};
-    const filiereLabelsMap = { medecine: 'Médecine', dentaire: 'Dentaire', kine: 'Kinésithérapie', pharmacie: 'Pharmacie', veterinaire: 'Vétérinaire' };
+    const filiereLabelsMap = { medecine: 'Médecine', dentaire: 'Dentaire', kine: 'Kinésithérapie', pharmacie: 'Pharmacie', veterinaire: 'Vétérinaire', prepa_dentaire: 'Prépa Dentaire' };
 
     if (document.getElementById('cb-link').checked) {
       const fil = document.getElementById('add-link-filiere').value;

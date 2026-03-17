@@ -1523,7 +1523,8 @@ const uePrix = {
   'Alicante-Dentaire': { prix: '20 821', duree: '5 ans' },
   'Alicante-Kinésithérapie': { prix: '10 080', duree: '4 ans' },
   'Malaga-Dentaire': { prix: '19 200', duree: '5 ans' },
-  'Malaga-Kinésithérapie': { prix: '10 020', duree: '4 ans' }
+  'Malaga-Kinésithérapie': { prix: '10 020', duree: '4 ans' },
+  'Alicante-Prépa Dentaire': { prix: '17 000', duree: '1 an (+ 5 ans Dentaire)' }
 };
 
 const linkPrix = {
@@ -1561,6 +1562,7 @@ function isUEListeAttente(ville, filiere, langue) {
 }
 
 function getUELangues(ville, filiere) {
+  if (filiere === 'Prépa Dentaire') return ['Anglais'];
   if (filiere === 'Médecine') return ['Espagnol'];
   if (filiere === 'Pharmacie') return ['Espagnol'];
   if (filiere === 'Vétérinaire') return ['Espagnol'];
@@ -1579,6 +1581,7 @@ function getUEVilles(filiere) {
   if (filiere === 'medecine' || filiere === 'Médecine') return ['Madrid', 'Canaries'];
   if (filiere === 'pharmacie' || filiere === 'Pharmacie') return ['Madrid'];
   if (filiere === 'veterinaire' || filiere === 'Vétérinaire') return ['Madrid'];
+  if (filiere === 'prepa_dentaire' || filiere === 'Prépa Dentaire') return ['Alicante'];
   return ['Madrid', 'Malaga', 'Valence', 'Alicante', 'Canaries'];
 }
 
@@ -1587,7 +1590,7 @@ function getUEFilieres(ville) {
   if (ville === 'Canaries') return ['Médecine', 'Dentaire', 'Kinésithérapie'];
   if (ville === 'Malaga') return ['Dentaire', 'Kinésithérapie'];
   if (ville === 'Valence') return ['Dentaire', 'Kinésithérapie'];
-  if (ville === 'Alicante') return ['Dentaire', 'Kinésithérapie'];
+  if (ville === 'Alicante') return ['Dentaire', 'Kinésithérapie', 'Prépa Dentaire'];
   return ['Dentaire', 'Kinésithérapie'];
 }
 
@@ -1660,6 +1663,10 @@ function checkEligibility(uniKey, filiereId, profile, extra) {
       kinesitherapie: 13,
       pharmacie: 0
     };
+    if (filiereId === 'prepa_dentaire') {
+      if (profile.engLevel < 2) return { eligible: false, reason: 'La Prépa Dentaire requiert un niveau B2 en anglais minimum.' };
+      return { eligible: true, reason: '' };
+    }
     const threshold = fMap[filiereId] ?? 0;
     if (threshold > 0 && profile.moySpeSci < threshold) {
       return { eligible: false, reason: 'L\'Universidad Europea exige ≥ ' + threshold + '/20 en spé. scientifiques pour cette filière (vous avez ' + profile.moySpeSci.toFixed(1) + '/20). Tous les campus sont concernés.' };
@@ -1671,8 +1678,8 @@ function checkEligibility(uniKey, filiereId, profile, extra) {
 
 // ── AVAILABLE FILIERES ──
 function getAvailableFilieres(c) {
-  const ranking = c.classement_filieres || ['medecine','dentaire','kinesitherapie','pharmacie','veterinaire'];
-  const labels = { medecine: 'Médecine', dentaire: 'Dentaire', kinesitherapie: 'Kinésithérapie', pharmacie: 'Pharmacie', veterinaire: 'Vétérinaire' };
+  const ranking = c.classement_filieres || ['medecine','dentaire','kinesitherapie','pharmacie','veterinaire','prepa_dentaire'];
+  const labels = { medecine: 'Médecine', dentaire: 'Dentaire', kinesitherapie: 'Kinésithérapie', pharmacie: 'Pharmacie', veterinaire: 'Vétérinaire', prepa_dentaire: 'Prépa Dentaire' };
   return ranking.map(f => ({ id: f, label: labels[f] || f }));
 }
 
@@ -2094,7 +2101,8 @@ function buildUEEtapes(langue, filiereLabel, ville) {
   const isKine = filiereLabel === 'Kinésithérapie';
   // Kiné en français à Madrid → a des tests. Sinon pharma partout et kiné ailleurs → pas de test
   const kineMadridFR = isKine && ville === 'Madrid' && isFrancais;
-  const noTest = isPharmacie || (isKine && !kineMadridFR);
+  const isPrepa = filiereLabel === 'Prépa Dentaire';
+  const noTest = isPharmacie || isPrepa || (isKine && !kineMadridFR);
 
   if (noTest) {
     // Pas de test pour Pharmacie et Kiné (sauf Madrid FR)
@@ -2360,6 +2368,13 @@ function finalizeUESelection(filiereLabel, ville, langue) {
   const prix = uePrix[key];
   if (prix) {
     html += '<div class="uni-pricing-bandeau ue-pricing">&#x1F4B0; ' + prix.prix + ' €/an — Durée des études : ' + prix.duree + '</div>';
+  }
+
+  // Special info for Prépa Dentaire
+  if (filiereLabel === 'Prépa Dentaire') {
+    html += '<div class="uni-info-bandeau" style="background:#dbeafe;color:#1e40af;">';
+    html += '🎓 <strong>Programme passerelle</strong> — 1 an de préparation en anglais à Alicante, puis intégration directe en cursus Dentaire (5 ans à 20 821€/an). Niveau B2 anglais requis.';
+    html += '</div>';
   }
 
   // Liste d'attente warning
