@@ -552,6 +552,166 @@ tr:hover { background: rgba(97,92,165,0.03); }
 }
 .btn-msg-send:hover { background: #d45c08; }
 
+/* ── ADD DOSSIER MODAL ── */
+.add-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(27,29,58,0.55);
+  z-index: 300;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 30px 20px;
+}
+.add-modal-overlay.active { display: flex; }
+.add-modal {
+  background: white;
+  border-radius: 16px;
+  max-width: 900px;
+  width: 100%;
+  box-shadow: 0 8px 40px rgba(27,29,58,0.18);
+  animation: fadeUp 0.3s ease;
+}
+.add-modal .modal-header {
+  position: sticky;
+  top: 0;
+  background: white;
+  border-radius: 16px 16px 0 0;
+  z-index: 2;
+}
+.add-modal .modal-body { padding: 24px 32px 32px; }
+.add-section {
+  margin-bottom: 28px;
+}
+.add-section-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--violet);
+  font-weight: 700;
+  margin-bottom: 14px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--bg);
+}
+.add-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.add-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+.add-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.add-field.full { grid-column: 1 / -1; }
+.add-field label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.add-field input,
+.add-field select,
+.add-field textarea {
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: border 0.2s;
+  background: white;
+}
+.add-field input:focus,
+.add-field select:focus,
+.add-field textarea:focus { border-color: var(--violet); }
+.add-field input[type="file"] {
+  padding: 8px;
+  font-size: 12px;
+}
+.uni-toggle {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.uni-toggle-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.uni-toggle-header input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--violet);
+}
+.uni-toggle-header span {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--navy);
+}
+.uni-toggle-body {
+  display: none;
+  margin-top: 14px;
+}
+.uni-toggle-body.active { display: block; }
+.btn-submit-dossier {
+  width: 100%;
+  padding: 14px;
+  background: var(--orange);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 8px;
+}
+.btn-submit-dossier:hover { background: #d55a06; }
+.btn-submit-dossier:disabled { opacity: 0.5; cursor: not-allowed; }
+.add-error {
+  color: var(--error);
+  font-size: 13px;
+  margin-top: 10px;
+  display: none;
+  text-align: center;
+}
+.add-error.visible { display: block; }
+.add-success {
+  color: var(--success);
+  font-size: 13px;
+  margin-top: 10px;
+  display: none;
+  text-align: center;
+  font-weight: 600;
+}
+.add-success.visible { display: block; }
+.password-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+.password-row input { flex: 1; }
+.btn-gen-pass {
+  padding: 10px 14px;
+  background: var(--violet);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+}
+.btn-gen-pass:hover { background: var(--violet-light); }
+
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .site-header { padding: 0 16px; }
@@ -562,6 +722,11 @@ tr:hover { background: rgba(97,92,165,0.03); }
   .modal-header { padding: 16px; }
   .stats-row { grid-template-columns: 1fr 1fr; }
   .msg-bubble { max-width: 90%; }
+  .add-grid { grid-template-columns: 1fr; }
+  .add-grid.three { grid-template-columns: 1fr; }
+  .add-modal .modal-body { padding: 20px 16px; }
+  .add-modal-overlay { padding: 10px; }
+  .password-row { flex-direction: column; }
 }
 </style>
 
@@ -644,6 +809,7 @@ tr:hover { background: rgba(97,92,165,0.03); }
         <option value="reorientation">Réorientation</option>
       </select>
       <button class="btn-export" onclick="exportCSV()">Exporter CSV</button>
+      <button class="btn-export" style="background:var(--orange);" onclick="openAddDossierModal()">➕ Ajouter un dossier</button>
     </div>
 
     <!-- Table -->
@@ -685,6 +851,278 @@ tr:hover { background: rgba(97,92,165,0.03); }
       <button class="modal-close" onclick="closeModal()">x</button>
     </div>
     <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MODAL AJOUTER DOSSIER
+══════════════════════════════════════════ -->
+<div class="add-modal-overlay" id="add-modal-overlay" onclick="if(event.target===this)closeAddModal()">
+  <div class="add-modal">
+    <div class="modal-header">
+      <h3>➕ Ajouter un dossier manuellement</h3>
+      <button class="modal-close" onclick="closeAddModal()">x</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- 1. Identite -->
+      <div class="add-section">
+        <div class="add-section-title">1. Identite &amp; Identifiants</div>
+        <div class="add-grid">
+          <div class="add-field"><label>Nom *</label><input type="text" id="add-nom" required/></div>
+          <div class="add-field"><label>Prenom *</label><input type="text" id="add-prenom" required/></div>
+          <div class="add-field"><label>Email *</label><input type="email" id="add-email" required/></div>
+          <div class="add-field"><label>Telephone</label><input type="tel" id="add-tel" placeholder="06 XX XX XX XX"/></div>
+          <div class="add-field"><label>Departement</label><input type="text" id="add-departement" placeholder="75"/></div>
+          <div class="add-field"><label>Profil *</label>
+            <select id="add-profil">
+              <option value="terminale">Terminale</option>
+              <option value="reorientation">Reorientation</option>
+            </select>
+          </div>
+          <div class="add-field full">
+            <label>Mot de passe *</label>
+            <div class="password-row">
+              <input type="text" id="add-password" placeholder="Min. 6 caracteres"/>
+              <button type="button" class="btn-gen-pass" onclick="generatePassword()">Generer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Academique -->
+      <div class="add-section">
+        <div class="add-section-title">2. Informations academiques</div>
+        <div class="add-grid">
+          <div class="add-field">
+            <label>Moy. spes scientifiques 1ere (/20)</label>
+            <input type="number" id="add-moy-spes" min="0" max="20" step="0.1"/>
+          </div>
+          <div class="add-field">
+            <label>Nb specialites scientifiques</label>
+            <select id="add-nb-spes">
+              <option value="">—</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+          </div>
+          <div class="add-field">
+            <label>Moyenne generale 1ere (/20)</label>
+            <input type="number" id="add-moy-premiere" min="0" max="20" step="0.1"/>
+          </div>
+          <div class="add-field">
+            <label>Moyenne generale Terminale (/20)</label>
+            <input type="number" id="add-moy-terminale" min="0" max="20" step="0.1"/>
+          </div>
+          <div class="add-field">
+            <label>Score academique global (/20) *</label>
+            <input type="number" id="add-score" min="0" max="20" step="0.1"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Langues -->
+      <div class="add-section">
+        <div class="add-section-title">3. Langues</div>
+        <div class="add-grid three">
+          <div class="add-field">
+            <label>Espagnol</label>
+            <select id="add-lang-esp">
+              <option value="">—</option>
+              <option value="b2">B2+ / Bilingue</option>
+              <option value="b1">B1 / Intermediaire</option>
+              <option value="debut">A1-A2 / Debutant</option>
+              <option value="aucun">Aucun</option>
+            </select>
+          </div>
+          <div class="add-field">
+            <label>Anglais</label>
+            <select id="add-lang-ang">
+              <option value="">—</option>
+              <option value="b2">B2+ / Bilingue</option>
+              <option value="b1">B1 / Intermediaire</option>
+              <option value="debut">A1-A2 / Debutant</option>
+              <option value="aucun">Aucun</option>
+            </select>
+          </div>
+          <div class="add-field">
+            <label>Italien</label>
+            <select id="add-lang-ita">
+              <option value="">—</option>
+              <option value="b2">B2+ / Bilingue</option>
+              <option value="b1">B1 / Intermediaire</option>
+              <option value="debut">A1-A2 / Debutant</option>
+              <option value="aucun">Aucun</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Destinations & Filieres -->
+      <div class="add-section">
+        <div class="add-section-title">4. Destinations &amp; Filieres</div>
+        <div class="add-grid">
+          <div class="add-field">
+            <label>Classement filieres (cocher et ordonner)</label>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+              <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
+                <input type="checkbox" value="medecine" class="cb-filiere"/> Medecine
+              </label>
+              <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
+                <input type="checkbox" value="dentaire" class="cb-filiere"/> Dentaire
+              </label>
+              <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
+                <input type="checkbox" value="kine" class="cb-filiere"/> Kinesitherapie
+              </label>
+              <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
+                <input type="checkbox" value="pharmacie" class="cb-filiere"/> Pharmacie
+              </label>
+              <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
+                <input type="checkbox" value="veterinaire" class="cb-filiere"/> Veterinaire
+              </label>
+            </div>
+          </div>
+          <div class="add-field">
+            <label>Classement destinations (cocher et ordonner)</label>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+              <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
+                <input type="checkbox" value="PASS/LAS" class="cb-dest"/> PASS/LAS
+              </label>
+              <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
+                <input type="checkbox" value="italie" class="cb-dest"/> Italie
+              </label>
+              <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
+                <input type="checkbox" value="espagne" class="cb-dest"/> Espagne
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Selections universites -->
+      <div class="add-section">
+        <div class="add-section-title">5. Selections universites</div>
+
+        <!-- LINK -->
+        <div class="uni-toggle" id="toggle-link">
+          <div class="uni-toggle-header" onclick="toggleUni('link')">
+            <input type="checkbox" id="cb-link" onclick="event.stopPropagation(); toggleUni('link')"/>
+            <span>LINK Campus University (Italie)</span>
+          </div>
+          <div class="uni-toggle-body" id="body-link">
+            <div class="add-grid">
+              <div class="add-field">
+                <label>Filiere</label>
+                <select id="add-link-filiere">
+                  <option value="medecine">Medecine</option>
+                  <option value="dentaire">Dentaire</option>
+                  <option value="kine">Kinesitherapie</option>
+                  <option value="pharmacie">Pharmacie</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- UCJC -->
+        <div class="uni-toggle" id="toggle-ucjc">
+          <div class="uni-toggle-header" onclick="toggleUni('ucjc')">
+            <input type="checkbox" id="cb-ucjc" onclick="event.stopPropagation(); toggleUni('ucjc')"/>
+            <span>UCJC (Espagne)</span>
+          </div>
+          <div class="uni-toggle-body" id="body-ucjc">
+            <div class="add-grid">
+              <div class="add-field">
+                <label>Filiere</label>
+                <select id="add-ucjc-filiere">
+                  <option value="dentaire">Dentaire</option>
+                  <option value="kine">Kinesitherapie</option>
+                  <option value="pharmacie">Pharmacie</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- UE -->
+        <div class="uni-toggle" id="toggle-ue">
+          <div class="uni-toggle-header" onclick="toggleUni('ue')">
+            <input type="checkbox" id="cb-ue" onclick="event.stopPropagation(); toggleUni('ue')"/>
+            <span>Universidad Europea (Espagne)</span>
+          </div>
+          <div class="uni-toggle-body" id="body-ue">
+            <div class="add-grid three">
+              <div class="add-field">
+                <label>Filiere</label>
+                <select id="add-ue-filiere" onchange="updateUeOptions()">
+                  <option value="medecine">Medecine</option>
+                  <option value="dentaire">Dentaire</option>
+                  <option value="kine">Kinesitherapie</option>
+                  <option value="pharmacie">Pharmacie</option>
+                  <option value="veterinaire">Veterinaire</option>
+                </select>
+              </div>
+              <div class="add-field">
+                <label>Ville</label>
+                <select id="add-ue-ville" onchange="updateUeLangues()">
+                  <option value="Madrid">Madrid</option>
+                  <option value="Canaries">Canaries</option>
+                  <option value="Valence">Valence</option>
+                  <option value="Malaga">Malaga</option>
+                  <option value="Alicante">Alicante</option>
+                </select>
+              </div>
+              <div class="add-field">
+                <label>Langue du cursus</label>
+                <select id="add-ue-langue">
+                  <option value="Espagnol">Espagnol</option>
+                  <option value="Anglais">Anglais</option>
+                  <option value="Francais">Francais</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Documents -->
+      <div class="add-section">
+        <div class="add-section-title">6. Documents (optionnel)</div>
+        <div class="add-grid">
+          <div class="add-field"><label>Carte d'identite / Passeport</label><input type="file" id="add-doc-identite" accept=".pdf,.jpg,.jpeg,.png"/></div>
+          <div class="add-field"><label>Bulletins scolaires</label><input type="file" id="add-doc-bulletins" accept=".pdf,.jpg,.jpeg,.png"/></div>
+          <div class="add-field"><label>Formulaire LINK</label><input type="file" id="add-doc-formulaire-link" accept=".pdf,.jpg,.jpeg,.png"/></div>
+          <div class="add-field"><label>Formulaire UCJC</label><input type="file" id="add-doc-formulaire-ucjc" accept=".pdf,.jpg,.jpeg,.png"/></div>
+          <div class="add-field"><label>Lettre de motivation</label><input type="file" id="add-doc-lettre" accept=".pdf,.jpg,.jpeg,.png"/></div>
+          <div class="add-field"><label>Rapport technique</label><input type="file" id="add-doc-rapport" accept=".pdf,.jpg,.jpeg,.png"/></div>
+        </div>
+      </div>
+
+      <!-- 7. Statut -->
+      <div class="add-section">
+        <div class="add-section-title">7. Statut initial</div>
+        <div class="add-grid">
+          <div class="add-field">
+            <label>Statut</label>
+            <select id="add-status">
+              <option value="reponse_edumove">Reponse Edumove</option>
+              <option value="en_attente">En attente</option>
+              <option value="en_cours">En cours de traitement</option>
+              <option value="dossier_soumis">Dossier soumis</option>
+              <option value="accepte">Accepte</option>
+              <option value="refuse">Refuse</option>
+              <option value="abandon">Abandon</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-submit-dossier" id="btn-submit-dossier" onclick="submitManualDossier()">Creer le dossier</button>
+      <div class="add-error" id="add-error"></div>
+      <div class="add-success" id="add-success"></div>
+
+    </div>
   </div>
 </div>
 
@@ -1219,6 +1657,404 @@ function esc(str) {
 // Enter key on login fields
 document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 document.getElementById('login-email').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('login-pass').focus(); });
+
+// ══════════════════════════════════════════
+// ADD DOSSIER MODAL
+// ══════════════════════════════════════════
+
+function openAddDossierModal() {
+  document.getElementById('add-modal-overlay').classList.add('active');
+  // Reset form
+  resetAddForm();
+}
+
+function closeAddModal() {
+  document.getElementById('add-modal-overlay').classList.remove('active');
+}
+
+function resetAddForm() {
+  const ids = [
+    'add-nom','add-prenom','add-email','add-tel','add-departement','add-password',
+    'add-moy-spes','add-moy-premiere','add-moy-terminale','add-score'
+  ];
+  ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('add-profil').value = 'terminale';
+  document.getElementById('add-nb-spes').value = '';
+  document.getElementById('add-lang-esp').value = '';
+  document.getElementById('add-lang-ang').value = '';
+  document.getElementById('add-lang-ita').value = '';
+  document.getElementById('add-status').value = 'reponse_edumove';
+
+  // Uncheck filieres/destinations
+  document.querySelectorAll('.cb-filiere, .cb-dest').forEach(cb => cb.checked = false);
+
+  // Reset uni toggles
+  ['link','ucjc','ue'].forEach(uni => {
+    document.getElementById('cb-' + uni).checked = false;
+    document.getElementById('body-' + uni).classList.remove('active');
+  });
+
+  // Reset file inputs
+  document.querySelectorAll('.add-modal input[type="file"]').forEach(f => f.value = '');
+
+  // Reset messages
+  const err = document.getElementById('add-error');
+  const suc = document.getElementById('add-success');
+  err.classList.remove('visible'); err.textContent = '';
+  suc.classList.remove('visible'); suc.textContent = '';
+
+  document.getElementById('btn-submit-dossier').disabled = false;
+  document.getElementById('btn-submit-dossier').textContent = 'Creer le dossier';
+}
+
+function generatePassword() {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$';
+  let pass = '';
+  for (let i = 0; i < 12; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
+  document.getElementById('add-password').value = pass;
+}
+
+function toggleUni(uni) {
+  const cb = document.getElementById('cb-' + uni);
+  const body = document.getElementById('body-' + uni);
+  // If triggered from the header row, toggle the checkbox
+  if (!event || event.target !== cb) {
+    cb.checked = !cb.checked;
+  }
+  if (cb.checked) {
+    body.classList.add('active');
+  } else {
+    body.classList.remove('active');
+  }
+}
+
+function updateUeOptions() {
+  // Placeholder for future dynamic filtering of UE ville/langue based on filiere
+}
+
+function updateUeLangues() {
+  // Adjust language options based on selected city
+  const ville = document.getElementById('add-ue-ville').value;
+  const langSelect = document.getElementById('add-ue-langue');
+  const currentVal = langSelect.value;
+
+  // Most cities offer Espagnol and Anglais; some offer Francais
+  let options = [];
+  if (ville === 'Madrid' || ville === 'Malaga') {
+    options = [
+      { value: 'Espagnol', label: 'Espagnol' },
+      { value: 'Anglais', label: 'Anglais' }
+    ];
+  } else if (ville === 'Canaries' || ville === 'Valence' || ville === 'Alicante') {
+    options = [
+      { value: 'Espagnol', label: 'Espagnol' },
+      { value: 'Anglais', label: 'Anglais' },
+      { value: 'Francais', label: 'Francais' }
+    ];
+  }
+
+  langSelect.innerHTML = options.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+  // Restore previous selection if still available
+  if (options.some(o => o.value === currentVal)) {
+    langSelect.value = currentVal;
+  }
+}
+
+function showAddError(msg) {
+  const el = document.getElementById('add-error');
+  el.textContent = msg;
+  el.classList.add('visible');
+  document.getElementById('add-success').classList.remove('visible');
+}
+
+function showAddSuccess(msg) {
+  const el = document.getElementById('add-success');
+  el.textContent = msg;
+  el.classList.add('visible');
+  document.getElementById('add-error').classList.remove('visible');
+}
+
+async function submitManualDossier() {
+  const btn = document.getElementById('btn-submit-dossier');
+  btn.disabled = true;
+  btn.textContent = 'Creation en cours...';
+  document.getElementById('add-error').classList.remove('visible');
+  document.getElementById('add-success').classList.remove('visible');
+
+  try {
+    // ── Gather values ──
+    const nom = document.getElementById('add-nom').value.trim();
+    const prenom = document.getElementById('add-prenom').value.trim();
+    const email = document.getElementById('add-email').value.trim();
+    const tel = document.getElementById('add-tel').value.trim();
+    const departement = document.getElementById('add-departement').value.trim();
+    const profil = document.getElementById('add-profil').value;
+    const password = document.getElementById('add-password').value;
+    const score = parseFloat(document.getElementById('add-score').value) || null;
+    const moyPremiere = parseFloat(document.getElementById('add-moy-premiere').value) || null;
+    const moyTerminale = parseFloat(document.getElementById('add-moy-terminale').value) || null;
+    const moySpes = parseFloat(document.getElementById('add-moy-spes').value) || null;
+    const nbSpes = document.getElementById('add-nb-spes').value ? parseInt(document.getElementById('add-nb-spes').value) : null;
+    const status = document.getElementById('add-status').value;
+
+    // Validate required
+    if (!nom || !prenom || !email || !password) {
+      showAddError('Veuillez remplir les champs obligatoires : Nom, Prenom, Email, Mot de passe.');
+      btn.disabled = false;
+      btn.textContent = 'Creer le dossier';
+      return;
+    }
+    if (password.length < 6) {
+      showAddError('Le mot de passe doit contenir au moins 6 caracteres.');
+      btn.disabled = false;
+      btn.textContent = 'Creer le dossier';
+      return;
+    }
+
+    // Langues
+    const langues = {};
+    const espVal = document.getElementById('add-lang-esp').value;
+    const angVal = document.getElementById('add-lang-ang').value;
+    const itaVal = document.getElementById('add-lang-ita').value;
+    if (espVal) langues.espagnol = espVal;
+    if (angVal) langues.anglais = angVal;
+    if (itaVal) langues.italien = itaVal;
+
+    // Classement filieres
+    const classementFilieres = [];
+    document.querySelectorAll('.cb-filiere:checked').forEach(cb => classementFilieres.push(cb.value));
+
+    // Classement destinations
+    const classementDestinations = [];
+    document.querySelectorAll('.cb-dest:checked').forEach(cb => classementDestinations.push(cb.value));
+
+    // Determine main destination
+    let destination = '';
+    if (classementDestinations.includes('italie')) destination = 'italie';
+    if (classementDestinations.includes('espagne')) destination = 'espagne';
+    // If both, use first in list
+    if (classementDestinations.length > 0) {
+      const first = classementDestinations[0];
+      if (first === 'italie' || first === 'espagne') destination = first;
+    }
+
+    // Determine main universite based on uni selections
+    let universite = '';
+
+    // Uni selections
+    const uniSelections = {};
+    const filiereLabelsMap = { medecine: 'Medecine', dentaire: 'Dentaire', kine: 'Kinesitherapie', pharmacie: 'Pharmacie', veterinaire: 'Veterinaire' };
+
+    if (document.getElementById('cb-link').checked) {
+      const fil = document.getElementById('add-link-filiere').value;
+      uniSelections.LINK = { filiere: fil, filiereLabel: filiereLabelsMap[fil] || fil };
+      if (!universite) universite = 'LINK Campus';
+      if (!destination) destination = 'italie';
+    }
+    if (document.getElementById('cb-ucjc').checked) {
+      const fil = document.getElementById('add-ucjc-filiere').value;
+      uniSelections.UCJC = { filiere: fil, filiereLabel: filiereLabelsMap[fil] || fil };
+      if (!universite) universite = 'UCJC';
+      if (!destination) destination = 'espagne';
+    }
+    if (document.getElementById('cb-ue').checked) {
+      const fil = document.getElementById('add-ue-filiere').value;
+      const ville = document.getElementById('add-ue-ville').value;
+      const langue = document.getElementById('add-ue-langue').value;
+      uniSelections.UE = {
+        filiere: fil,
+        filiereLabel: filiereLabelsMap[fil] || fil,
+        ville: ville,
+        langue: langue
+      };
+      if (!universite) universite = 'UE ' + ville;
+      if (!destination) destination = 'espagne';
+    }
+
+    // Build notes_premiere from moySpes and nbSpes (simplified)
+    let notesPremiere = [];
+    if (moySpes !== null && nbSpes) {
+      const sciNames = ['Mathematiques', 'Physique-Chimie', 'SVT'];
+      for (let i = 0; i < Math.min(nbSpes, 3); i++) {
+        notesPremiere.push({ nom: sciNames[i] || 'Specialite ' + (i+1), moy: moySpes.toString(), t1: '', t2: '', t3: '' });
+      }
+    }
+
+    // ── 1. Save admin session, create user via signUp ──
+    const { data: { session: adminSession } } = await supabase.auth.getSession();
+    if (!adminSession) {
+      showAddError('Session admin expirée. Veuillez vous reconnecter.');
+      btn.disabled = false;
+      btn.textContent = 'Creer le dossier';
+      return;
+    }
+
+    // Sign up the new student
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: email,
+      password: password
+    });
+    if (signUpError) {
+      // Re-auth admin immediately
+      await supabase.auth.setSession({
+        access_token: adminSession.access_token,
+        refresh_token: adminSession.refresh_token
+      });
+      showAddError('Erreur creation compte : ' + signUpError.message);
+      btn.disabled = false;
+      btn.textContent = 'Creer le dossier';
+      return;
+    }
+
+    const newUserId = signUpData.user?.id;
+    if (!newUserId) {
+      await supabase.auth.setSession({
+        access_token: adminSession.access_token,
+        refresh_token: adminSession.refresh_token
+      });
+      showAddError('Erreur : impossible de recuperer l\'ID utilisateur.');
+      btn.disabled = false;
+      btn.textContent = 'Creer le dossier';
+      return;
+    }
+
+    // ── 2. Restore admin session ──
+    const { error: restoreError } = await supabase.auth.setSession({
+      access_token: adminSession.access_token,
+      refresh_token: adminSession.refresh_token
+    });
+    if (restoreError) {
+      console.error('Failed to restore admin session:', restoreError);
+      showAddError('Erreur restauration session admin. Veuillez vous reconnecter.');
+      btn.disabled = false;
+      btn.textContent = 'Creer le dossier';
+      return;
+    }
+
+    // ── 3. Create profile ──
+    await supabase.from('profiles').insert({
+      id: newUserId,
+      nom: nom,
+      prenom: prenom,
+      email: email,
+      tel: tel,
+      departement: departement
+    });
+
+    // ── 4. Create candidature ──
+    const adminEmail = currentAdminUser?.email || 'admin';
+    const candidatureData = {
+      user_id: newUserId,
+      nom: nom,
+      prenom: prenom,
+      email: email,
+      tel: tel,
+      departement: departement,
+      profil: profil,
+      score: score,
+      notes_premiere: notesPremiere,
+      moyenne_premiere: moyPremiere,
+      moyenne_terminale: moyTerminale,
+      langues: langues,
+      classement_filieres: classementFilieres,
+      classement_destinations: classementDestinations,
+      destination: destination || null,
+      universite: universite || null,
+      filiere: classementFilieres.length > 0 ? classementFilieres[0] : null,
+      uni_selections: Object.keys(uniSelections).length > 0 ? uniSelections : null,
+      uni_selections_at: Object.keys(uniSelections).length > 0 ? new Date().toISOString() : null,
+      status: status,
+      status_history: [{ status: status, at: new Date().toISOString(), by: adminEmail + ' (ajout manuel)' }],
+      manual_override: true,
+      documents: {}
+    };
+
+    const { data: insertedCandidature, error: candidatureError } = await supabase
+      .from('candidatures')
+      .insert(candidatureData)
+      .select()
+      .single();
+
+    if (candidatureError) {
+      console.error('Candidature insert error:', candidatureError);
+      showAddError('Erreur creation candidature : ' + candidatureError.message);
+      btn.disabled = false;
+      btn.textContent = 'Creer le dossier';
+      return;
+    }
+
+    const candidatureId = insertedCandidature.id;
+
+    // ── 5. Upload documents ──
+    const docMap = {
+      'add-doc-identite': 'identite',
+      'add-doc-bulletins': 'bulletins',
+      'add-doc-formulaire-link': 'formulaire_link',
+      'add-doc-formulaire-ucjc': 'formulaire_ucjc',
+      'add-doc-lettre': 'lettre_motivation',
+      'add-doc-rapport': 'rapport_technique'
+    };
+
+    const uploadedDocs = {};
+    for (const [inputId, docKey] of Object.entries(docMap)) {
+      const fileInput = document.getElementById(inputId);
+      if (fileInput && fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const ext = file.name.split('.').pop();
+        const path = `${newUserId}/${docKey}.${ext}`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('candidature-docs')
+          .upload(path, file, { upsert: true });
+
+        if (uploadError) {
+          console.warn('Upload error for ' + docKey + ':', uploadError);
+          continue;
+        }
+
+        const { data: urlData } = supabase.storage
+          .from('candidature-docs')
+          .getPublicUrl(path);
+
+        if (urlData?.publicUrl) {
+          uploadedDocs[docKey] = urlData.publicUrl;
+        }
+      }
+    }
+
+    // Update candidature with documents if any were uploaded
+    if (Object.keys(uploadedDocs).length > 0) {
+      await supabase.from('candidatures').update({ documents: uploadedDocs }).eq('id', candidatureId);
+    }
+
+    // ── 6. Generate auto_response_text if status is reponse_edumove ──
+    if (status === 'reponse_edumove') {
+      const responseText = generateReponseEdumove(candidatureData);
+      await supabase.from('candidatures').update({
+        auto_response_text: responseText,
+        auto_response_generated_at: new Date().toISOString()
+      }).eq('id', candidatureId);
+    }
+
+    // ── 7. Success ──
+    showAddSuccess('Dossier cree avec succes pour ' + prenom + ' ' + nom + ' (' + email + ')');
+    btn.textContent = 'Dossier cree !';
+
+    // Refresh dashboard
+    await loadCandidatures();
+
+    // Close modal after delay
+    setTimeout(() => {
+      closeAddModal();
+    }, 2000);
+
+  } catch (err) {
+    console.error('submitManualDossier error:', err);
+    showAddError('Erreur inattendue : ' + (err.message || err));
+    btn.disabled = false;
+    btn.textContent = 'Creer le dossier';
+  }
+}
 </script>
 </body>
 </html>
