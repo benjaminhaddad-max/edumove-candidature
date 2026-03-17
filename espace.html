@@ -1077,32 +1077,6 @@ body {
     </div>
   </div>
 
-  <!-- DOCUMENTS -->
-  <div class="section-card">
-    <div class="section-card-header">
-      <div class="section-card-title">Documents</div>
-    </div>
-    <div class="section-card-body">
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Vous pouvez ajouter des documents complémentaires à votre dossier (bulletins, passeport, lettres...). L'équipe EDUMOVE les consultera.</p>
-      <div class="upload-zone" onclick="document.getElementById('file-upload').click()">
-        <div class="upload-zone-icon">📎</div>
-        <div class="upload-zone-label"><strong>Cliquez pour ajouter un document</strong> · PDF, JPG, PNG (max 10 Mo)</div>
-        <input type="file" id="file-upload" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDocument(this)"/>
-      </div>
-      <div class="upload-progress" id="upload-progress">Envoi en cours...</div>
-      <div class="uploaded-files" id="uploaded-files"></div>
-      <div class="confirm-docs-wrap" id="confirm-docs-wrap" style="display:none;">
-        <button class="btn-confirm-docs" id="btn-confirm-docs" onclick="confirmDocumentsSubmitted()">
-          ✅ J'ai envoyé tous mes documents complémentaires
-        </button>
-        <div class="docs-confirmed-banner" id="docs-confirmed-banner" style="display:none;">
-          <span>✅</span>
-          <div>Vos documents ont bien été reçus. L'équipe EDUMOVE va les examiner et vous recontacter prochainement.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- MESSAGERIE -->
   <div class="section-card">
       <div class="section-card-header">
