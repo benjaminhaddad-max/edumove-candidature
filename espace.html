@@ -2083,11 +2083,12 @@ function toggleUCJCEtapes() {
   if (btn) btn.classList.toggle('open');
 }
 
-function buildUEEtapes(langue) {
+function buildUEEtapes(langue, filiereLabel) {
   let h = '';
   const isAnglais = langue === 'Anglais';
   const isEspagnol = langue === 'Espagnol';
   const isFrancais = langue === 'Français';
+  const isMedecine = filiereLabel === 'Médecine';
 
   // Étape 3 - Tests d'admission
   h += '<div style="margin-bottom:14px;">';
@@ -2114,11 +2115,77 @@ function buildUEEtapes(langue) {
 
   // Deadlines
   h += '<div style="margin-bottom:14px;">';
-  h += '<div style="font-size:12px;font-weight:700;color:#003da5;margin-bottom:6px;display:flex;align-items:center;gap:6px;">&#x23F0; Deadlines & fonctionnement</div>';
+  h += '<div style="font-size:12px;font-weight:700;color:#003da5;margin-bottom:6px;display:flex;align-items:center;gap:6px;">&#x23F0; Deadlines & calendrier d\'admission</div>';
   h += '<div style="font-size:11.5px;color:var(--text);line-height:1.6;padding:10px 12px;background:white;border-radius:8px;border-left:3px solid #003da5;">';
   h += 'L\'admission fonctionne par <strong>sessions mensuelles</strong> : chaque mois, une nouvelle deadline s\'ouvre (le lendemain de la précédente) et se ferme à la date indiquée.';
-  h += '<div style="margin:8px 0;padding:8px 10px;background:#e3f2fd;border-radius:6px;font-weight:600;color:#003da5;">&#x1F4C6; Deadline actuelle : <strong>16 avril 2026</strong> pour effectuer vos tests en ligne</div>';
-  h += '<div style="padding:6px 10px;background:#fff3e0;border-radius:6px;color:#e65100;font-weight:500;">&#x26A0;&#xFE0F; Le système fonctionne comme un entonnoir : plus les mois passent, moins il reste de places disponibles. Il est fortement recommandé de passer vos tests au plus tôt.</div>';
+  h += '<div style="padding:6px 10px;margin:8px 0;background:#fff3e0;border-radius:6px;color:#e65100;font-weight:500;">&#x26A0;&#xFE0F; Le système fonctionne comme un entonnoir : plus les mois passent, moins il reste de places disponibles. Il est fortement recommandé de passer vos tests au plus tôt.</div>';
+
+  // Tableau de deadlines
+  var tStyle = 'width:100%;border-collapse:collapse;margin-top:8px;font-size:11px;';
+  var thStyle = 'background:#003da5;color:white;padding:6px 8px;text-align:center;font-weight:600;font-size:10px;';
+  var tdStyle = 'padding:5px 8px;text-align:center;border:1px solid #e0e0e0;font-size:11px;';
+  var tdHighlight = tdStyle + 'background:#e3f2fd;font-weight:600;';
+
+  if (isMedecine) {
+    // Médecine deadlines
+    h += '<div style="margin-top:8px;font-weight:600;font-size:11px;color:#003da5;">Calendrier Médecine :</div>';
+    h += '<table style="' + tStyle + '">';
+    h += '<tr><th style="' + thStyle + '">Session</th><th style="' + thStyle + '">Limite dossier</th><th style="' + thStyle + '">Admission</th><th style="' + thStyle + '">Limite paiement</th></tr>';
+
+    var medRows = [
+      ['1ère', '09/12/2025', '15/12/2025', '22/12/2025'],
+      ['2ème', '16/02/2026', '19/02/2026', '26/02/2026'],
+      ['3ème', '17/04/2026', '22/04/2026', '29/04/2026'],
+      ['4ème', '18/05/2026', '21/05/2026', '28/05/2026'],
+      ['5ème', '06/07/2026', '08/07/2026', '15/07/2026']
+    ];
+    // Find current session (today = 2026-03-17)
+    medRows.forEach(function(r) {
+      var parts = r[1].split('/');
+      var deadline = new Date(parts[2], parts[1] - 1, parts[0]);
+      var today = new Date();
+      var isPast = deadline < today;
+      var style = isPast ? tdStyle + 'color:#999;text-decoration:line-through;' : tdStyle;
+      var isNext = !isPast && r === medRows.find(function(row) {
+        var p = row[1].split('/');
+        return new Date(p[2], p[1] - 1, p[0]) >= today;
+      });
+      if (isNext) style = tdHighlight;
+      h += '<tr><td style="' + style + '">' + r[0] + '</td><td style="' + style + '">' + r[1] + '</td><td style="' + style + '">' + r[2] + '</td><td style="' + style + '">' + r[3] + '</td></tr>';
+    });
+    h += '</table>';
+  } else {
+    // Dentaire, Kinésithérapie, Vétérinaire, Pharmacie deadlines
+    h += '<div style="margin-top:8px;font-weight:600;font-size:11px;color:#003da5;">Calendrier ' + filiereLabel + ' :</div>';
+    h += '<table style="' + tStyle + '">';
+    h += '<tr><th style="' + thStyle + '">Limite dossier</th><th style="' + thStyle + '">Résultats admission</th><th style="' + thStyle + '">Limite paiement</th></tr>';
+
+    var spRows = [
+      ['04/12/2025', '10/12/2025', '12/12/2025'],
+      ['09/01/2026', '14/01/2026', '16/01/2026'],
+      ['05/02/2026', '10/02/2026', '12/02/2026'],
+      ['05/03/2026', '10/03/2026', '12/03/2026'],
+      ['16/04/2026', '21/04/2026', '23/04/2026'],
+      ['08/05/2026', '12/05/2026', '14/05/2026'],
+      ['08/06/2026', '11/06/2026', '13/06/2026'],
+      ['15/07/2026', '21/07/2026', '23/07/2026']
+    ];
+    spRows.forEach(function(r) {
+      var parts = r[0].split('/');
+      var deadline = new Date(parts[2], parts[1] - 1, parts[0]);
+      var today = new Date();
+      var isPast = deadline < today;
+      var style = isPast ? tdStyle + 'color:#999;text-decoration:line-through;' : tdStyle;
+      var isNext = !isPast && r === spRows.find(function(row) {
+        var p = row[0].split('/');
+        return new Date(p[2], p[1] - 1, p[0]) >= today;
+      });
+      if (isNext) style = tdHighlight;
+      h += '<tr><td style="' + style + '">' + r[0] + '</td><td style="' + style + '">' + r[1] + '</td><td style="' + style + '">' + r[2] + '</td></tr>';
+    });
+    h += '</table>';
+  }
+
   h += '</div></div>';
 
   // Résultats & inscription
@@ -2324,7 +2391,7 @@ function finalizeUESelection(filiereLabel, ville, langue) {
   html += '<button class="link-test-toggle" onclick="toggleUEEtapes()" id="ue-etapes-toggle-btn" style="width:100%;background:none;border:1.5px solid #003da5;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:600;color:#003da5;cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between;font-family:inherit;">';
   html += '<span>&#x1F4C5; Prochaines étapes après dépôt du dossier</span><span class="link-test-toggle-arrow" style="transition:transform 0.2s;font-size:11px;">&#x25BC;</span></button>';
   html += '<div id="ue-etapes-content" style="display:none;background:var(--bg);border-radius:8px;padding:14px;margin-top:8px;font-size:12px;line-height:1.7;">';
-  html += buildUEEtapes(langue);
+  html += buildUEEtapes(langue, filiereLabel);
   html += '</div>';
   html += '</div>';
 
