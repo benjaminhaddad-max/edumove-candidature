@@ -5,295 +5,267 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Edumove — Back Office Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
 :root {
-  --orange: #ec680a;
-  --navy: #1b1d3a;
-  --violet: #615ca5;
-  --violet-light: #8883c0;
+  --orange: #f97316;
+  --orange-hover: #ea580c;
+  --navy: #0f172a;
+  --navy-light: #1e293b;
+  --violet: #6366f1;
+  --violet-hover: #4f46e5;
+  --violet-light: #a5b4fc;
+  --violet-bg: #eef2ff;
   --cream: #fafafa;
   --white: #ffffff;
-  --border: #e2e2ef;
-  --text: #1b1d3a;
-  --text-muted: #7b7b9a;
-  --success: #2e7d52;
-  --error: #d63031;
-  --bg: #f5f5fb;
-  --warning: #e17055;
+  --border: #e2e8f0;
+  --border-light: #f1f5f9;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+  --success: #10b981;
+  --success-bg: #ecfdf5;
+  --error: #ef4444;
+  --error-bg: #fef2f2;
+  --bg: #f8fafc;
+  --warning: #f59e0b;
+  --warning-bg: #fffbeb;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+  --radius: 10px;
+  --radius-lg: 14px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-body {
-  font-family: 'Poppins', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  font-size: 14px;
-  line-height: 1.6;
-}
+body { margin: 0; font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
 
 /* ── HEADER ── */
 .site-header {
   background: var(--navy);
-  padding: 0 40px;
+  padding: 0 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 66px;
+  height: 56px;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 20px rgba(27,29,58,0.4);
 }
-.logo-zone { display: flex; align-items: center; gap: 10px; }
-.logo-wordmark { font-size: 22px; font-weight: 700; color: white; letter-spacing: -0.01em; }
-.logo-wordmark span { font-weight: 300; color: rgba(255,255,255,0.85); }
-.header-right { display: flex; align-items: center; gap: 16px; }
-.header-user { font-size: 12px; color: rgba(255,255,255,0.6); }
-.btn-logout {
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
+.logo-zone { display: flex; align-items: center; gap: 12px; }
+.logo-wordmark {
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.03em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo-wordmark span { font-weight: 400; color: rgba(255,255,255,0.5); font-size: 14px; }
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--orange), #fb923c);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 900;
   color: white;
-  padding: 6px 16px;
-  border-radius: 6px;
+}
+.header-right { display: flex; align-items: center; gap: 10px; }
+.header-user { font-size: 12px; color: rgba(255,255,255,0.5); }
+.header-nav-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.85);
+  padding: 7px 14px;
+  border-radius: 8px;
   font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
   font-family: inherit;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
-.btn-logout:hover { background: rgba(255,255,255,0.2); }
+.header-nav-btn:hover { background: rgba(255,255,255,0.15); color: white; }
+.btn-logout {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.6);
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-logout:hover { background: rgba(239,68,68,0.15); color: #fca5a5; border-color: rgba(239,68,68,0.3); }
 
 /* ── LOGIN ── */
+.login-view { display: none; }
+.login-view.active { display: block; }
 .login-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 66px);
-  padding: 40px;
+  min-height: calc(100vh - 56px);
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
 }
 .login-card {
   background: white;
-  border-radius: 16px;
-  padding: 48px 40px;
-  max-width: 420px;
-  width: 100%;
-  box-shadow: 0 4px 24px rgba(27,29,58,0.08);
+  padding: 48px 44px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  max-width: 400px;
+  width: 90%;
   text-align: center;
 }
 .login-card h2 {
   font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 6px;
+  font-weight: 800;
+  margin: 0 0 6px;
+  letter-spacing: -0.03em;
   color: var(--navy);
 }
-.login-card p {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-bottom: 28px;
-}
+.login-card p { font-size: 13px; color: var(--text-muted); margin: 0 0 28px; }
 .login-field {
+  display: block;
   width: 100%;
   padding: 12px 16px;
+  margin-bottom: 14px;
   border: 1.5px solid var(--border);
-  border-radius: 8px;
-  font-family: inherit;
+  border-radius: var(--radius);
   font-size: 14px;
-  margin-bottom: 12px;
-  outline: none;
-  transition: border 0.2s;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: var(--bg);
 }
-.login-field:focus { border-color: var(--violet); }
+.login-field:focus { outline: none; border-color: var(--violet); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); background: white; }
 .btn-login {
   width: 100%;
   padding: 13px;
-  background: var(--orange);
+  background: var(--violet);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-family: inherit;
+  border-radius: var(--radius);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  margin-top: 8px;
-  transition: background 0.2s;
+  font-family: inherit;
+  margin-top: 6px;
+  transition: background 0.2s, transform 0.1s;
 }
-.btn-login:hover { background: #d55a06; }
-.login-error {
-  color: var(--error);
-  font-size: 12px;
-  margin-top: 12px;
-  display: none;
-}
+.btn-login:hover { background: var(--violet-hover); }
+.btn-login:active { transform: scale(0.98); }
+.login-error { color: var(--error); font-size: 12px; margin-top: 14px; display: none; }
 .login-error.visible { display: block; }
 
 /* ── DASHBOARD ── */
 .dashboard { display: none; }
 .dashboard.active { display: block; }
-.login-view.active { display: block; }
 
-.dash-content {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 24px 32px;
-}
-.dash-title {
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 2px;
-}
-.dash-subtitle {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-bottom: 14px;
-}
+.dash-content { max-width: 1600px; margin: 0 auto; padding: 28px 32px; }
+.dash-title { font-size: 24px; font-weight: 800; letter-spacing: -0.03em; color: var(--navy); }
+.dash-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
 
 /* ── STATS CARDS ── */
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 10px;
-  margin-bottom: 18px;
-}
+.stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
 .stat-card {
   background: white;
-  border-radius: 10px;
-  padding: 14px 16px;
-  box-shadow: 0 1px 8px rgba(27,29,58,0.05);
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  transition: box-shadow 0.2s;
 }
-.stat-label {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  font-weight: 500;
-  margin-bottom: 2px;
-}
-.stat-value {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--navy);
-}
+.stat-card:hover { box-shadow: var(--shadow); }
+.stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 6px; }
+.stat-value { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; color: var(--navy); }
+.stat-card.orange { border-left: 3px solid var(--orange); }
 .stat-card.orange .stat-value { color: var(--orange); }
-.stat-card.green .stat-value { color: var(--success); }
-.stat-card.red .stat-value { color: var(--error); }
+.stat-card.violet { border-left: 3px solid var(--violet); }
 .stat-card.violet .stat-value { color: var(--violet); }
+.stat-card.green { border-left: 3px solid var(--success); }
+.stat-card.green .stat-value { color: var(--success); }
+.stat-card.red { border-left: 3px solid var(--error); }
+.stat-card.red .stat-value { color: var(--error); }
 
 /* ── TOOLBAR ── */
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
-}
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 20px; }
 .search-input {
   flex: 1;
-  min-width: 200px;
-  padding: 10px 16px;
+  min-width: 220px;
+  padding: 10px 14px;
   border: 1.5px solid var(--border);
-  border-radius: 8px;
-  font-family: inherit;
+  border-radius: var(--radius);
   font-size: 13px;
-  outline: none;
-  transition: border 0.2s;
+  font-family: inherit;
+  background: white;
+  transition: all 0.2s;
 }
-.search-input:focus { border-color: var(--violet); }
+.search-input:focus { outline: none; border-color: var(--violet); box-shadow: 0 0 0 3px rgba(99,102,241,0.08); }
 .filter-select {
   padding: 10px 14px;
   border: 1.5px solid var(--border);
-  border-radius: 8px;
-  font-family: inherit;
-  font-size: 13px;
-  outline: none;
+  border-radius: var(--radius);
   background: white;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
   cursor: pointer;
   min-width: 140px;
 }
 .btn-export {
-  padding: 10px 20px;
+  padding: 10px 18px;
   background: var(--navy);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-family: inherit;
+  border-radius: var(--radius);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
-  white-space: nowrap;
+  font-family: inherit;
+  transition: all 0.2s;
 }
-.btn-export:hover { background: #2a2d52; }
+.btn-export:hover { background: var(--navy-light); transform: translateY(-1px); }
 
 /* ── TABLE ── */
-.table-wrap {
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(27,29,58,0.05);
-}
+.table-wrap { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); overflow: hidden; }
 .table-container { overflow-x: auto; }
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-thead {
-  background: var(--navy);
-  color: white;
-}
-th {
-  padding: 14px 16px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-}
-td {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
-  vertical-align: middle;
-}
+table { width: 100%; border-collapse: collapse; }
+thead { background: var(--navy); }
+th { padding: 13px 16px; text-align: left; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.9); text-transform: uppercase; letter-spacing: 0.06em; }
+td { padding: 14px 16px; border-bottom: 1px solid var(--border-light); font-size: 13px; vertical-align: middle; }
+tr:hover { background: rgba(99,102,241,0.02); }
 tr:last-child td { border-bottom: none; }
-tr:hover { background: rgba(97,92,165,0.03); }
 .td-name { font-weight: 600; color: var(--navy); }
-.td-email { color: var(--text-muted); font-size: 12px; }
-.td-date { color: var(--text-muted); font-size: 12px; white-space: nowrap; }
+.td-date { color: var(--text-muted); font-size: 12px; }
 
 /* ── UNI BADGES IN TABLE ── */
 .uni-badges { display: flex; gap: 4px; flex-wrap: wrap; }
-.uni-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-}
-.uni-badge.link { background: #e8eaf6; color: #1a2744; }
-.uni-badge.ucjc { background: #fce4ec; color: #96234a; }
-.uni-badge.ue { background: #e3f2fd; color: #003da5; }
+.uni-badge { display: inline-block; padding: 3px 8px; border-radius: 5px; font-size: 10px; font-weight: 700; letter-spacing: 0.03em; }
+.uni-badge.link { background: #eef2ff; color: #3730a3; }
+.uni-badge.ucjc { background: #fdf2f8; color: #9d174d; }
+.uni-badge.ue { background: #dbeafe; color: #1e40af; }
 
 /* ── STATUS BADGES ── */
-.status-badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-.status-en_attente { background: #fff3e0; color: #e65100; }
-.status-en_cours { background: #e8eaf6; color: #3949ab; }
-.status-reponse_edumove { background: #e3f2fd; color: #1565c0; }
-.status-dossier_soumis { background: #f3e5f5; color: #7b1fa2; }
-.status-accepte { background: #e8f5e9; color: #2e7d32; }
-.status-refuse { background: #ffebee; color: #c62828; }
-.status-abandon { background: #fafafa; color: #757575; }
+.status-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.status-en_attente { background: var(--warning-bg); color: #92400e; }
+.status-en_cours { background: var(--violet-bg); color: var(--violet); }
+.status-reponse_edumove { background: #dbeafe; color: #1d4ed8; }
+.status-dossier_soumis { background: #f3e8ff; color: #7c3aed; }
+.status-accepte { background: var(--success-bg); color: #065f46; }
+.status-refuse { background: var(--error-bg); color: #991b1b; }
+.status-abandon { background: #f8fafc; color: #475569; }
 
 .status-select {
   padding: 6px 10px;
@@ -308,144 +280,93 @@ tr:hover { background: rgba(97,92,165,0.03); }
 
 /* ── BTN VIEW ── */
 .btn-view {
-  padding: 6px 14px;
+  padding: 6px 16px;
   background: var(--violet);
   color: white;
   border: none;
   border-radius: 6px;
-  font-family: inherit;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  font-family: inherit;
+  transition: all 0.2s;
 }
-.btn-view:hover { background: var(--violet-light); }
+.btn-view:hover { background: var(--violet-hover); transform: translateY(-1px); }
 
 /* ── EMPTY STATE ── */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-muted);
-}
-.empty-state-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.4; }
-.empty-state p { font-size: 14px; }
+.empty-state { text-align: center; padding: 60px 20px; }
+.empty-state-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
+.empty-state p { color: var(--text-muted); font-size: 14px; }
 
 /* ══════════════════════════════════════════
    DETAIL PAGE (full page, replaces dashboard)
 ══════════════════════════════════════════ */
-.detail-page {
-  display: none;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 32px 40px 60px;
-}
+.detail-page { display: none; max-width: 1100px; margin: 0 auto; padding: 28px 32px 60px; }
 .detail-page.active { display: block; }
-
-.detail-page-header {
-  margin-bottom: 32px;
-}
+.detail-page-header { margin-bottom: 28px; }
 .detail-back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
   font-size: 13px;
   color: var(--violet);
-  text-decoration: none;
-  font-weight: 500;
   cursor: pointer;
-  margin-bottom: 16px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 12px;
   transition: color 0.2s;
 }
-.detail-back-link:hover { color: var(--orange); }
-
-.detail-page-title-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-.detail-page-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--navy);
-}
+.detail-back-link:hover { color: var(--violet-hover); }
+.detail-page-title-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.detail-page-title { font-size: 26px; font-weight: 800; letter-spacing: -0.03em; margin: 0; color: var(--navy); }
 .detail-page-status-select {
-  padding: 8px 14px;
+  padding: 7px 14px;
   border: 1.5px solid var(--border);
   border-radius: 8px;
   font-family: inherit;
   font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
-  outline: none;
   background: white;
-  margin-left: auto;
 }
 
 /* ── DETAIL CARDS ── */
-.detail-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+.detail-cards { display: flex; flex-direction: column; gap: 16px; }
 .detail-card {
   background: white;
-  border-radius: 12px;
-  padding: 22px 28px;
-  box-shadow: 0 2px 12px rgba(27,29,58,0.05);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  overflow: hidden;
 }
 .detail-card-title {
   font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--violet);
   font-weight: 700;
-  margin-bottom: 0;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--bg);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--violet);
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-light);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: background 0.2s;
   user-select: none;
-  transition: color 0.2s;
 }
-.detail-card-title:hover { color: var(--orange); }
+.detail-card-title:hover { background: var(--bg); }
 .detail-card-title::after {
   content: '▾';
-  font-size: 14px;
-  transition: transform 0.3s;
+  font-size: 12px;
   color: var(--text-muted);
+  transition: transform 0.2s;
 }
-.detail-card-title.collapsed::after {
-  transform: rotate(-90deg);
-}
-.detail-card-body {
-  margin-top: 16px;
-  transition: all 0.3s ease;
-}
-.detail-card-body.collapsed {
-  display: none;
-}
-.detail-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-}
+.detail-card-title.collapsed::after { transform: rotate(-90deg); }
+.detail-card-body { padding: 20px 24px; transition: all 0.3s ease; }
+.detail-card-body.collapsed { display: none; }
+.detail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .detail-item {}
-.detail-item-label {
-  display: block;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  font-weight: 600;
-  margin-bottom: 3px;
-}
-.detail-item-value {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--navy);
-}
+.detail-item-label { display: block; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 3px; }
+.detail-item-value { font-size: 14px; font-weight: 500; color: var(--text); }
 
 .notes-table {
   width: 100%;
@@ -571,89 +492,63 @@ tr:hover { background: rgba(97,92,165,0.03); }
 .btn-msg-send:hover { background: #d45c08; }
 
 /* ── PAGINATION ── */
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 20px;
-  border-top: 1px solid var(--border);
-}
+.pagination { display: flex; justify-content: center; gap: 4px; padding: 16px; }
 .page-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
+  padding: 8px 14px;
   border: 1.5px solid var(--border);
   background: white;
+  border-radius: 8px;
+  cursor: pointer;
   font-family: inherit;
   font-size: 13px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-weight: 500;
   transition: all 0.2s;
+  color: var(--text);
 }
-.page-btn:hover { border-color: var(--violet); color: var(--violet); }
+.page-btn:hover { background: var(--bg); border-color: var(--violet); }
 .page-btn.active { background: var(--violet); color: white; border-color: var(--violet); }
-.page-btn:disabled { opacity: 0.4; cursor: default; }
-.page-info { font-size: 12px; color: var(--text-muted); margin: 0 8px; }
+.page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.page-info { padding: 8px 6px; color: var(--text-muted); font-size: 13px; }
 
 /* ── ADD DOSSIER MODAL ── */
-.add-modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(27,29,58,0.55);
-  z-index: 300;
-  align-items: flex-start;
-  justify-content: center;
-  overflow-y: auto;
-  padding: 30px 20px;
-}
+.add-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 500; justify-content: center; align-items: flex-start; padding: 40px 20px; overflow-y: auto; backdrop-filter: blur(4px); }
 .add-modal-overlay.active { display: flex; }
 .add-modal {
   background: white;
-  border-radius: 16px;
-  max-width: 900px;
+  border-radius: var(--radius-lg);
+  max-width: 860px;
   width: 100%;
-  box-shadow: 0 8px 40px rgba(27,29,58,0.18);
-  animation: fadeUp 0.3s ease;
+  box-shadow: var(--shadow-lg);
+  animation: fadeUp 0.25s ease;
 }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .add-modal .modal-header {
-  position: sticky;
-  top: 0;
-  background: white;
-  border-radius: 16px 16px 0 0;
-  z-index: 2;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 24px 32px;
-  border-bottom: 1px solid var(--border);
+  align-items: center;
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--border-light);
 }
-.add-modal .modal-header h3 {
-  font-size: 18px;
-  font-weight: 700;
-}
+.add-modal .modal-header h3 { font-size: 16px; font-weight: 700; margin: 0; color: var(--navy); }
 .add-modal .modal-body { padding: 24px 32px 32px; }
 .modal-close {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: none;
-  background: var(--bg);
-  font-size: 18px;
-  cursor: pointer;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s;
+  background: var(--bg);
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s;
 }
-.modal-close:hover { background: var(--border); }
+.modal-close:hover { background: var(--error-bg); color: var(--error); }
 .add-section {
   margin-bottom: 28px;
 }
@@ -786,33 +681,52 @@ tr:hover { background: rgba(97,92,165,0.03); }
 .btn-gen-pass:hover { background: var(--violet-light); }
 
 /* ── FAC MESSAGING ── */
-.msg-page { display: none; max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
-.msg-page.active { display: flex; gap: 20px; height: calc(100vh - 80px); }
-.msg-sidebar { width: 280px; flex-shrink: 0; background: white; border-radius: 12px; border: 1.5px solid var(--border); overflow: hidden; display: flex; flex-direction: column; }
-.msg-sidebar-title { padding: 16px 20px; font-size: 14px; font-weight: 700; color: var(--navy); border-bottom: 1.5px solid var(--border); text-transform: uppercase; letter-spacing: 0.04em; }
+.msg-page { display: none; max-width: 1200px; margin: 0 auto; padding: 28px 20px; }
+.msg-page.active { display: flex; gap: 16px; height: calc(100vh - 76px); }
+.msg-sidebar {
+  width: 300px;
+  flex-shrink: 0;
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.msg-sidebar-title { padding: 16px 20px; font-size: 13px; font-weight: 700; color: var(--navy); border-bottom: 1px solid var(--border-light); text-transform: uppercase; letter-spacing: 0.04em; }
 .msg-conv-list { flex: 1; overflow-y: auto; }
-.msg-conv-item { padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.2s; display: flex; flex-direction: column; gap: 2px; }
-.msg-conv-item:hover { background: #f8f8fb; }
-.msg-conv-item.active { background: #f0f0ff; border-left: 3px solid var(--violet); }
+.msg-conv-item { padding: 14px 20px; cursor: pointer; border-bottom: 1px solid var(--border-light); transition: all 0.15s; display: flex; flex-direction: column; gap: 3px; }
+.msg-conv-item:hover { background: var(--bg); }
+.msg-conv-item.active { background: var(--violet-bg); border-left: 3px solid var(--violet); }
 .msg-conv-item .conv-name { font-size: 13px; font-weight: 600; color: var(--navy); }
 .msg-conv-item .conv-preview { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.msg-conv-item .conv-student { font-size: 10px; color: var(--violet); font-weight: 500; }
-.msg-main { flex: 1; display: flex; flex-direction: column; background: white; border-radius: 12px; border: 1.5px solid var(--border); overflow: hidden; }
-.msg-main-header { padding: 16px 20px; border-bottom: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.msg-conv-item .conv-student { font-size: 10px; color: var(--violet); font-weight: 600; }
+.msg-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.msg-main-header { padding: 16px 24px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; }
 .msg-main-header h3 { font-size: 15px; font-weight: 700; color: var(--navy); margin: 0; }
-.msg-main-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-.msg-bubble { max-width: 70%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; }
+.msg-main-body { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 10px; background: var(--bg); }
+.msg-bubble { max-width: 70%; padding: 10px 16px; border-radius: 14px; font-size: 13px; line-height: 1.5; }
 .msg-bubble.sent { align-self: flex-end; background: var(--violet); color: white; border-bottom-right-radius: 4px; }
-.msg-bubble.received { align-self: flex-start; background: #f0f0f5; color: var(--text); border-bottom-left-radius: 4px; }
-.msg-bubble .msg-meta { font-size: 10px; opacity: 0.7; margin-top: 4px; }
-.msg-main-footer { padding: 12px 20px; border-top: 1.5px solid var(--border); display: flex; gap: 10px; }
-.msg-main-footer textarea { flex: 1; border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 13px; font-family: inherit; resize: none; height: 44px; }
-.msg-main-footer textarea:focus { outline: none; border-color: var(--violet); }
-.msg-main-footer button { padding: 0 24px; background: var(--orange); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: inherit; font-size: 13px; }
-.msg-main-footer button:hover { opacity: 0.9; }
+.msg-bubble.received { align-self: flex-start; background: white; color: var(--text); border: 1px solid var(--border-light); border-bottom-left-radius: 4px; }
+.msg-bubble .msg-meta { font-size: 10px; opacity: 0.6; margin-top: 4px; }
+.msg-main-footer { padding: 14px 20px; border-top: 1px solid var(--border-light); display: flex; gap: 10px; background: white; }
+.msg-main-footer textarea { flex: 1; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 10px 14px; font-size: 13px; font-family: inherit; resize: none; height: 44px; transition: border-color 0.2s; }
+.msg-main-footer textarea:focus { outline: none; border-color: var(--violet); box-shadow: 0 0 0 3px rgba(99,102,241,0.08); }
+.msg-main-footer button { padding: 0 24px; background: var(--violet); color: white; border: none; border-radius: var(--radius); font-weight: 600; cursor: pointer; font-family: inherit; font-size: 13px; transition: all 0.2s; }
+.msg-main-footer button:hover { background: var(--violet-hover); }
 .msg-empty-conv { display: flex; align-items: center; justify-content: center; flex: 1; color: var(--text-muted); font-size: 13px; }
-.msg-new-btn { margin: 12px 16px; padding: 10px; background: var(--violet); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: inherit; font-size: 12px; }
-.msg-new-btn:hover { opacity: 0.9; }
+.msg-new-btn { margin: 12px 16px; padding: 10px; background: var(--violet); color: white; border: none; border-radius: var(--radius); font-weight: 600; cursor: pointer; font-family: inherit; font-size: 12px; transition: all 0.2s; }
+.msg-new-btn:hover { background: var(--violet-hover); }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
@@ -833,6 +747,34 @@ tr:hover { background: rgba(97,92,165,0.03); }
   .detail-page-title-row { flex-direction: column; align-items: flex-start; }
   .detail-page-status-select { margin-left: 0; }
 }
+
+/* ── GUIDE PAGE ── */
+.guide-page { display: none; max-width: 1100px; margin: 0 auto; padding: 28px 32px 60px; }
+.guide-page.active { display: block; }
+.guide-header { margin-bottom: 32px; }
+.guide-header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.03em; color: var(--navy); margin: 0 0 6px; }
+.guide-header p { font-size: 14px; color: var(--text-muted); margin: 0; }
+.guide-section { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); margin-bottom: 20px; overflow: hidden; }
+.guide-section-header { padding: 18px 24px; border-left: 4px solid var(--navy); }
+.guide-section-header.link-accent { border-left-color: #3730a3; background: #fafafe; }
+.guide-section-header.ucjc-accent { border-left-color: #9d174d; background: #fefafb; }
+.guide-section-header.ue-accent { border-left-color: #1e40af; background: #fafbfe; }
+.guide-section-header h2 { font-size: 17px; font-weight: 700; margin: 0; color: var(--navy); }
+.guide-section-body { padding: 20px 24px; }
+.guide-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.guide-info-card { background: var(--bg); border-radius: var(--radius); padding: 18px 20px; border: 1px solid var(--border-light); }
+.guide-info-card.full-width { grid-column: 1 / -1; }
+.guide-info-card h4 { font-size: 13px; font-weight: 700; color: var(--navy); margin: 0 0 10px; }
+.guide-info-card p { font-size: 13px; margin: 4px 0; line-height: 1.6; }
+.guide-info-card ul, .guide-info-card ol { padding-left: 18px; margin: 0; }
+.guide-info-card li { font-size: 13px; margin-bottom: 6px; line-height: 1.5; }
+.guide-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.guide-table th { background: var(--navy); color: white; padding: 8px 12px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+.guide-table td { padding: 8px 12px; border-bottom: 1px solid var(--border-light); }
+.guide-table tr.past { opacity: 0.4; text-decoration: line-through; }
+.guide-table tr.next td { background: #dbeafe; font-weight: 600; }
+.guide-table.small th { padding: 6px 10px; }
+.guide-table.small td { padding: 6px 10px; font-size: 11px; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -846,11 +788,13 @@ tr:hover { background: rgba(97,92,165,0.03); }
 ══════════════════════════════════════════ -->
 <header class="site-header">
   <div class="logo-zone">
+    <div class="logo-icon">E</div>
     <div class="logo-wordmark">EDUMOVE <span>Admin</span></div>
   </div>
   <div class="header-right" id="header-right" style="display:none;">
-    <button onclick="openFacMessaging()" id="btn-fac-messaging" style="display:none;background:none;border:1.5px solid rgba(255,255,255,0.3);color:white;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">💬 Messagerie</button>
-    <button onclick="backToDashboard()" id="btn-back-dashboard" style="display:none;background:none;border:1.5px solid rgba(255,255,255,0.3);color:white;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">📋 Dossiers</button>
+    <button class="header-nav-btn" onclick="openFacMessaging()" id="btn-fac-messaging" style="display:none;">💬 Messagerie</button>
+    <button class="header-nav-btn" onclick="openGuide()" id="btn-guide" style="display:none;">📖 Guide</button>
+    <button class="header-nav-btn" onclick="backToDashboard()" id="btn-back-dashboard" style="display:none;">📋 Dossiers</button>
     <span class="header-user" id="header-user"></span>
     <button class="btn-logout" onclick="logout()">Déconnexion</button>
   </div>
@@ -979,6 +923,232 @@ tr:hover { background: rgba(97,92,165,0.03); }
     <div class="msg-main-footer" id="fac-msg-footer" style="display:none;">
       <textarea id="fac-msg-input" placeholder="Écrire un message..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendFacMessage();}"></textarea>
       <button onclick="sendFacMessage()">Envoyer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     GUIDE / REFERENCE PAGE
+══════════════════════════════════════════ -->
+<div id="guide-page" class="guide-page">
+  <div class="guide-content">
+    <div class="guide-header">
+      <h1>📖 Guide de référence EDUMOVE</h1>
+      <p>Toutes les informations sur nos universités partenaires, tarifs, langues et règles d'admission.</p>
+    </div>
+
+    <!-- LINK Campus University -->
+    <div class="guide-section">
+      <div class="guide-section-header link-accent">
+        <h2>🇮🇹 LINK Campus University — Rome</h2>
+      </div>
+      <div class="guide-section-body">
+        <div class="guide-grid">
+          <div class="guide-info-card">
+            <h4>Filières disponibles</h4>
+            <ul>
+              <li><strong>Médecine</strong> — 6 ans</li>
+              <li><strong>Dentaire</strong> — 5 ans</li>
+              <li><strong>Kinésithérapie</strong> — 3 ans</li>
+              <li><strong>Pharmacie</strong> — aucun test requis</li>
+            </ul>
+          </div>
+          <div class="guide-info-card">
+            <h4>Langue des cours</h4>
+            <p>Cours 100% en <strong>italien</strong></p>
+            <p style="font-size:12px;color:var(--text-muted);">Aucun prérequis linguistique à l'inscription. Cours d'italien intensif inclus la 1ère année.</p>
+          </div>
+          <div class="guide-info-card">
+            <h4>Test d'admission</h4>
+            <p><strong>Date :</strong> 15 avril 2026 — Paris</p>
+            <p><strong>Frais :</strong> 200€</p>
+            <p><strong>Matières :</strong> Biologie, Chimie, Maths, Physique, Culture Générale</p>
+            <p style="font-size:12px;color:var(--text-muted);">⚠️ Pharmacie : pas de test, admission sur dossier.</p>
+          </div>
+          <div class="guide-info-card">
+            <h4>Documents requis</h4>
+            <ul>
+              <li>Formulaire de pré-candidature LINK</li>
+              <li>Carte d'identité / Passeport</li>
+              <li>Relevé de notes du baccalauréat (optionnel)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UCJC -->
+    <div class="guide-section">
+      <div class="guide-section-header ucjc-accent">
+        <h2>🇪🇸 UCJC — Madrid</h2>
+      </div>
+      <div class="guide-section-body">
+        <div class="guide-grid">
+          <div class="guide-info-card">
+            <h4>Filières disponibles</h4>
+            <ul>
+              <li><strong>Dentaire</strong> — 5 ans — 18 420€/an</li>
+              <li><strong>Pharmacie</strong> — 5 ans — 10 140€/an</li>
+              <li><strong>Kinésithérapie</strong> — 4 ans — 9 420€/an</li>
+              <li><s>Médecine</s> — <span style="color:var(--error);font-weight:600;">Complet (plus de places)</span></li>
+            </ul>
+          </div>
+          <div class="guide-info-card">
+            <h4>Langue des cours</h4>
+            <p>Cours 100% en <strong>espagnol</strong></p>
+            <p style="font-size:12px;color:var(--text-muted);">Attestation de niveau espagnol appréciée (même certificat non-officiel e-learning).</p>
+          </div>
+          <div class="guide-info-card">
+            <h4>Admission</h4>
+            <p style="background:var(--success-bg);color:#065f46;padding:8px 12px;border-radius:8px;font-weight:600;">✅ Entretien uniquement — Aucun test écrit</p>
+            <p style="font-size:12px;color:var(--text-muted);margin-top:8px;">Résultats sous 1 semaine. 1 semaine pour payer après acceptation. Validation du diplôme bac obligatoire.</p>
+          </div>
+          <div class="guide-info-card">
+            <h4>Documents requis</h4>
+            <ul>
+              <li>Lettre de motivation (espagnol pour Médecine/Dentaire, français pour Pharma/Kiné)</li>
+              <li>Carte d'identité / Passeport</li>
+              <li>Formulaire d'admission UCJC</li>
+              <li>Attestation espagnol</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Universidad Europea -->
+    <div class="guide-section">
+      <div class="guide-section-header ue-accent">
+        <h2>🇪🇸 Universidad Europea — Espagne</h2>
+      </div>
+      <div class="guide-section-body">
+        <div class="guide-grid">
+          <div class="guide-info-card full-width">
+            <h4>Filières, villes et langues</h4>
+            <table class="guide-table">
+              <thead>
+                <tr><th>Filière</th><th>Villes</th><th>Langues</th><th>Test</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>Médecine</strong></td><td>Madrid, Canaries</td><td>Espagnol uniquement</td><td>Oui — 4 épreuves</td></tr>
+                <tr><td><strong>Dentaire</strong></td><td>Madrid, Malaga, Valence, Alicante, Canaries</td><td>Espagnol + Anglais (Canaries: ES seul)</td><td>Oui — 4 épreuves</td></tr>
+                <tr><td><strong>Kinésithérapie</strong></td><td>Madrid, Malaga, Valence, Alicante, Canaries</td><td>Madrid: FR/ES/EN — Autres: ES seul</td><td>Oui sauf Pharma/Kiné*</td></tr>
+                <tr><td><strong>Pharmacie</strong></td><td>Madrid</td><td>Espagnol uniquement</td><td>❌ Non — admission directe</td></tr>
+                <tr><td><strong>Vétérinaire</strong></td><td>Madrid</td><td>Espagnol uniquement</td><td>Oui — 4 épreuves</td></tr>
+              </tbody>
+            </table>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">* Pharmacie partout et Kinésithérapie partout (sauf Kiné en français à Madrid) : pas de test, admission sur dossier + places disponibles.</p>
+            <p style="font-size:11px;color:var(--text-muted);">* Kiné français Madrid : 1ère année en français, à partir de la 2ème année (stage) les cours passent en espagnol.</p>
+          </div>
+        </div>
+
+        <div class="guide-grid" style="margin-top:16px;">
+          <div class="guide-info-card">
+            <h4>Tests d'admission (4 épreuves)</h4>
+            <ol>
+              <li><strong>Test de langue</strong> — adapté à la langue du cursus (espagnol, anglais ou français)</li>
+              <li><strong>Test de talent</strong> — aptitudes et raisonnement</li>
+              <li><strong>Test de motivation</strong> — entretien + questionnaire</li>
+              <li><strong>Épreuve spécifique</strong> — selon la filière</li>
+            </ol>
+            <p style="font-size:12px;color:var(--text-muted);">Résultats sous 48h. En cas d'acceptation : 2 jours pour verser l'acompte de 2 500€.</p>
+          </div>
+          <div class="guide-info-card">
+            <h4>Documents requis</h4>
+            <ul>
+              <li>3 bulletins de Première fusionnés en 1 PDF</li>
+              <li>Carte d'identité / Passeport</li>
+              <li>Rapport technique académique (60€ via hostudents.com)</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Deadline tables -->
+        <div class="guide-grid" style="margin-top:16px;">
+          <div class="guide-info-card">
+            <h4>📅 Deadlines — Médecine</h4>
+            <table class="guide-table small">
+              <thead><tr><th>Session</th><th>Inscription</th><th>Tests</th><th>Résultats</th></tr></thead>
+              <tbody>
+                <tr class="past"><td>1ère</td><td>09/12/2025</td><td>15/12/2025</td><td>22/12/2025</td></tr>
+                <tr class="past"><td>2ème</td><td>16/02/2026</td><td>19/02/2026</td><td>26/02/2026</td></tr>
+                <tr class="next"><td>3ème</td><td>17/04/2026</td><td>22/04/2026</td><td>29/04/2026</td></tr>
+                <tr><td>4ème</td><td>18/05/2026</td><td>21/05/2026</td><td>28/05/2026</td></tr>
+                <tr><td>5ème</td><td>06/07/2026</td><td>08/07/2026</td><td>15/07/2026</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="guide-info-card">
+            <h4>📅 Deadlines — Dentaire / Kiné / Véto</h4>
+            <table class="guide-table small">
+              <thead><tr><th>Inscription</th><th>Tests</th><th>Résultats</th></tr></thead>
+              <tbody>
+                <tr class="past"><td>04/12/2025</td><td>10/12/2025</td><td>12/12/2025</td></tr>
+                <tr class="past"><td>09/01/2026</td><td>14/01/2026</td><td>16/01/2026</td></tr>
+                <tr class="past"><td>05/02/2026</td><td>10/02/2026</td><td>12/02/2026</td></tr>
+                <tr class="past"><td>05/03/2026</td><td>10/03/2026</td><td>12/03/2026</td></tr>
+                <tr class="next"><td>16/04/2026</td><td>21/04/2026</td><td>23/04/2026</td></tr>
+                <tr><td>08/05/2026</td><td>12/05/2026</td><td>14/05/2026</td></tr>
+                <tr><td>08/06/2026</td><td>11/06/2026</td><td>13/06/2026</td></tr>
+                <tr><td>15/07/2026</td><td>21/07/2026</td><td>23/07/2026</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Places limitées -->
+        <div class="guide-grid" style="margin-top:16px;">
+          <div class="guide-info-card full-width">
+            <h4>⚠️ Places limitées / Liste d'attente</h4>
+            <table class="guide-table small">
+              <thead><tr><th>Ville</th><th>Filière</th><th>Langue</th><th>Statut</th></tr></thead>
+              <tbody>
+                <tr><td>Madrid</td><td>Vétérinaire</td><td>Espagnol</td><td style="color:var(--warning);font-weight:600;">Liste d'attente bientôt</td></tr>
+                <tr><td>Madrid</td><td>Kinésithérapie</td><td>Anglais</td><td style="color:var(--warning);font-weight:600;">Liste d'attente</td></tr>
+                <tr><td>Valence</td><td>Kinésithérapie</td><td>Espagnol</td><td style="color:var(--warning);font-weight:600;">Liste d'attente</td></tr>
+                <tr><td>Malaga</td><td>Dentaire</td><td>Espagnol</td><td style="color:var(--warning);font-weight:600;">Liste d'attente</td></tr>
+                <tr><td>Malaga</td><td>Dentaire</td><td>Anglais</td><td style="color:var(--warning);font-weight:600;">Liste d'attente</td></tr>
+                <tr><td>Alicante</td><td>Kinésithérapie</td><td>Espagnol</td><td style="color:var(--warning);font-weight:600;">Liste d'attente</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Règles d'éligibilité -->
+    <div class="guide-section">
+      <div class="guide-section-header" style="border-left-color: var(--violet);">
+        <h2>🎯 Règles d'éligibilité</h2>
+      </div>
+      <div class="guide-section-body">
+        <div class="guide-grid">
+          <div class="guide-info-card">
+            <h4>LINK Campus University</h4>
+            <ul>
+              <li>Toutes les filières accessibles à tous les profils</li>
+              <li>Pharmacie : pas de test d'admission</li>
+            </ul>
+          </div>
+          <div class="guide-info-card">
+            <h4>UCJC</h4>
+            <ul>
+              <li><s>Médecine</s> — Plus de places disponibles</li>
+              <li>Vétérinaire — Non disponible à l'UCJC</li>
+              <li>Dentaire, Pharmacie, Kiné — Entretien uniquement (pas de test écrit)</li>
+            </ul>
+          </div>
+          <div class="guide-info-card full-width">
+            <h4>Universidad Europea</h4>
+            <ul>
+              <li>Médecine : nécessite au moins <strong>2 spécialités scientifiques</strong> et <strong>moyenne ≥ 12/20</strong></li>
+              <li>Pharmacie (partout) : <strong>pas de test</strong>, admission sur dossier</li>
+              <li>Kinésithérapie (sauf FR à Madrid) : <strong>pas de test</strong>, admission sur dossier</li>
+              <li>Kiné FR Madrid : test requis</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1322,8 +1492,9 @@ function showLoginError(msg) {
 
 function applyRoleRestrictions() {
   const role = window.adminRole;
-  // Show messaging button for all roles
+  // Show messaging and guide buttons for all roles
   document.getElementById('btn-fac-messaging').style.display = '';
+  document.getElementById('btn-guide').style.display = '';
   if (role === 'super_admin') return; // Full access
 
   // Hide add dossier button and export CSV for fac users
@@ -1887,8 +2058,10 @@ function backToList() {
   currentDetailId = null;
 
   document.getElementById('detail-page').classList.remove('active');
+  document.getElementById('guide-page').classList.remove('active');
   document.getElementById('dashboard').classList.add('active');
   document.getElementById('btn-fac-messaging').style.display = '';
+  document.getElementById('btn-guide').style.display = '';
   document.getElementById('btn-back-dashboard').style.display = 'none';
 }
 
@@ -2515,17 +2688,34 @@ function getFacKeyForRole(role) {
 function openFacMessaging() {
   document.getElementById('dashboard').classList.remove('active');
   document.getElementById('detail-page').classList.remove('active');
+  document.getElementById('guide-page').classList.remove('active');
   document.getElementById('fac-msg-page').classList.add('active');
   document.getElementById('btn-fac-messaging').style.display = 'none';
+  document.getElementById('btn-guide').style.display = 'none';
   document.getElementById('btn-back-dashboard').style.display = '';
   loadFacConversations();
+}
+
+// ══════════════════════════════════════════
+// GUIDE PAGE
+// ══════════════════════════════════════════
+function openGuide() {
+  document.getElementById('dashboard').classList.remove('active');
+  document.getElementById('detail-page').classList.remove('active');
+  document.getElementById('fac-msg-page').classList.remove('active');
+  document.getElementById('guide-page').classList.add('active');
+  document.getElementById('btn-guide').style.display = 'none';
+  document.getElementById('btn-fac-messaging').style.display = 'none';
+  document.getElementById('btn-back-dashboard').style.display = '';
 }
 
 function backToDashboard() {
   document.getElementById('fac-msg-page').classList.remove('active');
   document.getElementById('detail-page').classList.remove('active');
+  document.getElementById('guide-page').classList.remove('active');
   document.getElementById('dashboard').classList.add('active');
   document.getElementById('btn-fac-messaging').style.display = '';
+  document.getElementById('btn-guide').style.display = '';
   document.getElementById('btn-back-dashboard').style.display = 'none';
   if (facMsgSubscription) { facMsgSubscription.unsubscribe(); facMsgSubscription = null; }
 }
