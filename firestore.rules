@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── USERS : chaque utilisateur peut lire/ecrire son propre profil ──
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // ── CANDIDATURES ──
+    match /candidatures/{docId} {
+      // Un etudiant peut creer sa candidature (liee a son uid)
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid;
+
+      // Un etudiant peut lire SA candidature
+      allow read: if request.auth != null
+                  && resource.data.userId == request.auth.uid;
+
+      // Un etudiant peut modifier certains champs (callback, documents)
+      allow update: if request.auth != null
+                    && resource.data.userId == request.auth.uid
+                    && request.resource.data.userId == request.auth.uid;
+
+      // Les admins peuvent tout lire et modifier
+      allow read, write: if request.auth != null
+                         && exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
+    }
+
+    // ── MESSAGES ──
+    match /messages/{msgId} {
+      // Un etudiant peut lire les messages lies a sa candidature
+      allow read: if request.auth != null;
+
+      // Un etudiant peut creer un message
+      allow create: if request.auth != null
+                    && request.resource.data.senderId == request.auth.uid;
+
+      // Les admins peuvent lire et ecrire tous les messages
+      allow read, write: if request.auth != null
+                         && exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
+    }
+
+    // ── ADMINS : seuls les admins peuvent lire la collection admins ──
+    match /admins/{email} {
+      allow read: if request.auth != null
+                  && request.auth.token.email == email;
+    }
+  }
+}

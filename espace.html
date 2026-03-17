@@ -1,0 +1,1997 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Edumove — Mon espace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --orange: #ec680a;
+  --navy: #1b1d3a;
+  --violet: #615ca5;
+  --violet-light: #8883c0;
+  --cream: #fafafa;
+  --white: #ffffff;
+  --border: #e2e2ef;
+  --text: #1b1d3a;
+  --text-muted: #7b7b9a;
+  --success: #2e7d52;
+  --error: #d63031;
+  --bg: #f5f5fb;
+  --warning: #e17055;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ── HEADER ── */
+.site-header {
+  background: var(--navy);
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 66px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(27,29,58,0.4);
+}
+.logo-zone { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.logo-svg { height: 32px; width: auto; }
+.header-right { display: flex; align-items: center; gap: 12px; position: relative; }
+.btn-profil {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-profil:hover { background: rgba(255,255,255,0.2); }
+.btn-profil-icon {
+  width: 26px; height: 26px;
+  background: var(--orange);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+.btn-profil-name { font-weight: 500; }
+.profil-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 320px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(27,29,58,0.18);
+  z-index: 200;
+  overflow: hidden;
+}
+.profil-dropdown.open { display: block; }
+.recap-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 560px;
+  max-width: calc(100vw - 32px);
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(27,29,58,0.18);
+  z-index: 200;
+  overflow: hidden;
+}
+.recap-dropdown.open { display: block; }
+.recap-dropdown-header {
+  background: var(--navy);
+  padding: 16px 20px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.recap-dropdown-title { font-size: 14px; font-weight: 700; }
+.recap-dropdown-body {
+  padding: 20px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.profil-dropdown-header {
+  background: var(--navy);
+  padding: 20px;
+  color: white;
+}
+.profil-dropdown-title { font-size: 16px; font-weight: 700; }
+.profil-dropdown-email { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+.profil-dropdown-body { padding: 16px 20px; }
+.profil-dropdown-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.profil-dropdown-item:last-child { border-bottom: none; }
+.profil-dropdown-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); font-weight: 500; }
+.profil-dropdown-value { font-size: 13px; font-weight: 500; color: var(--navy); }
+.profil-dropdown-edit { display: none; padding: 8px 0; }
+.profil-dropdown-edit input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}
+.profil-dropdown-edit input:focus { border-color: var(--violet); }
+.profil-dropdown-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+}
+.btn-edit-profil {
+  flex: 1;
+  padding: 9px;
+  border: 1.5px solid var(--border);
+  background: white;
+  color: var(--navy);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-edit-profil:hover { border-color: var(--violet); color: var(--violet); }
+.btn-save-profil {
+  flex: 1;
+  padding: 9px;
+  border: none;
+  background: var(--orange);
+  color: white;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: none;
+  transition: background 0.2s;
+}
+.btn-save-profil:hover { background: #d45c08; }
+.btn-logout {
+  flex: 1;
+  padding: 9px;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-logout:hover { border-color: var(--error); color: var(--error); }
+.profil-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+}
+.profil-backdrop.open { display: block; }
+
+/* ── MAIN ── */
+.dash-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 36px 24px 80px;
+}
+
+.dash-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.dash-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+}
+
+/* ── STATUS CARD ── */
+.status-card {
+  background: white;
+  border-radius: 12px;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 12px rgba(27,29,58,0.05);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.status-icon {
+  width: 56px; height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.status-icon.en_attente { background: #fff3e0; }
+.status-icon.en_cours { background: #e8eaf6; }
+.status-icon.reponse_edumove { background: #e3f2fd; }
+.status-icon.dossier_soumis { background: #f3e5f5; }
+.status-icon.accepte { background: #e8f5e9; }
+.status-icon.refuse { background: #ffebee; }
+.status-icon.abandon { background: #fafafa; }
+.status-info { flex: 1; }
+.status-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+.status-value { font-size: 20px; font-weight: 700; }
+.status-value.en_attente { color: #e65100; }
+.status-value.en_cours { color: #3949ab; }
+.status-value.reponse_edumove { color: #1565c0; }
+.status-value.dossier_soumis { color: #7b1fa2; }
+.status-value.accepte { color: #2e7d32; }
+.status-value.refuse { color: #c62828; }
+.status-value.abandon { color: #757575; }
+.status-date { font-size: 12px; color: var(--text-muted); }
+
+/* ── TIMELINE ── */
+.status-timeline { display: flex; align-items: center; justify-content: center; margin-bottom: 28px; gap: 0; }
+.timeline-step { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 70px; }
+.tl-dot { width: 18px; height: 18px; border-radius: 50%; background: var(--border); border: 2px solid var(--border); transition: all 0.3s; }
+.tl-label { font-size: 11px; color: var(--text-muted); font-weight: 500; text-align: center; }
+.timeline-line { height: 2px; width: 50px; background: var(--border); flex-shrink: 0; transition: background 0.3s; }
+.timeline-step.completed .tl-dot { background: var(--success); border-color: var(--success); }
+.timeline-step.completed .tl-label { color: var(--success); font-weight: 600; }
+.timeline-step.active .tl-dot { background: var(--orange); border-color: var(--orange); box-shadow: 0 0 0 4px rgba(236,104,10,0.15); }
+.timeline-step.active .tl-label { color: var(--orange); font-weight: 600; }
+.timeline-line.done { background: var(--success); }
+
+/* ── REPONSE CARD ── */
+.reponse-card-header { background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%); border-bottom: none; }
+.reponse-card-header .section-card-title { color: white; }
+.reponse-text { white-space: pre-line; font-size: 13px; line-height: 1.8; color: var(--text); }
+.btn-callback { display: inline-flex; align-items: center; gap: 8px; background: var(--orange); color: white; border: none; padding: 14px 28px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.2s; }
+.btn-callback:hover { background: #d45a08; }
+.btn-callback:disabled { background: #ccc; cursor: default; }
+.callback-confirmed { margin-top: 14px; font-size: 13px; color: var(--success); font-weight: 500; padding: 12px 16px; background: #e8f5e9; border-radius: 8px; }
+
+/* ── SECTION CARD ── */
+.section-card {
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 12px rgba(27,29,58,0.05);
+  overflow: hidden;
+}
+.section-card-header {
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.section-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--navy);
+}
+.section-card-body { padding: 24px 28px; }
+
+/* ── RECAP GRID ── */
+.recap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.recap-item label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.recap-item span {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--navy);
+}
+
+.recap-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 20px 0;
+}
+
+/* ── NOTES TABLE ── */
+.notes-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 8px;
+}
+.notes-table th, .notes-table td {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+.notes-table th {
+  background: var(--bg);
+  color: var(--text);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+/* ── UPLOAD ZONE ── */
+.upload-zone {
+  border: 1.5px dashed var(--border);
+  border-radius: 7px;
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+}
+.upload-zone:hover { border-color: var(--violet); background: rgba(97,92,165,0.03); }
+.upload-zone input { display: none; }
+.upload-zone-icon { font-size: 28px; margin-bottom: 8px; opacity: 0.5; }
+.upload-zone-label { font-size: 13px; color: var(--text-muted); }
+.upload-zone-label strong { color: var(--navy); font-weight: 600; }
+
+.uploaded-files { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+.uploaded-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg);
+  border-radius: 8px;
+  font-size: 13px;
+}
+.uploaded-file-name { flex: 1; font-weight: 500; color: var(--navy); }
+.uploaded-file-date { font-size: 11px; color: var(--text-muted); }
+.uploaded-file a {
+  color: var(--violet);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.upload-progress {
+  display: none;
+  margin-top: 12px;
+  padding: 10px;
+  background: rgba(97,92,165,0.07);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--violet);
+  text-align: center;
+}
+
+/* ── CONFIRM DOCS ── */
+.confirm-docs-wrap {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.btn-confirm-docs {
+  background: var(--violet);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-confirm-docs:hover { background: #4e497f; }
+.docs-confirmed-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #2e7d32;
+  font-weight: 500;
+}
+.docs-confirmed-banner span { font-size: 20px; }
+
+/* ── LINK FORM ── */
+.link-card-header {
+  background: linear-gradient(135deg, #004d40 0%, #00796b 100%);
+}
+.link-deadline-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fff8e1;
+  border: 1px solid #ffca28;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #e65100;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.link-deadline-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+.link-deadline-dates { display: flex; flex-direction: column; gap: 4px; }
+.link-deadline-dates span { font-weight: 700; }
+.link-deadline-dates small { font-weight: 400; color: #795548; font-size: 12px; }
+.link-docs-list {
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  background: var(--bg);
+  border-radius: 8px;
+}
+.link-docs-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #004d40;
+  margin-bottom: 10px;
+}
+.link-doc-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--navy);
+}
+.link-doc-item:last-child { border-bottom: none; }
+.link-doc-note { font-size: 11px; color: var(--text-muted); font-style: italic; }
+.btn-link-dl {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  background: #004d40;
+  color: white;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.btn-link-dl:hover { background: #00695c; }
+.link-contact-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  background: #e0f2f1;
+  border: 1px solid #80cbc4;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #004d40;
+  margin-bottom: 20px;
+}
+.link-contact-icon { font-size: 20px; flex-shrink: 0; }
+.link-test-toggle {
+  width: 100%;
+  background: none;
+  border: 1.5px solid #004d40;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #004d40;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  transition: background 0.2s;
+}
+.link-test-toggle:hover { background: #e0f2f1; }
+.link-test-toggle-arrow { transition: transform 0.2s; font-size: 12px; }
+.link-test-toggle.open .link-test-toggle-arrow { transform: rotate(180deg); }
+.link-test-preview { display: none; background: var(--bg); border-radius: 8px; padding: 16px; margin-bottom: 20px; font-size: 13px; }
+.link-test-preview.open { display: block; }
+.link-test-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #004d40; margin: 14px 0 8px; }
+.link-test-section-title:first-child { margin-top: 0; }
+.link-test-q { margin-bottom: 10px; padding: 10px 12px; background: white; border-radius: 6px; border-left: 3px solid #00796b; }
+.link-test-q-text { font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+.link-test-q-options { color: var(--text-muted); line-height: 1.7; font-size: 12px; }
+.link-test-disclaimer { font-size: 11px; color: var(--text-muted); font-style: italic; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+.btn-link-save {
+  background: #004d40;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%;
+}
+.btn-link-save:hover { background: #00695c; }
+.link-saved-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #2e7d32;
+}
+.link-saved-banner-icon { font-size: 20px; flex-shrink: 0; }
+
+/* ── UCJC FORM ── */
+.ucjc-card-header {
+  background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+}
+.ucjc-lang-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #e8eaf6;
+  border: 1px solid #9fa8da;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1a237e;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.ucjc-lang-banner-icon { font-size: 22px; flex-shrink: 0; }
+.ucjc-docs-list {
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  background: var(--bg);
+  border-radius: 8px;
+}
+.ucjc-docs-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #1a237e;
+  margin-bottom: 10px;
+}
+.ucjc-doc-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--navy);
+}
+.ucjc-doc-item:last-child { border-bottom: none; }
+.ucjc-doc-name { display: flex; align-items: center; gap: 8px; }
+.ucjc-doc-optional {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+  flex-shrink: 0;
+}
+.btn-ucjc-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: #1a237e;
+  color: white;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.btn-ucjc-download:hover { background: #283593; }
+.btn-ucjc-save {
+  background: #1a237e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%;
+}
+.btn-ucjc-save:hover { background: #283593; }
+.ucjc-saved-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #2e7d32;
+}
+.ucjc-saved-banner-icon { font-size: 20px; flex-shrink: 0; }
+
+/* ── UE FORM ── */
+.ue-form-card-header {
+  background: linear-gradient(135deg, #c62828 0%, #e53935 100%);
+}
+.ue-form-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.ue-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  font-size: 14px;
+  color: var(--navy);
+  background: white;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23615ca5' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+.ue-select:focus { outline: none; border-color: var(--violet); }
+.ue-select:disabled { background-color: #f5f5f5; color: var(--text-muted); cursor: not-allowed; }
+.ue-selects-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+@media (max-width: 600px) { .ue-selects-grid { grid-template-columns: 1fr; } }
+.ue-complet-warning {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #fff3e0;
+  border: 1px solid #ffb74d;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #e65100;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+.ue-docs-required {
+  margin-top: 4px;
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  background: var(--bg);
+  border-radius: 8px;
+}
+.ue-docs-required-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--violet);
+  margin-bottom: 10px;
+}
+.ue-doc-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--navy);
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+}
+.ue-doc-item:last-child { border-bottom: none; }
+.ue-doc-item::before { content: '📄'; font-size: 14px; }
+.ue-saved-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #2e7d32;
+}
+.ue-saved-banner-icon { font-size: 20px; flex-shrink: 0; }
+.ue-saved-details { font-size: 12px; color: #388e3c; margin-top: 4px; }
+.btn-ue-save {
+  background: #c62828;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%;
+}
+.btn-ue-save:hover { background: #b71c1c; }
+.btn-ue-save:disabled { background: #bdbdbd; cursor: not-allowed; }
+
+/* ── MESSAGING ── */
+.messages-container {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.message {
+  max-width: 75%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  position: relative;
+}
+.message-etudiant {
+  align-self: flex-end;
+  background: var(--navy);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+.message-admin {
+  align-self: flex-start;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+.message-meta {
+  font-size: 10px;
+  margin-top: 4px;
+  opacity: 0.6;
+}
+.message-admin .message-sender {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--orange);
+  margin-bottom: 4px;
+}
+.messages-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.message-input-row {
+  display: flex;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.message-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  resize: none;
+  min-height: 44px;
+  max-height: 100px;
+  transition: border 0.2s;
+}
+.message-input:focus { border-color: var(--violet); }
+.btn-send {
+  padding: 0 20px;
+  background: var(--orange);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.btn-send:hover { background: #d45c08; }
+.btn-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── LOADING ── */
+.loading-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  flex-direction: column;
+  gap: 16px;
+}
+.spinner {
+  width: 44px; height: 44px;
+  border: 3px solid var(--border);
+  border-top-color: var(--orange);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── FOOTER ── */
+.site-footer {
+  background: var(--navy);
+  padding: 18px 40px;
+  text-align: center;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.04em;
+}
+.site-footer a { color: var(--orange); text-decoration: none; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .site-header { padding: 0 20px; }
+  .dash-content { padding: 24px 16px 60px; }
+  .status-card { flex-direction: column; text-align: center; padding: 24px 20px; }
+  .section-card-body { padding: 20px 16px; }
+  .section-card-header { padding: 16px; }
+  .recap-grid { grid-template-columns: 1fr; }
+  .message { max-width: 90%; }
+  .btn-profil-name { display: none; }
+  .profil-dropdown { width: 280px; right: -10px; }
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="status-engine.js"></script>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="logo-zone" onclick="window.location.href='espace.html'">
+    <svg class="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 435.08 88.95">
+      <g>
+        <path fill="white" d="M151.8,17.57h31.36v6.58h-23.79v16.91h19.35v6.58h-19.35v17.37h25.09v6.58h-32.67V17.57Z"/>
+        <path fill="white" d="M202.98,31.95c8.95,0,11.93,6.12,11.93,6.12h.15s-.15-1.15-.15-2.6v-17.9h7.42v54.01h-7.04v-3.67c0-1.53.08-2.6.08-2.6h-.15s-3.14,7.19-12.7,7.19c-10.48,0-17.06-8.26-17.06-20.27s7.27-20.27,17.52-20.27ZM203.97,66.07c5.74,0,11.17-4.05,11.17-13.92,0-6.89-3.6-13.77-10.94-13.77-6.12,0-11.17,5.05-11.17,13.85s4.51,13.85,10.94,13.85Z"/>
+        <path fill="white" d="M227.3,32.87h7.42v23.1c0,5.36,1.07,9.64,7.27,9.64,7.88,0,12.55-6.96,12.55-14.61v-18.13h7.42v38.71h-7.19v-5.13c0-1.61.15-2.83.15-2.83h-.15c-1.61,3.82-6.66,8.87-14.23,8.87-8.72,0-13.23-4.59-13.23-14.84v-24.79Z"/>
+        <path fill="white" d="M268.39,33.33h3.21v6.73c0,1.76-.31,3.14-.31,3.14h.15c1.91-5.74,8.72-10.79,14.69-10.79,7.65,0,11.25,3.6,12.09,10.4h.15c2.14-5.35,7.96-10.4,14.53-10.4,9.87,0,12.78,5.81,12.78,14.92v24.25h-3.21v-23.1c0-7.19-1.45-13.08-9.56-13.08-6.35,0-11.78,5.66-13.46,11.63-.54,1.76-.76,3.67-.76,5.89v18.67h-3.21v-23.1c0-6.58-.92-13.08-9.33-13.08-6.81,0-12.16,5.97-13.92,12.32-.46,1.61-.61,3.37-.61,5.2v18.67h-3.21v-38.25Z"/>
+        <path fill="white" d="M349.48,32.41c10.94,0,19.81,8.64,19.81,19.81s-8.87,20.27-19.81,20.27-19.81-8.87-19.81-20.27,8.87-19.81,19.81-19.81ZM349.48,69.36c9.1,0,16.45-7.42,16.45-17.14s-7.34-16.68-16.45-16.68-16.45,7.19-16.45,16.68,7.34,17.14,16.45,17.14Z"/>
+        <path fill="white" d="M368.45,33.33h3.44l11.78,29.99c.69,1.84,1.3,4.13,1.3,4.13h.15s.61-2.29,1.3-4.13l11.78-29.99h3.37l-14.99,38.25h-3.06l-15.07-38.25Z"/>
+        <path fill="white" d="M419.48,32.41c10.4,0,15.61,8.19,15.61,17.44,0,.84-.15,2.07-.15,2.07h-30.68c0,11.09,7.5,17.44,16.37,17.44,7.34,0,11.86-4.82,11.86-4.82l1.76,2.68s-5.35,5.28-13.62,5.28c-10.79,0-19.74-7.8-19.74-19.97,0-12.93,8.8-20.12,18.59-20.12ZM431.72,48.94c-.38-9.33-5.97-13.54-12.32-13.54-7.04,0-13.54,4.59-14.92,13.54h27.23Z"/>
+      </g>
+      <path fill="white" d="M84.64,55.74v-22.54h22.8l17.4-16.6L107.43,0H40.19v27.79h-22.78L0,44.4l17.41,16.6h22.78v27.96h67.24l17.4-16.6-17.41-16.61h-22.79ZM45.51,5.32h59.79l11.83,11.28-11.83,11.29h-59.79V5.32ZM19.53,55.68l-11.83-11.28,11.83-11.29h59.78v22.57H19.53ZM105.3,83.64h-59.79v-22.57h59.79l11.83,11.29-11.83,11.28Z"/>
+    </svg>
+  </div>
+  <div class="header-right" id="header-right">
+    <div style="position:relative;">
+      <button class="btn-profil" id="btn-recap" onclick="toggleRecapDropdown()" style="display:none;">
+        <span style="font-size:15px;">📋</span>
+        <span class="btn-profil-name">Mon dossier</span>
+      </button>
+      <div class="recap-dropdown" id="recap-dropdown">
+        <div class="recap-dropdown-header">
+          <span class="recap-dropdown-title">📋 Récapitulatif de votre dossier</span>
+          <button onclick="closeRecapDropdown()" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:18px;cursor:pointer;line-height:1;">✕</button>
+        </div>
+        <div class="recap-dropdown-body" id="recap-body">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </div>
+    <button class="btn-profil" id="btn-profil" onclick="toggleProfilDropdown()">
+      <span class="btn-profil-icon" id="profil-initials">—</span>
+      <span class="btn-profil-name" id="profil-short-name">Mon profil</span>
+      <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <div class="profil-dropdown" id="profil-dropdown">
+      <div class="profil-dropdown-header">
+        <div class="profil-dropdown-title" id="profil-dd-name">—</div>
+        <div class="profil-dropdown-email" id="profil-dd-email">—</div>
+      </div>
+      <div class="profil-dropdown-body" id="profil-dd-body">
+        <div class="profil-dropdown-item"><span class="profil-dropdown-label">Nom</span><span class="profil-dropdown-value" id="pv-nom">—</span></div>
+        <div class="profil-dropdown-item"><span class="profil-dropdown-label">Prenom</span><span class="profil-dropdown-value" id="pv-prenom">—</span></div>
+        <div class="profil-dropdown-item"><span class="profil-dropdown-label">Email</span><span class="profil-dropdown-value" id="pv-email">—</span></div>
+        <div class="profil-dropdown-item"><span class="profil-dropdown-label">Telephone</span><span class="profil-dropdown-value" id="pv-tel">—</span></div>
+        <div class="profil-dropdown-item"><span class="profil-dropdown-label">Departement</span><span class="profil-dropdown-value" id="pv-dep">—</span></div>
+      </div>
+      <div class="profil-dropdown-body" id="profil-dd-edit" style="display:none;">
+        <div class="profil-dropdown-edit" style="display:block;"><label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--text-muted);">Nom</label><input id="pe-nom"/></div>
+        <div class="profil-dropdown-edit" style="display:block;"><label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--text-muted);">Prenom</label><input id="pe-prenom"/></div>
+        <div class="profil-dropdown-edit" style="display:block;"><label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--text-muted);">Telephone</label><input id="pe-tel"/></div>
+        <div class="profil-dropdown-edit" style="display:block;"><label style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--text-muted);">Departement</label><input id="pe-dep"/></div>
+      </div>
+      <div class="profil-dropdown-footer">
+        <button class="btn-edit-profil" id="btn-edit-profil" onclick="editProfil()">Modifier</button>
+        <button class="btn-save-profil" id="btn-save-profil" onclick="saveProfil()">Enregistrer</button>
+        <button class="btn-logout" onclick="logout()">Deconnexion</button>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="profil-backdrop" id="profil-backdrop" onclick="closeProfilDropdown(); closeRecapDropdown();"></div>
+
+<!-- LOADING -->
+<div class="loading-wrap" id="loading">
+  <div class="spinner"></div>
+  <div style="font-size:14px;color:var(--text-muted);">Chargement de votre espace...</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="dash-content" id="main-content" style="display:none;">
+
+  <div class="dash-title" id="welcome-title">Mon espace candidat</div>
+  <div class="dash-subtitle">Suivez l'avancement de votre dossier EDUMOVE</div>
+
+  <!-- STATUS -->
+  <div class="status-card" id="status-card">
+    <div class="status-icon en_attente" id="status-icon-box">⏳</div>
+    <div class="status-info">
+        <div class="status-label">Statut de votre dossier</div>
+      <div class="status-value en_attente" id="status-text">En attente</div>
+    </div>
+    <div class="status-date" id="status-date"></div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="status-timeline" id="status-timeline">
+    <div class="timeline-step" id="step-attente"><div class="tl-dot"></div><div class="tl-label">En attente</div></div>
+    <div class="timeline-line" id="line-1"></div>
+    <div class="timeline-step" id="step-encours"><div class="tl-dot"></div><div class="tl-label">Traitement</div></div>
+    <div class="timeline-line" id="line-2"></div>
+    <div class="timeline-step" id="step-reponse"><div class="tl-dot"></div><div class="tl-label">R&eacute;ponse</div></div>
+  </div>
+
+  <!-- REPONSE EDUMOVE -->
+  <div class="section-card" id="reponse-edumove-card" style="display:none;">
+    <div class="section-card-header reponse-card-header">
+      <div class="section-card-title">Recommandation EDUMOVE</div>
+    </div>
+    <div class="section-card-body">
+      <div class="reponse-text" id="reponse-text"></div>
+      <div id="callback-btn-wrap" style="margin-top:24px; text-align:center;">
+        <button class="btn-callback" onclick="requestCallback()" id="btn-callback">📞 Demander un rappel téléphonique</button>
+        <div class="callback-confirmed" id="callback-confirmed" style="display:none;">
+          ✅ Votre demande de rappel a été enregistrée. Un conseiller EDUMOVE vous contactera prochainement.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LINK CAMPUS — FORMULAIRE CANDIDATURE -->
+  <div class="section-card" id="link-form-card" style="display:none;">
+    <div class="section-card-header link-card-header">
+      <div class="section-card-title">🎓 Candidature LINK Campus — Università degli Studi LINK</div>
+    </div>
+    <div class="section-card-body">
+
+      <!-- Dates urgentes -->
+      <div class="link-deadline-banner">
+        <span class="link-deadline-icon">⏰</span>
+        <div class="link-deadline-dates">
+          <span>📅 Date limite d'inscription : <u>9 avril 2026</u></span>
+          <span>🧪 Test d'admission : <u>15 avril 2026</u></span>
+          <small>Ne tardez pas — les places sont limitées !</small>
+        </div>
+      </div>
+
+      <div id="link-form-fields">
+
+        <!-- Documents -->
+        <div class="link-docs-list">
+          <div class="link-docs-title">Documents à préparer pour votre inscription</div>
+
+          <div class="link-doc-item">
+            <div>
+              <div>📋 Formulaire de pré-candidature LINK</div>
+              <div class="link-doc-note">À remplir, signer et re-uploader sur votre espace</div>
+            </div>
+            <a class="btn-link-dl" href="formulaire-precandidature-link.pdf" download="Formulaire-PreCandidature-LINK.pdf">⬇ Télécharger</a>
+          </div>
+
+          <div class="link-doc-item">
+            <span>🪪 Carte d'identité ou Passeport</span>
+          </div>
+
+          <div class="link-doc-item">
+            <div>
+              <div>🎓 Relevé de notes / Diplôme du Baccalauréat</div>
+              <div class="link-doc-note">Optionnel — à fournir si vous l'avez déjà obtenu</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info contact + paiement -->
+        <div class="link-contact-info">
+          <span class="link-contact-icon">💬</span>
+          <div>Après réception de vos documents, <strong>un interlocuteur francophone de l'équipe LINK</strong> vous contactera directement pour organiser le règlement des <strong>200 € de frais de test</strong>. Vous n'avez rien d'autre à faire pour l'instant.</div>
+        </div>
+
+        <!-- Aperçu du test -->
+        <button class="link-test-toggle" id="link-test-toggle" onclick="toggleLinkTest()">
+          <span>✨ Aperçu du test d'admission — quelques exemples de questions</span>
+          <span class="link-test-toggle-arrow">▼</span>
+        </button>
+
+        <div class="link-test-preview" id="link-test-preview">
+          <div class="link-test-section-title">📖 Compréhension de texte &amp; Culture générale</div>
+          <div class="link-test-q">
+            <div class="link-test-q-text">Quel est le plus petit État du monde ?</div>
+            <div class="link-test-q-options">A) État du Vatican &nbsp; B) Îles Marshall &nbsp; C) Saint-Marin &nbsp; D) Principauté de Monaco &nbsp; E) Liechtenstein</div>
+          </div>
+          <div class="link-test-q">
+            <div class="link-test-q-text">Qui a été le premier homme à marcher sur la Lune ?</div>
+            <div class="link-test-q-options">A) Neil Armstrong &nbsp; B) Yuri Gagarine &nbsp; C) Lance Armstrong &nbsp; D) John Glenn &nbsp; E) Louis Armstrong</div>
+          </div>
+
+          <div class="link-test-section-title">🧠 Raisonnement logique</div>
+          <div class="link-test-q">
+            <div class="link-test-q-text">Dix amis sortent dîner. L'addition totale est de 360 €. Ils décident de ne pas faire payer celui qui fête son anniversaire. Combien chacun des autres devra-t-il payer ?</div>
+            <div class="link-test-q-options">A) 40 € &nbsp; B) 30 € &nbsp; C) 25 € &nbsp; D) 50 € &nbsp; E) 45 €</div>
+          </div>
+          <div class="link-test-q">
+            <div class="link-test-q-text">Quelle série complète la suivante : 173, 170, 167, ?, 161 ?</div>
+            <div class="link-test-q-options">A) 164 &nbsp; B) 171 &nbsp; C) 172 &nbsp; D) 160 &nbsp; E) 163</div>
+          </div>
+
+          <div class="link-test-section-title">🧬 Biologie</div>
+          <div class="link-test-q">
+            <div class="link-test-q-text">Quelle est la fonction principale de l'ARN messager (ARNm) ?</div>
+            <div class="link-test-q-options">A) Transférer l'information génétique de l'ADN aux ribosomes &nbsp; B) Transporter les acides aminés &nbsp; C) Synthétiser l'ADN &nbsp; D) Constituer les ribosomes &nbsp; E) Inhiber les réactions chimiques</div>
+          </div>
+          <div class="link-test-q">
+            <div class="link-test-q-text">Quel organite est responsable de la modification et du tri des protéines synthétisées ?</div>
+            <div class="link-test-q-options">A) Appareil de Golgi &nbsp; B) Ribosome &nbsp; C) Mitochondrie &nbsp; D) Lysosome &nbsp; E) Noyau</div>
+          </div>
+
+          <div class="link-test-section-title">⚗️ Chimie</div>
+          <div class="link-test-q">
+            <div class="link-test-q-text">Calculer le pH d'une solution 0,01 M de HCl.</div>
+            <div class="link-test-q-options">A) 2 &nbsp; B) 1 &nbsp; C) 7 &nbsp; D) 12 &nbsp; E) &gt;2</div>
+          </div>
+
+          <div class="link-test-section-title">📐 Physique &amp; Mathématiques</div>
+          <div class="link-test-q">
+            <div class="link-test-q-text">Résoudre l'inéquation : −x + 5 ≥ 0</div>
+            <div class="link-test-q-options">A) x ≤ 5 &nbsp; B) Toujours vraie &nbsp; C) Aucune solution &nbsp; D) x ≥ 5 &nbsp; E) x ≥ −5</div>
+          </div>
+          <div class="link-test-q">
+            <div class="link-test-q-text">Calculer l'aire d'un triangle isocèle dont le côté oblique mesure 5 cm et la base 8 cm.</div>
+            <div class="link-test-q-options">A) 12 cm² &nbsp; B) 20 cm² &nbsp; C) 25 cm² &nbsp; D) 40 cm² &nbsp; E) 24 cm²</div>
+          </div>
+
+          <div class="link-test-disclaimer">💡 Ces questions sont tirées d'un test officiel LINK. Le jour du test (15 avril), toutes les questions seront traduites et présentées en français.</div>
+
+          <div style="margin-top:12px;">
+            <a class="btn-link-dl" href="exemple-test-link.pdf" download="Exemple-Test-LINK.pdf" style="width:fit-content;">⬇ Télécharger l'exemple de test complet</a>
+          </div>
+        </div>
+
+        <button class="btn-link-save" onclick="saveLINKConfirm()">✅ J'ai préparé mes documents et compris les étapes</button>
+      </div>
+
+      <div class="link-saved-banner" id="link-saved-banner" style="display:none;">
+        <span class="link-saved-banner-icon">✅</span>
+        <div>Parfait ! Vos documents seront vérifiés par l'équipe EDUMOVE. Un contact francophone de LINK vous joindra prochainement pour le règlement des 200 € et la confirmation de votre inscription au test du 15 avril.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- UCJC — FORMULAIRE CANDIDATURE -->
+  <div class="section-card" id="ucjc-form-card" style="display:none;">
+    <div class="section-card-header ucjc-card-header">
+      <div class="section-card-title">🎓 Candidature UCJC — Universidad Camilo José Cela</div>
+    </div>
+    <div class="section-card-body">
+
+      <div class="ucjc-lang-banner">
+        <span class="ucjc-lang-banner-icon">🇪🇸</span>
+        <div>Tous les cours à l'UCJC sont dispensés <strong>100% en espagnol</strong>. Un niveau B2 minimum est requis pour candidater.</div>
+      </div>
+
+      <div id="ucjc-form-fields">
+        <div class="ucjc-docs-list">
+          <div class="ucjc-docs-title">Documents à soumettre avec votre dossier</div>
+
+          <div class="ucjc-doc-item">
+            <span class="ucjc-doc-name">📄 Lettre de motivation <strong style="margin-left:4px;">en espagnol</strong></span>
+          </div>
+
+          <div class="ucjc-doc-item">
+            <span class="ucjc-doc-name">🪪 Carte d'identité ou Passeport</span>
+          </div>
+
+          <div class="ucjc-doc-item">
+            <span class="ucjc-doc-name">📋 Formulaire d'admission UCJC <span style="font-size:11px;color:var(--text-muted);margin-left:4px;">(à remplir et signer)</span></span>
+            <a class="btn-ucjc-download" href="formulaire-admission-ucjc.pdf" download="Formulaire-Admission-UCJC.pdf">⬇ Télécharger</a>
+          </div>
+
+          <div class="ucjc-doc-item">
+            <span class="ucjc-doc-name">🌐 Attestation de niveau B2 en espagnol</span>
+            <span class="ucjc-doc-optional">Optionnel — toute certification acceptée (même en ligne)</span>
+          </div>
+        </div>
+
+        <button class="btn-ucjc-save" onclick="saveUCJCConfirm()">✅ J'ai préparé tous mes documents UCJC</button>
+      </div>
+
+      <div class="ucjc-saved-banner" id="ucjc-saved-banner" style="display:none;">
+        <span class="ucjc-saved-banner-icon">✅</span>
+        <div>Votre confirmation a bien été enregistrée. L'équipe EDUMOVE va préparer votre dossier de candidature UCJC.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- UNIVERSIDAD EUROPEA — FORMULAIRE CANDIDATURE -->
+  <div class="section-card" id="ue-form-card" style="display:none;">
+    <div class="section-card-header ue-form-card-header">
+      <div class="section-card-title">🇪🇸 Candidature Universidad Europea</div>
+    </div>
+    <div class="section-card-body" id="ue-form-body">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:18px;">Sélectionnez le campus, la filière et la langue d'enseignement souhaités pour votre candidature.</p>
+
+      <div id="ue-form-fields">
+        <div class="ue-selects-grid">
+          <div>
+            <div class="ue-form-label">Ville 🏙</div>
+            <select class="ue-select" id="ue-ville" onchange="onUEVilleChange()">
+              <option value="">— Choisir —</option>
+              <option value="Madrid">Madrid</option>
+              <option value="Malaga">Málaga</option>
+              <option value="Valence">Valence</option>
+              <option value="Alicante">Alicante</option>
+              <option value="Canaries">Îles Canaries</option>
+            </select>
+          </div>
+          <div>
+            <div class="ue-form-label">Filière 📚</div>
+            <select class="ue-select" id="ue-filiere" onchange="onUEFiliereChange()" disabled>
+              <option value="">— Choisir —</option>
+            </select>
+          </div>
+          <div>
+            <div class="ue-form-label">Langue d'enseignement 🌐</div>
+            <select class="ue-select" id="ue-langue" onchange="onUELangueChange()" disabled>
+              <option value="">— Choisir —</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="ue-complet-warning" id="ue-complet-warning">
+          ⚠️ Cette combinaison est <strong style="margin-left:4px;">actuellement complète</strong>. Vous pouvez tout de même soumettre votre dossier — nous vous informerons en cas de désistement.
+        </div>
+
+        <div class="ue-docs-required" id="ue-docs-required" style="display:none;">
+          <div class="ue-docs-required-title">Documents requis pour cette candidature</div>
+          <div class="ue-doc-item">📄 <strong>3 bulletins de Première</strong> fusionnés en 1 seul PDF</div>
+          <div class="ue-doc-item">🪪 <strong>Carte d'identité ou Passeport</strong></div>
+          <div class="ue-doc-item" style="flex-direction:column;align-items:flex-start;">
+            <div>📋 <strong>Rapport technique académique</strong> (obligatoire — 60 €)</div>
+            <div style="margin-top:10px;padding:14px;background:#f0f7ff;border-radius:8px;font-size:12px;line-height:1.8;color:var(--text);">
+              <div style="font-weight:700;margin-bottom:6px;font-size:13px;">📌 Comment obtenir le rapport technique :</div>
+              <div><strong>1.</strong> Rendez-vous sur <a href="https://hostudents.com/servicios-legales/informe-tecnico-academico/" target="_blank" style="color:var(--violet);font-weight:600;">hostudents.com</a> et remplissez le formulaire avec vos informations.</div>
+              <div><strong>2.</strong> Vous recevrez un email avec un lien vers le portail. Cliquez sur « Connexion » puis « Nouveau sur Homologation Student Service » pour créer votre compte.</div>
+              <div><strong>3.</strong> Activez votre compte via l'email d'activation, puis connectez-vous au portail.</div>
+              <div><strong>4.</strong> Remplissez les informations demandées :
+                <ul style="margin:4px 0 4px 16px;list-style:disc;">
+                  <li>Type de service : <strong>Rapport technique académique</strong></li>
+                  <li>Université : <strong>Universidad Europea</strong></li>
+                  <li>Type d'étude : <strong>Licence</strong></li>
+                </ul>
+              </div>
+              <div><strong>5.</strong> Réglez les frais d'évaluation de <strong>60 €</strong> par carte bancaire lorsque le portail vous le demande.</div>
+              <div><strong>6.</strong> Vous recevrez votre rapport par email avec une note sur une échelle de 0 à 20. <strong>Ce document est indispensable</strong> pour finaliser votre candidature.</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-ue-save" id="btn-ue-save" onclick="saveUEChoices()" disabled>Confirmer mes choix</button>
+      </div>
+
+      <div class="ue-saved-banner" id="ue-saved-banner" style="display:none;">
+        <span class="ue-saved-banner-icon">✅</span>
+        <div>
+          <div>Vos choix de candidature ont été enregistrés. L'équipe EDUMOVE prépare votre dossier.</div>
+          <div class="ue-saved-details" id="ue-saved-details"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOCUMENTS -->
+  <div class="section-card">
+    <div class="section-card-header">
+      <div class="section-card-title">Documents</div>
+    </div>
+    <div class="section-card-body">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Vous pouvez ajouter des documents complémentaires à votre dossier (bulletins, passeport, lettres...). L'équipe EDUMOVE les consultera.</p>
+      <div class="upload-zone" onclick="document.getElementById('file-upload').click()">
+        <div class="upload-zone-icon">📎</div>
+        <div class="upload-zone-label"><strong>Cliquez pour ajouter un document</strong> · PDF, JPG, PNG (max 10 Mo)</div>
+        <input type="file" id="file-upload" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDocument(this)"/>
+      </div>
+      <div class="upload-progress" id="upload-progress">Envoi en cours...</div>
+      <div class="uploaded-files" id="uploaded-files"></div>
+      <div class="confirm-docs-wrap" id="confirm-docs-wrap" style="display:none;">
+        <button class="btn-confirm-docs" id="btn-confirm-docs" onclick="confirmDocumentsSubmitted()">
+          ✅ J'ai envoyé tous mes documents complémentaires
+        </button>
+        <div class="docs-confirmed-banner" id="docs-confirmed-banner" style="display:none;">
+          <span>✅</span>
+          <div>Vos documents ont bien été reçus. L'équipe EDUMOVE va les examiner et vous recontacter prochainement.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MESSAGERIE -->
+  <div class="section-card">
+      <div class="section-card-header">
+      <div class="section-card-title">Messagerie</div>
+    </div>
+    <div class="section-card-body">
+      <div class="messages-container" id="messages-container">
+        <div class="messages-empty" id="messages-empty">Aucun message pour le moment. Envoyez un message à l'équipe EDUMOVE ci-dessous.</div>
+      </div>
+      <div class="message-input-row">
+        <textarea class="message-input" id="message-input" placeholder="Écrivez votre message..." rows="1"></textarea>
+        <button class="btn-send" id="btn-send" onclick="sendMessage()">Envoyer</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  © 2026 EDUMOVE · <a href="https://edumove.fr" target="_blank">edumove.fr</a> · Tous droits réservés
+</footer>
+
+<script>
+let currentUser = null;
+let candidatureId = null;
+let candidatureData = null;
+let messagesUnsubscribe = null;
+let userProfile = {};
+let authChecked = false;
+
+// ── AUTH ──
+(async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  const user = session?.user;
+  if (!user) {
+    sessionStorage.removeItem('edumove_just_submitted');
+    window.location.href = 'index.html';
+    return;
+  }
+  currentUser = user;
+
+  // Load user profile for dropdown
+  try {
+    const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+    if (profileData) {
+      userProfile = profileData;
+      fillProfilDropdown();
+    }
+  } catch(e) { console.error('Load profile error:', e); }
+
+  // Load candidature — check URL param or sessionStorage (from submission redirect)
+  const urlCid = new URLSearchParams(window.location.search).get('cid') || sessionStorage.getItem('edumove_just_submitted');
+  sessionStorage.removeItem('edumove_just_submitted');
+  try {
+    if (urlCid) {
+      const { data: doc } = await supabase.from('candidatures').select('*').eq('id', urlCid).single();
+      if (doc && doc.user_id === user.id) {
+        candidatureId = doc.id;
+        candidatureData = doc;
+      }
+    }
+    if (!candidatureId) {
+      let { data } = await supabase.from('candidatures').select('*').eq('user_id', user.id).limit(1).maybeSingle();
+      if (!data) {
+        await new Promise(r => setTimeout(r, 2000));
+        const res = await supabase.from('candidatures').select('*').eq('user_id', user.id).limit(1).maybeSingle();
+        data = res.data;
+      }
+      if (!data) {
+        window.location.href = 'candidature.html';
+        return;
+      }
+      candidatureId = data.id;
+      candidatureData = data;
+    }
+  } catch(e) {
+    console.error('Load candidature error:', e);
+    document.getElementById('loading').style.display = 'none';
+    return;
+  }
+  // Clean URL param
+  if (new URLSearchParams(window.location.search).get('cid')) {
+    window.history.replaceState({}, '', 'espace.html');
+  }
+
+  try {
+    // Auto-advance status if needed
+    const advanced = await checkAndAdvanceStatus(candidatureId, candidatureData);
+    if (advanced) {
+      const { data: freshDoc } = await supabase.from('candidatures').select('*').eq('id', candidatureId).single();
+      if (freshDoc) candidatureData = freshDoc;
+    }
+  } catch(e) { console.error('Status advance error:', e); }
+
+  try {
+    renderDashboard();
+  } catch(e) { console.error('Render dashboard error:', e); }
+
+  try {
+    loadMessages();
+    listenForStatusChanges();
+  } catch(e) { console.error('Messages/listen error:', e); }
+
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+})();
+
+function logout() {
+  if (messagesUnsubscribe) messagesUnsubscribe();
+  supabase.auth.signOut().then(() => { window.location.href = 'index.html'; });
+}
+
+// ── PROFILE DROPDOWN ──
+function fillProfilDropdown() {
+  const p = userProfile;
+  const ini = ((p.prenom||'')[0]||'') + ((p.nom||'')[0]||'');
+  document.getElementById('profil-initials').textContent = ini.toUpperCase();
+  document.getElementById('profil-short-name').textContent = (p.prenom||'') + ' ' + (p.nom||'');
+  document.getElementById('profil-dd-name').textContent = (p.prenom||'') + ' ' + (p.nom||'');
+  document.getElementById('profil-dd-email').textContent = p.email || currentUser.email;
+  document.getElementById('pv-nom').textContent = p.nom || '—';
+  document.getElementById('pv-prenom').textContent = p.prenom || '—';
+  document.getElementById('pv-email').textContent = p.email || '—';
+  document.getElementById('pv-tel').textContent = p.tel || '—';
+  document.getElementById('pv-dep').textContent = p.departement || '—';
+}
+
+function toggleRecapDropdown() {
+  const dd = document.getElementById('recap-dropdown');
+  const isOpen = dd.classList.contains('open');
+  closeRecapDropdown();
+  if (!isOpen) {
+    dd.classList.add('open');
+    document.getElementById('profil-backdrop').classList.add('open');
+  }
+}
+
+function closeRecapDropdown() {
+  document.getElementById('recap-dropdown').classList.remove('open');
+  document.getElementById('profil-backdrop').classList.remove('open');
+}
+
+function toggleProfilDropdown() {
+  closeRecapDropdown();
+  document.getElementById('profil-dropdown').classList.toggle('open');
+  document.getElementById('profil-backdrop').classList.toggle('open');
+}
+
+function closeProfilDropdown() {
+  document.getElementById('profil-dropdown').classList.remove('open');
+  document.getElementById('profil-backdrop').classList.remove('open');
+  cancelEditProfil();
+}
+
+function editProfil() {
+  const p = userProfile;
+  document.getElementById('pe-nom').value = p.nom || '';
+  document.getElementById('pe-prenom').value = p.prenom || '';
+  document.getElementById('pe-tel').value = p.tel || '';
+  document.getElementById('pe-dep').value = p.departement || '';
+  document.getElementById('profil-dd-body').style.display = 'none';
+  document.getElementById('profil-dd-edit').style.display = 'block';
+  document.getElementById('btn-edit-profil').style.display = 'none';
+  document.getElementById('btn-save-profil').style.display = 'block';
+}
+
+function cancelEditProfil() {
+  document.getElementById('profil-dd-body').style.display = 'block';
+  document.getElementById('profil-dd-edit').style.display = 'none';
+  document.getElementById('btn-edit-profil').style.display = 'block';
+  document.getElementById('btn-save-profil').style.display = 'none';
+}
+
+async function saveProfil() {
+  const nom = document.getElementById('pe-nom').value.trim();
+  const prenom = document.getElementById('pe-prenom').value.trim();
+  const tel = document.getElementById('pe-tel').value.trim();
+  const dep = document.getElementById('pe-dep').value.trim();
+  if (!nom || !prenom || !tel || !dep) { alert('Veuillez remplir tous les champs.'); return; }
+  try {
+    await supabase.from('profiles').update({ nom, prenom, tel, departement: dep }).eq('id', currentUser.id);
+    userProfile.nom = nom;
+    userProfile.prenom = prenom;
+    userProfile.tel = tel;
+    userProfile.departement = dep;
+    fillProfilDropdown();
+    cancelEditProfil();
+  } catch(e) { alert('Erreur lors de la sauvegarde.'); console.error(e); }
+}
+
+// ── RENDER DASHBOARD ──
+function renderDashboard() {
+  const c = candidatureData;
+
+  // Welcome
+  document.getElementById('welcome-title').textContent = 'Bonjour ' + esc(c.prenom || '') + ' !';
+
+  // Status
+  updateStatusDisplay(c.status);
+
+  // Date
+  if (c.created_at) {
+    document.getElementById('status-date').textContent = 'Soumis le ' + new Date(c.created_at).toLocaleDateString('fr-FR');
+  }
+
+  // Recap
+  const langLabels = { b2: 'B2+ / Bilingue', b1: 'B1 / Intermédiaire', debut: 'A1/A2 / Débutant', aucun: 'Aucun' };
+
+  let html = '';
+  html += `<div class="recap-grid">
+    <div class="recap-item"><label>Nom</label><span>${esc(c.nom)}</span></div>
+    <div class="recap-item"><label>Prenom</label><span>${esc(c.prenom)}</span></div>
+    <div class="recap-item"><label>Email</label><span>${esc(c.email)}</span></div>
+    <div class="recap-item"><label>Telephone</label><span>${esc(c.tel)}</span></div>
+    <div class="recap-item"><label>Departement</label><span>${esc(c.departement)}</span></div>
+    <div class="recap-item"><label>Profil</label><span>${c.profil === 'reorientation' ? 'Réorientation' : 'Terminale'}</span></div>
+  </div>`;
+
+  // Notes Premiere
+  if (c.notes_premiere && c.notes_premiere.length > 0) {
+    html += `<hr class="recap-divider"/>
+    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--violet);margin-bottom:8px;">Notes de Première</div>
+    <table class="notes-table">
+      <thead><tr><th>Matiere</th><th>T1</th><th>T2</th><th>T3</th><th>Moy.</th></tr></thead>
+      <tbody>${c.notes_premiere.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'—'}</td><td>${n.t2||'—'}</td><td>${n.t3||'—'}</td><td style="font-weight:600;">${n.moy||'—'}</td></tr>`).join('')}</tbody>
+    </table>`;
+    if (c.moyenne_premiere) html += `<div style="margin-top:8px;font-size:13px;color:var(--navy);">Moyenne : <strong>${esc(c.moyenne_premiere)}</strong></div>`;
+  }
+
+  // Notes Terminale
+  if (c.notes_terminale && c.notes_terminale.length > 0) {
+    html += `<hr class="recap-divider"/>
+    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--violet);margin-bottom:8px;">Notes de Terminale</div>
+    <table class="notes-table">
+      <thead><tr><th>Matiere</th><th>T1</th><th>T2</th><th>T3</th><th>Moy.</th></tr></thead>
+      <tbody>${c.notes_terminale.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'—'}</td><td>${n.t2||'—'}</td><td>${n.t3||'—'}</td><td style="font-weight:600;">${n.moy||'—'}</td></tr>`).join('')}</tbody>
+    </table>`;
+    if (c.moyenne_terminale) html += `<div style="margin-top:8px;font-size:13px;color:var(--navy);">Moyenne : <strong>${esc(c.moyenne_terminale)}</strong></div>`;
+  }
+
+  // Langues
+  if (c.langues) {
+    html += `<hr class="recap-divider"/>
+    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--violet);margin-bottom:8px;">Compétences linguistiques</div>
+    <div class="recap-grid">
+      ${['espagnol','anglais','italien','portugais'].map(l =>
+        c.langues[l] ? `<div class="recap-item"><label>${l.charAt(0).toUpperCase()+l.slice(1)}</label><span>${langLabels[c.langues[l]] || c.langues[l]}</span></div>` : ''
+      ).join('')}
+      ${c.langues.autre ? `<div class="recap-item"><label>Autre</label><span>${esc(c.langues.autre)}</span></div>` : ''}
+    </div>`;
+  }
+
+  // Classement
+  if (c.classement_destinations && c.classement_destinations.length > 0) {
+    html += `<hr class="recap-divider"/>
+    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--violet);margin-bottom:8px;">Classement des destinations</div>
+    <div style="font-size:13px;">${c.classement_destinations.map((d,i) => `<span style="font-weight:600;color:var(--navy);">${i+1}.</span> ${esc(d)}`).join(' &nbsp;|&nbsp; ')}</div>`;
+  }
+
+  document.getElementById('recap-body').innerHTML = html;
+  document.getElementById('btn-recap').style.display = '';
+
+  // Show reponse EDUMOVE card if applicable
+  if (['reponse_edumove', 'dossier_soumis', 'accepte', 'refuse', 'abandon'].includes(c.status) && c.auto_response_text) {
+    document.getElementById('reponse-edumove-card').style.display = 'block';
+    document.getElementById('reponse-text').textContent = c.auto_response_text;
+    if (c.callback_requested) {
+      document.getElementById('btn-callback').style.display = 'none';
+      document.getElementById('callback-confirmed').style.display = 'block';
+    }
+  }
+
+  // Show university-specific forms based on universite field or auto_response_text
+  const uni = (c.universite || '').toUpperCase();
+  const txt = (c.auto_response_text || '').toLowerCase();
+  const isReponse = ['reponse_edumove', 'dossier_soumis', 'accepte'].includes(c.status);
+
+  // Show LINK Campus form
+  if (isReponse && (uni === 'LINK' || /link campus|unilink|università.*link/i.test(txt))) {
+    document.getElementById('link-form-card').style.display = 'block';
+    if (c.link_docs_confirmed) {
+      document.getElementById('link-form-fields').style.display = 'none';
+      document.getElementById('link-saved-banner').style.display = 'flex';
+    }
+  }
+
+  // Show UCJC form
+  if (isReponse && (uni === 'UCJC' || /ucjc|camilo jos/i.test(txt))) {
+    document.getElementById('ucjc-form-card').style.display = 'block';
+    if (c.ucjc_docs_confirmed) {
+      document.getElementById('ucjc-form-fields').style.display = 'none';
+      document.getElementById('ucjc-saved-banner').style.display = 'flex';
+    }
+  }
+
+  // Show Universidad Europea form
+  if (isReponse && (uni === 'UEM' || uni === 'UE' || /universidad europea|uem/i.test(txt))) {
+    document.getElementById('ue-form-card').style.display = 'block';
+    if (c.ue_choices) {
+      showUESavedBanner(c.ue_choices.ville, c.ue_choices.filiere, c.ue_choices.langue);
+    }
+  }
+
+  // Show confirm docs button for reponse_edumove status
+  if (c.status === 'reponse_edumove') {
+    document.getElementById('confirm-docs-wrap').style.display = 'block';
+    if (c.docs_confirmed) {
+      document.getElementById('btn-confirm-docs').style.display = 'none';
+      document.getElementById('docs-confirmed-banner').style.display = 'flex';
+    }
+  }
+
+  // Existing documents
+  renderDocuments();
+}
+
+function updateStatusDisplay(status) {
+  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours de traitement', reponse_edumove: 'Réponse Edumove', dossier_soumis: 'Dossier soumis à l\'université', accepte: 'Accepté', refuse: 'Refusé', abandon: 'Abandon du dossier' };
+  const statusIcons = { en_attente: '\u23f3', en_cours: '\ud83d\udccb', reponse_edumove: '\ud83d\udce9', dossier_soumis: '\ud83c\udf93', accepte: '\u2705', refuse: '\u274c', abandon: '\ud83d\udeab' };
+
+  const textEl = document.getElementById('status-text');
+  const iconEl = document.getElementById('status-icon-box');
+
+  textEl.textContent = statusLabels[status] || status;
+  textEl.className = 'status-value ' + status;
+  iconEl.textContent = statusIcons[status] || '⏳';
+  iconEl.className = 'status-icon ' + status;
+
+  // Update timeline
+  updateTimeline(status);
+}
+
+function updateTimeline(status) {
+  const steps = ['step-attente', 'step-encours', 'step-reponse'];
+  const lines = ['line-1', 'line-2'];
+  const statusOrder = { en_attente: 0, en_cours: 1, reponse_edumove: 2, dossier_soumis: 2, accepte: 2, refuse: 2, abandon: 2 };
+  const currentIdx = statusOrder[status] ?? 0;
+
+  steps.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.className = 'timeline-step';
+    if (i < currentIdx) el.classList.add('completed');
+    else if (i === currentIdx) el.classList.add('active');
+  });
+  lines.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.className = 'timeline-line';
+    if (i < currentIdx) el.classList.add('done');
+  });
+}
+
+// ── CALLBACK REQUEST ──
+async function requestCallback() {
+  const btn = document.getElementById('btn-callback');
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours...';
+  try {
+    await supabase.from('candidatures').update({
+      callback_requested: true,
+      callback_requested_at: new Date().toISOString()
+    }).eq('id', candidatureId);
+    await supabase.from('messages').insert({
+      candidature_id: candidatureId,
+      user_id: currentUser.id,
+      content: '📞 Je souhaite etre rappele(e) pour discuter de ma recommandation EDUMOVE.',
+      sender: 'etudiant'
+    });
+    btn.style.display = 'none';
+    document.getElementById('callback-confirmed').style.display = 'block';
+  } catch(e) {
+    console.error('Callback request error:', e);
+    btn.disabled = false;
+    btn.textContent = '📞 Demander un rappel telephonique';
+    alert('Erreur lors de la demande. Veuillez reessayer.');
+  }
+}
+
+function listenForStatusChanges() {
+  supabase.channel('candidature-' + candidatureId)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'candidatures', filter: 'id=eq.' + candidatureId }, (payload) => {
+      const data = payload.new;
+      candidatureData = data;
+      updateStatusDisplay(data.status);
+      renderDocuments();
+    })
+    .subscribe();
+}
+
+// ── DOCUMENTS ──
+function renderDocuments() {
+  const container = document.getElementById('uploaded-files');
+  const docs = candidatureData.documents || {};
+  const docLabels = {
+    passeport: 'Passeport', bulletins: 'Bulletins', formulaire: 'Formulaire',
+    rapport_technique: 'Rapport technique', identite: 'Piece d\'identite',
+    releves: 'Releves de notes', attestation_b2: 'Attestation B2',
+    lettre_motivation: 'Lettre de motivation'
+  };
+
+  let html = '';
+  Object.entries(docs).forEach(([key, url]) => {
+    html += `<div class="uploaded-file">
+      <span>📄</span>
+      <span class="uploaded-file-name">${docLabels[key] || key}</span>
+      <a href="${esc(url)}" target="_blank" rel="noopener">Voir</a>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+async function uploadDocument(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  if (file.size > 10 * 1024 * 1024) {
+    alert('Le fichier est trop volumineux (max 10 Mo).');
+    input.value = '';
+    return;
+  }
+
+  const progressEl = document.getElementById('upload-progress');
+  progressEl.style.display = 'block';
+  progressEl.textContent = 'Envoi de ' + file.name + '...';
+
+  try {
+    const timestamp = Date.now();
+    const path = `candidatures/${candidatureId}/docs_${timestamp}_${file.name}`;
+    const { error: uploadError } = await supabase.storage.from('candidature-docs').upload(path, file);
+    if (uploadError) throw uploadError;
+    const url = supabase.storage.from('candidature-docs').getPublicUrl(path).data.publicUrl;
+
+    // Save to candidature documents
+    const docKey = 'doc_' + timestamp;
+    const { data: currentCand } = await supabase.from('candidatures').select('documents').eq('id', candidatureId).single();
+    const updatedDocs = { ...(currentCand?.documents || {}), [docKey]: url };
+    await supabase.from('candidatures').update({ documents: updatedDocs }).eq('id', candidatureId);
+    candidatureData.documents = updatedDocs;
+    renderDocuments();
+
+    progressEl.textContent = 'Document envoyé !';
+    setTimeout(() => { progressEl.style.display = 'none'; }, 2000);
+    input.value = '';
+  } catch (err) {
+    console.error('Upload error:', err);
+    progressEl.textContent = 'Erreur lors de l\'envoi.';
+    setTimeout(() => { progressEl.style.display = 'none'; }, 3000);
+  }
+}
+
+// ── LINK CAMPUS ──
+function toggleLinkTest() {
+  const btn = document.getElementById('link-test-toggle');
+  const panel = document.getElementById('link-test-preview');
+  btn.classList.toggle('open');
+  panel.classList.toggle('open');
+}
+
+async function saveLINKConfirm() {
+  const btn = document.querySelector('.btn-link-save');
+  btn.disabled = true;
+  btn.textContent = 'Enregistrement...';
+  try {
+    await supabase.from('candidatures').update({
+      link_docs_confirmed: true,
+      link_docs_confirmed_at: new Date().toISOString()
+    }).eq('id', candidatureId);
+    document.getElementById('link-form-fields').style.display = 'none';
+    document.getElementById('link-saved-banner').style.display = 'flex';
+  } catch (err) {
+    console.error('LINK confirm error:', err);
+    btn.disabled = false;
+    btn.textContent = '✅ J\'ai préparé mes documents et compris les étapes';
+  }
+}
+
+// ── UCJC ──
+async function saveUCJCConfirm() {
+  const btn = document.querySelector('.btn-ucjc-save');
+  btn.disabled = true;
+  btn.textContent = 'Enregistrement...';
+  try {
+    await supabase.from('candidatures').update({
+      ucjc_docs_confirmed: true,
+      ucjc_docs_confirmed_at: new Date().toISOString()
+    }).eq('id', candidatureId);
+    document.getElementById('ucjc-form-fields').style.display = 'none';
+    document.getElementById('ucjc-saved-banner').style.display = 'flex';
+  } catch (err) {
+    console.error('UCJC confirm error:', err);
+    btn.disabled = false;
+    btn.textContent = '✅ J\'ai préparé tous mes documents UCJC';
+  }
+}
+
+// ── UNIVERSIDAD EUROPEA ──
+// Combinaisons déjà complètes
+const UE_COMPLETS = [
+  { ville: 'Malaga',   filiere: 'Dentaire',        langue: 'Espagnol' },
+  { ville: 'Malaga',   filiere: 'Dentaire',        langue: 'Anglais' },
+  { ville: 'Alicante', filiere: 'Dentaire',        langue: 'Espagnol' },
+  { ville: 'Alicante', filiere: 'Dentaire',        langue: 'Anglais' },
+  { ville: 'Valence',  filiere: 'Kinésithérapie',  langue: 'Espagnol' },
+  { ville: 'Alicante', filiere: 'Kinésithérapie',  langue: 'Espagnol' },
+];
+
+function isUEComplet(ville, filiere, langue) {
+  return UE_COMPLETS.some(c =>
+    c.ville === ville && c.filiere === filiere && c.langue === langue
+  );
+}
+
+// Langues disponibles par ville + filière
+function getUELangues(ville, filiere) {
+  if (filiere === 'Médecine') return ['Espagnol'];
+  if (filiere === 'Prépa dentaire') return ['Espagnol', 'Anglais'];
+  if (filiere === 'Kinésithérapie' && ville === 'Madrid') return ['Espagnol', 'Anglais', 'Français'];
+  return ['Espagnol', 'Anglais'];
+}
+
+// Villes où Médecine est disponible
+const UE_MEDECINE_VILLES = ['Madrid', 'Canaries'];
+
+// Filières disponibles par ville
+function getUEFilieres(ville) {
+  const list = [];
+  if (UE_MEDECINE_VILLES.includes(ville)) list.push('Médecine');
+  list.push('Dentaire', 'Pharmacie', 'Vétérinaire', 'Kinésithérapie');
+  if (ville === 'Alicante') list.push('Prépa dentaire');
+  return list;
+}
+
+function onUEVilleChange() {
+  const ville = document.getElementById('ue-ville').value;
+  const selFiliere = document.getElementById('ue-filiere');
+  const selLangue = document.getElementById('ue-langue');
+
+  selFiliere.innerHTML = '<option value="">— Choisir —</option>';
+  selLangue.innerHTML = '<option value="">— Choisir —</option>';
+  selFiliere.disabled = !ville;
+  selLangue.disabled = true;
+
+  if (!ville) { updateUEState(); return; }
+
+  const filieres = getUEFilieres(ville);
+  filieres.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value = f;
+    const isFull = isUEComplet(ville, f, null) || isUEComplet(ville, f, 'Espagnol');
+    // Only mark as complet if ALL langues for this combo are complet
+    const langues = getUELangues(ville, f);
+    const allFull = langues.every(l => isUEComplet(ville, f, l));
+    opt.textContent = allFull ? f + ' (Complet)' : f;
+    selFiliere.appendChild(opt);
+  });
+  updateUEState();
+}
+
+function onUEFiliereChange() {
+  const ville = document.getElementById('ue-ville').value;
+  const filiere = document.getElementById('ue-filiere').value;
+  const selLangue = document.getElementById('ue-langue');
+
+  selLangue.innerHTML = '<option value="">— Choisir —</option>';
+  selLangue.disabled = !filiere;
+
+  if (!filiere) { updateUEState(); return; }
+
+  const langues = getUELangues(ville, filiere);
+  langues.forEach(l => {
+    const opt = document.createElement('option');
+    opt.value = l;
+    const full = isUEComplet(ville, filiere, l);
+    opt.textContent = full ? l + ' (Complet)' : l;
+    selLangue.appendChild(opt);
+  });
+  // Auto-select if only one option
+  if (langues.length === 1) { selLangue.value = langues[0]; }
+  updateUEState();
+}
+
+function onUELangueChange() { updateUEState(); }
+
+function updateUEState() {
+  const ville   = document.getElementById('ue-ville').value;
+  const filiere = document.getElementById('ue-filiere').value;
+  const langue  = document.getElementById('ue-langue').value;
+  const warn    = document.getElementById('ue-complet-warning');
+  const docs    = document.getElementById('ue-docs-required');
+  const btn     = document.getElementById('btn-ue-save');
+
+  const allSelected = ville && filiere && langue;
+  const complet = allSelected && isUEComplet(ville, filiere, langue);
+
+  warn.style.display = complet ? 'flex' : 'none';
+  docs.style.display = allSelected ? 'block' : 'none';
+  btn.disabled = !allSelected;
+}
+
+async function saveUEChoices() {
+  const ville   = document.getElementById('ue-ville').value;
+  const filiere = document.getElementById('ue-filiere').value;
+  const langue  = document.getElementById('ue-langue').value;
+  const btn     = document.getElementById('btn-ue-save');
+
+  btn.disabled = true;
+  btn.textContent = 'Enregistrement...';
+
+  try {
+    await supabase.from('candidatures').update({
+      ue_choices: { ville, filiere, langue },
+      ue_choices_at: new Date().toISOString()
+    }).eq('id', candidatureId);
+    showUESavedBanner(ville, filiere, langue);
+  } catch (err) {
+    console.error('UE save error:', err);
+    btn.disabled = false;
+    btn.textContent = 'Confirmer mes choix';
+  }
+}
+
+function showUESavedBanner(ville, filiere, langue) {
+  document.getElementById('ue-form-fields').style.display = 'none';
+  const banner = document.getElementById('ue-saved-banner');
+  banner.style.display = 'flex';
+  document.getElementById('ue-saved-details').textContent =
+    ville + ' · ' + filiere + ' · ' + langue;
+}
+
+// ── CONFIRM DOCS ──
+async function confirmDocumentsSubmitted() {
+  const btn = document.getElementById('btn-confirm-docs');
+  btn.disabled = true;
+  btn.textContent = 'Confirmation en cours...';
+  try {
+    await supabase.from('candidatures').update({
+      docs_confirmed: true,
+      docs_confirmed_at: new Date().toISOString()
+    }).eq('id', candidatureId);
+    btn.style.display = 'none';
+    document.getElementById('docs-confirmed-banner').style.display = 'flex';
+  } catch (err) {
+    console.error('Confirm docs error:', err);
+    btn.disabled = false;
+    btn.textContent = '✅ J\'ai envoyé tous mes documents complémentaires';
+  }
+}
+
+// ── MESSAGING ──
+async function loadMessages() {
+  const container = document.getElementById('messages-container');
+  const emptyEl = document.getElementById('messages-empty');
+
+  const renderMessages = (msgs) => {
+    container.querySelectorAll('.message').forEach(m => m.remove());
+    if (!msgs || msgs.length === 0) {
+      emptyEl.style.display = 'block';
+      return;
+    }
+    emptyEl.style.display = 'none';
+    msgs.forEach(msg => {
+      const div = document.createElement('div');
+      div.className = 'message message-' + msg.sender;
+      let inner = '';
+      if (msg.sender === 'admin') {
+        inner += `<div class="message-sender">Equipe EDUMOVE</div>`;
+      }
+      inner += `<div>${esc(msg.content)}</div>`;
+      if (msg.created_at) {
+        const date = new Date(msg.created_at);
+        inner += `<div class="message-meta">${date.toLocaleDateString('fr-FR')} ${date.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'})}</div>`;
+      }
+      div.innerHTML = inner;
+      container.appendChild(div);
+    });
+    container.scrollTop = container.scrollHeight;
+  };
+
+  // Initial load
+  const { data: initialMsgs } = await supabase.from('messages').select('*').eq('candidature_id', candidatureId).order('created_at', { ascending: true });
+  renderMessages(initialMsgs);
+
+  // Realtime subscription
+  const channel = supabase.channel('messages-' + candidatureId)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'candidature_id=eq.' + candidatureId }, async () => {
+      const { data: msgs } = await supabase.from('messages').select('*').eq('candidature_id', candidatureId).order('created_at', { ascending: true });
+      renderMessages(msgs);
+    })
+    .subscribe();
+
+  messagesUnsubscribe = () => supabase.removeChannel(channel);
+}
+
+async function sendMessage() {
+  const input = document.getElementById('message-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const btn = document.getElementById('btn-send');
+  btn.disabled = true;
+
+  try {
+    await supabase.from('messages').insert({
+      candidature_id: candidatureId,
+      user_id: currentUser.id,
+      content: text,
+      sender: 'etudiant'
+    });
+    input.value = '';
+  } catch (err) {
+    console.error('Message error:', err);
+    alert('Erreur lors de l\'envoi du message.');
+  }
+  btn.disabled = false;
+}
+
+// Enter to send (shift+enter for new line)
+document.getElementById('message-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+// ── UTILS ──
+function esc(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+</body>
+</html>
