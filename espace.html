@@ -1198,37 +1198,39 @@ body {
     </div>
   </div>
 
-  <!-- RECAP DU DOSSIER -->
-  <div class="section-card">
-    <div class="section-card-header">
-      <div class="section-card-title">Récapitulatif de votre dossier</div>
-    </div>
+  <!-- RECAP DU DOSSIER (collapsible) -->
+  <details class="section-card recap-details" id="recap-card">
+    <summary class="section-card-header" style="cursor:pointer;user-select:none;">
+      <div class="section-card-title">📋 Récapitulatif de votre dossier</div>
+      <span style="font-size:11px;color:var(--text-muted);margin-left:auto;">Cliquez pour voir</span>
+    </summary>
     <div class="section-card-body" id="recap-body">
       <!-- Filled by JS -->
     </div>
-  </div>
+  </details>
 
-  <!-- DOCUMENTS -->
-  <div class="section-card">
-    <div class="section-card-header">
-      <div class="section-card-title">Documents</div>
+  <!-- VERIFICATION EDUMOVE -->
+  <div class="section-card" id="verification-card" style="display:none;">
+    <div class="section-card-header" style="background:var(--navy);">
+      <div class="section-card-title">🔍 Vérification de vos documents</div>
     </div>
     <div class="section-card-body">
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Vous pouvez ajouter des documents complémentaires à votre dossier (bulletins, passeport, lettres...). L'équipe EDUMOVE les consultera.</p>
-      <div class="upload-zone" onclick="document.getElementById('file-upload').click()">
-        <div class="upload-zone-icon">📎</div>
-        <div class="upload-zone-label"><strong>Cliquez pour ajouter un document</strong> · PDF, JPG, PNG (max 10 Mo)</div>
-        <input type="file" id="file-upload" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDocument(this)"/>
+      <div id="verif-pending" style="display:none;">
+        <div style="display:flex;align-items:center;gap:12px;padding:16px;background:#fff8e1;border-radius:8px;border-left:4px solid #ff9800;">
+          <span style="font-size:24px;">⏳</span>
+          <div>
+            <div style="font-weight:600;color:var(--navy);">Vérification en cours</div>
+            <div style="font-size:13px;color:var(--text-muted);">L'équipe EDUMOVE vérifie que vos documents sont conformes. Vous recevrez un retour prochainement.</div>
+          </div>
+        </div>
       </div>
-      <div class="upload-progress" id="upload-progress">Envoi en cours...</div>
-      <div class="uploaded-files" id="uploaded-files"></div>
-      <div class="confirm-docs-wrap" id="confirm-docs-wrap" style="display:none;">
-        <button class="btn-confirm-docs" id="btn-confirm-docs" onclick="confirmDocumentsSubmitted()">
-          ✅ J'ai envoyé tous mes documents complémentaires
-        </button>
-        <div class="docs-confirmed-banner" id="docs-confirmed-banner" style="display:none;">
-          <span>✅</span>
-          <div>Vos documents ont bien été reçus. L'équipe EDUMOVE va les examiner et vous recontacter prochainement.</div>
+      <div id="verif-ok" style="display:none;">
+        <div style="display:flex;align-items:center;gap:12px;padding:16px;background:#e8f5e9;border-radius:8px;border-left:4px solid var(--success);">
+          <span style="font-size:24px;">✅</span>
+          <div>
+            <div style="font-weight:600;color:var(--success);">Documents conformes</div>
+            <div style="font-size:13px;color:var(--text-muted);">Tous vos documents ont été vérifiés et validés par l'équipe EDUMOVE. Votre dossier est en cours de transmission.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -1520,17 +1522,15 @@ function renderDashboard() {
     }
   }
 
-  // Show confirm docs button for reponse_edumove status
-  if (c.status === 'reponse_edumove') {
-    document.getElementById('confirm-docs-wrap').style.display = 'block';
-    if (c.docs_confirmed) {
-      document.getElementById('btn-confirm-docs').style.display = 'none';
-      document.getElementById('docs-confirmed-banner').style.display = 'flex';
+  // Show verification card when docs are confirmed
+  if (c.docs_confirmed || c.link_docs_confirmed || c.ucjc_docs_confirmed || c.ue_choices) {
+    document.getElementById('verification-card').style.display = 'block';
+    if (c.status === 'dossier_soumis' || c.status === 'accepte') {
+      document.getElementById('verif-ok').style.display = 'block';
+    } else {
+      document.getElementById('verif-pending').style.display = 'block';
     }
   }
-
-  // Existing documents
-  renderDocuments();
 }
 
 function updateStatusDisplay(status) {
