@@ -2024,9 +2024,121 @@ function selectUCJCFiliere(filiereId, filiereLabel) {
   html += '<div id="upload-status-UCJC-attestation_esp"><label class="uni-doc-upload-btn" style="cursor:pointer;">Envoyer <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleDocUpload(this,\'UCJC\',\'attestation_esp\')"></label></div>';
   html += '</div>';
 
+  // Prochaines étapes toggle
+  html += '<div style="padding:8px 0 4px;">';
+  html += '<button class="link-test-toggle" onclick="toggleUCJCEtapes()" id="ucjc-etapes-toggle-btn" style="width:100%;background:none;border:1.5px solid #96234a;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:600;color:#96234a;cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between;font-family:inherit;">';
+  html += '<span>&#x1F4C5; Prochaines étapes en direct avec la faculté</span><span class="link-test-toggle-arrow" style="transition:transform 0.2s;font-size:11px;">&#x25BC;</span></button>';
+  html += '<div id="ucjc-etapes-content" style="display:none;background:var(--bg);border-radius:8px;padding:14px;margin-top:8px;font-size:12px;line-height:1.7;">';
+  html += buildUCJCEtapes();
+  html += '</div>';
+  html += '</div>';
+
   docsEl.innerHTML = html;
   docsEl.classList.add('open');
   updateConfirmButton();
+}
+
+function buildUCJCEtapes() {
+  let h = '';
+
+  // Étape 2 - Tests
+  h += '<div style="margin-bottom:14px;">';
+  h += '<div style="font-size:12px;font-weight:700;color:#96234a;margin-bottom:6px;display:flex;align-items:center;gap:6px;">&#x1F4DD; Étape 2 — Tests d\'évaluation</div>';
+  h += '<div style="font-size:11.5px;color:var(--text);line-height:1.6;padding:10px 12px;background:white;border-radius:8px;border-left:3px solid #96234a;">';
+  h += 'Une fois votre dossier transmis à l\'UCJC, un conseiller de l\'université vous contactera directement pour vous donner accès aux <strong>tests en ligne en espagnol</strong> :';
+  h += '<ul style="margin:8px 0 0;padding-left:18px;">';
+  h += '<li>Test de personnalité</li>';
+  h += '<li>Test de compétences numériques</li>';
+  h += '<li>Réflexion personnelle (6 questions)</li>';
+  h += '<li>Test d\'anglais <span style="color:var(--text-muted);">(dispensé si vous présentez un certificat)</span></li>';
+  h += '<li>Banque de questions</li>';
+  h += '</ul>';
+  h += '<div style="margin-top:8px;padding-top:8px;border-top:1px solid #eee;">Après validation des tests, un <strong>entretien avec le directeur</strong> sera programmé. Le lien de connexion vous sera communiqué par le conseiller.</div>';
+  h += '</div></div>';
+
+  // Étape 3 - Résultats
+  h += '<div style="margin-bottom:14px;">';
+  h += '<div style="font-size:12px;font-weight:700;color:#96234a;margin-bottom:6px;display:flex;align-items:center;gap:6px;">&#x1F4E9; Étape 3 — Résultats d\'admission</div>';
+  h += '<div style="font-size:11.5px;color:var(--text);line-height:1.6;padding:10px 12px;background:white;border-radius:8px;border-left:3px solid #96234a;">';
+  h += 'Vous serez informé(e) des résultats suite à l\'entretien. En cas d\'admission, vous disposerez d\'<strong>une semaine</strong> pour régler les frais d\'inscription. Passé ce délai, votre candidature sera placée en liste d\'attente.';
+  h += '</div></div>';
+
+  // Étape 4 - Finalisation
+  h += '<div style="margin-bottom:4px;">';
+  h += '<div style="font-size:12px;font-weight:700;color:#96234a;margin-bottom:6px;display:flex;align-items:center;gap:6px;">&#x2705; Étape 4 — Finalisation de l\'inscription</div>';
+  h += '<div style="font-size:11.5px;color:var(--text);line-height:1.6;padding:10px 12px;background:white;border-radius:8px;border-left:3px solid #96234a;">';
+  h += 'Le service des admissions de l\'UCJC vous accompagnera dans les dernières démarches.';
+  h += '<div style="margin-top:8px;padding:8px 10px;background:#fff3e0;border-radius:6px;font-weight:600;color:#e65100;">⚠️ Important : les étudiants internationaux doivent obligatoirement faire valider leur diplôme de fin d\'études secondaires.</div>';
+  h += '</div></div>';
+
+  return h;
+}
+
+function toggleUCJCEtapes() {
+  const panel = document.getElementById('ucjc-etapes-content');
+  const btn = document.getElementById('ucjc-etapes-toggle-btn');
+  if (!panel) return;
+  const open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  if (btn) btn.classList.toggle('open');
+}
+
+function buildUEEtapes(langue) {
+  let h = '';
+  const isAnglais = langue === 'Anglais';
+  const isEspagnol = langue === 'Espagnol';
+  const isFrancais = langue === 'Français';
+
+  // Étape 3 - Tests d'admission
+  h += '<div style="margin-bottom:14px;">';
+  h += '<div style="font-size:12px;font-weight:700;color:#003da5;margin-bottom:6px;display:flex;align-items:center;gap:6px;">&#x1F9EA; Étape 3 — Tests d\'admission en ligne</div>';
+  h += '<div style="font-size:11.5px;color:var(--text);line-height:1.6;padding:10px 12px;background:white;border-radius:8px;border-left:3px solid #003da5;">';
+  h += 'Après validation de votre dossier, l\'université vous donnera accès à une plateforme pour passer <strong>4 tests en ligne</strong> :';
+  h += '<ol style="margin:8px 0 0;padding-left:18px;">';
+
+  if (isAnglais) {
+    h += '<li><strong>Test d\'anglais B2</strong> — requis pour les filières enseignées en anglais</li>';
+    h += '<li><strong>Test d\'espagnol classique</strong> — test standard (pas de niveau B2 requis)</li>';
+  } else if (isFrancais) {
+    h += '<li><strong>Test de français</strong> — dans votre langue de candidature</li>';
+    h += '<li><strong>Test d\'espagnol classique</strong> — test standard (pas de niveau B2 requis)</li>';
+  } else {
+    h += '<li><strong>Test d\'espagnol B2</strong> — requis pour les filières enseignées en espagnol</li>';
+    h += '<li><strong>Test d\'espagnol classique</strong> — inclus dans la même session</li>';
+  }
+
+  h += '<li><strong>Talent test</strong> — culture générale & logique en espagnol</li>';
+  h += '<li><strong>Test de motivation</strong> — en espagnol</li>';
+  h += '</ol>';
+  h += '</div></div>';
+
+  // Deadlines
+  h += '<div style="margin-bottom:14px;">';
+  h += '<div style="font-size:12px;font-weight:700;color:#003da5;margin-bottom:6px;display:flex;align-items:center;gap:6px;">&#x23F0; Deadlines & fonctionnement</div>';
+  h += '<div style="font-size:11.5px;color:var(--text);line-height:1.6;padding:10px 12px;background:white;border-radius:8px;border-left:3px solid #003da5;">';
+  h += 'L\'admission fonctionne par <strong>sessions mensuelles</strong> : chaque mois, une nouvelle deadline s\'ouvre (le lendemain de la précédente) et se ferme à la date indiquée.';
+  h += '<div style="margin:8px 0;padding:8px 10px;background:#e3f2fd;border-radius:6px;font-weight:600;color:#003da5;">&#x1F4C6; Deadline actuelle : <strong>16 avril 2026</strong> pour effectuer vos tests en ligne</div>';
+  h += '<div style="padding:6px 10px;background:#fff3e0;border-radius:6px;color:#e65100;font-weight:500;">&#x26A0;&#xFE0F; Le système fonctionne comme un entonnoir : plus les mois passent, moins il reste de places disponibles. Il est fortement recommandé de passer vos tests au plus tôt.</div>';
+  h += '</div></div>';
+
+  // Résultats & inscription
+  h += '<div style="margin-bottom:4px;">';
+  h += '<div style="font-size:12px;font-weight:700;color:#003da5;margin-bottom:6px;display:flex;align-items:center;gap:6px;">&#x1F4E9; Résultats & inscription</div>';
+  h += '<div style="font-size:11.5px;color:var(--text);line-height:1.6;padding:10px 12px;background:white;border-radius:8px;border-left:3px solid #003da5;">';
+  h += 'Vous recevrez une <strong>réponse sous 48h</strong> après validation de vos tests.';
+  h += '<div style="margin-top:8px;padding:8px 10px;background:#fce4ec;border-radius:6px;font-weight:600;color:#96234a;">&#x1F4B0; En cas d\'acceptation, un acompte de <strong>2 500 €</strong> devra être versé dans les <strong>2 jours</strong> suivant l\'admission pour valider définitivement votre inscription.</div>';
+  h += '</div></div>';
+
+  return h;
+}
+
+function toggleUEEtapes() {
+  const panel = document.getElementById('ue-etapes-content');
+  const btn = document.getElementById('ue-etapes-toggle-btn');
+  if (!panel) return;
+  const open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  if (btn) btn.classList.toggle('open');
 }
 
 // ── UE FILIERE SELECTION ──
@@ -2204,6 +2316,15 @@ function finalizeUESelection(filiereLabel, ville, langue) {
   html += '<div><strong>4.</strong> Remplissez : Type de service = <strong>Rapport technique académique</strong>, Université = <strong>Universidad Europea</strong>, Type d\'étude = <strong>Licence</strong></div>';
   html += '<div><strong>5.</strong> Réglez les <strong>60 €</strong> par carte bancaire.</div>';
   html += '<div><strong>6.</strong> Vous recevrez votre rapport par email (note sur 20). <strong>Ce document est indispensable.</strong></div>';
+  html += '</div>';
+  html += '</div>';
+
+  // Prochaines étapes toggle
+  html += '<div style="padding:8px 0 4px;">';
+  html += '<button class="link-test-toggle" onclick="toggleUEEtapes()" id="ue-etapes-toggle-btn" style="width:100%;background:none;border:1.5px solid #003da5;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:600;color:#003da5;cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between;font-family:inherit;">';
+  html += '<span>&#x1F4C5; Prochaines étapes après dépôt du dossier</span><span class="link-test-toggle-arrow" style="transition:transform 0.2s;font-size:11px;">&#x25BC;</span></button>';
+  html += '<div id="ue-etapes-content" style="display:none;background:var(--bg);border-radius:8px;padding:14px;margin-top:8px;font-size:12px;line-height:1.7;">';
+  html += buildUEEtapes(langue);
   html += '</div>';
   html += '</div>';
 
