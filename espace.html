@@ -1526,6 +1526,13 @@ const linkPrix = {
   kinesitherapie: { prix: '11 900', duree: '3 ans' }
 };
 
+const ucjcPrix = {
+  medecine: { prix: '19 920', duree: '6 ans' },
+  dentaire: { prix: '18 420', duree: '5 ans' },
+  pharmacie: { prix: '10 140', duree: '5 ans' },
+  kinesitherapie: { prix: '9 420', duree: '4 ans' }
+};
+
 // ── UE AVAILABILITY DATA ──
 const UE_COMPLETS = [];
 
@@ -1977,6 +1984,12 @@ function selectUCJCFiliere(filiereId, filiereLabel) {
   subEl.innerHTML = '';
 
   let html = '';
+  // Pricing bandeau
+  const prix = ucjcPrix[filiereId];
+  if (prix) {
+    html += '<div class="uni-pricing-bandeau ucjc-pricing">&#x1F4B0; ' + prix.prix + ' €/an — Durée des études : ' + prix.duree + '</div>';
+  }
+
   // Entretien bandeau — en espagnol pour med/dent, en français pour pharma/kiné
   html += '<div class="uni-info-bandeau" style="background:#fce4ec;color:#96234a;">';
   if (['medecine', 'dentaire'].includes(filiereId)) {
