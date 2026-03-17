@@ -2120,41 +2120,37 @@ function showSelectionsSaved(selections) {
 }
 
 function unlockSelections() {
-  // Remove locked state
+  // Simply re-render the whole interactive response fresh (unlocked)
   document.querySelectorAll('.uni-partner-card').forEach(card => {
-    card.classList.remove('locked');
+    card.classList.remove('locked', 'selected');
     const overlay = card.querySelector('.locked-overlay');
     if (overlay) overlay.remove();
+    // Reset all chips
+    card.querySelectorAll('.uni-filiere-chip').forEach(c => c.classList.remove('active'));
+    // Hide docs sections
+    const docsId = card.id.replace('card-', 'docs-');
+    const docsEl = document.getElementById(docsId);
+    if (docsEl) docsEl.classList.remove('open');
   });
 
-  // Show confirm button, hide unlock
-  document.getElementById('btn-confirm-selections').style.display = 'block';
-  document.getElementById('unlock-wrap').hidden = true;
+  // Reset UE sub-options
+  const subOpts = document.getElementById('ue-sub-options');
+  if (subOpts) subOpts.classList.remove('open');
 
-  // Restore selections state from saved data
-  const sel = candidatureData.uni_selections || {};
-  if (sel.LINK) {
-    uniSelections.LINK = sel.LINK;
-    selectFiliere('LINK', sel.LINK.filiere, sel.LINK.label || sel.LINK.filiere);
-  }
-  if (sel.UCJC) {
-    uniSelections.UCJC = sel.UCJC;
-    selectFiliere('UCJC', sel.UCJC.filiere, sel.UCJC.label || sel.UCJC.filiere);
-  }
-  if (sel.UE) {
-    uniSelections.UE = sel.UE;
-    // Re-trigger UE selection flow
-    selectUEFiliere(sel.UE.filiere, sel.UE.label || sel.UE.filiere);
-    if (sel.UE.ville) {
-      setTimeout(() => {
-        selectUEVille(sel.UE.ville, sel.UE.label || sel.UE.filiere);
-        if (sel.UE.langue) {
-          setTimeout(() => selectUELangue(sel.UE.langue, sel.UE.label || sel.UE.filiere, sel.UE.ville), 50);
-        }
-      }, 50);
-    }
-  }
-  updateConfirmButton();
+  // Reset selection state
+  uniSelections.LINK = null;
+  uniSelections.UCJC = null;
+  uniSelections.UE = null;
+  ueSelectedFiliere = null;
+  ueSelectedVille = null;
+  ueSelectedLangue = null;
+
+  // Show confirm button (disabled), hide unlock
+  const btn = document.getElementById('btn-confirm-selections');
+  btn.style.display = 'block';
+  btn.disabled = true;
+  btn.textContent = 'Confirmer mes choix et envoyer mes documents';
+  document.getElementById('unlock-wrap').hidden = true;
 }
 
 // ── CONFIRM DOCS ──
