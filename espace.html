@@ -325,6 +325,15 @@ body {
 .uni-filiere-chip.active::after {
   content: ' \2713';
 }
+.uni-filiere-chip.disabled {
+  border-color: #e0e0e0;
+  background: #f5f5f5;
+  color: #9e9e9e;
+  cursor: not-allowed;
+  opacity: 0.7;
+  pointer-events: none;
+  text-align: left;
+}
 .uni-filiere-chip.complet {
   border-color: #ffcc80;
   background: #fff8e1;
@@ -1649,16 +1658,170 @@ function getUELangues(ville, filiere) {
 const UE_MEDECINE_VILLES = ['Madrid', 'Canaries'];
 
 function getAvailableFilieres(c) {
-  // Use classement_filieres or default
   const ranking = c.classement_filieres || ['medecine','dentaire','kinesitherapie','pharmacie','veterinaire'];
   const labels = { medecine: 'Medecine', dentaire: 'Dentaire', kinesitherapie: 'Kinesitherapie', pharmacie: 'Pharmacie', veterinaire: 'Veterinaire' };
   return ranking.map(f => ({ id: f, label: labels[f] || f }));
 }
 
+// ── Eligibility engine ──
+// Compute student profile metrics from candidature data
+function computeStudentProfile(c) {
+  const langues = c.langues || {};
+  const esp = langues.espagnol || 'aucun';
+  const eng = langues.anglais || 'aucun';
+
+  // Count scientific specialties and compute their average
+  const sciNames = ['mathematiques', 'maths', 'physique-chimie', 'physique chimie', 'pc', 'svt', 'sciences de la vie'];
+  const notesPrem = c.notes_premiere || [];
+  const notesTerm = c.notes_terminale || [];
+
+  let sciSubjects = [];
+  let sciMoys = [];
+
+  notesPrem.forEach(n => {
+    const name = (n.nom || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (sciNames.some(s => name.includes(s))) {
+      sciSubjects.push(name);
+      const moy = parseFloat(n.moy) || 0;
+      sciMoys.push(moy);
+    }
+  });
+
+  // Also factor in T1 terminale for sci subjects
+  let sciMoysTerm = [];
+  notesTerm.forEach(n => {
+    const name = (n.nom || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (sciNames.some(s => name.includes(s))) {
+      const moy = parseFloat(n.t1) || parseFloat(n.moy) || 0;
+      sciMoysTerm.push(moy);
+    }
+  });
+
+  // Combined sci average (premiere + terminale T1)
+  const allSciMoys = [...sciMoys, ...sciMoysTerm];
+  const moySpeSci = allSciMoys.length > 0 ? allSciMoys.reduce((a, b) => a + b, 0) / allSciMoys.length : 0;
+  const nbSpeSci = sciSubjects.length; // number of distinct sci specialties in premiere
+
+  // Overall premiere average
+  const moyPrem = parseFloat((c.moyenne_premiere || '0').replace(/[^0-9.]/g, '')) || 0;
+
+  // Language levels as numeric (for comparison)
+  const langLevel = { b2: 3, b1: 2, debut: 1, aucun: 0 };
+
+  return {
+    moySpeSci: moySpeSci,
+    moyPremiere: moyPrem,
+    nbSpeSci: nbSpeSci,
+    espLevel: langLevel[esp] || 0,
+    engLevel: langLevel[eng] || 0,
+    espRaw: esp,
+    engRaw: eng,
+    score: parseFloat(c.score) || 0
+  };
+}
+
+// Check eligibility per university + filiere
+// Returns { eligible: bool, reason: string }
+function checkEligibility(uniKey, filiereId, profile, extra) {
+  // extra = { ville, langue } for UE sub-options
+
+  // ─── LINK: accepte tout le monde ───
+  if (uniKey === 'LINK') {
+    if (filiereId === 'veterinaire') return { eligible: false, reason: 'LINK ne propose pas Veterinaire.' };
+    return { eligible: true };
+  }
+
+  // ─── UCJC ───
+  if (uniKey === 'UCJC') {
+    if (filiereId === 'veterinaire') return { eligible: false, reason: 'UCJC ne propose pas Veterinaire.' };
+    if (filiereId === 'kinesitherapie') return { eligible: true }; // OK quel que soit le dossier
+    if (filiereId === 'pharmacie') return { eligible: true }; // ils prennent tout le monde
+    if (filiereId === 'medecine' || filiereId === 'dentaire') {
+      // Entretien 15 min obligatoire, besoin au moins A2/B1 espagnol
+      if (profile.espLevel < 1) {
+        return { eligible: false, reason: 'Niveau A2/B1 minimum en espagnol requis pour Med/Dent a UCJC.' };
+      }
+      return { eligible: true, note: 'Entretien de 15 min obligatoire.' };
+    }
+    return { eligible: true };
+  }
+
+  // ─── UE (Universidad Europea) ───
+  if (uniKey === 'UE') {
+    const ville = (extra && extra.ville) || '';
+    const langue = (extra && extra.langue) || '';
+
+    if (filiereId === 'veterinaire') {
+      // Le plus dur = cursus francais Madrid, le reste OK avec >12
+      if (ville === 'Madrid' && (langue === 'Francais' || langue === 'Français')) {
+        if (profile.moyPremiere < 13) {
+          return { eligible: false, reason: 'Moyenne de Premiere > 13 requise pour Veterinaire en francais a Madrid.' };
+        }
+      } else {
+        if (profile.moyPremiere < 12) {
+          return { eligible: false, reason: 'Moyenne de Premiere > 12 requise pour Veterinaire a l\'UE.' };
+        }
+      }
+      return { eligible: true };
+    }
+
+    if (filiereId === 'kinesitherapie') {
+      if (profile.moySpeSci < 10) {
+        return { eligible: false, reason: 'Moyenne des specialites scientifiques ≥ 10 requise pour Kine a l\'UE.' };
+      }
+      return { eligible: true };
+    }
+
+    if (filiereId === 'pharmacie') {
+      return { eligible: true }; // pas de tests a UEM pour pharmacie
+    }
+
+    if (filiereId === 'medecine' || filiereId === 'dentaire') {
+      // Madrid / Malaga = plus exigeant
+      if (ville === 'Madrid' || ville === 'Malaga') {
+        if (profile.nbSpeSci < 2) {
+          return { eligible: false, reason: 'Au moins 2 specialites scientifiques (Maths/PC/SVT) requises pour Med/Dent a ' + ville + '.' };
+        }
+        // Anglais = seuil encore plus eleve
+        if (langue === 'Anglais') {
+          if (profile.moySpeSci <= 16) {
+            return { eligible: false, reason: 'Moyenne des spes scientifiques > 16 requise pour Med/Dent en anglais a ' + ville + '.' };
+          }
+        } else {
+          if (profile.moySpeSci <= 15) {
+            return { eligible: false, reason: 'Moyenne des spes scientifiques > 15 requise pour Med/Dent a ' + ville + '.' };
+          }
+        }
+        return { eligible: true };
+      } else {
+        // Autres villes
+        if (langue === 'Anglais') {
+          if (profile.moySpeSci <= 13.5) {
+            return { eligible: false, reason: 'Moyenne des spes scientifiques > 13.5 requise pour Med/Dent en anglais.' };
+          }
+        } else {
+          if (profile.moySpeSci <= 12.5) {
+            return { eligible: false, reason: 'Moyenne des spes scientifiques > 12.5 requise pour Med/Dent.' };
+          }
+        }
+        return { eligible: true };
+      }
+    }
+
+    return { eligible: true };
+  }
+
+  return { eligible: true };
+}
+
+// Global student profile (computed once)
+let studentProfile = null;
+
 function renderInteractiveResponse(c) {
   const prenom = c.prenom || 'Candidat(e)';
   const score = parseFloat(c.score) || 0;
   const filieres = getAvailableFilieres(c);
+  studentProfile = computeStudentProfile(c);
 
   // Welcome text
   document.getElementById('reponse-welcome').innerHTML =
@@ -1710,7 +1873,6 @@ function renderInteractiveResponse(c) {
   );
 
   // ─── Universidad Europea ───
-  // For UE, filieres have sub-options (ville + langue)
   html += buildUECard(filieres);
 
   container.innerHTML = html;
@@ -1728,10 +1890,17 @@ function buildUniCard(uniKey, uniName, country, hdrClass, filieres, langueInfo, 
     h += '<div class="uni-filiere-subtitle">Langue : ' + langueInfo + ' — Selectionnez une filiere :</div>';
   }
 
-  // Filiere chips
+  // Filiere chips with eligibility check
   h += '<div class="uni-filiere-grid">';
   filieres.forEach(f => {
-    h += '<button class="uni-filiere-chip" data-uni="' + uniKey + '" data-filiere="' + f.id + '" onclick="selectFiliere(\'' + uniKey + '\',\'' + f.id + '\',\'' + f.label + '\')">' + f.label + '</button>';
+    const elig = checkEligibility(uniKey, f.id, studentProfile, {});
+    if (elig.eligible) {
+      let noteHtml = '';
+      if (elig.note) noteHtml = ' <span style="font-size:10px;color:var(--text-muted);">(' + elig.note + ')</span>';
+      h += '<button class="uni-filiere-chip" data-uni="' + uniKey + '" data-filiere="' + f.id + '" onclick="selectFiliere(\'' + uniKey + '\',\'' + f.id + '\',\'' + f.label + '\')">' + f.label + noteHtml + '</button>';
+    } else {
+      h += '<div class="uni-filiere-chip disabled" title="' + elig.reason + '">' + f.label + '<div style="font-size:10px;font-weight:400;color:var(--error);margin-top:2px;">' + elig.reason + '</div></div>';
+    }
   });
   h += '</div>';
 
@@ -1780,10 +1949,27 @@ function buildUECard(filieres) {
 
   h += '<div class="uni-filiere-subtitle">Cours en espagnol, anglais ou francais selon le campus — Selectionnez une filiere, puis le campus et la langue :</div>';
 
-  // Filiere chips
+  // Filiere chips — check if ANY ville/langue combo is eligible
   h += '<div class="uni-filiere-grid">';
   filieres.forEach(f => {
-    h += '<button class="uni-filiere-chip" data-uni="UE" data-filiere="' + f.id + '" onclick="selectUEFiliere(\'' + f.id + '\',\'' + f.label + '\')">' + f.label + '</button>';
+    // Check if at least one ville is eligible for this filiere
+    const allVilles = (f.id === 'medecine') ? ['Madrid', 'Canaries'] : ['Madrid', 'Malaga', 'Valence', 'Alicante', 'Canaries'];
+    let anyEligible = false;
+    let lastReason = '';
+    allVilles.forEach(v => {
+      const langues = getUELangues(v, f.label);
+      langues.forEach(l => {
+        const e = checkEligibility('UE', f.id, studentProfile, { ville: v, langue: l });
+        if (e.eligible) anyEligible = true;
+        else lastReason = e.reason;
+      });
+    });
+
+    if (anyEligible) {
+      h += '<button class="uni-filiere-chip" data-uni="UE" data-filiere="' + f.id + '" onclick="selectUEFiliere(\'' + f.id + '\',\'' + f.label + '\')">' + f.label + '</button>';
+    } else {
+      h += '<div class="uni-filiere-chip disabled" title="' + lastReason + '">' + f.label + '<div style="font-size:10px;font-weight:400;color:var(--error);margin-top:2px;">' + lastReason + '</div></div>';
+    }
   });
   h += '</div>';
 
@@ -1900,10 +2086,21 @@ function selectUEFiliere(filiereId, filiereLabel) {
 
   let vh = '';
   villes.forEach(v => {
-    const fil = filiereLabel.charAt(0).toUpperCase() + filiereLabel.slice(1);
     const langues = getUELangues(v, filiereLabel);
     const allComplet = langues.every(l => isUEComplet(v, filiereLabel, l));
-    vh += '<button class="uni-sub-chip' + (allComplet ? ' complet-chip' : '') + '" onclick="selectUEVille(\'' + v + '\',\'' + filiereLabel + '\')">' + v + (allComplet ? ' (Complet)' : '') + '</button>';
+    // Check if any langue is eligible for this ville
+    let villeEligible = false;
+    let villeReason = '';
+    langues.forEach(l => {
+      const e = checkEligibility('UE', filiereId, studentProfile, { ville: v, langue: l });
+      if (e.eligible) villeEligible = true;
+      else villeReason = e.reason;
+    });
+    if (villeEligible) {
+      vh += '<button class="uni-sub-chip' + (allComplet ? ' complet-chip' : '') + '" onclick="selectUEVille(\'' + v + '\',\'' + filiereLabel + '\')">' + v + (allComplet ? ' (Complet)' : '') + '</button>';
+    } else {
+      vh += '<span class="uni-sub-chip" style="opacity:0.4;cursor:not-allowed;pointer-events:none;font-size:11px;" title="' + villeReason + '">' + v + ' ✗</span>';
+    }
   });
   villeChips.innerHTML = vh;
   langueChips.innerHTML = '';
@@ -1943,17 +2140,43 @@ function selectUEVille(ville, filiereLabel) {
   const langueLabel = document.getElementById('ue-langue-label');
   const langueChips = document.getElementById('ue-langue-chips');
 
-  if (langues.length === 1) {
-    // Auto-select
+  // Filter langues by eligibility
+  const eligibleLangues = [];
+  langues.forEach(l => {
+    const e = checkEligibility('UE', ueSelectedFiliere, studentProfile, { ville: ville, langue: l });
+    eligibleLangues.push({ langue: l, eligible: e.eligible, reason: e.reason });
+  });
+
+  const onlyOneEligible = eligibleLangues.filter(e => e.eligible).length === 1;
+  const singleEligible = eligibleLangues.find(e => e.eligible);
+
+  if (langues.length === 1 && eligibleLangues[0].eligible) {
     ueSelectedLangue = langues[0];
     langueLabel.style.display = 'block';
     langueChips.innerHTML = '<button class="uni-sub-chip active">' + langues[0] + '</button>';
     finalizeUESelection(filiereLabel, ville, langues[0]);
+  } else if (onlyOneEligible && singleEligible) {
+    ueSelectedLangue = singleEligible.langue;
+    langueLabel.style.display = 'block';
+    let lh = '';
+    eligibleLangues.forEach(el => {
+      if (el.eligible) {
+        lh += '<button class="uni-sub-chip active">' + el.langue + '</button>';
+      } else {
+        lh += '<span class="uni-sub-chip" style="opacity:0.4;cursor:not-allowed;pointer-events:none;font-size:11px;" title="' + el.reason + '">' + el.langue + ' ✗</span>';
+      }
+    });
+    langueChips.innerHTML = lh;
+    finalizeUESelection(filiereLabel, ville, singleEligible.langue);
   } else {
     let lh = '';
-    langues.forEach(l => {
-      const complet = isUEComplet(ville, filiereLabel, l);
-      lh += '<button class="uni-sub-chip' + (complet ? ' complet-chip' : '') + '" onclick="selectUELangue(\'' + l + '\',\'' + filiereLabel + '\',\'' + ville + '\')">' + l + (complet ? ' (Complet)' : '') + '</button>';
+    eligibleLangues.forEach(el => {
+      if (el.eligible) {
+        const complet = isUEComplet(ville, filiereLabel, el.langue);
+        lh += '<button class="uni-sub-chip' + (complet ? ' complet-chip' : '') + '" onclick="selectUELangue(\'' + el.langue + '\',\'' + filiereLabel + '\',\'' + ville + '\')">' + el.langue + (complet ? ' (Complet)' : '') + '</button>';
+      } else {
+        lh += '<span class="uni-sub-chip" style="opacity:0.4;cursor:not-allowed;pointer-events:none;font-size:11px;" title="' + el.reason + '">' + el.langue + ' ✗</span>';
+      }
     });
     langueLabel.style.display = 'block';
     langueChips.innerHTML = lh;
