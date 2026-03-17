@@ -1678,17 +1678,14 @@ function buildChipsWithEligibility(filieres, uniKey) {
 
   let ineligibleHtml = '';
   if (ineligible.length > 0) {
-    ineligibleHtml += '<div style="padding:0 20px 12px;">';
-    ineligibleHtml += '<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:500;">Non disponible pour votre profil :</div>';
-    ineligibleHtml += '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+    ineligibleHtml += '<div style="padding:4px 20px 16px;">';
+    ineligibleHtml += '<div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;font-weight:600;">Non disponible pour votre profil :</div>';
     ineligible.forEach(f => {
-      ineligibleHtml += '<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#f8f8f8;border:1px dashed #ddd;border-radius:6px;font-size:11px;color:var(--text-muted);cursor:help;" title="' + esc(f.reason) + '">';
-      ineligibleHtml += '<span style="text-decoration:line-through;">' + f.label + '</span>';
-      ineligibleHtml += '<span style="font-size:9px;">ℹ️</span>';
-      ineligibleHtml += '</span>';
+      ineligibleHtml += '<div style="display:flex;align-items:flex-start;gap:8px;padding:8px 12px;background:#f8f8fb;border:1px solid #eee;border-radius:8px;margin-bottom:6px;">';
+      ineligibleHtml += '<span style="font-size:12px;font-weight:500;color:#999;text-decoration:line-through;white-space:nowrap;">' + f.label + '</span>';
+      ineligibleHtml += '<span style="font-size:11px;color:var(--text-muted);line-height:1.4;">' + f.reason + '</span>';
+      ineligibleHtml += '</div>';
     });
-    ineligibleHtml += '</div>';
-    ineligibleHtml += '<div style="font-size:10px;color:var(--text-muted);margin-top:6px;font-style:italic;">Survolez pour voir les conditions requises</div>';
     ineligibleHtml += '</div>';
   }
 
