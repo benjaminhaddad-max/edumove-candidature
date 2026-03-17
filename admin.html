@@ -1121,6 +1121,18 @@ tr:last-child td { border-bottom: none; }
             </table>
           </div>
         </div>
+
+        <!-- Gestion disponibilités (admin only) -->
+        <div id="ue-availability-manager" style="display:none;margin-top:20px;">
+          <div class="guide-info-card full-width" style="background:white;border:2px solid var(--violet);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <h4 style="margin:0;">🔧 Gestion des disponibilités en temps réel</h4>
+              <button onclick="refreshAvailability()" style="padding:6px 14px;background:var(--violet);color:white;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">↻ Rafraîchir</button>
+            </div>
+            <div id="ue-availability-table-wrap"></div>
+            <div id="ue-availability-save-status" style="margin-top:10px;font-size:12px;color:var(--success);display:none;"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2710,6 +2722,88 @@ function openFacMessaging() {
 // ══════════════════════════════════════════
 // GUIDE PAGE
 // ══════════════════════════════════════════
+// ══════════════════════════════════════════
+// UE AVAILABILITY MANAGEMENT
+// ══════════════════════════════════════════
+let ueAvailabilityData = [];
+
+async function loadUeAvailability() {
+  const { data, error } = await supabase.from('ue_availability').select('*').order('ville').order('filiere').order('langue');
+  if (error) { console.error('Load availability error:', error); return; }
+  ueAvailabilityData = data || [];
+  renderAvailabilityTable();
+}
+
+function renderAvailabilityTable() {
+  const wrap = document.getElementById('ue-availability-table-wrap');
+  if (!wrap) return;
+
+  const statusOptions = { ouvert: '🟢 Ouvert', liste_attente: '🟠 Liste d\'attente', complet: '🔴 Complet' };
+  const statusColors = { ouvert: '#10b981', liste_attente: '#f59e0b', complet: '#ef4444' };
+
+  let html = '<table class="guide-table" style="background:white;">';
+  html += '<thead><tr><th>Ville</th><th>Filière</th><th>Langue</th><th>Statut</th><th style="width:120px;">Dernière MAJ</th></tr></thead>';
+  html += '<tbody>';
+
+  ueAvailabilityData.forEach(row => {
+    const color = statusColors[row.status] || '#999';
+    html += '<tr>';
+    html += '<td style="font-weight:600;">' + row.ville + '</td>';
+    html += '<td>' + row.filiere + '</td>';
+    html += '<td>' + row.langue + '</td>';
+    html += '<td>';
+    html += '<select onchange="updateAvailability(\'' + row.id + '\', this.value)" style="padding:5px 10px;border:1.5px solid ' + color + ';border-radius:6px;font-size:11px;font-weight:600;font-family:inherit;color:' + color + ';background:white;cursor:pointer;">';
+    Object.entries(statusOptions).forEach(([val, label]) => {
+      html += '<option value="' + val + '" ' + (row.status === val ? 'selected' : '') + '>' + label + '</option>';
+    });
+    html += '</select>';
+    html += '</td>';
+    html += '<td style="font-size:10px;color:var(--text-muted);">';
+    if (row.updated_at) {
+      html += new Date(row.updated_at).toLocaleDateString('fr-FR') + ' ' + new Date(row.updated_at).toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+    }
+    html += '</td>';
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
+async function updateAvailability(id, newStatus) {
+  const email = currentAdminUser?.email || 'admin';
+  const { error } = await supabase.from('ue_availability').update({
+    status: newStatus,
+    updated_at: new Date().toISOString(),
+    updated_by: email
+  }).eq('id', id);
+
+  if (error) {
+    console.error('Update availability error:', error);
+    alert('Erreur lors de la mise à jour.');
+    return;
+  }
+
+  // Update local data
+  const row = ueAvailabilityData.find(r => r.id === id);
+  if (row) {
+    row.status = newStatus;
+    row.updated_at = new Date().toISOString();
+    row.updated_by = email;
+  }
+  renderAvailabilityTable();
+
+  // Show save status
+  const statusEl = document.getElementById('ue-availability-save-status');
+  statusEl.textContent = '✅ Statut mis à jour avec succès';
+  statusEl.style.display = 'block';
+  setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+}
+
+async function refreshAvailability() {
+  await loadUeAvailability();
+}
+
 function openGuide() {
   document.getElementById('dashboard').classList.remove('active');
   document.getElementById('detail-page').classList.remove('active');
@@ -2718,6 +2812,13 @@ function openGuide() {
   document.getElementById('btn-guide').style.display = 'none';
   document.getElementById('btn-fac-messaging').style.display = 'none';
   document.getElementById('btn-back-dashboard').style.display = '';
+
+  // Show availability manager for super_admin and fac_ue
+  const role = window.adminRole;
+  if (role === 'super_admin' || role === 'fac_ue') {
+    document.getElementById('ue-availability-manager').style.display = 'block';
+    loadUeAvailability();
+  }
 }
 
 function backToDashboard() {

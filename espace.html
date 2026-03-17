@@ -1179,6 +1179,10 @@ let authChecked = false;
   } catch(e) { console.error('Status advance error:', e); }
 
   try {
+    await loadUEAvailability();
+  } catch(e) { console.error('Load UE availability error:', e); }
+
+  try {
     renderDashboard();
   } catch(e) { console.error('Render dashboard error:', e); }
 
@@ -1541,17 +1545,20 @@ const ucjcPrix = {
   kinesitherapie: { prix: '9 420', duree: '4 ans' }
 };
 
-// ── UE AVAILABILITY DATA ──
-const UE_COMPLETS = [];
+// ── UE AVAILABILITY DATA (loaded from Supabase) ──
+let UE_COMPLETS = [];
+let UE_LISTE_ATTENTE = [];
 
-const UE_LISTE_ATTENTE = [
-  { ville: 'Madrid',   filiere: 'Vétérinaire',    langue: 'Espagnol',  note: 'Liste d\'attente bientôt' },
-  { ville: 'Madrid',   filiere: 'Kinésithérapie', langue: 'Anglais',   note: 'Liste d\'attente' },
-  { ville: 'Valence',  filiere: 'Kinésithérapie', langue: 'Espagnol',  note: 'Liste d\'attente' },
-  { ville: 'Malaga',   filiere: 'Dentaire',       langue: 'Espagnol',  note: 'Liste d\'attente' },
-  { ville: 'Malaga',   filiere: 'Dentaire',       langue: 'Anglais',   note: 'Liste d\'attente' },
-  { ville: 'Alicante', filiere: 'Kinésithérapie', langue: 'Espagnol',  note: 'Liste d\'attente' },
-];
+async function loadUEAvailability() {
+  try {
+    const { data, error } = await supabase.from('ue_availability').select('*');
+    if (error) { console.error('Load UE availability error:', error); return; }
+    UE_COMPLETS = (data || []).filter(r => r.status === 'complet').map(r => ({ ville: r.ville, filiere: r.filiere, langue: r.langue }));
+    UE_LISTE_ATTENTE = (data || []).filter(r => r.status === 'liste_attente').map(r => ({ ville: r.ville, filiere: r.filiere, langue: r.langue, note: r.note || 'Liste d\'attente' }));
+  } catch (err) {
+    console.error('Load UE availability error:', err);
+  }
+}
 
 function isUEComplet(ville, filiere, langue) {
   return UE_COMPLETS.some(c => c.ville === ville && c.filiere === filiere && c.langue === langue);
