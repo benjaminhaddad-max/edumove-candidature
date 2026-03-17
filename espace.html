@@ -2257,20 +2257,26 @@ function renderInteractiveResponse(c) {
   const espLabel = langLabels[profile.espLevel] || 'Non renseigné';
   const engLabel = langLabels[profile.engLevel] || 'Non renseigné';
 
-  let evalHtml = '<div style="font-weight:700;font-size:14px;margin-bottom:10px;">📋 Récapitulatif de votre profil</div>';
-  evalHtml += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;font-size:13px;">';
+  // Titre du bandeau
+  let evalHtml = '<div style="font-size:16px;font-weight:800;color:inherit;margin-bottom:14px;letter-spacing:-0.02em;">📋 Votre profil académique</div>';
+
+  evalHtml += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 28px;font-size:13px;">';
 
   // Moyenne spé scientifiques
   if (profile.moySpeSci > 0) {
-    evalHtml += '<div>🔬 <strong>Moy. spécialités scientifiques :</strong> ' + profile.moySpeSci.toFixed(1) + '/20</div>';
+    evalHtml += '<div>🔬 <strong>Moyenne spécialités scientifiques :</strong> ' + profile.moySpeSci.toFixed(1) + '/20</div>';
   }
-  // Nombre de spé sci
-  if (profile.nbSpeSci > 0) {
-    evalHtml += '<div>🧪 <strong>Spécialités scientifiques :</strong> ' + profile.nbSpeSci + '</div>';
+  // Spécialités scientifiques (>=2 ou <2)
+  if (profile.nbSpeSci >= 2) {
+    evalHtml += '<div>✅ <strong>2 spécialités scientifiques ou plus</strong></div>';
+  } else if (profile.nbSpeSci === 1) {
+    evalHtml += '<div>⚠️ <strong>1 seule spécialité scientifique</strong> (2 recommandées)</div>';
+  } else {
+    evalHtml += '<div>⚠️ <strong>Aucune spécialité scientifique détectée</strong></div>';
   }
   // Moyenne générale de Première
   if (profile.moyPremiere > 0) {
-    evalHtml += '<div>📊 <strong>Moyenne de Première :</strong> ' + profile.moyPremiere.toFixed(1) + '/20</div>';
+    evalHtml += '<div>📊 <strong>Moyenne générale de Première :</strong> ' + profile.moyPremiere.toFixed(1) + '/20</div>';
   }
   // Langues
   evalHtml += '<div>🇪🇸 <strong>Espagnol :</strong> ' + espLabel + '</div>';
@@ -2278,17 +2284,17 @@ function renderInteractiveResponse(c) {
   evalHtml += '</div>';
 
   // Message d'orientation
-  evalHtml += '<div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(0,0,0,0.08);font-size:13px;">';
+  evalHtml += '<div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(0,0,0,0.1);font-size:13px;line-height:1.6;">';
   if (profile.moySpeSci >= 16) {
-    evalHtml += '🌟 <strong>Excellent profil</strong> — Toutes les filières et universités partenaires vous sont accessibles. Vous avez le choix !';
+    evalHtml += '🌟 <strong>Excellent profil</strong> — Votre dossier académique vous donne accès à l\'ensemble de nos universités partenaires européennes, y compris les filières les plus sélectives de l\'Universidad Europea. EDUMOVE vous accompagne pour maximiser vos chances d\'admission.';
   } else if (profile.moySpeSci >= 15) {
-    evalHtml += '💪 <strong>Très bon profil</strong> — La grande majorité des filières vous sont accessibles, y compris Dentaire à l\'Universidad Europea.';
+    evalHtml += '💪 <strong>Très bon profil</strong> — Votre dossier vous ouvre les portes de la grande majorité des filières de nos universités partenaires, y compris Dentaire à l\'Universidad Europea. EDUMOVE prépare votre candidature pour chaque université sélectionnée.';
   } else if (profile.moySpeSci >= 13) {
-    evalHtml += '📚 <strong>Bon profil</strong> — Kinésithérapie, Pharmacie et certaines filières UE vous sont accessibles. Médecine et Dentaire UE nécessitent un seuil plus élevé.';
+    evalHtml += '📚 <strong>Bon profil</strong> — Votre dossier est compatible avec plusieurs filières de nos universités partenaires. L\'Universidad Europea reste accessible pour Kinésithérapie et Pharmacie, tandis que LINK Campus et l\'UCJC vous sont ouvertes sur l\'ensemble de leurs filières. EDUMOVE constitue votre dossier et négocie votre admission.';
   } else if (profile.moySpeSci >= 10) {
-    evalHtml += '🎯 <strong>Profil ciblé</strong> — LINK Campus et UCJC vous accueillent sans condition de notes. Pour l\'UE, Pharmacie reste accessible, et Kinésithérapie demande ≥ 13/20 en spé scientifiques.';
+    evalHtml += '🎓 <strong>Universités cibles</strong> — Grâce à nos partenariats exclusifs, <strong>LINK Campus University</strong> (Rome) et l\'<strong>UCJC</strong> (Madrid) sont accessibles pour votre profil. Ce sont des universités reconnues en Europe qui forment chaque année des centaines de professionnels de santé. Pour l\'Universidad Europea, Pharmacie reste une option. EDUMOVE se charge de monter votre dossier et de défendre votre candidature.';
   } else {
-    evalHtml += '🎯 Votre profil vous ouvre les portes de <strong>LINK Campus</strong> (Italie) et de l\'<strong>UCJC</strong> (Espagne), qui accueillent tous les étudiants motivés sans condition de notes.';
+    evalHtml += '🎓 <strong>Universités cibles</strong> — EDUMOVE a identifié des universités partenaires adaptées à votre profil : <strong>LINK Campus University</strong> (Rome) et l\'<strong>UCJC</strong> (Madrid) sont des établissements reconnus qui forment chaque année des professionnels de santé francophones. Notre équipe constitue votre dossier, vous prépare aux épreuves d\'admission et vous accompagne jusqu\'à votre inscription définitive.';
   }
   evalHtml += '</div>';
 
