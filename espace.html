@@ -1681,7 +1681,7 @@ function renderInteractiveResponse(c) {
 
   // ─── LINK Campus ───
   html += buildUniCard('LINK', 'LINK Campus University', 'Italie — Rome', 'link-hdr',
-    filieres.filter(f => f.id === 'medecine'), // LINK = medecine only
+    filieres, // LINK propose toutes les filieres
     'Pas de prerequis linguistique',
     [
       { key: 'formulaire_link', label: 'Formulaire de pre-candidature LINK', note: 'A remplir, signer et uploader', download: { href: 'formulaire-precandidature-link.pdf', name: 'Formulaire-PreCandidature-LINK.pdf' } },
