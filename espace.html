@@ -293,9 +293,9 @@ body {
 }
 .uni-partner-card.selected .uni-partner-header .uni-badge { display: block; }
 
-.uni-partner-header.link-hdr { background: linear-gradient(135deg, #004d40 0%, #00796b 100%); }
-.uni-partner-header.ucjc-hdr { background: linear-gradient(135deg, #1a237e 0%, #283593 100%); }
-.uni-partner-header.ue-hdr { background: linear-gradient(135deg, #c62828 0%, #e53935 100%); }
+.uni-partner-header.link-hdr { background: linear-gradient(135deg, #1a2744 0%, #263a5e 100%); }
+.uni-partner-header.ucjc-hdr { background: linear-gradient(135deg, #96234a 0%, #781c3b 100%); }
+.uni-partner-header.ue-hdr { background: linear-gradient(135deg, #003da5 0%, #0052cc 100%); }
 
 .uni-filiere-grid {
   padding: 16px 20px;
@@ -370,9 +370,9 @@ body {
 }
 .uni-docs-section.open { display: block; }
 .uni-docs-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
-.uni-docs-title.link-dt { color: #004d40; }
-.uni-docs-title.ucjc-dt { color: #1a237e; }
-.uni-docs-title.ue-dt { color: #c62828; }
+.uni-docs-title.link-dt { color: #1a2744; }
+.uni-docs-title.ucjc-dt { color: #96234a; }
+.uni-docs-title.ue-dt { color: #003da5; }
 .uni-doc-row {
   display: flex;
   align-items: center;
@@ -398,9 +398,9 @@ body {
   color: white;
   flex-shrink: 0;
 }
-.uni-doc-dl.link-dl { background: #004d40; }
-.uni-doc-dl.ucjc-dl { background: #1a237e; }
-.uni-doc-dl.ue-dl { background: #c62828; }
+.uni-doc-dl.link-dl { background: #1a2744; }
+.uni-doc-dl.ucjc-dl { background: #96234a; }
+.uni-doc-dl.ue-dl { background: #003da5; }
 .uni-extra-info {
   margin-top: 12px;
   padding: 12px 14px;
@@ -408,9 +408,49 @@ body {
   font-size: 12px;
   line-height: 1.7;
 }
-.uni-extra-info.link-info { background: #e0f2f1; color: #004d40; border: 1px solid #80cbc4; }
-.uni-extra-info.ucjc-info { background: #e8eaf6; color: #1a237e; border: 1px solid #9fa8da; }
-.uni-extra-info.ue-info { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+.uni-extra-info.link-info { background: #eef2f7; color: #1a2744; border: 1px solid #c5d1e0; }
+.uni-extra-info.ucjc-info { background: #fdf0f4; color: #96234a; border: 1px solid #e8b3c3; }
+.uni-extra-info.ue-info { background: #e8f0fd; color: #003da5; border: 1px solid #a3c4f3; }
+
+/* ── LOCKED STATE (after confirmation) ── */
+.uni-partner-card.locked {
+  opacity: 0.55;
+  pointer-events: none;
+  filter: grayscale(30%);
+}
+.uni-partner-card.locked.selected { opacity: 0.85; filter: none; }
+
+.locked-overlay {
+  padding: 0 20px 20px;
+}
+.locked-next-step {
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.7;
+  font-weight: 500;
+}
+.locked-next-step.link-step { background: #eef2f7; color: #1a2744; border-left: 4px solid #1a2744; }
+.locked-next-step.ucjc-step { background: #fdf0f4; color: #96234a; border-left: 4px solid #96234a; }
+.locked-next-step.ue-step { background: #e8f0fd; color: #003da5; border-left: 4px solid #003da5; }
+
+.btn-unlock-selections {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  padding: 10px 20px;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-unlock-selections:hover { border-color: var(--orange); color: var(--orange); }
 
 /* Confirm all selections */
 .btn-confirm-selections {
@@ -1154,12 +1194,8 @@ body {
 
       <button class="btn-confirm-selections" id="btn-confirm-selections" onclick="confirmAllSelections()" disabled>Confirmer mes choix et envoyer mes documents</button>
 
-      <div class="selections-saved-banner" id="selections-saved-banner">
-        <span class="selections-saved-banner-icon">✅</span>
-        <div>
-          <div>Vos choix ont ete enregistres et vos documents envoyes. L'equipe EDUMOVE va verifier votre dossier.</div>
-          <div class="selections-saved-details" id="selections-saved-details"></div>
-        </div>
+      <div style="text-align:center;" id="unlock-wrap" hidden>
+        <button class="btn-unlock-selections" onclick="unlockSelections()">🔓 Une modification a faire ?</button>
       </div>
 
       <div id="callback-btn-wrap" style="margin-top:24px; text-align:center;">
@@ -1182,32 +1218,7 @@ body {
     </div>
   </details>
 
-  <!-- VERIFICATION EDUMOVE -->
-  <div class="section-card" id="verification-card" style="display:none;">
-    <div class="section-card-header" style="background:var(--navy);">
-      <div class="section-card-title">🔍 Vérification de vos documents</div>
-    </div>
-    <div class="section-card-body">
-      <div id="verif-pending" style="display:none;">
-        <div style="display:flex;align-items:center;gap:12px;padding:16px;background:#fff8e1;border-radius:8px;border-left:4px solid #ff9800;">
-          <span style="font-size:24px;">⏳</span>
-          <div>
-            <div style="font-weight:600;color:var(--navy);">Vérification en cours</div>
-            <div style="font-size:13px;color:var(--text-muted);">L'équipe EDUMOVE vérifie que vos documents sont conformes. Vous recevrez un retour prochainement.</div>
-          </div>
-        </div>
-      </div>
-      <div id="verif-ok" style="display:none;">
-        <div style="display:flex;align-items:center;gap:12px;padding:16px;background:#e8f5e9;border-radius:8px;border-left:4px solid var(--success);">
-          <span style="font-size:24px;">✅</span>
-          <div>
-            <div style="font-weight:600;color:var(--success);">Documents conformes</div>
-            <div style="font-size:13px;color:var(--text-muted);">Tous vos documents ont été vérifiés et validés par l'équipe EDUMOVE. Votre dossier est en cours de transmission.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Next steps are now shown inline per university card after confirmation -->
 
   <!-- MESSAGERIE -->
   <div class="section-card">
@@ -1469,15 +1480,7 @@ function renderDashboard() {
     }
   }
 
-  // Show verification card when selections are confirmed
-  if (c.uni_selections || c.docs_confirmed || c.link_docs_confirmed || c.ucjc_docs_confirmed || c.ue_choices) {
-    document.getElementById('verification-card').style.display = 'block';
-    if (c.status === 'dossier_soumis' || c.status === 'accepte') {
-      document.getElementById('verif-ok').style.display = 'block';
-    } else {
-      document.getElementById('verif-pending').style.display = 'block';
-    }
-  }
+  // Verification card removed — next steps shown inline per university card
 }
 
 function updateStatusDisplay(status) {
@@ -1681,8 +1684,8 @@ function renderInteractiveResponse(c) {
 
   // ─── LINK Campus ───
   html += buildUniCard('LINK', 'LINK Campus University', 'Italie — Rome', 'link-hdr',
-    filieres, // LINK propose toutes les filieres
-    'Pas de prerequis linguistique',
+    filieres,
+    'Cours en italien — pas de prerequis linguistique a l\'inscription',
     [
       { key: 'formulaire_link', label: 'Formulaire de pre-candidature LINK', note: 'A remplir, signer et uploader', download: { href: 'formulaire-precandidature-link.pdf', name: 'Formulaire-PreCandidature-LINK.pdf' } },
       { key: 'identite_link', label: 'Carte d\'identite ou Passeport' },
@@ -1694,15 +1697,15 @@ function renderInteractiveResponse(c) {
 
   // ─── UCJC ───
   html += buildUniCard('UCJC', 'UCJC — Universidad Camilo Jose Cela', 'Espagne — Madrid', 'ucjc-hdr',
-    filieres, // all filieres available
-    'Espagnol (B2 facultatif)',
+    filieres,
+    'Cours 100% en espagnol — B2 facultatif',
     [
       { key: 'lettre_ucjc', label: 'Lettre de motivation en espagnol' },
       { key: 'identite_ucjc', label: 'Carte d\'identite ou Passeport' },
       { key: 'formulaire_ucjc', label: 'Formulaire d\'admission UCJC', note: 'A remplir et signer', download: { href: 'formulaire-admission-ucjc.pdf', name: 'Formulaire-Admission-UCJC.pdf' } },
       { key: 'attestation_b2_ucjc', label: 'Attestation de niveau B2 en espagnol', optional: true }
     ],
-    'Tous les cours sont dispenses <strong>100% en espagnol</strong>. Le B2 est facultatif mais recommande.',
+    'Les cours a l\'UCJC sont dispenses <strong>100% en espagnol</strong>. Le certificat B2 est facultatif mais recommande.',
     'ucjc'
   );
 
@@ -1775,7 +1778,7 @@ function buildUECard(filieres) {
   h += '<div class="uni-badge">Selectionne</div>';
   h += '</div>';
 
-  h += '<div class="uni-filiere-subtitle">Selectionnez une filiere, puis le campus et la langue :</div>';
+  h += '<div class="uni-filiere-subtitle">Cours en espagnol, anglais ou francais selon le campus — Selectionnez une filiere, puis le campus et la langue :</div>';
 
   // Filiere chips
   h += '<div class="uni-filiere-grid">';
@@ -2064,29 +2067,94 @@ async function confirmAllSelections() {
 }
 
 function showSelectionsSaved(selections) {
-  // Hide interactive cards and confirm button
-  document.getElementById('uni-partner-cards').style.display = 'none';
+  // Hide confirm button, show unlock button
   document.getElementById('btn-confirm-selections').style.display = 'none';
+  document.getElementById('unlock-wrap').hidden = false;
 
-  // Show saved banner
-  const banner = document.getElementById('selections-saved-banner');
-  banner.style.display = 'flex';
+  // Lock all cards: grey out non-selected, lock selected with next step message
+  document.querySelectorAll('.uni-partner-card').forEach(card => {
+    card.classList.add('locked');
+  });
 
-  let details = '';
-  if (selections.LINK) details += 'LINK Campus — ' + (selections.LINK.label || selections.LINK.filiere) + '\n';
-  if (selections.UCJC) details += 'UCJC — ' + (selections.UCJC.label || selections.UCJC.filiere) + '\n';
-  if (selections.UE) {
-    details += 'Universidad Europea — ' + (selections.UE.label || selections.UE.filiere);
-    if (selections.UE.ville) details += ' (' + selections.UE.ville;
-    if (selections.UE.langue) details += ', ' + selections.UE.langue;
-    if (selections.UE.ville) details += ')';
-    details += '\n';
+  // For each selected university, add the next-step message
+  const nextSteps = {
+    LINK: '✅ Votre dossier de candidature au test est bien complet. La faculte reviendra rapidement vers vous pour payer les frais d\'inscription au test.',
+    UCJC: '✅ Votre dossier est bien complet et a bien ete envoye a la faculte. Ils reviendront vers vous tres prochainement pour vous donner un acces a la plateforme de test.',
+    UE: '✅ Votre dossier est bien complet et a bien ete envoye a la faculte. Ils reviendront vers vous tres prochainement pour vous donner un acces a la plateforme de test.'
+  };
+  const stepClasses = { LINK: 'link-step', UCJC: 'ucjc-step', UE: 'ue-step' };
+
+  ['LINK', 'UCJC', 'UE'].forEach(uniKey => {
+    const card = document.getElementById('card-' + uniKey);
+    if (!card) return;
+
+    // Remove old next-step if any
+    const old = card.querySelector('.locked-overlay');
+    if (old) old.remove();
+
+    if (selections[uniKey]) {
+      card.classList.add('selected');
+      // Hide docs section (already uploaded)
+      const docsSection = document.getElementById('docs-' + uniKey);
+      if (docsSection) docsSection.classList.remove('open');
+      // Hide sub-options for UE
+      const subOpts = document.getElementById('ue-sub-options');
+      if (uniKey === 'UE' && subOpts) subOpts.classList.remove('open');
+
+      // Show filiere as active
+      card.querySelectorAll('.uni-filiere-chip').forEach(chip => {
+        chip.classList.toggle('active', chip.dataset.filiere === selections[uniKey].filiere);
+      });
+
+      // Add next-step message
+      const overlay = document.createElement('div');
+      overlay.className = 'locked-overlay';
+      let detail = '';
+      if (uniKey === 'UE' && selections.UE.ville) {
+        detail = ' <span style="font-size:12px;opacity:0.8;">(' + selections.UE.ville + ' — ' + (selections.UE.langue || '') + ')</span>';
+      }
+      overlay.innerHTML = '<div class="locked-next-step ' + stepClasses[uniKey] + '">' + nextSteps[uniKey] + detail + '</div>';
+      card.appendChild(overlay);
+    }
+  });
+}
+
+function unlockSelections() {
+  // Remove locked state
+  document.querySelectorAll('.uni-partner-card').forEach(card => {
+    card.classList.remove('locked');
+    const overlay = card.querySelector('.locked-overlay');
+    if (overlay) overlay.remove();
+  });
+
+  // Show confirm button, hide unlock
+  document.getElementById('btn-confirm-selections').style.display = 'block';
+  document.getElementById('unlock-wrap').hidden = true;
+
+  // Restore selections state from saved data
+  const sel = candidatureData.uni_selections || {};
+  if (sel.LINK) {
+    uniSelections.LINK = sel.LINK;
+    selectFiliere('LINK', sel.LINK.filiere, sel.LINK.label || sel.LINK.filiere);
   }
-  document.getElementById('selections-saved-details').textContent = details.trim();
-
-  // Show verification card
-  document.getElementById('verification-card').style.display = 'block';
-  document.getElementById('verif-pending').style.display = 'block';
+  if (sel.UCJC) {
+    uniSelections.UCJC = sel.UCJC;
+    selectFiliere('UCJC', sel.UCJC.filiere, sel.UCJC.label || sel.UCJC.filiere);
+  }
+  if (sel.UE) {
+    uniSelections.UE = sel.UE;
+    // Re-trigger UE selection flow
+    selectUEFiliere(sel.UE.filiere, sel.UE.label || sel.UE.filiere);
+    if (sel.UE.ville) {
+      setTimeout(() => {
+        selectUEVille(sel.UE.ville, sel.UE.label || sel.UE.filiere);
+        if (sel.UE.langue) {
+          setTimeout(() => selectUELangue(sel.UE.langue, sel.UE.label || sel.UE.filiere, sel.UE.ville), 50);
+        }
+      }, 50);
+    }
+  }
+  updateConfirmButton();
 }
 
 // ── CONFIRM DOCS ──
