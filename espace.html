@@ -1638,9 +1638,10 @@ function checkEligibility(uniKey, filiereId, profile, extra) {
     if (filiereId === 'veterinaire') return { eligible: false, reason: 'Non disponible à LINK' };
     return { eligible: true, reason: '' };
   }
-  // UCJC: accepts everyone (no veterinaire)
+  // UCJC: no veterinaire, no medecine (complet)
   if (uniKey === 'UCJC') {
     if (filiereId === 'veterinaire') return { eligible: false, reason: 'Non disponible à l\'UCJC' };
+    if (filiereId === 'medecine') return { eligible: false, reason: 'Plus de places disponibles pour Médecine à l\'UCJC pour cette année' };
     return { eligible: true, reason: '' };
   }
   // UE rules (March 2026)
@@ -2041,19 +2042,12 @@ function selectUCJCFiliere(filiereId, filiereLabel) {
 function buildUCJCEtapes() {
   let h = '';
 
-  // Étape 2 - Tests
+  // Étape 2 - Entretien (pas de tests pour dentaire/pharma/kiné)
   h += '<div style="margin-bottom:14px;">';
-  h += '<div style="font-size:12px;font-weight:700;color:#96234a;margin-bottom:6px;display:flex;align-items:center;gap:6px;">&#x1F4DD; Étape 2 — Tests d\'évaluation</div>';
+  h += '<div style="font-size:12px;font-weight:700;color:#96234a;margin-bottom:6px;display:flex;align-items:center;gap:6px;">&#x1F399;&#xFE0F; Étape 2 — Entretien d\'admission</div>';
   h += '<div style="font-size:11.5px;color:var(--text);line-height:1.6;padding:10px 12px;background:white;border-radius:8px;border-left:3px solid #96234a;">';
-  h += 'Une fois votre dossier transmis à l\'UCJC, un conseiller de l\'université vous contactera directement pour vous donner accès aux <strong>tests en ligne en espagnol</strong> :';
-  h += '<ul style="margin:8px 0 0;padding-left:18px;">';
-  h += '<li>Test de personnalité</li>';
-  h += '<li>Test de compétences numériques</li>';
-  h += '<li>Réflexion personnelle (6 questions)</li>';
-  h += '<li>Test d\'anglais <span style="color:var(--text-muted);">(dispensé si vous présentez un certificat)</span></li>';
-  h += '<li>Banque de questions</li>';
-  h += '</ul>';
-  h += '<div style="margin-top:8px;padding-top:8px;border-top:1px solid #eee;">Après validation des tests, un <strong>entretien avec le directeur</strong> sera programmé. Le lien de connexion vous sera communiqué par le conseiller.</div>';
+  h += '<div style="padding:6px 10px;background:#e8f5e9;border-radius:6px;color:#2e7d32;font-weight:600;margin-bottom:8px;">&#x2705; Aucun test écrit requis — seul l\'entretien est nécessaire</div>';
+  h += 'Une fois votre dossier transmis à l\'UCJC, un conseiller de l\'université vous contactera directement pour programmer votre <strong>entretien en visio-conférence avec le directeur</strong>. Le lien de connexion vous sera communiqué par le conseiller.';
   h += '</div></div>';
 
   // Étape 3 - Résultats
