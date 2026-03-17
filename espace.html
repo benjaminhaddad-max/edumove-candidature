@@ -1647,7 +1647,8 @@ function checkEligibility(uniKey, filiereId, profile, extra) {
     };
     const threshold = fMap[filiereId] ?? 0;
     if (threshold > 0 && profile.moySpeSci < threshold) {
-      return { eligible: false, reason: 'Moyenne spé. scientifiques insuffisante (' + profile.moySpeSci.toFixed(1) + '/' + threshold + ' requis)' };
+      const filiereNames = { medecine: 'Médecine', dentaire: 'Dentaire', veterinaire: 'Vétérinaire', kinesitherapie: 'Kinésithérapie' };
+      return { eligible: false, reason: filiereNames[filiereId] + ' requiert une moyenne de ' + threshold + '/20 en spé. scientifiques (la vôtre : ' + profile.moySpeSci.toFixed(1) + '/20)' };
     }
     return { eligible: true, reason: '' };
   }
