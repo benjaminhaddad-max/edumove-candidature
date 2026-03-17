@@ -794,28 +794,68 @@ select.nt-matiere:focus { border-color: var(--violet); }
 
   <hr class="form-divider"/>
 
-  <!-- FILIERE VISEE -->
-  <div class="form-section-label">Filière visée</div>
-  <div class="section-desc" style="margin-bottom:16px;">Quelle formation souhaitez-vous intégrer à l'étranger ?</div>
-  <div class="profil-select" id="filiere-select">
-    <div class="profil-option" onclick="selectFiliere('medecine', this)">
-      <div class="profil-option-icon">🩺</div>
-      <div class="profil-option-label">Médecine</div>
+  <!-- CLASSEMENT FILIERES -->
+  <div class="form-section-label">Classement de vos filières par préférence</div>
+  <div class="section-desc" style="margin-bottom:16px;">Classez les filières par ordre de préférence (glissez-déposez ou utilisez les flèches). Vous pouvez exclure celles qui ne vous intéressent pas.</div>
+
+  <div class="ranking-list" id="filiere-ranking-list">
+    <div class="ranking-item" data-value="medecine" draggable="true">
+      <span class="ranking-num">1</span>
+      <span class="flag-icon">🩺</span>
+      <span class="ranking-label">Médecine</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveFiliereRank(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveFiliereRank(this,1)">&#9660;</button>
+      </span>
+      <button class="exclude-btn" onclick="excludeFiliereItem(this)" title="Exclure cette filière">✕</button>
     </div>
-    <div class="profil-option" onclick="selectFiliere('dentaire', this)">
-      <div class="profil-option-icon">🦷</div>
-      <div class="profil-option-label">Dentaire</div>
+    <div class="ranking-item" data-value="dentaire" draggable="true">
+      <span class="ranking-num">2</span>
+      <span class="flag-icon">🦷</span>
+      <span class="ranking-label">Dentaire</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveFiliereRank(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveFiliereRank(this,1)">&#9660;</button>
+      </span>
+      <button class="exclude-btn" onclick="excludeFiliereItem(this)" title="Exclure cette filière">✕</button>
     </div>
-    <div class="profil-option" onclick="selectFiliere('kine', this)">
-      <div class="profil-option-icon">🏃</div>
-      <div class="profil-option-label">Kinésithérapie</div>
+    <div class="ranking-item" data-value="kinesitherapie" draggable="true">
+      <span class="ranking-num">3</span>
+      <span class="flag-icon">🏃</span>
+      <span class="ranking-label">Kinésithérapie</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveFiliereRank(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveFiliereRank(this,1)">&#9660;</button>
+      </span>
+      <button class="exclude-btn" onclick="excludeFiliereItem(this)" title="Exclure cette filière">✕</button>
     </div>
-    <div class="profil-option" onclick="selectFiliere('pharmacie', this)">
-      <div class="profil-option-icon">💊</div>
-      <div class="profil-option-label">Pharmacie</div>
+    <div class="ranking-item" data-value="pharmacie" draggable="true">
+      <span class="ranking-num">4</span>
+      <span class="flag-icon">💊</span>
+      <span class="ranking-label">Pharmacie</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveFiliereRank(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveFiliereRank(this,1)">&#9660;</button>
+      </span>
+      <button class="exclude-btn" onclick="excludeFiliereItem(this)" title="Exclure cette filière">✕</button>
+    </div>
+    <div class="ranking-item" data-value="veterinaire" draggable="true">
+      <span class="ranking-num">5</span>
+      <span class="flag-icon">🐾</span>
+      <span class="ranking-label">Vétérinaire</span>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveFiliereRank(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveFiliereRank(this,1)">&#9660;</button>
+      </span>
+      <button class="exclude-btn" onclick="excludeFiliereItem(this)" title="Exclure cette filière">✕</button>
     </div>
   </div>
-  <div class="error-msg" id="err-filiere">Veuillez sélectionner votre filière visée.</div>
+
+  <div class="excluded-zone" id="filiere-excluded-zone" style="display:none;">
+    <div class="excluded-zone-title">Filières exclues</div>
+    <div class="excluded-list" id="filiere-excluded-list"></div>
+  </div>
+  <div class="error-msg" id="err-filiere">Veuillez garder au moins une filière dans votre classement.</div>
 
   <hr class="form-divider"/>
 
@@ -916,18 +956,8 @@ select.nt-matiere:focus { border-color: var(--violet); }
       </span>
       <button class="exclude-btn" onclick="excludeRankItem(this)" title="Exclure cette destination">✕</button>
     </div>
-    <div class="ranking-item" data-value="roumanie" draggable="true">
-      <span class="ranking-num">2</span>
-      <span class="flag-icon">🇷🇴</span>
-      <span class="ranking-label">Roumanie</span>
-      <span class="ranking-arrows">
-        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
-        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
-      </span>
-      <button class="exclude-btn" onclick="excludeRankItem(this)" title="Exclure cette destination">✕</button>
-    </div>
     <div class="ranking-item" data-value="italie" draggable="true">
-      <span class="ranking-num">3</span>
+      <span class="ranking-num">2</span>
       <span class="flag-icon">🇮🇹</span>
       <span class="ranking-label">Italie</span>
       <span class="ranking-arrows">
@@ -936,18 +966,8 @@ select.nt-matiere:focus { border-color: var(--violet); }
       </span>
       <button class="exclude-btn" onclick="excludeRankItem(this)" title="Exclure cette destination">✕</button>
     </div>
-    <div class="ranking-item" data-value="portugal" draggable="true">
-      <span class="ranking-num">4</span>
-      <span class="flag-icon">🇵🇹</span>
-      <span class="ranking-label">Portugal</span>
-      <span class="ranking-arrows">
-        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
-        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
-      </span>
-      <button class="exclude-btn" onclick="excludeRankItem(this)" title="Exclure cette destination">✕</button>
-    </div>
     <div class="ranking-item" data-value="espagne" draggable="true">
-      <span class="ranking-num">5</span>
+      <span class="ranking-num">3</span>
       <span class="flag-icon">🇪🇸</span>
       <span class="ranking-label">Espagne</span>
       <span class="ranking-arrows">
@@ -1155,17 +1175,70 @@ async function saveProfil() {
 const state = {
   profil: '',
   filiere: '',
+  filiereRanking: ['medecine','dentaire','kinesitherapie','pharmacie','veterinaire'],
+  filiereExclues: [],
   langLevels: {},
-  ranking: ['pass_las','roumanie','italie','portugal','espagne'],
+  ranking: ['pass_las','italie','espagne'],
   termSpe: []
 };
 
-// ── FILIERE SELECTION ──
-function selectFiliere(type, el) {
-  state.filiere = type;
-  document.querySelectorAll('#filiere-select .profil-option').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
+// ── FILIERE RANKING ──
+function moveFiliereRank(btn, dir) {
+  const item = btn.closest('.ranking-item');
+  const list = document.getElementById('filiere-ranking-list');
+  const items = Array.from(list.children);
+  const idx = items.indexOf(item);
+  if (idx + dir < 0 || idx + dir >= items.length) return;
+  if (dir === -1) list.insertBefore(item, items[idx - 1]);
+  else list.insertBefore(items[idx + 1], item);
+  updateFiliereRankNums();
+}
+
+function updateFiliereRankNums() {
+  const items = document.querySelectorAll('#filiere-ranking-list .ranking-item');
+  state.filiereRanking = [];
+  items.forEach((item, i) => {
+    item.querySelector('.ranking-num').textContent = i + 1;
+    state.filiereRanking.push(item.dataset.value);
+  });
+  // La filiere principale = la première du classement
+  state.filiere = state.filiereRanking[0] || '';
+  state.filiereExclues = Array.from(document.querySelectorAll('#filiere-excluded-list .ranking-item')).map(i => i.dataset.value);
   showErr('err-filiere', false);
+}
+
+function excludeFiliereItem(btn) {
+  const item = btn.closest('.ranking-item');
+  const excludedList = document.getElementById('filiere-excluded-list');
+  const excludedZone = document.getElementById('filiere-excluded-zone');
+  item.classList.add('excluded');
+  item.removeAttribute('draggable');
+  item.querySelector('.ranking-num').textContent = '—';
+  item.querySelector('.ranking-arrows').style.display = 'none';
+  btn.className = 'restore-btn';
+  btn.title = 'Remettre dans le classement';
+  btn.textContent = '↩';
+  btn.setAttribute('onclick', 'restoreFiliereItem(this)');
+  excludedList.appendChild(item);
+  excludedZone.style.display = 'block';
+  updateFiliereRankNums();
+}
+
+function restoreFiliereItem(btn) {
+  const item = btn.closest('.ranking-item');
+  const list = document.getElementById('filiere-ranking-list');
+  const excludedList = document.getElementById('filiere-excluded-list');
+  const excludedZone = document.getElementById('filiere-excluded-zone');
+  item.classList.remove('excluded');
+  item.setAttribute('draggable', 'true');
+  item.querySelector('.ranking-arrows').style.display = '';
+  btn.className = 'exclude-btn';
+  btn.title = 'Exclure cette filière';
+  btn.textContent = '✕';
+  btn.setAttribute('onclick', 'excludeFiliereItem(this)');
+  list.appendChild(item);
+  if (excludedList.children.length === 0) excludedZone.style.display = 'none';
+  updateFiliereRankNums();
 }
 
 // ── PROFIL SELECTION ──
@@ -1316,6 +1389,77 @@ document.addEventListener('DOMContentLoaded', () => {
       updateRankNums();
     }
     document.querySelectorAll('.ranking-item').forEach(i => i.classList.remove('drag-over'));
+  });
+
+  // ── Drag & drop filières ──
+  const fList = document.getElementById('filiere-ranking-list');
+  let fDragItem = null;
+  fList.addEventListener('dragstart', e => {
+    fDragItem = e.target.closest('.ranking-item');
+    if (fDragItem) fDragItem.style.opacity = '0.5';
+  });
+  fList.addEventListener('dragend', e => {
+    if (fDragItem) fDragItem.style.opacity = '1';
+    fList.querySelectorAll('.ranking-item').forEach(i => i.classList.remove('drag-over'));
+    fDragItem = null;
+  });
+  fList.addEventListener('dragover', e => {
+    e.preventDefault();
+    const target = e.target.closest('.ranking-item');
+    if (target && target !== fDragItem && fList.contains(target)) {
+      fList.querySelectorAll('.ranking-item').forEach(i => i.classList.remove('drag-over'));
+      target.classList.add('drag-over');
+    }
+  });
+  fList.addEventListener('drop', e => {
+    e.preventDefault();
+    const target = e.target.closest('.ranking-item');
+    if (target && target !== fDragItem && fDragItem && fList.contains(target)) {
+      const items = Array.from(fList.children);
+      const dragIdx = items.indexOf(fDragItem);
+      const targetIdx = items.indexOf(target);
+      if (dragIdx < targetIdx) fList.insertBefore(fDragItem, target.nextSibling);
+      else fList.insertBefore(fDragItem, target);
+      updateFiliereRankNums();
+    }
+    fList.querySelectorAll('.ranking-item').forEach(i => i.classList.remove('drag-over'));
+  });
+
+  // Touch drag & drop pour mobile (filières)
+  let fTouchItem = null, fTouchClone = null, fTouchStartY = 0;
+  fList.addEventListener('touchstart', e => {
+    fTouchItem = e.target.closest('.ranking-item');
+    if (!fTouchItem || fTouchItem.classList.contains('excluded')) return;
+    fTouchStartY = e.touches[0].clientY;
+    fTouchItem.style.opacity = '0.5';
+  }, { passive: true });
+  fList.addEventListener('touchmove', e => {
+    if (!fTouchItem) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    const targetItem = target ? target.closest('.ranking-item') : null;
+    fList.querySelectorAll('.ranking-item').forEach(i => i.classList.remove('drag-over'));
+    if (targetItem && targetItem !== fTouchItem && fList.contains(targetItem)) {
+      targetItem.classList.add('drag-over');
+    }
+  }, { passive: false });
+  fList.addEventListener('touchend', e => {
+    if (!fTouchItem) return;
+    fTouchItem.style.opacity = '1';
+    const touch = e.changedTouches[0];
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    const targetItem = target ? target.closest('.ranking-item') : null;
+    if (targetItem && targetItem !== fTouchItem && fList.contains(targetItem)) {
+      const items = Array.from(fList.children);
+      const dragIdx = items.indexOf(fTouchItem);
+      const targetIdx = items.indexOf(targetItem);
+      if (dragIdx < targetIdx) fList.insertBefore(fTouchItem, targetItem.nextSibling);
+      else fList.insertBefore(fTouchItem, targetItem);
+      updateFiliereRankNums();
+    }
+    fList.querySelectorAll('.ranking-item').forEach(i => i.classList.remove('drag-over'));
+    fTouchItem = null;
   });
 });
 
@@ -1493,7 +1637,8 @@ async function submitCandidature() {
   if (!state.profil) { showErr('err-profil', true); valid = false; }
 
   // Filière
-  if (!state.filiere) { showErr('err-filiere', true); valid = false; }
+  if (state.filiereRanking.length === 0) { showErr('err-filiere', true); valid = false; }
+  state.filiere = state.filiereRanking[0] || '';
 
   // Reorientation
   if(state.profil === 'reorientation' && !v('reori-formation')) {
@@ -1553,6 +1698,8 @@ async function submitCandidature() {
       departement: userProfile.departement || '',
       profil: state.profil,
       filiere: state.filiere,
+      classement_filieres: state.filiereRanking,
+      filieres_exclues: state.filiereExclues,
       reorientation: state.profil === 'reorientation' ? {
         formation: v('reori-formation'),
         etablissement: v('reori-etablissement'),
@@ -1590,6 +1737,7 @@ async function submitCandidature() {
       departement: userProfile.departement || '',
       profil: state.profil,
       filiere: state.filiere,
+      classementFilieres: state.filiereRanking,
       score: score,
       destination: ori.dest,
       universite: ori.uni,
