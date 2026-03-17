@@ -1662,8 +1662,23 @@ function getAvailableFilieres(c) {
 }
 
 // ── CARD BUILDERS ──
+function buildChipsWithEligibility(filieres, uniKey) {
+  let html = '';
+  filieres.forEach(f => {
+    const elig = checkEligibility(uniKey, f.id, studentProfile, {});
+    if (elig.eligible) {
+      html += '<button class="uni-filiere-chip" id="chip-' + uniKey + '-' + f.id + '" onclick="selectFiliere(\'' + uniKey + '\',\'' + f.id + '\',\'' + f.label + '\')">' + f.label + '</button>';
+    } else {
+      html += '<div class="uni-filiere-chip disabled" id="chip-' + uniKey + '-' + f.id + '" title="' + esc(elig.reason) + '">';
+      html += f.label;
+      html += '<div style="font-size:10px;font-weight:400;color:var(--error);margin-top:3px;line-height:1.3;">' + elig.reason + '</div>';
+      html += '</div>';
+    }
+  });
+  return html;
+}
+
 function buildLINKCard(filieres) {
-  const filtered = filieres.filter(f => f.id !== 'veterinaire');
   let html = '<div class="uni-partner-card" id="card-LINK">';
   html += '<div class="uni-partner-header link-hdr">';
   html += '<div><div class="uni-name">LINK Campus — Università degli Studi LINK</div><div class="uni-country">Italie — Rome</div></div>';
@@ -1671,9 +1686,7 @@ function buildLINKCard(filieres) {
   html += '</div>';
   html += '<div class="uni-filiere-subtitle">Cours en italien — Pas de prérequis linguistique</div>';
   html += '<div class="uni-filiere-grid">';
-  filtered.forEach(f => {
-    html += '<button class="uni-filiere-chip" id="chip-LINK-' + f.id + '" onclick="selectFiliere(\'LINK\',\'' + f.id + '\',\'' + f.label + '\')">' + f.label + '</button>';
-  });
+  html += buildChipsWithEligibility(filieres, 'LINK');
   html += '</div>';
   html += '<div id="link-sub-options" class="uni-sub-options"></div>';
   html += '<div class="uni-docs-section" id="docs-LINK"></div>';
@@ -1683,7 +1696,6 @@ function buildLINKCard(filieres) {
 }
 
 function buildUCJCCard(filieres) {
-  const filtered = filieres.filter(f => f.id !== 'veterinaire');
   let html = '<div class="uni-partner-card" id="card-UCJC">';
   html += '<div class="uni-partner-header ucjc-hdr">';
   html += '<div><div class="uni-name">UCJC — Universidad Camilo José Cela</div><div class="uni-country">Espagne — Madrid</div></div>';
@@ -1691,9 +1703,7 @@ function buildUCJCCard(filieres) {
   html += '</div>';
   html += '<div class="uni-filiere-subtitle">Cours 100% en espagnol</div>';
   html += '<div class="uni-filiere-grid">';
-  filtered.forEach(f => {
-    html += '<button class="uni-filiere-chip" id="chip-UCJC-' + f.id + '" onclick="selectFiliere(\'UCJC\',\'' + f.id + '\',\'' + f.label + '\')">' + f.label + '</button>';
-  });
+  html += buildChipsWithEligibility(filieres, 'UCJC');
   html += '</div>';
   html += '<div id="ucjc-sub-options" class="uni-sub-options"></div>';
   html += '<div class="uni-docs-section" id="docs-UCJC"></div>';
@@ -1710,9 +1720,7 @@ function buildUECard(filieres) {
   html += '</div>';
   html += '<div class="uni-filiere-subtitle">Cours en espagnol, anglais ou français selon campus</div>';
   html += '<div class="uni-filiere-grid">';
-  filieres.forEach(f => {
-    html += '<button class="uni-filiere-chip" id="chip-UE-' + f.id + '" onclick="selectFiliere(\'UE\',\'' + f.id + '\',\'' + f.label + '\')">' + f.label + '</button>';
-  });
+  html += buildChipsWithEligibility(filieres, 'UE');
   html += '</div>';
   html += '<div id="ue-sub-options" class="uni-sub-options"></div>';
   html += '<div class="uni-docs-section" id="docs-UE"></div>';
@@ -1858,20 +1866,25 @@ function selectUCJCFiliere(filiereId, filiereLabel) {
   subEl.innerHTML = '';
 
   let html = '';
-  // Entretien bandeau
+  // Entretien bandeau — en espagnol pour med/dent, en français pour pharma/kiné
   html += '<div class="uni-info-bandeau" style="background:#fce4ec;color:#96234a;">';
-  html += '<strong>&#x1F399;&#xFE0F; Entretien en visio-conférence</strong> de 15 min en espagnol<br>';
   if (['medecine', 'dentaire'].includes(filiereId)) {
-    html += '<span style="font-size:11px;">Un niveau B1/B2 en espagnol est attendu</span>';
+    html += '<strong>&#x1F399;&#xFE0F; Entretien en visio-conférence</strong> de 15 min en espagnol<br>';
+    html += '<span style="font-size:11px;">Un niveau B1/B2 en espagnol est attendu pour Médecine / Dentaire</span>';
   } else {
-    html += '<span style="font-size:11px;">Un niveau A1 ou A2 peut suffire</span>';
+    html += '<strong>&#x1F399;&#xFE0F; Entretien en visio-conférence</strong> de 15 min en français<br>';
+    html += '<span style="font-size:11px;">Aucun niveau d\'espagnol requis pour cet entretien</span>';
   }
   html += '</div>';
 
   // Required docs
   html += '<div class="uni-docs-title" style="padding:0;">Documents requis</div>';
   html += '<div class="uni-doc-upload-row">';
-  html += '<div>&#x1F4DD; Lettre de motivation <strong>en espagnol</strong></div>';
+  if (['medecine', 'dentaire'].includes(filiereId)) {
+    html += '<div>&#x1F4DD; Lettre de motivation <strong>en espagnol</strong></div>';
+  } else {
+    html += '<div>&#x1F4DD; Lettre de motivation <strong>en français</strong></div>';
+  }
   html += '<div id="upload-status-UCJC-lettre_motivation"><label class="uni-doc-upload-btn" style="cursor:pointer;">Envoyer <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleDocUpload(this,\'UCJC\',\'lettre_motivation\')"></label></div>';
   html += '</div>';
   html += '<div class="uni-doc-upload-row">';
@@ -2236,21 +2249,52 @@ function renderInteractiveResponse(c) {
   const prenom = esc(c.prenom || '');
   welcomeEl.innerHTML = 'Bonjour <strong>' + prenom + '</strong>,<br>Merci pour votre candidature ! Après analyse de votre dossier, voici les universités partenaires EDUMOVE auxquelles vous pouvez candidater. Sélectionnez une filière pour chaque université qui vous intéresse.';
 
-  // Eval banner
+  // Eval banner — récap complet du profil
   const profile = computeStudentProfile(c);
-  if (profile.moySpeSci >= 16) {
-    evalEl.className = 'reponse-eval excellent';
-    evalEl.innerHTML = '&#x1F31F; <strong>Excellent profil scientifique</strong> — Moyenne spé. scientifiques : ' + profile.moySpeSci.toFixed(1) + '/20. Toutes les filières vous sont accessibles.';
-    evalEl.style.display = 'block';
-  } else if (profile.moySpeSci >= 13) {
-    evalEl.className = 'reponse-eval solide';
-    evalEl.innerHTML = '&#x1F4AA; <strong>Profil solide</strong> — Moyenne spé. scientifiques : ' + profile.moySpeSci.toFixed(1) + '/20. Certaines filières exigent un seuil minimum à l\'Universidad Europea.';
-    evalEl.style.display = 'block';
-  } else if (profile.moySpeSci > 0) {
-    evalEl.className = 'reponse-eval adapte';
-    evalEl.innerHTML = '&#x1F4D6; <strong>Profil à adapter</strong> — Moyenne spé. scientifiques : ' + profile.moySpeSci.toFixed(1) + '/20. Certaines filières UE peuvent nécessiter un meilleur dossier.';
-    evalEl.style.display = 'block';
+  studentProfile = profile;
+
+  const langLabels = { 3: 'B2+ / Bilingue', 2: 'B1 / Intermédiaire', 1: 'A1-A2 / Débutant', 0: 'Non renseigné' };
+  const espLabel = langLabels[profile.espLevel] || 'Non renseigné';
+  const engLabel = langLabels[profile.engLevel] || 'Non renseigné';
+
+  let evalHtml = '<div style="font-weight:700;font-size:14px;margin-bottom:10px;">📋 Récapitulatif de votre profil</div>';
+  evalHtml += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;font-size:13px;">';
+
+  // Moyenne spé scientifiques
+  if (profile.moySpeSci > 0) {
+    evalHtml += '<div>🔬 <strong>Moy. spécialités scientifiques :</strong> ' + profile.moySpeSci.toFixed(1) + '/20</div>';
   }
+  // Nombre de spé sci
+  if (profile.nbSpeSci > 0) {
+    evalHtml += '<div>🧪 <strong>Spécialités scientifiques :</strong> ' + profile.nbSpeSci + '</div>';
+  }
+  // Moyenne générale de Première
+  if (profile.moyPremiere > 0) {
+    evalHtml += '<div>📊 <strong>Moyenne de Première :</strong> ' + profile.moyPremiere.toFixed(1) + '/20</div>';
+  }
+  // Langues
+  evalHtml += '<div>🇪🇸 <strong>Espagnol :</strong> ' + espLabel + '</div>';
+  evalHtml += '<div>🇬🇧 <strong>Anglais :</strong> ' + engLabel + '</div>';
+  evalHtml += '</div>';
+
+  // Message d'orientation
+  evalHtml += '<div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(0,0,0,0.08);font-size:13px;">';
+  if (profile.moySpeSci >= 16) {
+    evalHtml += '🌟 <strong>Excellent profil</strong> — Toutes les filières et universités partenaires vous sont accessibles. Vous avez le choix !';
+  } else if (profile.moySpeSci >= 15) {
+    evalHtml += '💪 <strong>Très bon profil</strong> — La grande majorité des filières vous sont accessibles, y compris Dentaire à l\'Universidad Europea.';
+  } else if (profile.moySpeSci >= 13) {
+    evalHtml += '📚 <strong>Bon profil</strong> — Kinésithérapie, Pharmacie et certaines filières UE vous sont accessibles. Médecine et Dentaire UE nécessitent un seuil plus élevé.';
+  } else if (profile.moySpeSci >= 10) {
+    evalHtml += '🎯 <strong>Profil ciblé</strong> — LINK Campus et UCJC vous accueillent sans condition de notes. Pour l\'UE, Pharmacie reste accessible, et Kinésithérapie demande ≥ 13/20 en spé scientifiques.';
+  } else {
+    evalHtml += '🎯 Votre profil vous ouvre les portes de <strong>LINK Campus</strong> (Italie) et de l\'<strong>UCJC</strong> (Espagne), qui accueillent tous les étudiants motivés sans condition de notes.';
+  }
+  evalHtml += '</div>';
+
+  evalEl.className = 'reponse-eval ' + (profile.moySpeSci >= 16 ? 'excellent' : profile.moySpeSci >= 13 ? 'solide' : 'adapte');
+  evalEl.innerHTML = evalHtml;
+  evalEl.style.display = 'block';
 
   // Section title
   titleEl.style.display = 'block';
