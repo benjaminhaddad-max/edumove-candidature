@@ -1792,10 +1792,24 @@ function selectLINKFiliere(filiereId, filiereLabel) {
     html += '<span style="font-size:11px;color:var(--text-muted);">Un interlocuteur francophone de LINK vous contactera pour le règlement.</span>';
     html += '</div>';
 
-    // Test examples toggle
-    html += '<div style="padding:8px 20px;">';
+    // Download button + Programme + Test examples
+    html += '<div style="padding:8px 20px;display:flex;gap:8px;flex-wrap:wrap;">';
+    html += '<a href="exemple-test-link.pdf" download="Exemple-Test-LINK.pdf" style="display:inline-flex;align-items:center;gap:6px;padding:10px 16px;background:#1a2744;color:white;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;font-family:inherit;">&#x2B07; Télécharger l\'exemple de test complet</a>';
+    html += '</div>';
+
+    // Programme de l'épreuve toggle
+    html += '<div style="padding:4px 20px 8px;">';
+    html += '<button class="link-test-toggle" onclick="toggleLinkProgramme()" id="link-programme-toggle-btn" style="width:100%;background:none;border:1.5px solid #1a2744;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:600;color:#1a2744;cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between;font-family:inherit;">';
+    html += '<span>&#x1F4CB; Programme détaillé de l\'épreuve</span><span class="link-test-toggle-arrow" style="transition:transform 0.2s;font-size:11px;">&#x25BC;</span></button>';
+    html += '<div id="link-programme-content" style="display:none;background:var(--bg);border-radius:8px;padding:14px;margin-top:8px;font-size:12px;line-height:1.7;">';
+    html += buildLinkProgramme();
+    html += '</div>';
+    html += '</div>';
+
+    // Exemples de questions toggle
+    html += '<div style="padding:4px 20px 8px;">';
     html += '<button class="link-test-toggle" onclick="toggleLinkTestExamples()" id="link-test-toggle-btn" style="width:100%;background:none;border:1.5px solid #1a2744;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:600;color:#1a2744;cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between;font-family:inherit;">';
-    html += '<span>Aperçu du test d\'admission — exemples de questions</span><span class="link-test-toggle-arrow" style="transition:transform 0.2s;font-size:11px;">&#x25BC;</span></button>';
+    html += '<span>&#x1F9EA; Aperçu du test — exemples de questions</span><span class="link-test-toggle-arrow" style="transition:transform 0.2s;font-size:11px;">&#x25BC;</span></button>';
     html += '<div id="link-test-examples" style="display:none;background:var(--bg);border-radius:8px;padding:14px;margin-top:8px;font-size:12px;line-height:1.7;">';
     html += buildLinkTestExamples();
     html += '</div>';
@@ -1840,8 +1854,91 @@ function buildLinkTestExamples() {
   h += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#1a2744;margin:10px 0 6px;">&#x1F4D0; Physique &amp; Mathématiques</div>';
   h += '<div style="margin-bottom:8px;padding:8px 10px;background:white;border-radius:6px;border-left:3px solid #2a3d66;"><div style="font-weight:600;color:var(--navy);margin-bottom:4px;">Résoudre l\'inéquation : −x + 5 ≥ 0</div><div style="color:var(--text-muted);font-size:11px;">A) x ≤ 5 &nbsp; B) Toujours vraie &nbsp; C) Aucune solution &nbsp; D) x ≥ 5 &nbsp; E) x ≥ −5</div></div>';
   h += '<div style="font-size:11px;color:var(--text-muted);font-style:italic;margin-top:10px;padding-top:8px;border-top:1px solid var(--border);">&#x1F4A1; Ces questions sont tirées d\'un test officiel LINK. Le jour du test (15 avril), toutes les questions seront traduites et présentées en français.</div>';
-  h += '<div style="margin-top:8px;"><a href="exemple-test-link.pdf" download="Exemple-Test-LINK.pdf" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:#1a2744;color:white;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;">&#x2B07; Télécharger l\'exemple de test complet</a></div>';
   return h;
+}
+
+function buildLinkProgramme() {
+  let h = '';
+  h += '<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.5;">Le test porte sur <strong>5 matières</strong> correspondant au programme du lycée. Toutes les questions sont traduites en <strong>français</strong>.</div>';
+
+  // Compréhension & Culture générale
+  h += '<div style="margin-bottom:12px;">';
+  h += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#1a2744;margin-bottom:6px;display:flex;align-items:center;gap:6px;">&#x1F4D6; Compréhension de texte & Culture générale</div>';
+  h += '<div style="font-size:11.5px;color:var(--text);line-height:1.6;padding:8px 10px;background:white;border-radius:6px;border-left:3px solid #2a3d66;">';
+  h += 'Compréhension de textes en italien (traduits en français le jour du test) : lexique spécialisé, cohésion textuelle, extraction d\'informations.<br>';
+  h += 'Culture générale : repères historiques et géographiques, institutions nationales et internationales, notions juridiques et économiques.';
+  h += '</div></div>';
+
+  // Raisonnement logique
+  h += '<div style="margin-bottom:12px;">';
+  h += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#1a2744;margin-bottom:6px;display:flex;align-items:center;gap:6px;">&#x1F9E0; Raisonnement logique & Problèmes</div>';
+  h += '<div style="font-size:11.5px;color:var(--text);line-height:1.6;padding:8px 10px;background:white;border-radius:6px;border-left:3px solid #2a3d66;">';
+  h += 'Capacité à compléter logiquement un raisonnement de manière cohérente avec les prémisses. Résolution de problèmes abstraits nécessitant différentes formes de raisonnement logique.';
+  h += '</div></div>';
+
+  // Biologie
+  h += '<div style="margin-bottom:12px;">';
+  h += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#1a2744;margin-bottom:6px;display:flex;align-items:center;gap:6px;">&#x1F9EC; Biologie</div>';
+  h += '<div style="font-size:11.5px;color:var(--text);line-height:1.6;padding:8px 10px;background:white;border-radius:6px;border-left:3px solid #2a3d66;">';
+  h += '<ul style="margin:0;padding-left:16px;">';
+  h += '<li>Chimie du vivant, molécules organiques, rôle des enzymes</li>';
+  h += '<li>Cellule procaryote/eucaryote, membrane cellulaire, virus</li>';
+  h += '<li>Cycle cellulaire : mitose et méiose, caryotype</li>';
+  h += '<li>Génétique mendélienne, classique et moléculaire (ADN, code génétique, synthèse protéique)</li>';
+  h += '<li>Génétique humaine : maladies héréditaires, mutations</li>';
+  h += '<li>Sélection naturelle, théories de l\'évolution</li>';
+  h += '<li>Biotechnologies : ADN recombinant</li>';
+  h += '<li>Anatomie et physiologie humaine, homéostasie</li>';
+  h += '<li>Bioénergétique : ATP, photosynthèse, glycolyse, respiration, fermentation</li>';
+  h += '</ul></div></div>';
+
+  // Chimie
+  h += '<div style="margin-bottom:12px;">';
+  h += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#1a2744;margin-bottom:6px;display:flex;align-items:center;gap:6px;">&#x2697;&#xFE0F; Chimie</div>';
+  h += '<div style="font-size:11.5px;color:var(--text);line-height:1.6;padding:8px 10px;background:white;border-radius:6px;border-left:3px solid #2a3d66;">';
+  h += '<ul style="margin:0;padding-left:16px;">';
+  h += '<li>Structure de l\'atome, tableau périodique, propriétés périodiques</li>';
+  h += '<li>Liaisons chimiques : ionique, covalente, métallique, intermoléculaires</li>';
+  h += '<li>Réactions chimiques et stoechiométrie, nombre d\'Avogadro, concept de mole</li>';
+  h += '<li>Solutions aqueuses, solubilité, concentration</li>';
+  h += '<li>Acides et bases, pH, hydrolyse, solutions tampons</li>';
+  h += '<li>Oxydoréduction : nombre d\'oxydation, équilibrage</li>';
+  h += '<li>Chimie organique : hydrocarbures, groupes fonctionnels, nomenclature</li>';
+  h += '</ul></div></div>';
+
+  // Mathématiques
+  h += '<div style="margin-bottom:12px;">';
+  h += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#1a2744;margin-bottom:6px;display:flex;align-items:center;gap:6px;">&#x1F4D0; Mathématiques</div>';
+  h += '<div style="font-size:11.5px;color:var(--text);line-height:1.6;padding:8px 10px;background:white;border-radius:6px;border-left:3px solid #2a3d66;">';
+  h += '<ul style="margin:0;padding-left:16px;">';
+  h += '<li>Algèbre : puissances, racines, logarithmes, polynômes, équations et inéquations (1er et 2nd degré)</li>';
+  h += '<li>Fonctions : domaine, continuité, fonctions exponentielles, logarithmiques, trigonométriques</li>';
+  h += '<li>Géométrie : polygones, cercle, trigonométrie, géométrie analytique (droite, cercle, parabole, ellipse, hyperbole)</li>';
+  h += '<li>Probabilités et statistique : distributions de fréquences, probabilité</li>';
+  h += '</ul></div></div>';
+
+  // Physique
+  h += '<div style="margin-bottom:4px;">';
+  h += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#1a2744;margin-bottom:6px;display:flex;align-items:center;gap:6px;">&#x269B;&#xFE0F; Physique</div>';
+  h += '<div style="font-size:11.5px;color:var(--text);line-height:1.6;padding:8px 10px;background:white;border-radius:6px;border-left:3px solid #2a3d66;">';
+  h += '<ul style="margin:0;padding-left:16px;">';
+  h += '<li>Cinématique : MRU, MRUA, mouvement circulaire, mouvement harmonique</li>';
+  h += '<li>Dynamique : lois de Newton, travail, énergie cinétique et potentielle, conservation de l\'énergie</li>';
+  h += '<li>Mécanique des fluides : pression, principes de Pascal, Stevin, Archimède, équation de Bernoulli</li>';
+  h += '<li>Thermodynamique : chaleur, calorimétrie, changements d\'état, gaz parfaits, 1er et 2nd principes</li>';
+  h += '<li>Électricité et électromagnétisme : loi de Coulomb, champ électrique, condensateurs, loi d\'Ohm, circuits, champ magnétique, induction</li>';
+  h += '</ul></div></div>';
+
+  return h;
+}
+
+function toggleLinkProgramme() {
+  const panel = document.getElementById('link-programme-content');
+  const btn = document.getElementById('link-programme-toggle-btn');
+  if (!panel) return;
+  const open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  if (btn) btn.classList.toggle('open');
 }
 
 function toggleLinkTestExamples() {
