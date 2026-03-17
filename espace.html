@@ -1302,16 +1302,23 @@ let authChecked = false;
     window.history.replaceState({}, '', 'espace.html');
   }
 
-  // Auto-advance status if needed
-  const advanced = await checkAndAdvanceStatus(candidatureId, candidatureData);
-  if (advanced) {
-    const { data: freshDoc } = await supabase.from('candidatures').select('*').eq('id', candidatureId).single();
-    if (freshDoc) candidatureData = freshDoc;
-  }
+  try {
+    // Auto-advance status if needed
+    const advanced = await checkAndAdvanceStatus(candidatureId, candidatureData);
+    if (advanced) {
+      const { data: freshDoc } = await supabase.from('candidatures').select('*').eq('id', candidatureId).single();
+      if (freshDoc) candidatureData = freshDoc;
+    }
+  } catch(e) { console.error('Status advance error:', e); }
 
-  renderDashboard();
-  loadMessages();
-  listenForStatusChanges();
+  try {
+    renderDashboard();
+  } catch(e) { console.error('Render dashboard error:', e); }
+
+  try {
+    loadMessages();
+    listenForStatusChanges();
+  } catch(e) { console.error('Messages/listen error:', e); }
 
   document.getElementById('loading').style.display = 'none';
   document.getElementById('main-content').style.display = 'block';
