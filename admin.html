@@ -1167,16 +1167,11 @@ tr:hover { background: rgba(97,92,165,0.03); }
         </div>
       </div>
 
-      <!-- 6. Documents -->
+      <!-- 6. Documents (dynamic based on selected universities) -->
       <div class="add-section">
         <div class="add-section-title">6. Documents (optionnel)</div>
-        <div class="add-grid">
-          <div class="add-field"><label>Carte d'identite / Passeport</label><input type="file" id="add-doc-identite" accept=".pdf,.jpg,.jpeg,.png"/></div>
-          <div class="add-field"><label>Bulletins scolaires</label><input type="file" id="add-doc-bulletins" accept=".pdf,.jpg,.jpeg,.png"/></div>
-          <div class="add-field"><label>Formulaire LINK</label><input type="file" id="add-doc-formulaire-link" accept=".pdf,.jpg,.jpeg,.png"/></div>
-          <div class="add-field"><label>Formulaire UCJC</label><input type="file" id="add-doc-formulaire-ucjc" accept=".pdf,.jpg,.jpeg,.png"/></div>
-          <div class="add-field"><label>Lettre de motivation</label><input type="file" id="add-doc-lettre" accept=".pdf,.jpg,.jpeg,.png"/></div>
-          <div class="add-field"><label>Rapport technique</label><input type="file" id="add-doc-rapport" accept=".pdf,.jpg,.jpeg,.png"/></div>
+        <div id="add-docs-container">
+          <div style="color:#999;font-size:13px;padding:8px 0;">Selectionnez au moins une universite pour voir les documents requis.</div>
         </div>
       </div>
 
@@ -1605,22 +1600,27 @@ function renderDetailPage(c) {
   };
   function renderDocsForUni(prefix) {
     const uniDocs = Object.entries(docs).filter(([k]) => k.startsWith(prefix + '_'));
-    // Also include generic docs (no prefix) as shared
-    if (uniDocs.length === 0) return '';
+    // If this is the ONLY selected uni, also include generic docs
+    const selectedCount = [uniSel.LINK, uniSel.UCJC, uniSel.UE].filter(Boolean).length;
+    const genericDocs = Object.entries(docs).filter(([k]) => !k.startsWith('LINK_') && !k.startsWith('UCJC_') && !k.startsWith('UE_') && typeof docs[k] === 'string');
+    const allDocs = selectedCount <= 1 ? [...uniDocs, ...genericDocs] : uniDocs;
+    if (allDocs.length === 0) return '';
     let h = '<div style="margin-top:10px;padding-top:8px;border-top:1px dashed #ddd;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);font-weight:600;margin-bottom:6px;">Documents</div><div style="display:flex;flex-wrap:wrap;gap:6px;">';
-    uniDocs.forEach(([k, url]) => {
+    allDocs.forEach(([k, url]) => {
       if (k === 'UE_rapport_demarche') {
         if (url) h += '<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#fff8e1;border:1px solid #f9a825;border-radius:6px;font-size:10px;font-weight:500;">Demarche rapport lancee</span>';
-      } else {
+      } else if (typeof url === 'string' && url.startsWith('http')) {
         h += '<a href="' + url + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:10px;color:var(--violet);text-decoration:none;font-weight:500;">' + (docLabels[k] || k) + '</a>';
       }
     });
     h += '</div></div>';
     return h;
   }
-  // Generic docs (no LINK_/UCJC_/UE_ prefix)
+  // Generic docs (no LINK_/UCJC_/UE_ prefix) — only shown if multiple unis selected
   function renderGenericDocs() {
-    const genericDocs = Object.entries(docs).filter(([k]) => !k.startsWith('LINK_') && !k.startsWith('UCJC_') && !k.startsWith('UE_'));
+    const selectedCount = [uniSel.LINK, uniSel.UCJC, uniSel.UE].filter(Boolean).length;
+    if (selectedCount <= 1) return ''; // already merged into the single uni card
+    const genericDocs = Object.entries(docs).filter(([k]) => !k.startsWith('LINK_') && !k.startsWith('UCJC_') && !k.startsWith('UE_') && typeof docs[k] === 'string' && docs[k].startsWith('http'));
     if (genericDocs.length === 0) return '';
     let h = '<div style="margin-top:10px;padding-top:8px;border-top:1px dashed #ddd;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);font-weight:600;margin-bottom:6px;">Documents generaux</div><div style="display:flex;flex-wrap:wrap;gap:6px;">';
     genericDocs.forEach(([k, url]) => {
@@ -1829,6 +1829,11 @@ async function updateUniTracking(candidatureId, uniKey, field, value) {
     tracking[uniKey + '_' + field] = value;
     await supabase.from('candidatures').update({ uni_tracking: tracking }).eq('id', candidatureId);
     if (c) c.uni_tracking = tracking;
+    // If status changed to inscrit, also update main candidature status
+    if (field === 'status' && value === 'inscrit') {
+      await supabase.from('candidatures').update({ status: 'accepte' }).eq('id', candidatureId);
+      if (c) c.status = 'accepte';
+    }
     // Visual feedback
     const el = document.getElementById('track-' + uniKey + '-' + candidatureId);
     if (el) { el.style.boxShadow = '0 0 0 2px #2e7d52'; setTimeout(() => el.style.boxShadow = '', 1500); }
@@ -1989,6 +1994,41 @@ function toggleUni(uni) {
   } else {
     body.classList.remove('active');
   }
+  updateAddDocs();
+}
+
+function updateAddDocs() {
+  const container = document.getElementById('add-docs-container');
+  if (!container) return;
+  const linkOn = document.getElementById('cb-link')?.checked;
+  const ucjcOn = document.getElementById('cb-ucjc')?.checked;
+  const ueOn = document.getElementById('cb-ue')?.checked;
+  if (!linkOn && !ucjcOn && !ueOn) {
+    container.innerHTML = '<div style="color:#999;font-size:13px;padding:8px 0;">Selectionnez au moins une universite pour voir les documents requis.</div>';
+    return;
+  }
+  let h = '<div class="add-grid">';
+  // Generic docs always shown
+  h += '<div class="add-field"><label>Carte d\'identite / Passeport</label><input type="file" id="add-doc-identite" accept=".pdf,.jpg,.jpeg,.png"/></div>';
+  h += '<div class="add-field"><label>Bulletins scolaires</label><input type="file" id="add-doc-bulletins" accept=".pdf,.jpg,.jpeg,.png"/></div>';
+  // LINK-specific
+  if (linkOn) {
+    h += '<div class="add-field"><label>Formulaire LINK</label><input type="file" id="add-doc-LINK_formulaire" accept=".pdf,.jpg,.jpeg,.png"/></div>';
+    h += '<div class="add-field"><label>Releve de notes bac (LINK)</label><input type="file" id="add-doc-LINK_releves" accept=".pdf,.jpg,.jpeg,.png"/></div>';
+  }
+  // UCJC-specific
+  if (ucjcOn) {
+    h += '<div class="add-field"><label>Formulaire UCJC</label><input type="file" id="add-doc-UCJC_formulaire" accept=".pdf,.jpg,.jpeg,.png"/></div>';
+    h += '<div class="add-field"><label>Lettre de motivation (UCJC)</label><input type="file" id="add-doc-UCJC_lettre_motivation" accept=".pdf,.jpg,.jpeg,.png"/></div>';
+    h += '<div class="add-field"><label>Attestation espagnol (UCJC)</label><input type="file" id="add-doc-UCJC_attestation_esp" accept=".pdf,.jpg,.jpeg,.png"/></div>';
+  }
+  // UE-specific
+  if (ueOn) {
+    h += '<div class="add-field"><label>Rapport technique (UE)</label><input type="file" id="add-doc-UE_rapport_technique" accept=".pdf,.jpg,.jpeg,.png"/></div>';
+    h += '<div class="add-field"><label>Bulletins Premiere (UE)</label><input type="file" id="add-doc-UE_bulletins" accept=".pdf,.jpg,.jpeg,.png"/></div>';
+  }
+  h += '</div>';
+  container.innerHTML = h;
 }
 
 function updateUeOptions() {
@@ -2249,14 +2289,11 @@ async function submitManualDossier() {
     const candidatureId = insertedCandidature.id;
 
     // ── 5. Upload documents ──
-    const docMap = {
-      'add-doc-identite': 'identite',
-      'add-doc-bulletins': 'bulletins',
-      'add-doc-formulaire-link': 'formulaire_link',
-      'add-doc-formulaire-ucjc': 'formulaire_ucjc',
-      'add-doc-lettre': 'lettre_motivation',
-      'add-doc-rapport': 'rapport_technique'
-    };
+    // Dynamic doc map from whatever file inputs are shown
+    const docMap = {};
+    document.querySelectorAll('#add-docs-container input[type="file"]').forEach(inp => {
+      if (inp.id) docMap[inp.id] = inp.id.replace('add-doc-', '');
+    });
 
     const uploadedDocs = {};
     for (const [inputId, docKey] of Object.entries(docMap)) {
