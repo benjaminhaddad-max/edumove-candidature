@@ -912,11 +912,17 @@ async function updateStatus(id, newStatus) {
   const adminEmail = currentAdminUser?.email || 'admin';
   const c = allCandidatures.find(x => x.id === id);
   const existing = Array.isArray(c?.status_history) ? c.status_history : [];
-  await supabase.from('candidatures').update({
+  const updateData = {
     status: newStatus,
     manual_override: true,
     status_history: [...existing, { status: newStatus, at: new Date().toISOString(), by: adminEmail }]
-  }).eq('id', id);
+  };
+  // Auto-generate response text when switching to reponse_edumove
+  if (newStatus === 'reponse_edumove' && c && !c.auto_response_text) {
+    updateData.auto_response_text = generateReponseEdumove(c);
+    updateData.auto_response_generated_at = new Date().toISOString();
+  }
+  await supabase.from('candidatures').update(updateData).eq('id', id);
 }
 
 // ══════════════════════════════════════════
