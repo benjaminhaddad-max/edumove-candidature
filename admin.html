@@ -785,6 +785,35 @@ tr:hover { background: rgba(97,92,165,0.03); }
 }
 .btn-gen-pass:hover { background: var(--violet-light); }
 
+/* ── FAC MESSAGING ── */
+.msg-page { display: none; max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+.msg-page.active { display: flex; gap: 20px; height: calc(100vh - 80px); }
+.msg-sidebar { width: 280px; flex-shrink: 0; background: white; border-radius: 12px; border: 1.5px solid var(--border); overflow: hidden; display: flex; flex-direction: column; }
+.msg-sidebar-title { padding: 16px 20px; font-size: 14px; font-weight: 700; color: var(--navy); border-bottom: 1.5px solid var(--border); text-transform: uppercase; letter-spacing: 0.04em; }
+.msg-conv-list { flex: 1; overflow-y: auto; }
+.msg-conv-item { padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.2s; display: flex; flex-direction: column; gap: 2px; }
+.msg-conv-item:hover { background: #f8f8fb; }
+.msg-conv-item.active { background: #f0f0ff; border-left: 3px solid var(--violet); }
+.msg-conv-item .conv-name { font-size: 13px; font-weight: 600; color: var(--navy); }
+.msg-conv-item .conv-preview { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.msg-conv-item .conv-student { font-size: 10px; color: var(--violet); font-weight: 500; }
+.msg-main { flex: 1; display: flex; flex-direction: column; background: white; border-radius: 12px; border: 1.5px solid var(--border); overflow: hidden; }
+.msg-main-header { padding: 16px 20px; border-bottom: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.msg-main-header h3 { font-size: 15px; font-weight: 700; color: var(--navy); margin: 0; }
+.msg-main-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+.msg-bubble { max-width: 70%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; }
+.msg-bubble.sent { align-self: flex-end; background: var(--violet); color: white; border-bottom-right-radius: 4px; }
+.msg-bubble.received { align-self: flex-start; background: #f0f0f5; color: var(--text); border-bottom-left-radius: 4px; }
+.msg-bubble .msg-meta { font-size: 10px; opacity: 0.7; margin-top: 4px; }
+.msg-main-footer { padding: 12px 20px; border-top: 1.5px solid var(--border); display: flex; gap: 10px; }
+.msg-main-footer textarea { flex: 1; border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 13px; font-family: inherit; resize: none; height: 44px; }
+.msg-main-footer textarea:focus { outline: none; border-color: var(--violet); }
+.msg-main-footer button { padding: 0 24px; background: var(--orange); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: inherit; font-size: 13px; }
+.msg-main-footer button:hover { opacity: 0.9; }
+.msg-empty-conv { display: flex; align-items: center; justify-content: center; flex: 1; color: var(--text-muted); font-size: 13px; }
+.msg-new-btn { margin: 12px 16px; padding: 10px; background: var(--violet); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: inherit; font-size: 12px; }
+.msg-new-btn:hover { opacity: 0.9; }
+
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .site-header { padding: 0 16px; }
@@ -820,6 +849,8 @@ tr:hover { background: rgba(97,92,165,0.03); }
     <div class="logo-wordmark">EDUMOVE <span>Admin</span></div>
   </div>
   <div class="header-right" id="header-right" style="display:none;">
+    <button onclick="openFacMessaging()" id="btn-fac-messaging" style="display:none;background:none;border:1.5px solid rgba(255,255,255,0.3);color:white;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">💬 Messagerie</button>
+    <button onclick="backToDashboard()" id="btn-back-dashboard" style="display:none;background:none;border:1.5px solid rgba(255,255,255,0.3);color:white;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">📋 Dossiers</button>
     <span class="header-user" id="header-user"></span>
     <button class="btn-logout" onclick="logout()">Déconnexion</button>
   </div>
@@ -926,6 +957,30 @@ tr:hover { background: rgba(97,92,165,0.03); }
     </div>
   </div>
   <div class="detail-cards" id="detail-cards"></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     FAC MESSAGING PAGE
+══════════════════════════════════════════ -->
+<div id="fac-msg-page" class="msg-page">
+  <div class="msg-sidebar">
+    <div class="msg-sidebar-title">Conversations</div>
+    <button class="msg-new-btn" onclick="startNewConversation()">+ Nouvelle conversation</button>
+    <div class="msg-conv-list" id="fac-conv-list"></div>
+  </div>
+  <div class="msg-main">
+    <div class="msg-main-header" id="fac-msg-header">
+      <h3 id="fac-msg-conv-title">Sélectionnez une conversation</h3>
+      <span id="fac-msg-conv-student" style="font-size:11px;color:var(--text-muted);"></span>
+    </div>
+    <div class="msg-main-body" id="fac-msg-body">
+      <div class="msg-empty-conv">Sélectionnez une conversation ou créez-en une nouvelle</div>
+    </div>
+    <div class="msg-main-footer" id="fac-msg-footer" style="display:none;">
+      <textarea id="fac-msg-input" placeholder="Écrire un message..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendFacMessage();}"></textarea>
+      <button onclick="sendFacMessage()">Envoyer</button>
+    </div>
+  </div>
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -1267,6 +1322,8 @@ function showLoginError(msg) {
 
 function applyRoleRestrictions() {
   const role = window.adminRole;
+  // Show messaging button for all roles
+  document.getElementById('btn-fac-messaging').style.display = '';
   if (role === 'super_admin') return; // Full access
 
   // Hide add dossier button and export CSV for fac users
@@ -1831,6 +1888,8 @@ function backToList() {
 
   document.getElementById('detail-page').classList.remove('active');
   document.getElementById('dashboard').classList.add('active');
+  document.getElementById('btn-fac-messaging').style.display = '';
+  document.getElementById('btn-back-dashboard').style.display = 'none';
 }
 
 // ══════════════════════════════════════════
@@ -2437,6 +2496,319 @@ async function submitManualDossier() {
     btn.disabled = false;
     btn.textContent = 'Créer le dossier';
   }
+}
+
+// ══════════════════════════════════════════
+// FAC MESSAGING SYSTEM
+// ══════════════════════════════════════════
+let facConversations = []; // grouped conversations
+let currentFacConv = null; // { fac_key, candidature_id }
+let facMsgSubscription = null;
+
+function getFacKeyForRole(role) {
+  if (role === 'fac_link') return 'LINK';
+  if (role === 'fac_ucjc') return 'UCJC';
+  if (role === 'fac_ue') return 'UE';
+  return null;
+}
+
+function openFacMessaging() {
+  document.getElementById('dashboard').classList.remove('active');
+  document.getElementById('detail-page').classList.remove('active');
+  document.getElementById('fac-msg-page').classList.add('active');
+  document.getElementById('btn-fac-messaging').style.display = 'none';
+  document.getElementById('btn-back-dashboard').style.display = '';
+  loadFacConversations();
+}
+
+function backToDashboard() {
+  document.getElementById('fac-msg-page').classList.remove('active');
+  document.getElementById('detail-page').classList.remove('active');
+  document.getElementById('dashboard').classList.add('active');
+  document.getElementById('btn-fac-messaging').style.display = '';
+  document.getElementById('btn-back-dashboard').style.display = 'none';
+  if (facMsgSubscription) { facMsgSubscription.unsubscribe(); facMsgSubscription = null; }
+}
+
+async function loadFacConversations() {
+  const role = window.adminRole;
+  let query = supabase.from('fac_messages').select('*').order('created_at', { ascending: false });
+
+  // Fac users only see their own conversations
+  const facKey = getFacKeyForRole(role);
+  if (facKey) {
+    query = query.eq('fac_key', facKey);
+  }
+
+  const { data, error } = await query;
+  if (error) { console.error('Load fac messages error:', error); return; }
+
+  // Group by conversation (fac_key + candidature_id)
+  const convMap = {};
+  (data || []).forEach(m => {
+    const key = m.fac_key + '|' + (m.candidature_id || 'general');
+    if (!convMap[key]) {
+      convMap[key] = { fac_key: m.fac_key, candidature_id: m.candidature_id, messages: [], lastMsg: m };
+    }
+    convMap[key].messages.push(m);
+  });
+
+  facConversations = Object.values(convMap).sort((a, b) => new Date(b.lastMsg.created_at) - new Date(a.lastMsg.created_at));
+  renderFacConvList();
+}
+
+function renderFacConvList() {
+  const listEl = document.getElementById('fac-conv-list');
+  const role = window.adminRole;
+  const facLabels = { LINK: 'LINK Campus', UCJC: 'UCJC Madrid', UE: 'Universidad Europea' };
+
+  if (facConversations.length === 0) {
+    listEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:12px;">Aucune conversation</div>';
+    return;
+  }
+
+  listEl.innerHTML = facConversations.map((conv, i) => {
+    const isActive = currentFacConv && currentFacConv.fac_key === conv.fac_key &&
+      (currentFacConv.candidature_id || null) === (conv.candidature_id || null);
+    const preview = conv.lastMsg.content.substring(0, 50) + (conv.lastMsg.content.length > 50 ? '...' : '');
+
+    let name = '';
+    if (role === 'super_admin') {
+      name = facLabels[conv.fac_key] || conv.fac_key;
+    } else {
+      name = 'Edumove';
+    }
+
+    let studentInfo = '';
+    if (conv.candidature_id) {
+      const c = allCandidatures.find(x => x.id === conv.candidature_id);
+      studentInfo = c ? (c.prenom + ' ' + c.nom) : 'Dossier';
+    } else {
+      studentInfo = 'Conversation générale';
+    }
+
+    return '<div class="msg-conv-item ' + (isActive ? 'active' : '') + '" onclick="selectFacConv(\'' + conv.fac_key + '\', ' + (conv.candidature_id ? '\'' + conv.candidature_id + '\'' : 'null') + ')">' +
+      '<div class="conv-name">' + name + '</div>' +
+      '<div class="conv-student">' + studentInfo + '</div>' +
+      '<div class="conv-preview">' + esc(preview) + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+async function selectFacConv(facKey, candidatureId) {
+  currentFacConv = { fac_key: facKey, candidature_id: candidatureId };
+
+  const facLabels = { LINK: 'LINK Campus', UCJC: 'UCJC Madrid', UE: 'Universidad Europea' };
+  const role = window.adminRole;
+  const title = role === 'super_admin' ? facLabels[facKey] : 'Edumove';
+
+  document.getElementById('fac-msg-conv-title').textContent = title;
+
+  let studentText = '';
+  if (candidatureId) {
+    const c = allCandidatures.find(x => x.id === candidatureId);
+    studentText = c ? ('Dossier : ' + c.prenom + ' ' + c.nom) : 'Dossier spécifique';
+  } else {
+    studentText = 'Conversation générale';
+  }
+  document.getElementById('fac-msg-conv-student').textContent = studentText;
+  document.getElementById('fac-msg-footer').style.display = 'flex';
+
+  // Load messages for this conversation
+  await loadFacConvMessages();
+
+  // Subscribe to realtime
+  if (facMsgSubscription) facMsgSubscription.unsubscribe();
+  facMsgSubscription = supabase.channel('fac-msg-' + facKey + '-' + (candidatureId || 'gen'))
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'fac_messages' }, payload => {
+      const m = payload.new;
+      if (m.fac_key === facKey && (m.candidature_id || null) === (candidatureId || null)) {
+        appendFacMessage(m);
+      }
+    })
+    .subscribe();
+
+  renderFacConvList();
+}
+
+async function loadFacConvMessages() {
+  if (!currentFacConv) return;
+
+  let query = supabase.from('fac_messages').select('*')
+    .eq('fac_key', currentFacConv.fac_key)
+    .order('created_at', { ascending: true });
+
+  if (currentFacConv.candidature_id) {
+    query = query.eq('candidature_id', currentFacConv.candidature_id);
+  } else {
+    query = query.is('candidature_id', null);
+  }
+
+  const { data, error } = await query;
+  if (error) { console.error('Load conv messages error:', error); return; }
+
+  const body = document.getElementById('fac-msg-body');
+  if (!data || data.length === 0) {
+    body.innerHTML = '<div class="msg-empty-conv">Aucun message dans cette conversation</div>';
+    return;
+  }
+
+  const role = window.adminRole;
+  body.innerHTML = data.map(m => {
+    const isMine = (role === 'super_admin' && m.sender_role === 'super_admin') ||
+                   (role !== 'super_admin' && m.sender_role !== 'super_admin');
+    const time = new Date(m.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    return '<div class="msg-bubble ' + (isMine ? 'sent' : 'received') + '">' +
+      '<div>' + esc(m.content) + '</div>' +
+      '<div class="msg-meta">' + time + '</div>' +
+    '</div>';
+  }).join('');
+
+  body.scrollTop = body.scrollHeight;
+}
+
+function appendFacMessage(m) {
+  const body = document.getElementById('fac-msg-body');
+  // Remove empty state if present
+  const empty = body.querySelector('.msg-empty-conv');
+  if (empty) empty.remove();
+
+  const role = window.adminRole;
+  const isMine = (role === 'super_admin' && m.sender_role === 'super_admin') ||
+                 (role !== 'super_admin' && m.sender_role !== 'super_admin');
+  const time = new Date(m.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+
+  const div = document.createElement('div');
+  div.className = 'msg-bubble ' + (isMine ? 'sent' : 'received');
+  div.innerHTML = '<div>' + esc(m.content) + '</div><div class="msg-meta">' + time + '</div>';
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+}
+
+async function sendFacMessage() {
+  if (!currentFacConv) return;
+  const input = document.getElementById('fac-msg-input');
+  const content = input.value.trim();
+  if (!content) return;
+
+  input.value = '';
+
+  const role = window.adminRole;
+  const email = currentAdminUser?.email || 'admin';
+
+  const msg = {
+    fac_key: currentFacConv.fac_key,
+    candidature_id: currentFacConv.candidature_id || null,
+    sender_role: role,
+    sender_email: email,
+    content: content
+  };
+
+  const { error } = await supabase.from('fac_messages').insert(msg);
+  if (error) {
+    console.error('Send fac message error:', error);
+    alert('Erreur lors de l\'envoi du message.');
+    return;
+  }
+
+  // Reload conversations list to update preview
+  loadFacConversations();
+}
+
+function startNewConversation() {
+  const role = window.adminRole;
+
+  // Build modal content
+  let html = '<div style="padding:20px;">';
+  html += '<h3 style="margin:0 0 16px;font-size:16px;color:var(--navy);">Nouvelle conversation</h3>';
+
+  // For super_admin: choose which fac
+  if (role === 'super_admin') {
+    html += '<div style="margin-bottom:12px;"><label style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px;">UNIVERSITÉ</label>';
+    html += '<select id="new-conv-fac" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;">';
+    html += '<option value="LINK">LINK Campus University</option>';
+    html += '<option value="UCJC">UCJC Madrid</option>';
+    html += '<option value="UE">Universidad Europea</option>';
+    html += '</select></div>';
+  }
+
+  // Choose: general or specific student
+  html += '<div style="margin-bottom:12px;"><label style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px;">TYPE</label>';
+  html += '<select id="new-conv-type" onchange="toggleConvStudent()" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;">';
+  html += '<option value="general">Conversation générale</option>';
+  html += '<option value="student">À propos d\'un étudiant</option>';
+  html += '</select></div>';
+
+  // Student selector (hidden by default)
+  html += '<div id="new-conv-student-wrap" style="display:none;margin-bottom:12px;"><label style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px;">ÉTUDIANT</label>';
+  html += '<select id="new-conv-student" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;">';
+  allCandidatures.forEach(c => {
+    html += '<option value="' + c.id + '">' + esc(c.prenom + ' ' + c.nom) + '</option>';
+  });
+  html += '</select></div>';
+
+  // First message
+  html += '<div style="margin-bottom:16px;"><label style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px;">MESSAGE</label>';
+  html += '<textarea id="new-conv-message" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;resize:none;height:80px;" placeholder="Votre message..."></textarea></div>';
+
+  html += '<div style="display:flex;gap:10px;justify-content:flex-end;">';
+  html += '<button onclick="closeNewConvModal()" style="padding:10px 20px;background:none;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-weight:600;cursor:pointer;font-size:13px;">Annuler</button>';
+  html += '<button onclick="createNewConversation()" style="padding:10px 20px;background:var(--violet);color:white;border:none;border-radius:8px;font-family:inherit;font-weight:600;cursor:pointer;font-size:13px;">Envoyer</button>';
+  html += '</div></div>';
+
+  // Show in a simple overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'new-conv-overlay';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000;';
+  overlay.innerHTML = '<div style="background:white;border-radius:12px;max-width:460px;width:90%;max-height:90vh;overflow-y:auto;">' + html + '</div>';
+  overlay.onclick = function(e) { if (e.target === overlay) closeNewConvModal(); };
+  document.body.appendChild(overlay);
+}
+
+function toggleConvStudent() {
+  const type = document.getElementById('new-conv-type').value;
+  document.getElementById('new-conv-student-wrap').style.display = type === 'student' ? 'block' : 'none';
+}
+
+function closeNewConvModal() {
+  const overlay = document.getElementById('new-conv-overlay');
+  if (overlay) overlay.remove();
+}
+
+async function createNewConversation() {
+  const role = window.adminRole;
+  let facKey;
+
+  if (role === 'super_admin') {
+    facKey = document.getElementById('new-conv-fac').value;
+  } else {
+    facKey = getFacKeyForRole(role);
+  }
+
+  const type = document.getElementById('new-conv-type').value;
+  const candidatureId = type === 'student' ? document.getElementById('new-conv-student').value : null;
+  const content = document.getElementById('new-conv-message').value.trim();
+
+  if (!content) { alert('Veuillez écrire un message.'); return; }
+
+  const msg = {
+    fac_key: facKey,
+    candidature_id: candidatureId,
+    sender_role: role,
+    sender_email: currentAdminUser?.email || 'admin',
+    content: content
+  };
+
+  const { error } = await supabase.from('fac_messages').insert(msg);
+  if (error) {
+    console.error('Create conversation error:', error);
+    alert('Erreur : ' + error.message);
+    return;
+  }
+
+  closeNewConvModal();
+  await loadFacConversations();
+  selectFacConv(facKey, candidatureId);
 }
 </script>
 </body>
