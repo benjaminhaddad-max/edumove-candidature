@@ -915,7 +915,7 @@ body {
 <div class="dash-content" id="main-content" style="display:none;">
 
   <div class="dash-title" id="welcome-title">Mon espace candidat</div>
-  <div class="dash-subtitle">Suivez l’avancement de votre dossier EDUMOVE</div>
+  <div class="dash-subtitle">Suivez l'avancement de votre dossier EDUMOVE</div>
 
   <!-- STATUS -->
   <div class="status-card" id="status-card">
@@ -1197,7 +1197,7 @@ body {
       <div class="section-card-title">Documents</div>
     </div>
     <div class="section-card-body">
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Vous pouvez ajouter des documents complémentaires à votre dossier (bulletins, passeport, lettres...). L’équipe EDUMOVE les consultera.</p>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Vous pouvez ajouter des documents complémentaires à votre dossier (bulletins, passeport, lettres...). L'équipe EDUMOVE les consultera.</p>
       <div class="upload-zone" onclick="document.getElementById('file-upload').click()">
         <div class="upload-zone-icon">📎</div>
         <div class="upload-zone-label"><strong>Cliquez pour ajouter un document</strong> · PDF, JPG, PNG (max 10 Mo)</div>
@@ -1224,7 +1224,7 @@ body {
     </div>
     <div class="section-card-body">
       <div class="messages-container" id="messages-container">
-        <div class="messages-empty" id="messages-empty">Aucun message pour le moment. Envoyez un message à l’équipe EDUMOVE ci-dessous.</div>
+        <div class="messages-empty" id="messages-empty">Aucun message pour le moment. Envoyez un message à l'équipe EDUMOVE ci-dessous.</div>
       </div>
       <div class="message-input-row">
         <textarea class="message-input" id="message-input" placeholder="Écrivez votre message..." rows="1"></textarea>
@@ -1512,7 +1512,7 @@ function renderDashboard() {
 }
 
 function updateStatusDisplay(status) {
-  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours de traitement', reponse_edumove: 'Réponse Edumove', dossier_soumis: 'Dossier soumis à l’université', accepte: 'Accepté', refuse: 'Refusé', abandon: 'Abandon du dossier' };
+  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours de traitement', reponse_edumove: 'Réponse Edumove', dossier_soumis: 'Dossier soumis à l\'université', accepte: 'Accepté', refuse: 'Refusé', abandon: 'Abandon du dossier' };
   const statusIcons = { en_attente: '\u23f3', en_cours: '\ud83d\udccb', reponse_edumove: '\ud83d\udce9', dossier_soumis: '\ud83c\udf93', accepte: '\u2705', refuse: '\u274c', abandon: '\ud83d\udeab' };
 
   const textEl = document.getElementById('status-text');
@@ -1621,25 +1621,25 @@ async function uploadDocument(input) {
   try {
     const timestamp = Date.now();
     const path = `candidatures/${candidatureId}/docs_${timestamp}_${file.name}`;
-    const { error: uploadError } = await supabase.storage.from(‘candidature-docs’).upload(path, file);
+    const { error: uploadError } = await supabase.storage.from('candidature-docs').upload(path, file);
     if (uploadError) throw uploadError;
-    const url = supabase.storage.from(‘candidature-docs’).getPublicUrl(path).data.publicUrl;
+    const url = supabase.storage.from('candidature-docs').getPublicUrl(path).data.publicUrl;
 
     // Save to candidature documents
-    const docKey = ‘doc_’ + timestamp;
-    const { data: currentCand } = await supabase.from(‘candidatures’).select(‘documents’).eq(‘id’, candidatureId).single();
+    const docKey = 'doc_' + timestamp;
+    const { data: currentCand } = await supabase.from('candidatures').select('documents').eq('id', candidatureId).single();
     const updatedDocs = { ...(currentCand?.documents || {}), [docKey]: url };
-    await supabase.from(‘candidatures’).update({ documents: updatedDocs }).eq(‘id’, candidatureId);
+    await supabase.from('candidatures').update({ documents: updatedDocs }).eq('id', candidatureId);
     candidatureData.documents = updatedDocs;
     renderDocuments();
 
-    progressEl.textContent = ‘Document envoyé !’;
-    setTimeout(() => { progressEl.style.display = ‘none’; }, 2000);
-    input.value = ‘’;
+    progressEl.textContent = 'Document envoyé !';
+    setTimeout(() => { progressEl.style.display = 'none'; }, 2000);
+    input.value = '';
   } catch (err) {
-    console.error(‘Upload error:’, err);
-    progressEl.textContent = ‘Erreur lors de l\’envoi.’;
-    setTimeout(() => { progressEl.style.display = ‘none’; }, 3000);
+    console.error('Upload error:', err);
+    progressEl.textContent = 'Erreur lors de l\'envoi.';
+    setTimeout(() => { progressEl.style.display = 'none'; }, 3000);
   }
 }
 
@@ -1890,16 +1890,16 @@ async function sendMessage() {
   btn.disabled = true;
 
   try {
-    await supabase.from(‘messages’).insert({
+    await supabase.from('messages').insert({
       candidature_id: candidatureId,
       user_id: currentUser.id,
       content: text,
-      sender: ‘etudiant’
+      sender: 'etudiant'
     });
-    input.value = ‘’;
+    input.value = '';
   } catch (err) {
-    console.error(‘Message error:’, err);
-    alert(‘Erreur lors de l\’envoi du message.’);
+    console.error('Message error:', err);
+    alert('Erreur lors de l\'envoi du message.');
   }
   btn.disabled = false;
 }
