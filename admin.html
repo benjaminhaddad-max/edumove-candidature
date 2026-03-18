@@ -921,6 +921,13 @@ tr:last-child td { border-bottom: none; }
         <option value="terminale">Terminale</option>
         <option value="reorientation">R&eacute;orientation</option>
       </select>
+      <select class="filter-select" id="filter-source" onchange="applyFilters()">
+        <option value="">Toutes sources</option>
+        <option value="direct">Candidatures directes</option>
+        <option value="direct_LINK">Direct LINK</option>
+        <option value="direct_UCJC">Direct UCJC</option>
+        <option value="direct_UEM">Direct UEM</option>
+      </select>
       <select class="filter-select" id="filter-universite" onchange="applyFilters()">
         <option value="">Toutes universit&eacute;s</option>
         <option value="LINK">LINK</option>
@@ -2321,6 +2328,7 @@ function applyFilters() {
   const status = document.getElementById('filter-status').value;
   const profil = document.getElementById('filter-profil').value;
   const uni = document.getElementById('filter-universite').value;
+  const source = document.getElementById('filter-source').value;
 
   filteredCandidatures = allCandidatures.filter(c => {
     if (search && !(`${c.nom} ${c.prenom} ${c.email}`).toLowerCase().includes(search)) return false;
@@ -2331,6 +2339,8 @@ function applyFilters() {
       const sel = c.uni_selections || {};
       if (!sel[uni]) return false;
     }
+    if (source === 'direct' && !c.source?.startsWith('direct_')) return false;
+    if (source && source !== 'direct' && c.source !== source) return false;
     return true;
   });
 
@@ -2383,8 +2393,12 @@ function renderTable() {
     });
     if (!trackSummary) trackSummary = '<span style="color:var(--text-muted);font-size:10px;">\u2014</span>';
 
+    const directBadge = c.source?.startsWith('direct_')
+      ? `<span style="display:inline-block;padding:1px 7px;border-radius:4px;background:#e65100;color:white;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-left:4px;">Direct ${c.source.replace('direct_','')}</span>`
+      : '';
+
     return `<tr>
-      <td><div class="td-name">${esc(c.nom)} ${esc(c.prenom)}</div></td>
+      <td><div class="td-name">${esc(c.nom)} ${esc(c.prenom)}${directBadge}</div></td>
       <td>${filiere}</td>
       <td><div class="uni-badges">${uniBadges}</div></td>
       <td>${trackSummary}</td>
@@ -2485,7 +2499,10 @@ function renderDetailPage(c) {
 
   // Header
   document.getElementById('detail-page-title').textContent = c.prenom + ' ' + c.nom;
-  document.getElementById('detail-page-badge').innerHTML = `<span class="status-badge status-${c.status}">${statusLabels[c.status] || c.status}</span>`;
+  const _directBadgeHtml = c.source?.startsWith('direct_')
+    ? ` <span style="padding:3px 10px;border-radius:6px;background:#e65100;color:white;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Direct ${c.source.replace('direct_','')}</span>`
+    : '';
+  document.getElementById('detail-page-badge').innerHTML = `<span class="status-badge status-${c.status}">${statusLabels[c.status] || c.status}</span>${_directBadgeHtml}`;
 
   // Status select - only 2 global statuses (super_admin only)
   const statusSelect = document.getElementById('detail-page-status-select');

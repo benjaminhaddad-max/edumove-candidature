@@ -1350,8 +1350,9 @@ function renderDashboard() {
   document.getElementById('recap-body').innerHTML = html;
   document.getElementById('btn-recap').style.display = '';
 
-  // Show interactive response card if applicable
-  if (['reponse_edumove', 'dossier_soumis', 'accepte', 'refuse', 'abandon'].includes(c.status)) {
+  // Show interactive response card if applicable (masqué pour candidatures directes)
+  const _isDirect = c.source?.startsWith('direct_');
+  if (!_isDirect && ['reponse_edumove', 'dossier_soumis', 'accepte', 'refuse', 'abandon'].includes(c.status)) {
     document.getElementById('reponse-edumove-card').style.display = 'block';
     renderInteractiveResponse(c);
     if (c.callback_requested) {
