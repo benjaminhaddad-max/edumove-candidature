@@ -2047,47 +2047,6 @@ tr:last-child td { border-bottom: none; }
         </div>
       </div>
 
-      <!-- 4. Destinations & Filières -->
-      <div class="add-section">
-        <div class="add-section-title">4. Destinations &amp; Filières</div>
-        <div class="add-grid">
-          <div class="add-field">
-            <label>Classement filières (cocher et ordonner)</label>
-            <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
-              <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
-                <input type="checkbox" value="medecine" class="cb-filiere"/> Médecine
-              </label>
-              <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
-                <input type="checkbox" value="dentaire" class="cb-filiere"/> Dentaire
-              </label>
-              <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
-                <input type="checkbox" value="kine" class="cb-filiere"/> Kinésithérapie
-              </label>
-              <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
-                <input type="checkbox" value="pharmacie" class="cb-filiere"/> Pharmacie
-              </label>
-              <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
-                <input type="checkbox" value="veterinaire" class="cb-filiere"/> Vétérinaire
-              </label>
-            </div>
-          </div>
-          <div class="add-field">
-            <label>Classement destinations (cocher et ordonner)</label>
-            <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
-              <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
-                <input type="checkbox" value="PASS/LAS" class="cb-dest"/> PASS/LAS
-              </label>
-              <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
-                <input type="checkbox" value="italie" class="cb-dest"/> Italie
-              </label>
-              <label style="font-size:13px;text-transform:none;letter-spacing:0;font-weight:400;display:flex;align-items:center;gap:6px;color:var(--text);">
-                <input type="checkbox" value="espagne" class="cb-dest"/> Espagne
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- 5. Sélections universités -->
       <div class="add-section">
         <div class="add-section-title">5. Sélections universités</div>
@@ -3744,7 +3703,6 @@ function updateAddDocs() {
   // UE-specific
   if (ueOn) {
     h += '<div class="add-field"><label>Rapport technique (UE)</label><input type="file" id="add-doc-UE_rapport_technique" accept=".pdf,.jpg,.jpeg,.png"/></div>';
-    h += '<div class="add-field"><label>Bulletins Première (UE)</label><input type="file" id="add-doc-UE_bulletins" accept=".pdf,.jpg,.jpeg,.png"/></div>';
   }
   h += '</div>';
   container.innerHTML = h;
@@ -3861,23 +3819,8 @@ async function submitManualDossier() {
     if (angVal) langues.anglais = angVal;
     if (itaVal) langues.italien = itaVal;
 
-    // Classement filieres
-    const classementFilieres = [];
-    document.querySelectorAll('.cb-filiere:checked').forEach(cb => classementFilieres.push(cb.value));
-
-    // Classement destinations
-    const classementDestinations = [];
-    document.querySelectorAll('.cb-dest:checked').forEach(cb => classementDestinations.push(cb.value));
-
-    // Determine main destination
+    // Destination déduite depuis les sélections d'université
     let destination = '';
-    if (classementDestinations.includes('italie')) destination = 'italie';
-    if (classementDestinations.includes('espagne')) destination = 'espagne';
-    // If both, use first in list
-    if (classementDestinations.length > 0) {
-      const first = classementDestinations[0];
-      if (first === 'italie' || first === 'espagne') destination = first;
-    }
 
     // Determine main universite based on uni selections
     let universite = '';
@@ -3997,11 +3940,11 @@ async function submitManualDossier() {
       moyenne_premiere: moyPremiere,
       moyenne_terminale: moyTerminale,
       langues: langues,
-      classement_filieres: classementFilieres,
-      classement_destinations: classementDestinations,
+      classement_filieres: [],
+      classement_destinations: [],
       destination: destination || null,
       universite: universite || null,
-      filiere: classementFilieres.length > 0 ? classementFilieres[0] : null,
+      filiere: Object.values(uniSelections)[0]?.filiere || null,
       uni_selections: Object.keys(uniSelections).length > 0 ? uniSelections : null,
       uni_selections_at: Object.keys(uniSelections).length > 0 ? new Date().toISOString() : null,
       status: status,
