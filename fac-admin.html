@@ -238,7 +238,7 @@ function applyUniTheme(uni) {
   }
   const user = session.user;
   // Check fac_admins table
-  const { data: facAdminData } = await supabase.from('fac_admins').select('*').eq('id', user.id).single();
+  const { data: facAdminData } = await supabase.from('fac_admins').select('*').eq('email', user.email).single();
   if (!facAdminData) {
     await supabase.auth.signOut();
     document.getElementById('login-wrap').style.display = 'flex';
@@ -264,7 +264,7 @@ async function doLogin() {
     if (error) throw error;
     const user = (await supabase.auth.getUser()).data?.user;
     if (!user) throw new Error('No user');
-    const { data: facAdminData } = await supabase.from('fac_admins').select('*').eq('id', user.id).single();
+    const { data: facAdminData } = await supabase.from('fac_admins').select('*').eq('email', user.email).single();
     if (!facAdminData) {
       await supabase.auth.signOut();
       showLoginError("Ce compte n'a pas accès à l'espace université.");
