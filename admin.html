@@ -1097,10 +1097,10 @@ tr:last-child td { border-bottom: none; }
         <option value="UE">🇪🇸 Universidad Europea</option>
       </select>
       <select class="filter-select" id="filter-status" onchange="applyFilters()">
-        <option value="">Tous statuts</option>
+        <option value="">Tous statuts actifs</option>
         <option value="en_cours">En cours de traitement</option>
         <option value="reponse_edumove">R&eacute;ponse Edumove</option>
-        <option value="archive">Archiv&eacute;s</option>
+        <option value="archive">Archiv&eacute;s / Termin&eacute;s</option>
       </select>
       <select class="filter-select" id="filter-profil" onchange="applyFilters()">
         <option value="">Tous profils</option>
@@ -2548,14 +2548,15 @@ async function loadCandidatures() {
 }
 
 function updateStats() {
-  const total = allCandidatures.length;
-  const encours = allCandidatures.filter(c => c.status === 'en_cours').length;
-  const reponse = allCandidatures.filter(c => c.status === 'reponse_edumove').length;
-  const inscrit = allCandidatures.filter(c => {
+  const active = allCandidatures.filter(c => c.status !== 'archive');
+  const total = active.length;
+  const encours = active.filter(c => c.status === 'en_cours').length;
+  const reponse = active.filter(c => c.status === 'reponse_edumove').length;
+  const inscrit = active.filter(c => {
     const t = c.uni_tracking || {};
     return ['LINK_status', 'UCJC_status', 'UE_status'].some(k => t[k] === 'inscrit');
   }).length;
-  const rappel = allCandidatures.filter(c => c.callback_requested).length;
+  const rappel = active.filter(c => c.callback_requested).length;
   document.getElementById('stat-total').textContent = total;
   document.getElementById('stat-encours').textContent = encours;
   document.getElementById('stat-reponse').textContent = reponse;
@@ -2574,10 +2575,16 @@ function applyFilters() {
   const source = document.getElementById('filter-source').value;
 
   filteredCandidatures = allCandidatures.filter(c => {
-    // Hide archived unless specifically filtered
-    if (!status && c.status === 'archive') return false;
+    // Par défaut : seulement les 2 statuts actifs
+    if (!status) {
+      if (c.status !== 'en_cours' && c.status !== 'reponse_edumove') return false;
+    } else if (status === 'archive') {
+      // "Archivés/Terminés" = tout ce qui n'est pas un statut actif
+      if (c.status === 'en_cours' || c.status === 'reponse_edumove') return false;
+    } else {
+      if (c.status !== status) return false;
+    }
     if (search && !(`${c.nom} ${c.prenom} ${c.email}`).toLowerCase().includes(search)) return false;
-    if (status && c.status !== status) return false;
     if (profil && c.profil !== profil) return false;
     if (uni) {
       const sel = c.uni_selections || {};
@@ -2610,7 +2617,7 @@ function renderTable() {
   }
   empty.style.display = 'none';
 
-  const statusLabels = { en_cours: 'En cours', reponse_edumove: 'R\u00e9ponse Edumove' };
+  const statusLabels = { en_cours: 'En cours', reponse_edumove: 'R\u00e9ponse Edumove', archive: 'Archiv\u00e9' };
   const filiereLabels = { medecine: 'M\u00e9decine', dentaire: 'Dentaire', kine: 'Kin\u00e9sith\u00e9rapie', pharmacie: 'Pharmacie', veterinaire: 'V\u00e9t\u00e9rinaire', prepa_dentaire: 'Pr\u00e9pa Dentaire' };
   const trackLabels = { en_attente: 'En attente', dossier_envoye: 'Envoy\u00e9', test_paye: 'Test pay\u00e9', test_passe: 'Test pass\u00e9', tests_passes: 'Tests pass\u00e9s', entretien_planifie: 'Entretien', entretien_passe: 'Entretien OK', accepte: 'Accept\u00e9', acompte_verse: 'Acompte', refuse: 'Refus\u00e9', inscrit: 'Inscrit', autre_agence: 'Autre agence' };
   const trackColors = { en_attente: '#999', dossier_envoye: '#1565c0', test_paye: '#6a1b9a', test_passe: '#6a1b9a', tests_passes: '#6a1b9a', entretien_planifie: '#e65100', entretien_passe: '#e65100', accepte: '#2e7d32', acompte_verse: '#2e7d32', refuse: '#d32f2f', inscrit: '#1b5e20', autre_agence: '#795548' };
@@ -2860,7 +2867,7 @@ function viewDetail(id) {
 }
 
 function renderDetailPage(c) {
-  const statusLabels = { en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove' };
+  const statusLabels = { en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', archive: 'Archiv\u00e9' };
   const langLabels = { b2: 'B2+ / Bilingue', b1: 'B1 / Intermédiaire', debut: 'A1/A2 / Débutant', aucun: 'Aucun' };
   const filiereLabels = { medecine: 'M\u00e9decine', dentaire: 'Dentaire', kinesitherapie: 'Kin\u00e9sith\u00e9rapie', kine: 'Kin\u00e9sith\u00e9rapie', pharmacie: 'Pharmacie', veterinaire: 'V\u00e9t\u00e9rinaire', prepa_dentaire: 'Pr\u00e9pa Dentaire' };
 
@@ -3512,7 +3519,7 @@ function exportCSV() {
 
   const rows = data.map(c => {
     const date = c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '';
-    const statusLabels = { en_cours:'En cours de traitement', reponse_edumove:'R\u00e9ponse Edumove' };
+    const statusLabels = { en_cours:'En cours de traitement', reponse_edumove:'R\u00e9ponse Edumove', archive:'Archiv\u00e9' };
     return [
       c.nom, c.prenom, c.email, c.tel, c.departement || '', c.profil,
       c.score ? parseFloat(c.score).toFixed(1) : '', c.destination, c.universite, c.niveau,
