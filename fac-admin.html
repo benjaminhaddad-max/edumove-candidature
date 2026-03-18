@@ -317,16 +317,17 @@ async function loadCandidatures() {
 }
 
 function matchUniversity(c) {
-  if (currentUniversity === 'ue')   return c.ue_choices != null;
-  if (currentUniversity === 'ucjc') return (c.universite || '').toUpperCase().includes('UCJC');
-  if (currentUniversity === 'link') return (c.universite || '').toUpperCase().includes('LINK') || c.destination === 'italie';
+  const sel = c.uni_selections || {};
+  if (currentUniversity === 'ue')   return sel.UE != null;
+  if (currentUniversity === 'ucjc') return sel.UCJC != null;
+  if (currentUniversity === 'link') return sel.LINK != null;
   return false;
 }
 
 function renderStats() {
   document.getElementById('stat-total').textContent = allCandidatures.length;
   const confirmed = allCandidatures.filter(c => {
-    if (currentUniversity === 'ue')   return c.ue_choices != null;
+    if (currentUniversity === 'ue')   return c.uni_selections_at != null;
     if (currentUniversity === 'ucjc') return c.ucjc_docs_confirmed === true;
     if (currentUniversity === 'link') return c.link_docs_confirmed === true;
   }).length;
@@ -368,8 +369,9 @@ function renderTable(list) {
 
     // University-specific column
     let uniCell = '';
-    if (currentUniversity === 'ue' && c.ue_choices) {
-      uniCell = `<span class="badge badge-uni">${esc(c.ue_choices.ville)} · ${esc(c.ue_choices.filiere)} · ${esc(c.ue_choices.langue)}</span>`;
+    const ueData = (c.uni_selections || {}).UE;
+    if (currentUniversity === 'ue' && ueData) {
+      uniCell = `<span class="badge badge-uni">${esc(ueData.ville || '—')} · ${esc(ueData.filiere || ueData.filiereLabel || '—')} · ${esc(ueData.langue || '—')}</span>`;
     } else if (currentUniversity === 'ucjc') {
       if (c.ucjc_docs_confirmed) {
         const d = c.ucjc_docs_confirmed_at ? new Date(c.ucjc_docs_confirmed_at).toLocaleDateString('fr-FR') : '';
@@ -442,14 +444,17 @@ function buildDetail(c) {
 
   // University-specific info
   let uniInfo = '';
-  if (currentUniversity === 'ue' && c.ue_choices) {
+  const ueInfo = (c.uni_selections || {}).UE;
+  if (currentUniversity === 'ue') {
     uniInfo = `
       <div class="detail-section">
-        <div class="detail-section-title">🇪🇸 Choix Universidad Europea</div>
-        <div class="detail-row"><label>Ville / Campus</label><span>${esc(c.ue_choices.ville)}</span></div>
-        <div class="detail-row"><label>Filière</label><span>${esc(c.ue_choices.filiere)}</span></div>
-        <div class="detail-row"><label>Langue d'enseignement</label><span>${esc(c.ue_choices.langue)}</span></div>
-        ${c.ue_choices_at ? `<div class="detail-row"><label>Date de confirmation</label><span>${new Date(c.ue_choices_at).toLocaleDateString('fr-FR')}</span></div>` : ''}
+        <div class="detail-section-title">🇪🇸 Universidad Europea — Détails</div>
+        ${ueInfo ? `
+        <div class="detail-row"><label>Ville / Campus</label><span>${esc(ueInfo.ville || '—')}</span></div>
+        <div class="detail-row"><label>Filière</label><span>${esc(ueInfo.filiere || ueInfo.filiereLabel || '—')}</span></div>
+        <div class="detail-row"><label>Langue</label><span>${esc(ueInfo.langue || '—')}</span></div>
+        ` : '<div class="detail-row"><label>Choix UE</label><span>⏳ En attente de confirmation</span></div>'}
+        ${c.uni_selections_at ? `<div class="detail-row"><label>Date de confirmation</label><span>${new Date(c.uni_selections_at).toLocaleDateString('fr-FR')}</span></div>` : ''}
       </div>`;
   } else if (currentUniversity === 'ucjc') {
     uniInfo = `
