@@ -32,7 +32,7 @@ module.exports = async function handler(req, res) {
   const message = `Bonjour ${nom}, votre réponse Edumove est disponible ! Connectez-vous à votre espace candidat pour la consulter : ${siteUrl}`;
 
   try {
-    const response = await fetch('https://www.smsfactor.com/send', {
+    const response = await fetch('https://api.smsfactor.com/send', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -40,10 +40,10 @@ module.exports = async function handler(req, res) {
         'Accept': 'application/json'
       },
       body: JSON.stringify({
-        messages: {
-          message: [{ text: message, to: phone }]
-        },
-        sender: 'Edumove'
+        sms: {
+          message: { text: message, pushtype: 'marketing', sender: 'Edumove' },
+          recipients: { gsm: [{ value: phone }] }
+        }
       })
     });
 
