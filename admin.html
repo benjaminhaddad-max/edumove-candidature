@@ -834,6 +834,13 @@ tr:last-child td { border-bottom: none; }
 .guide-filiere-detail .badge-red { background: var(--error-bg); color: var(--error); }
 .guide-filiere-detail .badge-orange { background: var(--warning-bg); color: var(--warning); }
 .guide-filiere-detail .badge-violet { background: var(--violet-bg); color: var(--violet); }
+
+/* Download buttons */
+.guide-downloads { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.guide-dl-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: white; border: 1.5px solid var(--border); border-radius: 10px; font-family: inherit; font-size: 12px; font-weight: 600; color: var(--navy); cursor: pointer; transition: all .2s; text-decoration: none; }
+.guide-dl-btn:hover { border-color: var(--violet); color: var(--violet); background: var(--violet-bg); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.guide-dl-btn .dl-icon { font-size: 16px; }
+.guide-dl-btn .dl-size { font-size: 10px; color: var(--text-muted); font-weight: 400; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1063,6 +1070,37 @@ tr:last-child td { border-bottom: none; }
         </div>
       </div>
 
+      <!-- Documents & Formulaires à télécharger -->
+      <div class="guide-section" data-guide-search>
+        <div class="guide-section-header open" onclick="toggleGuideSection(this)">
+          <h2>📥 Documents &amp; Formulaires à télécharger</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body" style="display:block;">
+          <div class="guide-grid-3">
+            <div class="guide-info-card">
+              <h4>🇮🇹 LINK Campus</h4>
+              <div class="guide-downloads" style="flex-direction:column;">
+                <a href="formulaire-precandidature-link.pdf" target="_blank" class="guide-dl-btn"><span class="dl-icon">📄</span> Formulaire pré-candidature LINK <span class="dl-size">PDF</span></a>
+                <a href="exemple-test-link.pdf" target="_blank" class="guide-dl-btn"><span class="dl-icon">🧪</span> Exemple de test LINK <span class="dl-size">PDF</span></a>
+              </div>
+            </div>
+            <div class="guide-info-card">
+              <h4>🇪🇸 UCJC</h4>
+              <div class="guide-downloads" style="flex-direction:column;">
+                <a href="formulaire-admission-ucjc.pdf" target="_blank" class="guide-dl-btn"><span class="dl-icon">📄</span> Formulaire d'admission UCJC <span class="dl-size">PDF</span></a>
+              </div>
+            </div>
+            <div class="guide-info-card">
+              <h4>🇪🇸 Universidad Europea</h4>
+              <div class="guide-downloads" style="flex-direction:column;">
+                <a href="https://hostudents.com" target="_blank" class="guide-dl-btn"><span class="dl-icon">🌐</span> Rapport technique — hostudents.com <span class="dl-size">60€</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Comparatif langues -->
       <div class="guide-section" data-guide-search>
         <div class="guide-section-header" onclick="toggleGuideSection(this)">
@@ -1177,6 +1215,9 @@ tr:last-child td { border-bottom: none; }
               </tbody>
             </table>
             <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">💡 <strong>Conseil à donner aux étudiants :</strong> réviser le programme de Terminale en sciences. Les questions sont de niveau bac, pas de niveau universitaire. La culture générale est souvent le facteur différenciant.</p>
+            <div class="guide-downloads">
+              <a href="exemple-test-link.pdf" target="_blank" class="guide-dl-btn"><span class="dl-icon">📝</span> Télécharger un exemple de test LINK <span class="dl-size">PDF</span></a>
+            </div>
           </div>
         </div>
       </div>
@@ -1196,6 +1237,10 @@ tr:last-child td { border-bottom: none; }
                 <li><strong>Pièce d'identité</strong> (carte d'identité ou passeport)<br><span style="font-size:11px;color:var(--text-muted);">Scan recto-verso en couleur, lisible.</span></li>
                 <li><strong>Relevé de notes du baccalauréat</strong> <span class="badge badge-violet" style="font-size:10px;">Optionnel</span><br><span style="font-size:11px;color:var(--text-muted);">Pas obligatoire pour s'inscrire au test, mais peut être demandé après acceptation.</span></li>
               </ol>
+              <div class="guide-downloads">
+                <a href="formulaire-precandidature-link.pdf" target="_blank" class="guide-dl-btn"><span class="dl-icon">📄</span> Télécharger le formulaire LINK <span class="dl-size">PDF</span></a>
+                <a href="exemple-test-link.pdf" target="_blank" class="guide-dl-btn"><span class="dl-icon">🧪</span> Voir un exemple de test <span class="dl-size">PDF</span></a>
+              </div>
             </div>
             <div class="guide-info-card">
               <h4>📄 Documents post-acceptation</h4>
@@ -1378,6 +1423,9 @@ tr:last-child td { border-bottom: none; }
                 <li><strong>Pièce d'identité</strong> (carte d'identité ou passeport)<br><span style="font-size:11px;color:var(--text-muted);">Scan recto-verso en couleur.</span></li>
                 <li><strong>Attestation de niveau espagnol</strong><br><span style="font-size:11px;color:var(--text-muted);">Même un certificat non-officiel (type e-learning) est accepté. Pas de niveau minimum requis.</span></li>
               </ol>
+              <div class="guide-downloads">
+                <a href="formulaire-admission-ucjc.pdf" target="_blank" class="guide-dl-btn"><span class="dl-icon">📄</span> Télécharger le formulaire UCJC <span class="dl-size">PDF</span></a>
+              </div>
             </div>
             <div class="guide-info-card">
               <h4>🗣️ Langue de la lettre de motivation</h4>
@@ -1603,6 +1651,9 @@ tr:last-child td { border-bottom: none; }
                 <li><strong>Pièce d'identité</strong> (carte d'identité ou passeport)<br><span style="font-size:11px;color:var(--text-muted);">Scan recto-verso en couleur, lisible.</span></li>
                 <li><strong>Rapport technique académique</strong><br><span style="font-size:11px;color:var(--text-muted);">60€ via <strong>hostudents.com</strong>. Document obligatoire. Peut prendre quelques jours. Les étudiants peuvent cocher "démarche lancée" en attendant.</span></li>
               </ol>
+              <div class="guide-downloads">
+                <a href="https://hostudents.com" target="_blank" class="guide-dl-btn"><span class="dl-icon">🌐</span> Commander le rapport technique <span class="dl-size">hostudents.com — 60€</span></a>
+              </div>
             </div>
             <div class="guide-info-card">
               <h4>📄 Documents post-acceptation</h4>
