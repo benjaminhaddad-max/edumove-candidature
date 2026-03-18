@@ -10,7 +10,7 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { email } = req.body || {};
+  const { email, redirectTo: customRedirect } = req.body || {};
   if (!email) return res.status(400).json({ error: 'Missing email' });
 
   const supabaseUrl = process.env.SUPABASE_URL || 'https://zhvwjonvebmvjcdxkdmo.supabase.co';
@@ -21,7 +21,7 @@ module.exports = async function handler(req, res) {
   if (!brevoApiKey) return res.status(500).json({ error: 'BREVO_API_KEY not configured' });
 
   const siteUrl = process.env.SITE_URL || 'https://candidature.edumove.fr';
-  const redirectTo = `${siteUrl}/admin.html`;
+  const redirectTo = customRedirect || `${siteUrl}/index.html`;
 
   try {
     // Generate recovery link via Supabase Admin API
@@ -81,7 +81,7 @@ module.exports = async function handler(req, res) {
     <div class="body">
       <div class="title">Réinitialisation de votre mot de passe</div>
       <div class="text">
-        Vous avez demandé à réinitialiser le mot de passe de votre compte administrateur Edumove.<br/><br/>
+        Vous avez demandé à réinitialiser le mot de passe de votre compte Edumove.<br/><br/>
         Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe. Ce lien est valable <strong>1 heure</strong>.
       </div>
       <a href="${actionLink}" class="cta">Définir un nouveau mot de passe</a>

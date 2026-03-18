@@ -360,7 +360,7 @@ async function doResetPassword() {
     const res = await fetch('/api/reset-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
+      body: JSON.stringify({ email, redirectTo: window.location.origin + '/fac-admin.html' })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Erreur serveur');

@@ -283,6 +283,27 @@ body {
 }
 .auth-success.visible { display: block; }
 
+/* ── RESET PASSWORD MODAL ── */
+.reset-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: none; align-items: center; justify-content: center; }
+.reset-overlay.visible { display: flex; }
+.reset-modal { background: white; border-radius: 16px; padding: 36px 32px; max-width: 380px; width: 90%; box-shadow: 0 8px 40px rgba(0,0,0,0.18); }
+.reset-modal h3 { margin: 0 0 8px; font-size: 18px; font-weight: 700; color: var(--navy); }
+.reset-modal p { margin: 0 0 20px; font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.reset-modal .modal-input { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; outline: none; transition: border 0.2s, box-shadow 0.2s; }
+.reset-modal .modal-input:focus { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(97,92,165,0.1); }
+.reset-btn-row { display: flex; gap: 10px; margin-top: 16px; }
+.reset-btn { flex: 1; padding: 11px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; font-family: inherit; transition: opacity 0.2s; }
+.reset-btn.primary { background: var(--violet); color: white; }
+.reset-btn.primary:hover { opacity: 0.88; }
+.reset-btn.primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.reset-btn.secondary { background: var(--bg); color: var(--text-muted); border: 1.5px solid var(--border); }
+.reset-success-msg { color: var(--success); font-size: 13px; margin-top: 12px; display: none; }
+.reset-success-msg.visible { display: block; }
+.reset-error-msg { color: var(--error); font-size: 12px; margin-top: 8px; display: none; }
+.reset-error-msg.visible { display: block; }
+.forgot-link { display: block; text-align: center; font-size: 12px; color: var(--violet); margin-top: 14px; text-decoration: none; cursor: pointer; }
+.forgot-link:hover { text-decoration: underline; }
+
 .auth-divider {
   text-align: center;
   margin: 20px 0;
@@ -445,6 +466,7 @@ body {
       </div>
       <button class="btn-auth" onclick="doLogin()">Se connecter</button>
       <div class="auth-error" id="login-error"></div>
+      <a href="javascript:void(0)" class="forgot-link" onclick="showResetModal()">Mot de passe oublié ?</a>
     </div>
 
     <!-- SIGNUP FORM -->
@@ -644,6 +666,95 @@ function hideSpinner() { document.getElementById('spinner').classList.remove('ac
 document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 document.getElementById('login-email').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('login-pass').focus(); });
 document.getElementById('signup-pass2').addEventListener('keydown', e => { if (e.key === 'Enter') doSignup(); });
+
+// ── PASSWORD RESET ──
+function showResetModal() {
+  const emailVal = document.getElementById('login-email').value.trim();
+  document.getElementById('reset-email').value = emailVal;
+  document.getElementById('reset-error').classList.remove('visible');
+  document.getElementById('reset-success').classList.remove('visible');
+  const btn = document.getElementById('reset-send-btn');
+  btn.disabled = false; btn.textContent = 'Envoyer';
+  document.getElementById('reset-overlay').classList.add('visible');
+}
+
+function hideResetModal() {
+  document.getElementById('reset-overlay').classList.remove('visible');
+}
+
+async function doResetPassword() {
+  const email = document.getElementById('reset-email').value.trim();
+  const errEl = document.getElementById('reset-error');
+  const successEl = document.getElementById('reset-success');
+  const btn = document.getElementById('reset-send-btn');
+  errEl.classList.remove('visible');
+  if (!email) { errEl.textContent = 'Veuillez saisir votre email.'; errEl.classList.add('visible'); return; }
+  btn.disabled = true; btn.textContent = 'Envoi…';
+  try {
+    await fetch('/api/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, redirectTo: window.location.origin + '/index.html' })
+    });
+    successEl.classList.add('visible');
+    btn.textContent = 'Envoyé ✓';
+  } catch(e) {
+    btn.disabled = false; btn.textContent = 'Envoyer';
+    errEl.textContent = 'Erreur réseau. Réessayez.';
+    errEl.classList.add('visible');
+  }
+}
+
+async function doSetNewPassword() {
+  const pass = document.getElementById('newpass-input').value;
+  const errEl = document.getElementById('newpass-error');
+  errEl.classList.remove('visible');
+  if (pass.length < 6) { errEl.textContent = 'Le mot de passe doit contenir au moins 6 caractères.'; errEl.classList.add('visible'); return; }
+  try {
+    const { error } = await supabase.auth.updateUser({ password: pass });
+    if (error) throw error;
+    document.getElementById('newpass-overlay').classList.remove('visible');
+    showAuthSuccess(document.getElementById('login-error'), '✅ Mot de passe mis à jour ! Vous pouvez vous connecter.');
+  } catch(e) {
+    errEl.textContent = e.message || 'Erreur lors de la mise à jour.';
+    errEl.classList.add('visible');
+  }
+}
+
+// Handle PASSWORD_RECOVERY event (when user clicks the reset link in the email)
+supabase.auth.onAuthStateChange((event) => {
+  if (event === 'PASSWORD_RECOVERY') {
+    document.getElementById('newpass-overlay').classList.add('visible');
+  }
+});
 </script>
+
+<!-- Reset password modal -->
+<div class="reset-overlay" id="reset-overlay" onclick="if(event.target===this)hideResetModal()">
+  <div class="reset-modal">
+    <h3>Mot de passe oublié ?</h3>
+    <p>Entrez votre adresse email pour recevoir un lien de réinitialisation.</p>
+    <input type="email" class="modal-input" id="reset-email" placeholder="votre@email.com"/>
+    <div class="reset-error-msg" id="reset-error"></div>
+    <div class="reset-success-msg" id="reset-success">✅ Email envoyé ! Vérifiez votre boîte mail.</div>
+    <div class="reset-btn-row">
+      <button class="reset-btn secondary" onclick="hideResetModal()">Annuler</button>
+      <button class="reset-btn primary" id="reset-send-btn" onclick="doResetPassword()">Envoyer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Set new password modal (shown after clicking reset link) -->
+<div class="reset-overlay" id="newpass-overlay">
+  <div class="reset-modal">
+    <h3>Nouveau mot de passe</h3>
+    <p>Choisissez un nouveau mot de passe pour votre compte Edumove.</p>
+    <div class="pw-wrap"><input type="password" class="modal-input" id="newpass-input" placeholder="Nouveau mot de passe (min. 6 caractères)"/><button type="button" class="pw-toggle" onclick="togglePw(this)">👁</button></div>
+    <div class="reset-error-msg" id="newpass-error"></div>
+    <div class="reset-btn-row">
+      <button class="reset-btn primary" onclick="doSetNewPassword()">Enregistrer</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
