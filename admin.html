@@ -160,6 +160,26 @@ body { margin: 0; font-family: 'Poppins', -apple-system, BlinkMacSystemFont, san
 .btn-login:active { transform: scale(0.98); }
 .login-error { color: var(--error); font-size: 12px; margin-top: 14px; display: none; }
 .login-error.visible { display: block; }
+.pass-wrap { position: relative; margin-bottom: 14px; }
+.pass-wrap .login-field { margin-bottom: 0; padding-right: 44px; width: 100%; box-sizing: border-box; }
+.pass-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px; display: flex; align-items: center; line-height: 1; }
+.pass-toggle:hover { color: var(--violet); }
+.forgot-link { display: block; font-size: 12px; color: var(--violet); margin-top: 10px; text-decoration: none; cursor: pointer; }
+.forgot-link:hover { text-decoration: underline; }
+.reset-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: none; align-items: center; justify-content: center; }
+.reset-overlay.visible { display: flex; }
+.reset-modal { background: white; border-radius: 16px; padding: 36px 32px; max-width: 380px; width: 90%; box-shadow: 0 8px 40px rgba(0,0,0,0.18); }
+.reset-modal h3 { margin: 0 0 8px; font-size: 18px; font-weight: 700; color: var(--navy); }
+.reset-modal p { margin: 0 0 20px; font-size: 13px; color: var(--text-muted); }
+.reset-btn-row { display: flex; gap: 10px; margin-top: 16px; }
+.reset-btn { flex: 1; padding: 11px; border-radius: var(--radius); font-size: 13px; font-weight: 600; cursor: pointer; border: none; font-family: inherit; transition: background 0.2s; }
+.reset-btn.primary { background: var(--violet); color: white; }
+.reset-btn.primary:hover { background: var(--violet-hover); }
+.reset-btn.secondary { background: var(--bg); color: var(--text-muted); border: 1.5px solid var(--border); }
+.reset-success { color: #1b7a34; font-size: 13px; margin-top: 12px; display: none; }
+.reset-success.visible { display: block; }
+.reset-error2 { color: var(--error); font-size: 12px; margin-top: 8px; display: none; }
+.reset-error2.visible { display: block; }
 
 /* ── DASHBOARD ── */
 .dashboard { display: none; }
@@ -907,9 +927,45 @@ tr:last-child td { border-bottom: none; }
       <h2 style="margin-bottom:4px;">Accès Admin</h2>
       <p>Réservé aux administrateurs EDUMOVE</p>
       <input type="email" class="login-field" id="login-email" placeholder="Email"/>
-      <input type="password" class="login-field" id="login-pass" placeholder="Mot de passe"/>
+      <div class="pass-wrap">
+        <input type="password" class="login-field" id="login-pass" placeholder="Mot de passe"/>
+        <button type="button" class="pass-toggle" onclick="togglePassVisibility()" title="Afficher/masquer le mot de passe">
+          <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg id="eye-off-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
       <button class="btn-login" onclick="doLogin()">Se connecter</button>
+      <a href="javascript:void(0)" class="forgot-link" onclick="showResetModal()">Mot de passe oublié ?</a>
       <div class="login-error" id="login-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Reset password modal -->
+<div class="reset-overlay" id="reset-overlay" onclick="if(event.target===this)hideResetModal()">
+  <div class="reset-modal">
+    <h3>Réinitialiser le mot de passe</h3>
+    <p>Entrez votre adresse email admin. Vous recevrez un lien pour définir un nouveau mot de passe.</p>
+    <input type="email" class="login-field" id="reset-email" placeholder="Email administrateur" style="margin-bottom:0;"/>
+    <div class="reset-error2" id="reset-error"></div>
+    <div class="reset-success" id="reset-success">✅ Email envoyé ! Vérifiez votre boîte mail.</div>
+    <div class="reset-btn-row">
+      <button class="reset-btn secondary" onclick="hideResetModal()">Annuler</button>
+      <button class="reset-btn primary" id="reset-send-btn" onclick="doResetPassword()">Envoyer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Set new password modal (shown after clicking recovery link) -->
+<div class="reset-overlay" id="newpass-overlay">
+  <div class="reset-modal">
+    <h3>Définir un nouveau mot de passe</h3>
+    <p>Choisissez un nouveau mot de passe pour votre compte admin.</p>
+    <input type="password" class="login-field" id="newpass-input" placeholder="Nouveau mot de passe"/>
+    <input type="password" class="login-field" id="newpass-confirm" placeholder="Confirmer le mot de passe" style="margin-bottom:0;"/>
+    <div class="reset-error2" id="newpass-error"></div>
+    <div class="reset-btn-row">
+      <button class="reset-btn primary" onclick="doSetNewPassword()">Enregistrer</button>
     </div>
   </div>
 </div>
@@ -2163,6 +2219,12 @@ let currentDetailId = null;
 // ══════════════════════════════════════════
 let currentAdminUser = null;
 
+supabase.auth.onAuthStateChange((event) => {
+  if (event === 'PASSWORD_RECOVERY') {
+    document.getElementById('newpass-overlay').classList.add('visible');
+  }
+});
+
 (async () => {
   const { data: { session } } = await supabase.auth.getSession();
   if (session?.user) {
@@ -2203,6 +2265,82 @@ async function doLogin() {
     }
   } catch (err) {
     showLoginError('Identifiants incorrects.');
+  }
+}
+
+function togglePassVisibility() {
+  const input = document.getElementById('login-pass');
+  const eyeOn = document.getElementById('eye-icon');
+  const eyeOff = document.getElementById('eye-off-icon');
+  if (input.type === 'password') {
+    input.type = 'text';
+    eyeOn.style.display = 'none';
+    eyeOff.style.display = '';
+  } else {
+    input.type = 'password';
+    eyeOn.style.display = '';
+    eyeOff.style.display = 'none';
+  }
+}
+
+function showResetModal() {
+  const emailVal = document.getElementById('login-email').value || '';
+  document.getElementById('reset-email').value = emailVal;
+  document.getElementById('reset-error').classList.remove('visible');
+  document.getElementById('reset-success').classList.remove('visible');
+  const btn = document.getElementById('reset-send-btn');
+  btn.disabled = false;
+  btn.textContent = 'Envoyer';
+  document.getElementById('reset-overlay').classList.add('visible');
+}
+
+function hideResetModal() {
+  document.getElementById('reset-overlay').classList.remove('visible');
+}
+
+async function doResetPassword() {
+  const email = document.getElementById('reset-email').value.trim();
+  const errEl = document.getElementById('reset-error');
+  const successEl = document.getElementById('reset-success');
+  const btn = document.getElementById('reset-send-btn');
+  errEl.classList.remove('visible');
+  successEl.classList.remove('visible');
+  if (!email) { errEl.textContent = 'Veuillez entrer votre email.'; errEl.classList.add('visible'); return; }
+  btn.disabled = true;
+  btn.textContent = 'Envoi…';
+  try {
+    const res = await fetch('/api/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erreur serveur');
+    successEl.classList.add('visible');
+    btn.textContent = 'Envoyé ✓';
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.classList.add('visible');
+    btn.disabled = false;
+    btn.textContent = 'Envoyer';
+  }
+}
+
+async function doSetNewPassword() {
+  const pass = document.getElementById('newpass-input').value;
+  const confirm = document.getElementById('newpass-confirm').value;
+  const errEl = document.getElementById('newpass-error');
+  errEl.classList.remove('visible');
+  if (!pass || pass.length < 6) { errEl.textContent = 'Le mot de passe doit contenir au moins 6 caractères.'; errEl.classList.add('visible'); return; }
+  if (pass !== confirm) { errEl.textContent = 'Les mots de passe ne correspondent pas.'; errEl.classList.add('visible'); return; }
+  try {
+    const { error } = await supabase.auth.updateUser({ password: pass });
+    if (error) throw error;
+    document.getElementById('newpass-overlay').classList.remove('visible');
+    alert('Mot de passe mis à jour avec succès !');
+  } catch (err) {
+    errEl.textContent = 'Erreur : ' + err.message;
+    errEl.classList.add('visible');
   }
 }
 
