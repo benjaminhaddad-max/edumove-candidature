@@ -906,10 +906,11 @@ tr:last-child td { border-bottom: none; }
     <!-- Toolbar -->
     <div class="toolbar">
       <input type="text" class="search-input" id="search-input" placeholder="Rechercher par nom, prénom ou email..." oninput="applyFilters()"/>
-      <select class="filter-select" id="filter-destination" onchange="applyFilters()">
-        <option value="">Toutes destinations</option>
-        <option value="italie">Italie</option>
-        <option value="espagne">Espagne</option>
+      <select class="filter-select" id="filter-universite" onchange="applyFilters()">
+        <option value="">Toutes universit&eacute;s</option>
+        <option value="LINK">🇮🇹 LINK Campus — Rome</option>
+        <option value="UCJC">🇪🇸 UCJC — Madrid</option>
+        <option value="UE">🇪🇸 Universidad Europea</option>
       </select>
       <select class="filter-select" id="filter-status" onchange="applyFilters()">
         <option value="">Tous statuts</option>
@@ -927,12 +928,6 @@ tr:last-child td { border-bottom: none; }
         <option value="direct_LINK">Direct LINK</option>
         <option value="direct_UCJC">Direct UCJC</option>
         <option value="direct_UEM">Direct UEM</option>
-      </select>
-      <select class="filter-select" id="filter-universite" onchange="applyFilters()">
-        <option value="">Toutes universit&eacute;s</option>
-        <option value="LINK">LINK</option>
-        <option value="UCJC">UCJC</option>
-        <option value="UE">UE</option>
       </select>
       <button class="btn-export" onclick="exportCSV()">Exporter CSV</button>
       <button class="btn-export" style="background:var(--orange);" onclick="openAddDossierModal()">+ Ajouter un dossier</button>
@@ -2324,7 +2319,6 @@ function updateStats() {
 // ══════════════════════════════════════════
 function applyFilters() {
   const search = document.getElementById('search-input').value.toLowerCase().trim();
-  const dest = document.getElementById('filter-destination').value;
   const status = document.getElementById('filter-status').value;
   const profil = document.getElementById('filter-profil').value;
   const uni = document.getElementById('filter-universite').value;
@@ -2332,7 +2326,6 @@ function applyFilters() {
 
   filteredCandidatures = allCandidatures.filter(c => {
     if (search && !(`${c.nom} ${c.prenom} ${c.email}`).toLowerCase().includes(search)) return false;
-    if (dest && c.destination !== dest) return false;
     if (status && c.status !== status) return false;
     if (profil && c.profil !== profil) return false;
     if (uni) {
