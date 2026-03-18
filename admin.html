@@ -278,6 +278,106 @@ tr:last-child td { border-bottom: none; }
 .status-accepte { background: var(--success-bg); color: #065f46; }
 .status-refuse { background: var(--error-bg); color: #991b1b; }
 .status-abandon { background: #f8fafc; color: #475569; }
+.status-archive { background: #f1f5f9; color: #64748b; }
+
+/* ── ARCHIVE / DELETE BUTTONS ── */
+.btn-archive {
+  padding: 6px 12px;
+  background: #f59e0b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-archive:hover { background: #d97706; transform: translateY(-1px); }
+.btn-delete {
+  padding: 6px 12px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-delete:hover { background: #dc2626; transform: translateY(-1px); }
+.btn-restore {
+  padding: 6px 12px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-restore:hover { background: #059669; transform: translateY(-1px); }
+.td-actions { display: flex; gap: 6px; align-items: center; }
+
+/* ── CONFIRM MODAL ── */
+.confirm-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+}
+.confirm-overlay.active { display: flex; }
+.confirm-modal {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  max-width: 440px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  text-align: center;
+}
+.confirm-modal h3 { margin: 0 0 12px; font-size: 18px; color: var(--navy); }
+.confirm-modal p { margin: 0 0 24px; color: var(--text-muted); font-size: 14px; line-height: 1.5; }
+.confirm-modal-actions { display: flex; gap: 12px; justify-content: center; }
+.confirm-modal .btn-cancel {
+  padding: 10px 24px;
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.confirm-modal .btn-confirm-delete {
+  padding: 10px 24px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.confirm-modal .btn-confirm-archive {
+  padding: 10px 24px;
+  background: #f59e0b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
 
 .status-select {
   padding: 6px 10px;
@@ -1000,6 +1100,7 @@ tr:last-child td { border-bottom: none; }
         <option value="">Tous statuts</option>
         <option value="en_cours">En cours de traitement</option>
         <option value="reponse_edumove">R&eacute;ponse Edumove</option>
+        <option value="archive">Archiv&eacute;s</option>
       </select>
       <select class="filter-select" id="filter-profil" onchange="applyFilters()">
         <option value="">Tous profils</option>
@@ -1054,6 +1155,7 @@ tr:last-child td { border-bottom: none; }
       <h1 class="detail-page-title" id="detail-page-title"></h1>
       <span id="detail-page-badge"></span>
       <select class="detail-page-status-select" id="detail-page-status-select" onchange="updateStatusFromDetail(this.value)"></select>
+      <div id="detail-action-btns" style="margin-left:auto;display:flex;gap:8px;"></div>
     </div>
   </div>
   <div class="detail-split">
@@ -2152,6 +2254,13 @@ tr:last-child td { border-bottom: none; }
               <option value="reponse_edumove" selected>Réponse Edumove</option>
             </select>
           </div>
+          <div class="add-field">
+            <label>Provenance du lead</label>
+            <select id="add-lead-source">
+              <option value="edumove" selected>Edumove</option>
+              <option value="diploma_sante">Diploma Santé</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -2465,6 +2574,8 @@ function applyFilters() {
   const source = document.getElementById('filter-source').value;
 
   filteredCandidatures = allCandidatures.filter(c => {
+    // Hide archived unless specifically filtered
+    if (!status && c.status === 'archive') return false;
     if (search && !(`${c.nom} ${c.prenom} ${c.email}`).toLowerCase().includes(search)) return false;
     if (status && c.status !== status) return false;
     if (profil && c.profil !== profil) return false;
@@ -2530,14 +2641,20 @@ function renderTable() {
       ? `<span style="display:inline-block;padding:1px 7px;border-radius:4px;background:#e65100;color:white;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-left:4px;">Direct ${c.source.replace('direct_','')}</span>`
       : '';
 
-    return `<tr>
+    const isArchived = c.status === 'archive';
+    const archiveBtn = isArchived
+      ? `<button class="btn-restore" onclick="event.stopPropagation();restoreCandidature('${c.id}')" title="Restaurer">&#x21A9;</button>`
+      : `<button class="btn-archive" onclick="event.stopPropagation();confirmArchive('${c.id}')" title="Archiver">&#x1F4E6;</button>`;
+    const deleteBtn = `<button class="btn-delete" onclick="event.stopPropagation();confirmDelete('${c.id}')" title="Supprimer">&times;</button>`;
+
+    return `<tr${isArchived ? ' style="opacity:0.6"' : ''}>
       <td><div class="td-name">${esc(c.nom)} ${esc(c.prenom)}${directBadge}</div></td>
       <td>${filiere}</td>
       <td><div class="uni-badges">${uniBadges}</div></td>
       <td><span class="status-badge status-${c.status}">${statusLabels[c.status] || c.status}</span></td>
       <td class="td-date">${date}</td>
       <td>${trackSummary}</td>
-      <td><button class="btn-view" onclick="viewDetail('${c.id}')">Voir</button></td>
+      <td><div class="td-actions"><button class="btn-view" onclick="viewDetail('${c.id}')">Voir</button>${archiveBtn}${deleteBtn}</div></td>
     </tr>`;
   }).join('');
 
@@ -2604,6 +2721,78 @@ async function updateStatus(id, newStatus) {
 function updateStatusFromDetail(newStatus) {
   if (currentDetailId) {
     updateStatus(currentDetailId, newStatus);
+  }
+}
+
+// ══════════════════════════════════════════
+// ARCHIVE & DELETE
+// ══════════════════════════════════════════
+let confirmAction = null;
+
+function confirmArchive(id) {
+  const c = allCandidatures.find(x => x.id === id);
+  const name = c ? `${c.prenom} ${c.nom}` : 'ce dossier';
+  document.getElementById('confirm-modal-title').textContent = 'Archiver le dossier';
+  document.getElementById('confirm-modal-text').textContent = `Voulez-vous archiver le dossier de ${name} ? Il ne sera plus visible dans la liste principale mais pourra être restauré.`;
+  const btn = document.getElementById('confirm-modal-btn');
+  btn.textContent = 'Archiver';
+  btn.className = 'btn-confirm-archive';
+  confirmAction = () => archiveCandidature(id);
+  document.getElementById('confirm-overlay').classList.add('active');
+}
+
+function confirmDelete(id) {
+  const c = allCandidatures.find(x => x.id === id);
+  const name = c ? `${c.prenom} ${c.nom}` : 'ce dossier';
+  document.getElementById('confirm-modal-title').textContent = 'Supprimer définitivement';
+  document.getElementById('confirm-modal-text').textContent = `Voulez-vous supprimer définitivement le dossier de ${name} ? Cette action est irréversible.`;
+  const btn = document.getElementById('confirm-modal-btn');
+  btn.textContent = 'Supprimer';
+  btn.className = 'btn-confirm-delete';
+  confirmAction = () => deleteCandidature(id);
+  document.getElementById('confirm-overlay').classList.add('active');
+}
+
+function closeConfirmModal() {
+  document.getElementById('confirm-overlay').classList.remove('active');
+  confirmAction = null;
+}
+
+function executeConfirmAction() {
+  if (confirmAction) confirmAction();
+  closeConfirmModal();
+}
+
+async function archiveCandidature(id) {
+  const adminEmail = currentAdminUser?.email || 'admin';
+  const c = allCandidatures.find(x => x.id === id);
+  const existing = Array.isArray(c?.status_history) ? c.status_history : [];
+  await supabase.from('candidatures').update({
+    status: 'archive',
+    previous_status: c?.status || 'en_cours',
+    status_history: [...existing, { status: 'archive', at: new Date().toISOString(), by: adminEmail }]
+  }).eq('id', id);
+}
+
+async function restoreCandidature(id) {
+  const adminEmail = currentAdminUser?.email || 'admin';
+  const c = allCandidatures.find(x => x.id === id);
+  const previousStatus = c?.previous_status || 'en_cours';
+  const existing = Array.isArray(c?.status_history) ? c.status_history : [];
+  await supabase.from('candidatures').update({
+    status: previousStatus,
+    previous_status: null,
+    status_history: [...existing, { status: previousStatus, at: new Date().toISOString(), by: adminEmail, note: 'restauré' }]
+  }).eq('id', id);
+}
+
+async function deleteCandidature(id) {
+  await supabase.from('candidatures').delete().eq('id', id);
+  // If viewing detail, go back to list
+  if (currentDetailId === id) {
+    currentDetailId = null;
+    document.getElementById('detail-page').classList.remove('active');
+    document.getElementById('dashboard').classList.add('active');
   }
 }
 
@@ -2681,6 +2870,19 @@ function renderDetailPage(c) {
     ? ` <span style="padding:3px 10px;border-radius:6px;background:#e65100;color:white;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Direct ${c.source.replace('direct_','')}</span>`
     : '';
   document.getElementById('detail-page-badge').innerHTML = `<span class="status-badge status-${c.status}">${statusLabels[c.status] || c.status}</span>${_directBadgeHtml}`;
+
+  // Detail action buttons (archive/delete)
+  const actionBtns = document.getElementById('detail-action-btns');
+  if (window.adminRole === 'super_admin' || !window.adminRole) {
+    const isArchived = c.status === 'archive';
+    actionBtns.innerHTML = isArchived
+      ? `<button class="btn-restore" onclick="restoreCandidature('${c.id}')" style="padding:8px 16px;font-size:13px;">&#x21A9; Restaurer</button>
+         <button class="btn-delete" onclick="confirmDelete('${c.id}')" style="padding:8px 16px;font-size:13px;">Supprimer</button>`
+      : `<button class="btn-archive" onclick="confirmArchive('${c.id}')" style="padding:8px 16px;font-size:13px;">Archiver</button>
+         <button class="btn-delete" onclick="confirmDelete('${c.id}')" style="padding:8px 16px;font-size:13px;">Supprimer</button>`;
+  } else {
+    actionBtns.innerHTML = '';
+  }
 
   // Status select - only 2 global statuses (super_admin only)
   const statusSelect = document.getElementById('detail-page-status-select');
@@ -3642,6 +3844,7 @@ function resetAddForm() {
   document.getElementById('add-lang-ang').value = '';
   document.getElementById('add-lang-ita').value = '';
   document.getElementById('add-status').value = 'reponse_edumove';
+  document.getElementById('add-lead-source').value = 'edumove';
 
   // Uncheck filieres/destinations
   document.querySelectorAll('.cb-filiere, .cb-dest').forEach(cb => cb.checked = false);
@@ -3807,6 +4010,7 @@ async function submitManualDossier() {
     const moySpes = parseFloat(document.getElementById('add-moy-spes').value) || null;
     const nbSpes = document.getElementById('add-nb-spes').value ? parseInt(document.getElementById('add-nb-spes').value) : null;
     const status = document.getElementById('add-status').value;
+    const leadSource = document.getElementById('add-lead-source').value;
 
     // Validate required
     if (!nom || !prenom || !email || !password) {
@@ -3962,6 +4166,7 @@ async function submitManualDossier() {
       status: status,
       status_history: [{ status: status, at: new Date().toISOString(), by: adminEmail + ' (ajout manuel)' }],
       manual_override: true,
+      lead_source: leadSource,
       documents: {}
     };
 
@@ -4565,5 +4770,17 @@ async function createNewConversation() {
   selectFacConv(facKey, candidatureId);
 }
 </script>
+
+<!-- Confirm Modal -->
+<div class="confirm-overlay" id="confirm-overlay" onclick="if(event.target===this)closeConfirmModal()">
+  <div class="confirm-modal">
+    <h3 id="confirm-modal-title"></h3>
+    <p id="confirm-modal-text"></p>
+    <div class="confirm-modal-actions">
+      <button class="btn-cancel" onclick="closeConfirmModal()">Annuler</button>
+      <button id="confirm-modal-btn" onclick="executeConfirmAction()"></button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
