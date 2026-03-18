@@ -749,22 +749,50 @@ tr:last-child td { border-bottom: none; }
 }
 
 /* ── GUIDE PAGE ── */
-.guide-page { display: none; max-width: 1100px; margin: 0 auto; padding: 28px 32px 60px; }
+.guide-page { display: none; max-width: 1200px; margin: 0 auto; padding: 28px 32px 60px; }
 .guide-page.active { display: block; }
-.guide-header { margin-bottom: 32px; }
+.guide-header { margin-bottom: 28px; }
 .guide-header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.03em; color: var(--navy); margin: 0 0 6px; }
-.guide-header p { font-size: 14px; color: var(--text-muted); margin: 0; }
-.guide-section { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); margin-bottom: 20px; overflow: hidden; }
-.guide-section-header { padding: 18px 24px; border-left: 4px solid var(--navy); }
-.guide-section-header.link-accent { border-left-color: #3730a3; background: #fafafe; }
-.guide-section-header.ucjc-accent { border-left-color: #9d174d; background: #fefafb; }
-.guide-section-header.ue-accent { border-left-color: #1e40af; background: #fafbfe; }
-.guide-section-header h2 { font-size: 17px; font-weight: 700; margin: 0; color: var(--navy); }
-.guide-section-body { padding: 20px 24px; }
+.guide-header p { font-size: 14px; color: var(--text-muted); margin: 0 0 20px; }
+
+/* University tabs */
+.guide-uni-tabs { display: flex; gap: 0; background: var(--bg); border-radius: 12px; padding: 4px; border: 1px solid var(--border); margin-bottom: 24px; }
+.guide-uni-tab { flex: 1; padding: 12px 16px; border: none; background: transparent; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-radius: 9px; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.guide-uni-tab:hover { color: var(--text); background: white; }
+.guide-uni-tab.active { background: white; color: var(--navy); box-shadow: var(--shadow-sm); }
+.guide-uni-tab .tab-flag { font-size: 16px; }
+.guide-uni-tab .tab-label { white-space: nowrap; }
+
+/* Search bar */
+.guide-search { position: relative; margin-bottom: 20px; }
+.guide-search input { width: 100%; padding: 12px 16px 12px 42px; border: 1px solid var(--border); border-radius: 10px; font-size: 14px; font-family: inherit; background: white; color: var(--text); outline: none; transition: border-color .2s; }
+.guide-search input:focus { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+.guide-search::before { content: '🔍'; position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; }
+
+/* Filière pills */
+.guide-filiere-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.guide-pill { padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); background: white; font-family: inherit; font-size: 12px; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all .2s; }
+.guide-pill:hover { border-color: var(--violet); color: var(--violet); }
+.guide-pill.active { background: var(--violet); color: white; border-color: var(--violet); }
+
+/* Guide content sections */
+.guide-section { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); margin-bottom: 16px; overflow: hidden; }
+.guide-section-header { padding: 16px 24px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background .15s; user-select: none; }
+.guide-section-header:hover { background: var(--bg); }
+.guide-section-header.link-accent { border-left: 4px solid #3730a3; }
+.guide-section-header.ucjc-accent { border-left: 4px solid #9d174d; }
+.guide-section-header.ue-accent { border-left: 4px solid #1e40af; }
+.guide-section-header h2 { font-size: 16px; font-weight: 700; margin: 0; color: var(--navy); display: flex; align-items: center; gap: 10px; }
+.guide-section-header .chevron { font-size: 12px; color: var(--text-muted); transition: transform .2s; }
+.guide-section-header.open .chevron { transform: rotate(180deg); }
+.guide-section-body { padding: 0 24px 24px; display: none; }
+.guide-section-header.open + .guide-section-body { display: block; }
 .guide-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.guide-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
 .guide-info-card { background: var(--bg); border-radius: var(--radius); padding: 18px 20px; border: 1px solid var(--border-light); }
 .guide-info-card.full-width { grid-column: 1 / -1; }
-.guide-info-card h4 { font-size: 13px; font-weight: 700; color: var(--navy); margin: 0 0 10px; }
+.guide-info-card.highlight { border-color: var(--violet-light); background: var(--violet-bg); }
+.guide-info-card h4 { font-size: 13px; font-weight: 700; color: var(--navy); margin: 0 0 10px; display: flex; align-items: center; gap: 6px; }
 .guide-info-card p { font-size: 13px; margin: 4px 0; line-height: 1.6; }
 .guide-info-card ul, .guide-info-card ol { padding-left: 18px; margin: 0; }
 .guide-info-card li { font-size: 13px; margin-bottom: 6px; line-height: 1.5; }
@@ -775,6 +803,37 @@ tr:last-child td { border-bottom: none; }
 .guide-table tr.next td { background: #dbeafe; font-weight: 600; }
 .guide-table.small th { padding: 6px 10px; }
 .guide-table.small td { padding: 6px 10px; font-size: 11px; }
+
+/* Process timeline */
+.guide-process { display: flex; gap: 0; margin: 16px 0; position: relative; }
+.guide-process-step { flex: 1; text-align: center; position: relative; padding-top: 30px; }
+.guide-process-step::before { content: ''; position: absolute; top: 12px; left: 0; right: 0; height: 2px; background: var(--border); z-index: 0; }
+.guide-process-step:first-child::before { left: 50%; }
+.guide-process-step:last-child::before { right: 50%; }
+.guide-process-step .step-dot { width: 24px; height: 24px; border-radius: 50%; background: var(--violet); color: white; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto; position: absolute; top: 2px; left: 50%; transform: translateX(-50%); z-index: 1; }
+.guide-process-step .step-label { font-size: 11px; font-weight: 600; color: var(--navy); margin-bottom: 2px; }
+.guide-process-step .step-desc { font-size: 10px; color: var(--text-muted); line-height: 1.3; }
+
+/* Key-value info pairs */
+.guide-kv { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+.guide-kv-item { display: flex; flex-direction: column; }
+.guide-kv-item .kv-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600; }
+.guide-kv-item .kv-value { font-size: 13px; font-weight: 600; color: var(--navy); }
+
+/* Quick stat badges */
+.guide-stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.guide-stat { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; flex: 1; min-width: 140px; }
+.guide-stat .stat-value { font-size: 20px; font-weight: 800; color: var(--navy); }
+.guide-stat .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* Filière detail card */
+.guide-filiere-detail { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px; }
+.guide-filiere-detail h3 { font-size: 16px; font-weight: 700; color: var(--navy); margin: 0 0 16px; display: flex; align-items: center; gap: 8px; }
+.guide-filiere-detail .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+.guide-filiere-detail .badge-green { background: var(--success-bg); color: var(--success); }
+.guide-filiere-detail .badge-red { background: var(--error-bg); color: var(--error); }
+.guide-filiere-detail .badge-orange { background: var(--warning-bg); color: var(--warning); }
+.guide-filiere-detail .badge-violet { background: var(--violet-bg); color: var(--violet); }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -934,188 +993,814 @@ tr:last-child td { border-bottom: none; }
   <div class="guide-content">
     <div class="guide-header">
       <h1>📖 Guide de référence EDUMOVE</h1>
-      <p>Toutes les informations sur nos universités partenaires, tarifs, langues et règles d'admission.</p>
-    </div>
+      <p>Toutes les informations sur nos universités partenaires, tarifs, langues, tests, documents et règles d'admission.</p>
 
-    <!-- LINK Campus University -->
-    <div class="guide-section">
-      <div class="guide-section-header link-accent">
-        <h2>🇮🇹 LINK Campus University — Rome</h2>
+      <!-- Search -->
+      <div class="guide-search">
+        <input type="text" id="guide-search-input" placeholder="Rechercher une info (ex: kiné madrid, test LINK, tarif dentaire...)" oninput="filterGuide(this.value)"/>
       </div>
-      <div class="guide-section-body">
-        <div class="guide-info-card full-width" style="margin-bottom:14px;">
-          <h4>📋 Filières, tarifs et conditions</h4>
-          <table class="guide-table">
-            <thead><tr><th>Filière</th><th>Durée</th><th>Tarif/an</th><th>Langue</th><th>Test</th><th>Moyenne min.</th></tr></thead>
-            <tbody>
-              <tr><td><strong>Médecine</strong></td><td>6 ans</td><td><strong>19 800€</strong></td><td>Italien</td><td>Oui — 15/04/2026 Paris (200€)</td><td>Aucune exigée</td></tr>
-              <tr><td><strong>Dentaire</strong></td><td>6 ans</td><td><strong>19 800€</strong></td><td>Italien</td><td>Oui — 15/04/2026 Paris (200€)</td><td>Aucune exigée</td></tr>
-              <tr><td><strong>Kinésithérapie</strong></td><td>3 ans</td><td><strong>11 900€</strong></td><td>Italien</td><td>Oui — 15/04/2026 Paris (200€)</td><td>Aucune exigée</td></tr>
-              <tr><td><strong>Pharmacie</strong></td><td>5 ans</td><td><strong>7 900€</strong></td><td>Italien</td><td>❌ Non — admission sur dossier</td><td>Aucune exigée</td></tr>
-            </tbody>
-          </table>
-          <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">Aucun prérequis linguistique en italien. Cours d'italien intensif inclus la 1ère année. Toutes les filières sont ouvertes à tous les profils.</p>
-        </div>
-        <div class="guide-grid">
-          <div class="guide-info-card">
-            <h4>🧪 Test d'admission — 5 matières</h4>
-            <ul>
-              <li><strong>Biologie</strong> — chimie du vivant, cellule, génétique, anatomie</li>
-              <li><strong>Chimie</strong> — atome, liaisons, réactions, acides/bases, organique</li>
-              <li><strong>Mathématiques</strong> — algèbre, fonctions, géométrie, probabilités</li>
-              <li><strong>Physique</strong> — cinématique, dynamique, fluides, thermo, électricité</li>
-              <li><strong>Culture générale</strong> — compréhension de texte, raisonnement logique</li>
-            </ul>
-            <p style="font-size:11px;color:var(--text-muted);">Toutes les questions sont traduites en français. QCM uniquement.</p>
-          </div>
-          <div class="guide-info-card">
-            <h4>📎 Documents requis</h4>
-            <ul>
-              <li>📋 Formulaire de pré-candidature LINK (à télécharger + remplir)</li>
-              <li>🪪 Carte d'identité / Passeport</li>
-              <li>🎓 Relevé de notes du baccalauréat <span style="color:var(--text-muted);">(optionnel)</span></li>
-            </ul>
-          </div>
-        </div>
+
+      <!-- University tabs -->
+      <div class="guide-uni-tabs">
+        <button class="guide-uni-tab active" onclick="switchGuideTab('all',this)"><span class="tab-flag">📋</span><span class="tab-label">Vue globale</span></button>
+        <button class="guide-uni-tab" onclick="switchGuideTab('link',this)"><span class="tab-flag">🇮🇹</span><span class="tab-label">LINK Campus</span></button>
+        <button class="guide-uni-tab" onclick="switchGuideTab('ucjc',this)"><span class="tab-flag">🇪🇸</span><span class="tab-label">UCJC</span></button>
+        <button class="guide-uni-tab" onclick="switchGuideTab('ue',this)"><span class="tab-flag">🇪🇸</span><span class="tab-label">Universidad Europea</span></button>
       </div>
     </div>
 
-    <!-- UCJC -->
-    <div class="guide-section">
-      <div class="guide-section-header ucjc-accent">
-        <h2>🇪🇸 UCJC — Madrid</h2>
+    <!-- ═══════════════════════════════════════════
+         VUE GLOBALE — Comparatif rapide
+    ═══════════════════════════════════════════ -->
+    <div id="guide-tab-all">
+      <!-- Stats rapides -->
+      <div class="guide-stats">
+        <div class="guide-stat"><div class="stat-value">3</div><div class="stat-label">Universités partenaires</div></div>
+        <div class="guide-stat"><div class="stat-value">6</div><div class="stat-label">Filières disponibles</div></div>
+        <div class="guide-stat"><div class="stat-value">2</div><div class="stat-label">Pays (Italie, Espagne)</div></div>
+        <div class="guide-stat"><div class="stat-value">5</div><div class="stat-label">Campus en Espagne</div></div>
       </div>
-      <div class="guide-section-body">
-        <div class="guide-info-card full-width" style="margin-bottom:14px;">
-          <h4>📋 Filières, tarifs et conditions</h4>
+
+      <!-- Comparatif tarifs -->
+      <div class="guide-section" data-guide-search>
+        <div class="guide-section-header open" onclick="toggleGuideSection(this)">
+          <h2>💰 Comparatif des tarifs par filière</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body" style="display:block;">
           <table class="guide-table">
-            <thead><tr><th>Filière</th><th>Durée</th><th>Tarif/an</th><th>Langue</th><th>Admission</th><th>Moyenne min.</th></tr></thead>
+            <thead><tr><th>Filière</th><th>LINK (Rome)</th><th>UCJC (Madrid)</th><th>UE — le moins cher</th><th>UE — le plus cher</th></tr></thead>
             <tbody>
-              <tr style="opacity:0.4;"><td><s><strong>Médecine</strong></s></td><td>6 ans</td><td><s>19 920€</s></td><td>Espagnol</td><td colspan="2" style="color:var(--error);font-weight:600;">🔴 COMPLET — Plus de places disponibles</td></tr>
-              <tr><td><strong>Dentaire</strong></td><td>5 ans</td><td><strong>18 420€</strong></td><td>Espagnol</td><td>Entretien uniquement</td><td>Aucune exigée</td></tr>
-              <tr><td><strong>Pharmacie</strong></td><td>5 ans</td><td><strong>10 140€</strong></td><td>Espagnol</td><td>Entretien uniquement</td><td>Aucune exigée</td></tr>
-              <tr><td><strong>Kinésithérapie</strong></td><td>4 ans</td><td><strong>9 420€</strong></td><td>Espagnol</td><td>Entretien uniquement</td><td>Aucune exigée</td></tr>
+              <tr><td><strong>Médecine</strong></td><td>19 800€/an</td><td><s style="opacity:.4">19 920€</s> <small style="color:var(--error);">Complet</small></td><td>21 480€/an</td><td>21 480€/an</td></tr>
+              <tr><td><strong>Dentaire</strong></td><td>19 800€/an</td><td>18 420€/an</td><td>19 200€/an <small>(Malaga)</small></td><td>20 821€/an <small>(Valence/Alicante)</small></td></tr>
+              <tr><td><strong>Kinésithérapie</strong></td><td>11 900€/an</td><td>9 420€/an</td><td>10 020€/an <small>(Madrid/Malaga/Canaries)</small></td><td>10 080€/an <small>(Valence/Alicante)</small></td></tr>
+              <tr><td><strong>Pharmacie</strong></td><td>7 900€/an</td><td>10 140€/an</td><td colspan="2">12 120€/an <small>(Madrid seul)</small></td></tr>
+              <tr><td><strong>Vétérinaire</strong></td><td style="color:var(--text-muted);">—</td><td style="color:var(--text-muted);">—</td><td colspan="2">19 500€/an <small>(Madrid seul)</small></td></tr>
+              <tr><td><strong>Prépa Dentaire</strong></td><td style="color:var(--text-muted);">—</td><td style="color:var(--text-muted);">—</td><td colspan="2">17 000€/an <small>(Alicante seul)</small></td></tr>
             </tbody>
           </table>
-          <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">✅ Aucun test écrit — Admission sur entretien uniquement. Résultats sous 1 semaine. 1 semaine pour payer. Validation du diplôme bac obligatoire.</p>
         </div>
-        <div class="guide-grid">
-          <div class="guide-info-card">
-            <h4>🗣️ Lettre de motivation</h4>
-            <ul>
-              <li>Médecine / Dentaire → <strong>en espagnol</strong></li>
-              <li>Pharmacie / Kinésithérapie → <strong>en français</strong></li>
-            </ul>
-            <p style="font-size:11px;color:var(--text-muted);margin-top:6px;">Attestation de niveau espagnol appréciée (même certificat non-officiel e-learning).</p>
-          </div>
-          <div class="guide-info-card">
-            <h4>📎 Documents requis</h4>
-            <ul>
-              <li>📝 Lettre de motivation (voir langue ci-contre)</li>
-              <li>🪪 Carte d'identité / Passeport</li>
-              <li>📋 Formulaire d'admission UCJC (à télécharger + remplir)</li>
-              <li>🌐 Attestation espagnol</li>
-            </ul>
-          </div>
+      </div>
+
+      <!-- Comparatif admission -->
+      <div class="guide-section" data-guide-search>
+        <div class="guide-section-header open" onclick="toggleGuideSection(this)">
+          <h2>🎯 Comparatif des modes d'admission</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body" style="display:block;">
+          <table class="guide-table">
+            <thead><tr><th>Filière</th><th>LINK</th><th>UCJC</th><th>UE</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Médecine</strong></td><td>Test écrit 5 matières (200€)</td><td><s style="opacity:.4">Complet</s></td><td>Test PE — 4 épreuves · Moy. 16-17/20 · 2 spé sci obligatoires</td></tr>
+              <tr><td><strong>Dentaire</strong></td><td>Test écrit 5 matières (200€)</td><td>Entretien seul</td><td>Test PE — 4 épreuves · Moy. 15-16/20</td></tr>
+              <tr><td><strong>Kinésithérapie</strong></td><td>Test écrit 5 matières (200€)</td><td>Entretien seul</td><td>Hors PE (sauf FR Madrid = test) · Moy. 13-14/20</td></tr>
+              <tr><td><strong>Pharmacie</strong></td><td>Admission sur dossier (pas de test)</td><td>Entretien seul</td><td>Hors PE — admission sur dossier</td></tr>
+              <tr><td><strong>Vétérinaire</strong></td><td>—</td><td>—</td><td>Test PE — 4 épreuves · Moy. 14-15/20</td></tr>
+              <tr><td><strong>Prépa Dentaire</strong></td><td>—</td><td>—</td><td>Hors PE — B2 anglais requis</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Comparatif langues -->
+      <div class="guide-section" data-guide-search>
+        <div class="guide-section-header" onclick="toggleGuideSection(this)">
+          <h2>🌐 Langues d'enseignement par université</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body">
+          <table class="guide-table">
+            <thead><tr><th>Université</th><th>Langue(s)</th><th>Prérequis linguistique</th></tr></thead>
+            <tbody>
+              <tr><td><strong>LINK</strong></td><td>Italien</td><td>Aucun — cours d'italien intensif inclus la 1ère année</td></tr>
+              <tr><td><strong>UCJC</strong></td><td>Espagnol</td><td>Attestation espagnol appréciée (certificat e-learning accepté)</td></tr>
+              <tr><td><strong>UE</strong></td><td>Espagnol, Anglais, Français (Kiné Madrid)</td><td>Pas de prérequis sauf Prépa Dentaire (B2 anglais)</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
 
-    <!-- Universidad Europea -->
-    <div class="guide-section">
-      <div class="guide-section-header ue-accent">
-        <h2>🇪🇸 Universidad Europea — Espagne</h2>
+    <!-- ═══════════════════════════════════════════
+         LINK CAMPUS UNIVERSITY
+    ═══════════════════════════════════════════ -->
+    <div id="guide-tab-link" style="display:none;">
+      <!-- Filière pills -->
+      <div class="guide-filiere-pills">
+        <button class="guide-pill active" onclick="filterLinkFiliere('all',this)">Toutes les filières</button>
+        <button class="guide-pill" onclick="filterLinkFiliere('medecine',this)">Médecine</button>
+        <button class="guide-pill" onclick="filterLinkFiliere('dentaire',this)">Dentaire</button>
+        <button class="guide-pill" onclick="filterLinkFiliere('kine',this)">Kinésithérapie</button>
+        <button class="guide-pill" onclick="filterLinkFiliere('pharmacie',this)">Pharmacie</button>
       </div>
-      <div class="guide-section-body">
-        <div class="guide-info-card full-width" style="margin-bottom:14px;">
-          <h4>📋 Tarifs par filière et campus</h4>
-          <table class="guide-table">
-            <thead><tr><th>Filière</th><th>Campus</th><th>Tarif/an</th><th>Durée</th><th>Langues</th><th>Test</th><th>Moyenne min.</th></tr></thead>
-            <tbody>
-              <tr><td rowspan="2"><strong>Médecine</strong> <small style="color:#6366f1;">PE</small></td><td>Madrid</td><td><strong>21 480€</strong></td><td>6 ans</td><td>Espagnol</td><td>Oui — 4 épreuves</td><td><strong>16-17/20</strong></td></tr>
-              <tr><td>Canaries</td><td><strong>21 480€</strong></td><td>6 ans</td><td>Espagnol</td><td>Oui — 4 épreuves</td><td><strong>16-17/20</strong></td></tr>
-              <tr style="border-top:2px solid var(--border);"><td rowspan="5"><strong>Dentaire</strong> <small style="color:#6366f1;">PE</small></td><td>Madrid</td><td><strong>20 820€</strong></td><td>5 ans</td><td>Espagnol, Anglais</td><td>Oui — 4 épreuves</td><td><strong>15-16/20</strong></td></tr>
-              <tr><td>Malaga</td><td><strong>19 200€</strong></td><td>5 ans</td><td>Espagnol, Anglais</td><td>Oui — 4 épreuves</td><td><strong>15-16/20</strong></td></tr>
-              <tr><td>Valence</td><td><strong>20 821€</strong></td><td>5 ans</td><td>Espagnol, Anglais</td><td>Oui — 4 épreuves</td><td><strong>15-16/20</strong></td></tr>
-              <tr><td>Alicante</td><td><strong>20 821€</strong></td><td>5 ans</td><td>Espagnol, Anglais</td><td>Oui — 4 épreuves</td><td><strong>15-16/20</strong></td></tr>
-              <tr><td>Canaries</td><td><strong>20 820€</strong></td><td>5 ans</td><td>Espagnol seul</td><td>Oui — 4 épreuves</td><td><strong>15-16/20</strong></td></tr>
-              <tr style="border-top:2px solid var(--border);"><td rowspan="5"><strong>Kinésithérapie</strong> <small style="color:#94a3b8;">Hors PE</small></td><td>Madrid</td><td><strong>10 020€</strong></td><td>4 ans</td><td>FR, ES, EN</td><td>Non (sauf FR → 4 épreuves)</td><td><strong>13-14/20</strong></td></tr>
-              <tr><td>Malaga</td><td><strong>10 020€</strong></td><td>4 ans</td><td>Espagnol</td><td>❌ Non</td><td><strong>13-14/20</strong></td></tr>
-              <tr><td>Valence</td><td><strong>10 080€</strong></td><td>4 ans</td><td>Espagnol</td><td>❌ Non</td><td><strong>13-14/20</strong></td></tr>
-              <tr><td>Alicante</td><td><strong>10 080€</strong></td><td>4 ans</td><td>Espagnol</td><td>❌ Non</td><td><strong>13-14/20</strong></td></tr>
-              <tr><td>Canaries</td><td><strong>10 020€</strong></td><td>4 ans</td><td>Espagnol</td><td>❌ Non</td><td><strong>13-14/20</strong></td></tr>
-              <tr style="border-top:2px solid var(--border);"><td><strong>Pharmacie</strong> <small style="color:#94a3b8;">Hors PE</small></td><td>Madrid</td><td><strong>12 120€</strong></td><td>5 ans</td><td>Espagnol</td><td>❌ Non</td><td>/</td></tr>
-              <tr style="border-top:2px solid var(--border);"><td><strong>Vétérinaire</strong> <small style="color:#94a3b8;">Hors PE</small></td><td>Madrid</td><td><strong>19 500€</strong></td><td>5 ans</td><td>Espagnol</td><td>Oui — 4 épreuves</td><td><strong>14-15/20</strong></td></tr>
-              <tr style="border-top:2px solid var(--border);background:#eff6ff;"><td><strong>Prépa Dentaire</strong> <small style="color:#94a3b8;">Hors PE</small></td><td>Alicante</td><td><strong>17 000€</strong></td><td>1 an + 5 ans</td><td>Anglais (B2 requis)</td><td>❌ Non</td><td>/</td></tr>
-            </tbody>
-          </table>
-          <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">* <strong>PE</strong> = Prueba de Evaluación (test d'admission) · <strong>Hors PE</strong> = sans test d'entrée (entretien ou dossier seul).</p>
-          <p style="font-size:11px;color:var(--text-muted);">* Médecine requiert 2 spécialités scientifiques + moyenne ≥ 12/20 en spé. scientifiques.</p>
-          <p style="font-size:11px;color:var(--text-muted);">* Kiné FR Madrid : 1ère année en français, à partir de la 2ème année les cours passent en espagnol.</p>
-          <p style="font-size:11px;color:var(--text-muted);">* Prépa Dentaire : après l'année préparatoire (17 000€), intégration en Dentaire Alicante à 20 821€/an pendant 5 ans.</p>
-          <p style="font-size:11px;color:var(--text-muted);">* Les moyennes indiquées sont des fourchettes indicatives basées sur les profils retenus.</p>
-        </div>
 
-        <div class="guide-grid">
-          <div class="guide-info-card">
-            <h4>🧪 Tests d'admission (4 épreuves)</h4>
-            <ol>
-              <li><strong>Test de langue</strong> — adapté à la langue du cursus (espagnol, anglais ou français)</li>
-              <li><strong>Test de talent</strong> — aptitudes et raisonnement</li>
-              <li><strong>Test de motivation</strong> — entretien + questionnaire</li>
-              <li><strong>Épreuve spécifique</strong> — selon la filière</li>
-            </ol>
-            <p style="font-size:12px;color:var(--text-muted);">Résultats sous 48h. En cas d'acceptation : 2 jours pour verser l'acompte de 2 500€.</p>
-          </div>
-          <div class="guide-info-card">
-            <h4>📎 Documents requis</h4>
-            <ul>
-              <li>📄 3 bulletins de Première fusionnés en 1 PDF</li>
-              <li>🪪 Carte d'identité / Passeport</li>
-              <li>📋 Rapport technique académique (60€ via hostudents.com)</li>
-            </ul>
-            <p style="font-size:11px;color:var(--text-muted);margin-top:6px;">Le rapport technique peut prendre quelques jours. Les étudiants peuvent cocher "démarche lancée" en attendant.</p>
-          </div>
+      <!-- Vue d'ensemble -->
+      <div class="guide-section" data-guide-search data-link-fil="all">
+        <div class="guide-section-header link-accent open" onclick="toggleGuideSection(this)">
+          <h2>🇮🇹 LINK Campus University — Vue d'ensemble</h2>
+          <span class="chevron">▼</span>
         </div>
+        <div class="guide-section-body" style="display:block;">
+          <div class="guide-stats">
+            <div class="guide-stat"><div class="stat-value">Rome</div><div class="stat-label">Campus</div></div>
+            <div class="guide-stat"><div class="stat-value">Italien</div><div class="stat-label">Langue d'enseignement</div></div>
+            <div class="guide-stat"><div class="stat-value">4</div><div class="stat-label">Filières ouvertes</div></div>
+            <div class="guide-stat"><div class="stat-value">200€</div><div class="stat-label">Frais de test</div></div>
+          </div>
 
-        <!-- Deadline tables -->
-        <div class="guide-grid" style="margin-top:16px;">
-          <div class="guide-info-card">
-            <h4>📅 Deadlines — Médecine</h4>
-            <table class="guide-table small">
-              <thead><tr><th>Session</th><th>Inscription</th><th>Tests</th><th>Résultats</th></tr></thead>
+          <div class="guide-info-card full-width" style="margin-bottom:14px;">
+            <h4>📋 Tarifs et conditions</h4>
+            <table class="guide-table">
+              <thead><tr><th>Filière</th><th>Durée</th><th>Tarif/an</th><th>Coût total</th><th>Langue</th><th>Test</th><th>Moyenne min.</th></tr></thead>
               <tbody>
-                <tr class="past"><td>1ère</td><td>09/12/2025</td><td>15/12/2025</td><td>22/12/2025</td></tr>
-                <tr class="past"><td>2ème</td><td>16/02/2026</td><td>19/02/2026</td><td>26/02/2026</td></tr>
-                <tr class="next"><td>3ème</td><td>17/04/2026</td><td>22/04/2026</td><td>29/04/2026</td></tr>
-                <tr><td>4ème</td><td>18/05/2026</td><td>21/05/2026</td><td>28/05/2026</td></tr>
-                <tr><td>5ème</td><td>06/07/2026</td><td>08/07/2026</td><td>15/07/2026</td></tr>
+                <tr><td><strong>Médecine</strong></td><td>6 ans</td><td><strong>19 800€</strong></td><td>118 800€</td><td>Italien</td><td>Oui — 5 matières</td><td>Aucune</td></tr>
+                <tr><td><strong>Dentaire</strong></td><td>6 ans</td><td><strong>19 800€</strong></td><td>118 800€</td><td>Italien</td><td>Oui — 5 matières</td><td>Aucune</td></tr>
+                <tr><td><strong>Kinésithérapie</strong></td><td>3 ans</td><td><strong>11 900€</strong></td><td>35 700€</td><td>Italien</td><td>Oui — 5 matières</td><td>Aucune</td></tr>
+                <tr><td><strong>Pharmacie</strong></td><td>5 ans</td><td><strong>7 900€</strong></td><td>39 500€</td><td>Italien</td><td>❌ Non — sur dossier</td><td>Aucune</td></tr>
+              </tbody>
+            </table>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">Aucun prérequis linguistique. Cours d'italien intensif inclus la 1ère année. Toutes les filières ouvertes à tous les profils bac (aucune spécialité requise).</p>
+          </div>
+
+          <!-- Processus d'admission -->
+          <div class="guide-info-card full-width" style="margin-bottom:14px;">
+            <h4>🔄 Processus d'admission LINK</h4>
+            <div class="guide-process">
+              <div class="guide-process-step"><div class="step-dot">1</div><div class="step-label">Candidature</div><div class="step-desc">Formulaire pré-candidature + pièce d'identité</div></div>
+              <div class="guide-process-step"><div class="step-dot">2</div><div class="step-label">Paiement test</div><div class="step-desc">200€ frais d'inscription au test</div></div>
+              <div class="guide-process-step"><div class="step-dot">3</div><div class="step-label">Test à Paris</div><div class="step-desc">15/04/2026 — QCM 5 matières</div></div>
+              <div class="guide-process-step"><div class="step-dot">4</div><div class="step-label">Résultats</div><div class="step-desc">Sous quelques jours</div></div>
+              <div class="guide-process-step"><div class="step-dot">5</div><div class="step-label">Inscription</div><div class="step-desc">Validation + paiement 1er acompte</div></div>
+            </div>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:16px;">⚠️ <strong>Pharmacie</strong> : pas de test — admission directe sur dossier (étapes 2 et 3 sautées).</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Test d'admission LINK -->
+      <div class="guide-section" data-guide-search data-link-fil="all medecine dentaire kine">
+        <div class="guide-section-header link-accent open" onclick="toggleGuideSection(this)">
+          <h2>🧪 Test d'admission LINK — Détails complets</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body" style="display:block;">
+          <div class="guide-grid">
+            <div class="guide-info-card">
+              <h4>📍 Informations pratiques</h4>
+              <div class="guide-kv">
+                <div class="guide-kv-item"><span class="kv-label">Date</span><span class="kv-value">15 avril 2026</span></div>
+                <div class="guide-kv-item"><span class="kv-label">Lieu</span><span class="kv-value">Paris (adresse communiquée par email)</span></div>
+                <div class="guide-kv-item"><span class="kv-label">Frais</span><span class="kv-value">200€ (non remboursables)</span></div>
+                <div class="guide-kv-item"><span class="kv-label">Format</span><span class="kv-value">QCM — toutes questions en français</span></div>
+                <div class="guide-kv-item"><span class="kv-label">Durée</span><span class="kv-value">~2h30 (5 épreuves)</span></div>
+                <div class="guide-kv-item"><span class="kv-label">Résultats</span><span class="kv-value">Sous quelques jours par email</span></div>
+              </div>
+            </div>
+            <div class="guide-info-card highlight">
+              <h4>📝 Format du QCM</h4>
+              <p>Le test est composé de <strong>80 questions</strong> réparties en 5 matières. Chaque bonne réponse vaut <strong>1,5 point</strong>, chaque mauvaise réponse vaut <strong>-0,4 point</strong>. Les questions non répondues valent 0 point.</p>
+              <p style="margin-top:8px;"><strong>Score minimum pour réussir :</strong> variable selon la filière et le nombre de candidats. Pas de seuil fixe communiqué à l'avance.</p>
+            </div>
+          </div>
+
+          <div class="guide-info-card full-width" style="margin-top:14px;">
+            <h4>📚 Programme détaillé des 5 matières</h4>
+            <table class="guide-table">
+              <thead><tr><th>Matière</th><th>Nb questions</th><th>Thèmes abordés</th><th>Exemples de sujets</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Biologie</strong></td><td>~18 questions</td><td>Chimie du vivant, cellule, génétique, anatomie, physiologie</td><td>Structure de l'ADN, mitose/méiose, système nerveux, circulation sanguine, enzymes</td></tr>
+                <tr><td><strong>Chimie</strong></td><td>~12 questions</td><td>Atome, liaisons chimiques, réactions, acides/bases, chimie organique</td><td>Tableau périodique, pH, oxydo-réduction, nomenclature organique, stoechiométrie</td></tr>
+                <tr><td><strong>Mathématiques</strong></td><td>~20 questions</td><td>Algèbre, fonctions, géométrie, probabilités, statistiques</td><td>Équations 2nd degré, dérivées, intégrales simples, probabilités conditionnelles</td></tr>
+                <tr><td><strong>Physique</strong></td><td>~18 questions</td><td>Cinématique, dynamique, fluides, thermodynamique, électricité</td><td>Lois de Newton, pression hydrostatique, loi d'Ohm, optique géométrique</td></tr>
+                <tr><td><strong>Culture générale</strong></td><td>~12 questions</td><td>Compréhension de texte, raisonnement logique, actualité</td><td>Analyse de graphiques, syllogismes, compréhension de passages scientifiques</td></tr>
+              </tbody>
+            </table>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">💡 <strong>Conseil à donner aux étudiants :</strong> réviser le programme de Terminale en sciences. Les questions sont de niveau bac, pas de niveau universitaire. La culture générale est souvent le facteur différenciant.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents LINK -->
+      <div class="guide-section" data-guide-search data-link-fil="all medecine dentaire kine pharmacie">
+        <div class="guide-section-header link-accent open" onclick="toggleGuideSection(this)">
+          <h2>📎 Documents requis — LINK</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body" style="display:block;">
+          <div class="guide-grid">
+            <div class="guide-info-card">
+              <h4>📄 Documents à fournir à la candidature</h4>
+              <ol>
+                <li><strong>Formulaire de pré-candidature LINK</strong><br><span style="font-size:11px;color:var(--text-muted);">PDF à télécharger, imprimer, remplir à la main et scanner. Disponible sur le portail LINK ou envoyé par Edumove.</span></li>
+                <li><strong>Pièce d'identité</strong> (carte d'identité ou passeport)<br><span style="font-size:11px;color:var(--text-muted);">Scan recto-verso en couleur, lisible.</span></li>
+                <li><strong>Relevé de notes du baccalauréat</strong> <span class="badge badge-violet" style="font-size:10px;">Optionnel</span><br><span style="font-size:11px;color:var(--text-muted);">Pas obligatoire pour s'inscrire au test, mais peut être demandé après acceptation.</span></li>
+              </ol>
+            </div>
+            <div class="guide-info-card">
+              <h4>📄 Documents post-acceptation</h4>
+              <ol>
+                <li><strong>Diplôme du baccalauréat</strong> (ou attestation de réussite)<br><span style="font-size:11px;color:var(--text-muted);">Obligatoire pour finaliser l'inscription.</span></li>
+                <li><strong>Photo d'identité</strong> format numérique</li>
+                <li><strong>Certificat médical</strong><br><span style="font-size:11px;color:var(--text-muted);">Aptitude aux études de santé.</span></li>
+                <li><strong>Déclaration de valeur</strong> (Dichiarazione di Valore)<br><span style="font-size:11px;color:var(--text-muted);">Document délivré par le consulat italien en France. Edumove assiste les étudiants dans cette démarche. Délai : 2-4 semaines.</span></li>
+              </ol>
+            </div>
+          </div>
+          <div class="guide-info-card full-width" style="margin-top:14px;">
+            <h4>💡 Points importants pour l'équipe</h4>
+            <ul>
+              <li>Le formulaire de pré-candidature doit être rempli <strong>à la main</strong> (pas tapé à l'ordinateur)</li>
+              <li>Les étudiants en Terminale peuvent candidater avant d'avoir le bac — le diplôme sera demandé après</li>
+              <li>La Dichiarazione di Valore est le document le plus long à obtenir — conseiller aux étudiants de lancer la démarche dès l'acceptation</li>
+              <li><strong>Pharmacie</strong> : mêmes documents sauf qu'il n'y a pas de test — l'admission se fait uniquement sur dossier</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filière Médecine LINK -->
+      <div class="guide-section" data-guide-search data-link-fil="medecine">
+        <div class="guide-section-header link-accent" onclick="toggleGuideSection(this)">
+          <h2>🩺 Médecine — LINK</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body">
+          <div class="guide-kv" style="margin-bottom:16px;">
+            <div class="guide-kv-item"><span class="kv-label">Durée</span><span class="kv-value">6 ans</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Tarif/an</span><span class="kv-value">19 800€</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Coût total</span><span class="kv-value">118 800€</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Langue</span><span class="kv-value">Italien</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Test</span><span class="kv-value">Oui — 5 matières (200€)</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Prérequis bac</span><span class="kv-value">Aucune spécialité requise</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Moyenne min.</span><span class="kv-value">Aucune exigée</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Diplôme</span><span class="kv-value">Laurea in Medicina e Chirurgia (reconnu UE)</span></div>
+          </div>
+          <p style="font-size:12px;color:var(--text-muted);">Le cursus de médecine à LINK dure 6 ans. Les cours sont en italien avec un programme d'italien intensif la 1ère année. Le diplôme est reconnu dans toute l'Union Européenne. L'étudiant peut exercer en France après validation du diplôme.</p>
+        </div>
+      </div>
+
+      <!-- Filière Dentaire LINK -->
+      <div class="guide-section" data-guide-search data-link-fil="dentaire">
+        <div class="guide-section-header link-accent" onclick="toggleGuideSection(this)">
+          <h2>🦷 Dentaire — LINK</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body">
+          <div class="guide-kv" style="margin-bottom:16px;">
+            <div class="guide-kv-item"><span class="kv-label">Durée</span><span class="kv-value">6 ans</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Tarif/an</span><span class="kv-value">19 800€</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Coût total</span><span class="kv-value">118 800€</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Langue</span><span class="kv-value">Italien</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Test</span><span class="kv-value">Oui — 5 matières (200€)</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Prérequis bac</span><span class="kv-value">Aucune spécialité requise</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Moyenne min.</span><span class="kv-value">Aucune exigée</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Diplôme</span><span class="kv-value">Laurea in Odontoiatria (reconnu UE)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filière Kiné LINK -->
+      <div class="guide-section" data-guide-search data-link-fil="kine">
+        <div class="guide-section-header link-accent" onclick="toggleGuideSection(this)">
+          <h2>💪 Kinésithérapie — LINK</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body">
+          <div class="guide-kv" style="margin-bottom:16px;">
+            <div class="guide-kv-item"><span class="kv-label">Durée</span><span class="kv-value">3 ans</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Tarif/an</span><span class="kv-value">11 900€</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Coût total</span><span class="kv-value">35 700€</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Langue</span><span class="kv-value">Italien</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Test</span><span class="kv-value">Oui — 5 matières (200€)</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Prérequis bac</span><span class="kv-value">Aucune spécialité requise</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Diplôme</span><span class="kv-value">Laurea in Fisioterapia (reconnu UE)</span></div>
+          </div>
+          <p style="font-size:12px;color:var(--text-muted);">3 ans seulement contre 5 en France. Cursus pratique dès la 1ère année avec stages cliniques. Le diplôme est reconnu en France.</p>
+        </div>
+      </div>
+
+      <!-- Filière Pharmacie LINK -->
+      <div class="guide-section" data-guide-search data-link-fil="pharmacie">
+        <div class="guide-section-header link-accent" onclick="toggleGuideSection(this)">
+          <h2>💊 Pharmacie — LINK</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body">
+          <div class="guide-kv" style="margin-bottom:16px;">
+            <div class="guide-kv-item"><span class="kv-label">Durée</span><span class="kv-value">5 ans</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Tarif/an</span><span class="kv-value">7 900€</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Coût total</span><span class="kv-value">39 500€</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Langue</span><span class="kv-value">Italien</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Test</span><span class="kv-value">❌ Aucun — admission sur dossier</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Prérequis bac</span><span class="kv-value">Aucune spécialité requise</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Diplôme</span><span class="kv-value">Laurea in Farmacia (reconnu UE)</span></div>
+          </div>
+          <div class="guide-info-card highlight" style="margin-top:8px;">
+            <h4>⚡ Point clé — Pas de test</h4>
+            <p>Pharmacie est la <strong>seule filière LINK sans test d'admission</strong>. L'admission se fait uniquement sur dossier. C'est un argument de vente important pour les étudiants qui ne souhaitent pas passer de test. Tarif le plus bas de toutes les filières LINK (7 900€/an).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         UCJC
+    ═══════════════════════════════════════════ -->
+    <div id="guide-tab-ucjc" style="display:none;">
+      <div class="guide-filiere-pills">
+        <button class="guide-pill active" onclick="filterUcjcFiliere('all',this)">Toutes les filières</button>
+        <button class="guide-pill" onclick="filterUcjcFiliere('dentaire',this)">Dentaire</button>
+        <button class="guide-pill" onclick="filterUcjcFiliere('pharmacie',this)">Pharmacie</button>
+        <button class="guide-pill" onclick="filterUcjcFiliere('kine',this)">Kinésithérapie</button>
+      </div>
+
+      <!-- Vue d'ensemble UCJC -->
+      <div class="guide-section" data-guide-search data-ucjc-fil="all">
+        <div class="guide-section-header ucjc-accent open" onclick="toggleGuideSection(this)">
+          <h2>🇪🇸 UCJC — Vue d'ensemble</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body" style="display:block;">
+          <div class="guide-stats">
+            <div class="guide-stat"><div class="stat-value">Madrid</div><div class="stat-label">Campus unique</div></div>
+            <div class="guide-stat"><div class="stat-value">Espagnol</div><div class="stat-label">Langue d'enseignement</div></div>
+            <div class="guide-stat"><div class="stat-value">3</div><div class="stat-label">Filières ouvertes</div></div>
+            <div class="guide-stat"><div class="stat-value">0€</div><div class="stat-label">Frais de test (entretien)</div></div>
+          </div>
+
+          <div class="guide-info-card full-width highlight" style="margin-bottom:14px;">
+            <h4>⚠️ Médecine — COMPLET</h4>
+            <p><strong>La filière Médecine à l'UCJC est complète pour 2026-2027.</strong> Il n'est plus possible d'y inscrire de nouveaux étudiants. Rediriger vers LINK ou Universidad Europea.</p>
+          </div>
+
+          <div class="guide-info-card full-width" style="margin-bottom:14px;">
+            <h4>📋 Tarifs et conditions</h4>
+            <table class="guide-table">
+              <thead><tr><th>Filière</th><th>Durée</th><th>Tarif/an</th><th>Coût total</th><th>Langue</th><th>Admission</th><th>Moyenne</th></tr></thead>
+              <tbody>
+                <tr style="opacity:0.4;"><td><s>Médecine</s></td><td>6 ans</td><td><s>19 920€</s></td><td><s>119 520€</s></td><td>Espagnol</td><td colspan="2" style="color:var(--error);font-weight:600;">🔴 COMPLET</td></tr>
+                <tr><td><strong>Dentaire</strong></td><td>5 ans</td><td><strong>18 420€</strong></td><td>92 100€</td><td>Espagnol</td><td>Entretien</td><td>Aucune</td></tr>
+                <tr><td><strong>Pharmacie</strong></td><td>5 ans</td><td><strong>10 140€</strong></td><td>50 700€</td><td>Espagnol</td><td>Entretien</td><td>Aucune</td></tr>
+                <tr><td><strong>Kinésithérapie</strong></td><td>4 ans</td><td><strong>9 420€</strong></td><td>37 680€</td><td>Espagnol</td><td>Entretien</td><td>Aucune</td></tr>
               </tbody>
             </table>
           </div>
-          <div class="guide-info-card">
-            <h4>📅 Deadlines — Dentaire / Kiné / Véto</h4>
-            <table class="guide-table small">
-              <thead><tr><th>Inscription</th><th>Tests</th><th>Résultats</th></tr></thead>
+
+          <!-- Processus UCJC -->
+          <div class="guide-info-card full-width" style="margin-bottom:14px;">
+            <h4>🔄 Processus d'admission UCJC</h4>
+            <div class="guide-process">
+              <div class="guide-process-step"><div class="step-dot">1</div><div class="step-label">Candidature</div><div class="step-desc">Formulaire + lettre de motivation + pièce d'identité</div></div>
+              <div class="guide-process-step"><div class="step-dot">2</div><div class="step-label">Entretien</div><div class="step-desc">Visio ou présentiel — motivation + projet</div></div>
+              <div class="guide-process-step"><div class="step-dot">3</div><div class="step-label">Résultats</div><div class="step-desc">Sous 1 semaine</div></div>
+              <div class="guide-process-step"><div class="step-dot">4</div><div class="step-label">Paiement</div><div class="step-desc">1 semaine pour payer le 1er versement</div></div>
+              <div class="guide-process-step"><div class="step-dot">5</div><div class="step-label">Inscription</div><div class="step-desc">Validation bac + inscription définitive</div></div>
+            </div>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:16px;">✅ <strong>Aucun test écrit</strong> — L'admission se fait uniquement sur entretien. C'est le processus le plus simple des 3 universités. Validation du diplôme du bac obligatoire.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents UCJC -->
+      <div class="guide-section" data-guide-search data-ucjc-fil="all dentaire pharmacie kine">
+        <div class="guide-section-header ucjc-accent open" onclick="toggleGuideSection(this)">
+          <h2>📎 Documents requis — UCJC</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body" style="display:block;">
+          <div class="guide-grid">
+            <div class="guide-info-card">
+              <h4>📄 Documents candidature</h4>
+              <ol>
+                <li><strong>Formulaire d'admission UCJC</strong><br><span style="font-size:11px;color:var(--text-muted);">PDF fourni par Edumove ou téléchargeable sur le portail UCJC. À remplir et signer.</span></li>
+                <li><strong>Lettre de motivation</strong><br><span style="font-size:11px;color:var(--text-muted);">Langue selon filière (voir ci-dessous).</span></li>
+                <li><strong>Pièce d'identité</strong> (carte d'identité ou passeport)<br><span style="font-size:11px;color:var(--text-muted);">Scan recto-verso en couleur.</span></li>
+                <li><strong>Attestation de niveau espagnol</strong><br><span style="font-size:11px;color:var(--text-muted);">Même un certificat non-officiel (type e-learning) est accepté. Pas de niveau minimum requis.</span></li>
+              </ol>
+            </div>
+            <div class="guide-info-card">
+              <h4>🗣️ Langue de la lettre de motivation</h4>
+              <table class="guide-table small">
+                <thead><tr><th>Filière</th><th>Langue lettre</th></tr></thead>
+                <tbody>
+                  <tr><td>Dentaire</td><td><strong>En espagnol</strong></td></tr>
+                  <tr><td>Pharmacie</td><td><strong>En français</strong></td></tr>
+                  <tr><td>Kinésithérapie</td><td><strong>En français</strong></td></tr>
+                </tbody>
+              </table>
+              <div style="margin-top:14px;">
+                <h4>📄 Documents post-acceptation</h4>
+                <ol>
+                  <li>Diplôme du baccalauréat</li>
+                  <li>Relevé de notes du bac</li>
+                  <li>Photo d'identité</li>
+                  <li>Certificat médical</li>
+                  <li>Homologation du diplôme bac (Edumove accompagne)</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+          <div class="guide-info-card full-width" style="margin-top:14px;">
+            <h4>💡 Points importants pour l'équipe</h4>
+            <ul>
+              <li>L'entretien peut se faire <strong>en visio</strong> — pas besoin de se déplacer à Madrid</li>
+              <li>L'attestation d'espagnol n'a pas besoin d'être un certificat officiel — un certificat de cours en ligne suffit</li>
+              <li>Les résultats de l'entretien tombent en <strong>1 semaine maximum</strong></li>
+              <li>L'étudiant a ensuite <strong>1 semaine pour confirmer et payer</strong> son premier versement</li>
+              <li>Pas de condition de moyenne ni de spécialité bac requise — ouvert à tous les profils</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filières détaillées UCJC -->
+      <div class="guide-section" data-guide-search data-ucjc-fil="dentaire">
+        <div class="guide-section-header ucjc-accent" onclick="toggleGuideSection(this)">
+          <h2>🦷 Dentaire — UCJC</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body">
+          <div class="guide-kv">
+            <div class="guide-kv-item"><span class="kv-label">Durée</span><span class="kv-value">5 ans</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Tarif/an</span><span class="kv-value">18 420€</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Coût total</span><span class="kv-value">92 100€</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Langue</span><span class="kv-value">Espagnol</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Admission</span><span class="kv-value">Entretien uniquement</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Lettre de motivation</span><span class="kv-value">En espagnol</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="guide-section" data-guide-search data-ucjc-fil="pharmacie">
+        <div class="guide-section-header ucjc-accent" onclick="toggleGuideSection(this)">
+          <h2>💊 Pharmacie — UCJC</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body">
+          <div class="guide-kv">
+            <div class="guide-kv-item"><span class="kv-label">Durée</span><span class="kv-value">5 ans</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Tarif/an</span><span class="kv-value">10 140€</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Coût total</span><span class="kv-value">50 700€</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Langue</span><span class="kv-value">Espagnol</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Admission</span><span class="kv-value">Entretien uniquement</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Lettre de motivation</span><span class="kv-value">En français</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="guide-section" data-guide-search data-ucjc-fil="kine">
+        <div class="guide-section-header ucjc-accent" onclick="toggleGuideSection(this)">
+          <h2>💪 Kinésithérapie — UCJC</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body">
+          <div class="guide-kv">
+            <div class="guide-kv-item"><span class="kv-label">Durée</span><span class="kv-value">4 ans</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Tarif/an</span><span class="kv-value">9 420€</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Coût total</span><span class="kv-value">37 680€</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Langue</span><span class="kv-value">Espagnol</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Admission</span><span class="kv-value">Entretien uniquement</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Lettre de motivation</span><span class="kv-value">En français</span></div>
+          </div>
+          <div class="guide-info-card highlight" style="margin-top:14px;">
+            <h4>⚡ Argument clé</h4>
+            <p>La kiné UCJC est l'<strong>option la moins chère</strong> de toutes nos universités (9 420€/an, soit 37 680€ total sur 4 ans). Aucun test, aucune moyenne requise. Idéal pour les étudiants avec un profil non-scientifique ou une moyenne modeste.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         UNIVERSIDAD EUROPEA
+    ═══════════════════════════════════════════ -->
+    <div id="guide-tab-ue" style="display:none;">
+      <div class="guide-filiere-pills">
+        <button class="guide-pill active" onclick="filterUeFiliere('all',this)">Toutes les filières</button>
+        <button class="guide-pill" onclick="filterUeFiliere('medecine',this)">Médecine</button>
+        <button class="guide-pill" onclick="filterUeFiliere('dentaire',this)">Dentaire</button>
+        <button class="guide-pill" onclick="filterUeFiliere('kine',this)">Kinésithérapie</button>
+        <button class="guide-pill" onclick="filterUeFiliere('pharmacie',this)">Pharmacie</button>
+        <button class="guide-pill" onclick="filterUeFiliere('veterinaire',this)">Vétérinaire</button>
+        <button class="guide-pill" onclick="filterUeFiliere('prepa',this)">Prépa Dentaire</button>
+      </div>
+
+      <!-- Vue d'ensemble UE -->
+      <div class="guide-section" data-guide-search data-ue-fil="all">
+        <div class="guide-section-header ue-accent open" onclick="toggleGuideSection(this)">
+          <h2>🇪🇸 Universidad Europea — Vue d'ensemble</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body" style="display:block;">
+          <div class="guide-stats">
+            <div class="guide-stat"><div class="stat-value">5</div><div class="stat-label">Campus (Madrid, Malaga, Valence, Alicante, Canaries)</div></div>
+            <div class="guide-stat"><div class="stat-value">6</div><div class="stat-label">Filières</div></div>
+            <div class="guide-stat"><div class="stat-value">3</div><div class="stat-label">Langues (ES, EN, FR)</div></div>
+            <div class="guide-stat"><div class="stat-value">2 500€</div><div class="stat-label">Acompte après acceptation</div></div>
+          </div>
+
+          <div class="guide-info-card full-width" style="margin-bottom:14px;">
+            <h4>📋 Tableau complet — Tarifs par filière et campus</h4>
+            <table class="guide-table">
+              <thead><tr><th>Filière</th><th>Campus</th><th>Tarif/an</th><th>Durée</th><th>Langues</th><th>Test</th><th>Moyenne min.</th></tr></thead>
               <tbody>
-                <tr class="past"><td>04/12/2025</td><td>10/12/2025</td><td>12/12/2025</td></tr>
-                <tr class="past"><td>09/01/2026</td><td>14/01/2026</td><td>16/01/2026</td></tr>
-                <tr class="past"><td>05/02/2026</td><td>10/02/2026</td><td>12/02/2026</td></tr>
-                <tr class="past"><td>05/03/2026</td><td>10/03/2026</td><td>12/03/2026</td></tr>
-                <tr class="next"><td>16/04/2026</td><td>21/04/2026</td><td>23/04/2026</td></tr>
-                <tr><td>08/05/2026</td><td>12/05/2026</td><td>14/05/2026</td></tr>
-                <tr><td>08/06/2026</td><td>11/06/2026</td><td>13/06/2026</td></tr>
-                <tr><td>15/07/2026</td><td>21/07/2026</td><td>23/07/2026</td></tr>
+                <tr><td rowspan="2"><strong>Médecine</strong> <small style="color:#6366f1;">PE</small></td><td>Madrid</td><td><strong>21 480€</strong></td><td>6 ans</td><td>Espagnol</td><td>Oui — 4 épreuves</td><td><strong>16-17/20</strong></td></tr>
+                <tr><td>Canaries</td><td><strong>21 480€</strong></td><td>6 ans</td><td>Espagnol</td><td>Oui — 4 épreuves</td><td><strong>16-17/20</strong></td></tr>
+                <tr style="border-top:2px solid var(--border);"><td rowspan="5"><strong>Dentaire</strong> <small style="color:#6366f1;">PE</small></td><td>Madrid</td><td><strong>20 820€</strong></td><td>5 ans</td><td>Espagnol, Anglais</td><td>Oui — 4 épreuves</td><td><strong>15-16/20</strong></td></tr>
+                <tr><td>Malaga</td><td><strong>19 200€</strong></td><td>5 ans</td><td>Espagnol, Anglais</td><td>Oui — 4 épreuves</td><td><strong>15-16/20</strong></td></tr>
+                <tr><td>Valence</td><td><strong>20 821€</strong></td><td>5 ans</td><td>Espagnol, Anglais</td><td>Oui — 4 épreuves</td><td><strong>15-16/20</strong></td></tr>
+                <tr><td>Alicante</td><td><strong>20 821€</strong></td><td>5 ans</td><td>Espagnol, Anglais</td><td>Oui — 4 épreuves</td><td><strong>15-16/20</strong></td></tr>
+                <tr><td>Canaries</td><td><strong>20 820€</strong></td><td>5 ans</td><td>Espagnol seul</td><td>Oui — 4 épreuves</td><td><strong>15-16/20</strong></td></tr>
+                <tr style="border-top:2px solid var(--border);"><td rowspan="5"><strong>Kinésithérapie</strong> <small style="color:#94a3b8;">Hors PE</small></td><td>Madrid</td><td><strong>10 020€</strong></td><td>4 ans</td><td>FR, ES, EN</td><td>Non (sauf FR → 4 épreuves)</td><td><strong>13-14/20</strong></td></tr>
+                <tr><td>Malaga</td><td><strong>10 020€</strong></td><td>4 ans</td><td>Espagnol</td><td>❌ Non</td><td><strong>13-14/20</strong></td></tr>
+                <tr><td>Valence</td><td><strong>10 080€</strong></td><td>4 ans</td><td>Espagnol</td><td>❌ Non</td><td><strong>13-14/20</strong></td></tr>
+                <tr><td>Alicante</td><td><strong>10 080€</strong></td><td>4 ans</td><td>Espagnol</td><td>❌ Non</td><td><strong>13-14/20</strong></td></tr>
+                <tr><td>Canaries</td><td><strong>10 020€</strong></td><td>4 ans</td><td>Espagnol</td><td>❌ Non</td><td><strong>13-14/20</strong></td></tr>
+                <tr style="border-top:2px solid var(--border);"><td><strong>Pharmacie</strong> <small style="color:#94a3b8;">Hors PE</small></td><td>Madrid</td><td><strong>12 120€</strong></td><td>5 ans</td><td>Espagnol</td><td>❌ Non</td><td>/</td></tr>
+                <tr style="border-top:2px solid var(--border);"><td><strong>Vétérinaire</strong> <small style="color:#94a3b8;">Hors PE</small></td><td>Madrid</td><td><strong>19 500€</strong></td><td>5 ans</td><td>Espagnol</td><td>Oui — 4 épreuves</td><td><strong>14-15/20</strong></td></tr>
+                <tr style="border-top:2px solid var(--border);background:#eff6ff;"><td><strong>Prépa Dentaire</strong> <small style="color:#94a3b8;">Hors PE</small></td><td>Alicante</td><td><strong>17 000€</strong></td><td>1 an + 5 ans</td><td>Anglais (B2 requis)</td><td>❌ Non</td><td>/</td></tr>
+              </tbody>
+            </table>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">* <strong>PE</strong> = Prueba de Evaluación (test d'admission obligatoire) · <strong>Hors PE</strong> = sans test d'entrée.</p>
+            <p style="font-size:11px;color:var(--text-muted);">* Médecine requiert 2 spécialités scientifiques au bac + moyenne ≥ 12/20 en spé. scientifiques.</p>
+            <p style="font-size:11px;color:var(--text-muted);">* Kiné FR Madrid : 1ère année en français, à partir de la 2ème année les cours passent en espagnol.</p>
+            <p style="font-size:11px;color:var(--text-muted);">* Prépa Dentaire : après l'année préparatoire (17 000€), intégration en Dentaire Alicante à 20 821€/an pendant 5 ans.</p>
+          </div>
+
+          <!-- Processus UE -->
+          <div class="guide-info-card full-width">
+            <h4>🔄 Processus d'admission UE</h4>
+            <div class="guide-process">
+              <div class="guide-process-step"><div class="step-dot">1</div><div class="step-label">Candidature</div><div class="step-desc">Bulletins + pièce d'identité + rapport technique</div></div>
+              <div class="guide-process-step"><div class="step-dot">2</div><div class="step-label">Paiement test</div><div class="step-desc">Paiement des frais de test (PE)</div></div>
+              <div class="guide-process-step"><div class="step-dot">3</div><div class="step-label">Test PE</div><div class="step-desc">4 épreuves en ligne ou présentiel</div></div>
+              <div class="guide-process-step"><div class="step-dot">4</div><div class="step-label">Résultats</div><div class="step-desc">Sous 48h par email</div></div>
+              <div class="guide-process-step"><div class="step-dot">5</div><div class="step-label">Acompte</div><div class="step-desc">2 500€ sous 2 jours</div></div>
+            </div>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:16px;">⚠️ <strong>Filières Hors PE</strong> (Kiné sauf FR Madrid, Pharmacie, Prépa Dentaire) : les étapes 2 et 3 sont remplacées par une admission sur dossier.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Test UE -->
+      <div class="guide-section" data-guide-search data-ue-fil="all medecine dentaire veterinaire kine">
+        <div class="guide-section-header ue-accent open" onclick="toggleGuideSection(this)">
+          <h2>🧪 Tests d'admission UE (PE) — Détails complets</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body" style="display:block;">
+          <div class="guide-grid">
+            <div class="guide-info-card">
+              <h4>📍 Format des 4 épreuves</h4>
+              <ol>
+                <li><strong>Test de langue</strong><br><span style="font-size:11px;color:var(--text-muted);">Adapté à la langue du cursus choisi (espagnol, anglais ou français). Compréhension écrite et orale, grammaire, vocabulaire.</span></li>
+                <li><strong>Test de talent / aptitudes</strong><br><span style="font-size:11px;color:var(--text-muted);">Raisonnement logique, aptitudes cognitives, résolution de problèmes. Type tests psychotechniques.</span></li>
+                <li><strong>Test de motivation</strong><br><span style="font-size:11px;color:var(--text-muted);">Entretien individuel + questionnaire de personnalité. Évalue la motivation et le projet professionnel.</span></li>
+                <li><strong>Épreuve spécifique</strong><br><span style="font-size:11px;color:var(--text-muted);">Contenu adapté à la filière choisie (biologie pour médecine, anatomie pour kiné, etc.).</span></li>
+              </ol>
+            </div>
+            <div class="guide-info-card highlight">
+              <h4>⚡ Points clés pour l'équipe</h4>
+              <ul>
+                <li><strong>Résultats sous 48h</strong> par email</li>
+                <li>En cas d'acceptation : <strong>2 jours pour verser l'acompte de 2 500€</strong></li>
+                <li>Les tests peuvent se passer <strong>en ligne</strong> ou en présentiel selon la session</li>
+                <li>Plusieurs sessions par an (voir deadlines ci-dessous)</li>
+                <li><strong>Kiné FR Madrid</strong> : même si la filière est Hors PE, le cursus en français nécessite de passer les 4 épreuves</li>
+              </ul>
+              <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">Le score au test est pondéré avec le dossier académique. Les moyennes indiquées sont des fourchettes basées sur les profils acceptés les années précédentes.</p>
+            </div>
+          </div>
+
+          <div class="guide-info-card full-width" style="margin-top:14px;">
+            <h4>🎯 Qui doit passer le test PE ?</h4>
+            <table class="guide-table">
+              <thead><tr><th>Filière</th><th>Test requis ?</th><th>Détails</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Médecine</strong></td><td style="color:var(--error);font-weight:600;">✅ OUI — PE obligatoire</td><td>Madrid et Canaries uniquement. 2 spé. scientifiques + moy. ≥ 12/20 requis pour candidater.</td></tr>
+                <tr><td><strong>Dentaire</strong></td><td style="color:var(--error);font-weight:600;">✅ OUI — PE obligatoire</td><td>5 campus disponibles. Espagnol + Anglais (sauf Canaries = espagnol seul).</td></tr>
+                <tr><td><strong>Vétérinaire</strong></td><td style="color:var(--error);font-weight:600;">✅ OUI — PE obligatoire</td><td>Madrid uniquement. Espagnol.</td></tr>
+                <tr><td><strong>Kiné FR Madrid</strong></td><td style="color:var(--warning);font-weight:600;">⚠️ OUI — exception</td><td>Seule option kiné avec test. Cursus 1ère année en français puis espagnol.</td></tr>
+                <tr><td><strong>Kiné (autres)</strong></td><td style="color:var(--success);font-weight:600;">❌ NON — Hors PE</td><td>Madrid (ES/EN), Malaga, Valence, Alicante, Canaries — admission sur dossier.</td></tr>
+                <tr><td><strong>Pharmacie</strong></td><td style="color:var(--success);font-weight:600;">❌ NON — Hors PE</td><td>Madrid uniquement. Admission sur dossier.</td></tr>
+                <tr><td><strong>Prépa Dentaire</strong></td><td style="color:var(--success);font-weight:600;">❌ NON — Hors PE</td><td>Alicante uniquement. B2 anglais requis.</td></tr>
               </tbody>
             </table>
           </div>
         </div>
+      </div>
 
-        <!-- Gestion disponibilités (admin only) -->
-        <div id="ue-availability-manager" style="display:none;margin-top:20px;">
-          <div class="guide-info-card full-width" style="background:white;border:2px solid var(--violet);">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-              <h4 style="margin:0;">🔧 Gestion des disponibilités en temps réel</h4>
+      <!-- Documents UE -->
+      <div class="guide-section" data-guide-search data-ue-fil="all medecine dentaire kine pharmacie veterinaire prepa">
+        <div class="guide-section-header ue-accent open" onclick="toggleGuideSection(this)">
+          <h2>📎 Documents requis — UE</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body" style="display:block;">
+          <div class="guide-grid">
+            <div class="guide-info-card">
+              <h4>📄 Documents candidature</h4>
+              <ol>
+                <li><strong>3 bulletins de Première</strong><br><span style="font-size:11px;color:var(--text-muted);">Fusionnés en 1 seul fichier PDF. Les 3 trimestres/semestres de l'année de Première.</span></li>
+                <li><strong>Pièce d'identité</strong> (carte d'identité ou passeport)<br><span style="font-size:11px;color:var(--text-muted);">Scan recto-verso en couleur, lisible.</span></li>
+                <li><strong>Rapport technique académique</strong><br><span style="font-size:11px;color:var(--text-muted);">60€ via <strong>hostudents.com</strong>. Document obligatoire. Peut prendre quelques jours. Les étudiants peuvent cocher "démarche lancée" en attendant.</span></li>
+              </ol>
+            </div>
+            <div class="guide-info-card">
+              <h4>📄 Documents post-acceptation</h4>
+              <ol>
+                <li><strong>Diplôme du baccalauréat</strong> (ou attestation de réussite)</li>
+                <li><strong>Relevé de notes du bac</strong></li>
+                <li><strong>Photo d'identité</strong> format numérique</li>
+                <li><strong>Certificat médical</strong></li>
+                <li><strong>Attestation B2 anglais</strong> <span class="badge badge-violet" style="font-size:10px;">Prépa Dentaire uniquement</span></li>
+              </ol>
+              <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">Le rapport technique de hostudents.com est le document qui prend le plus de temps — anticiper au maximum.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deadlines UE -->
+      <div class="guide-section" data-guide-search data-ue-fil="all medecine dentaire kine veterinaire">
+        <div class="guide-section-header ue-accent open" onclick="toggleGuideSection(this)">
+          <h2>📅 Deadlines et sessions de test — UE</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body" style="display:block;">
+          <div class="guide-grid">
+            <div class="guide-info-card">
+              <h4>📅 Sessions Médecine</h4>
+              <table class="guide-table small">
+                <thead><tr><th>Session</th><th>Inscription</th><th>Tests</th><th>Résultats</th></tr></thead>
+                <tbody>
+                  <tr class="past"><td>1ère</td><td>09/12/2025</td><td>15/12/2025</td><td>22/12/2025</td></tr>
+                  <tr class="past"><td>2ème</td><td>16/02/2026</td><td>19/02/2026</td><td>26/02/2026</td></tr>
+                  <tr class="next"><td>3ème</td><td>17/04/2026</td><td>22/04/2026</td><td>29/04/2026</td></tr>
+                  <tr><td>4ème</td><td>18/05/2026</td><td>21/05/2026</td><td>28/05/2026</td></tr>
+                  <tr><td>5ème</td><td>06/07/2026</td><td>08/07/2026</td><td>15/07/2026</td></tr>
+                </tbody>
+              </table>
+              <p style="font-size:10px;color:var(--text-muted);margin-top:6px;">Sessions Madrid + Canaries. Plus on attend, moins il y a de places.</p>
+            </div>
+            <div class="guide-info-card">
+              <h4>📅 Sessions Dentaire / Kiné / Véto</h4>
+              <table class="guide-table small">
+                <thead><tr><th>Inscription</th><th>Tests</th><th>Résultats</th></tr></thead>
+                <tbody>
+                  <tr class="past"><td>04/12/2025</td><td>10/12/2025</td><td>12/12/2025</td></tr>
+                  <tr class="past"><td>09/01/2026</td><td>14/01/2026</td><td>16/01/2026</td></tr>
+                  <tr class="past"><td>05/02/2026</td><td>10/02/2026</td><td>12/02/2026</td></tr>
+                  <tr class="past"><td>05/03/2026</td><td>10/03/2026</td><td>12/03/2026</td></tr>
+                  <tr class="next"><td>16/04/2026</td><td>21/04/2026</td><td>23/04/2026</td></tr>
+                  <tr><td>08/05/2026</td><td>12/05/2026</td><td>14/05/2026</td></tr>
+                  <tr><td>08/06/2026</td><td>11/06/2026</td><td>13/06/2026</td></tr>
+                  <tr><td>15/07/2026</td><td>21/07/2026</td><td>23/07/2026</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filières détaillées UE -->
+      <div class="guide-section" data-guide-search data-ue-fil="medecine">
+        <div class="guide-section-header ue-accent" onclick="toggleGuideSection(this)">
+          <h2>🩺 Médecine — UE</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body">
+          <div class="guide-kv" style="margin-bottom:16px;">
+            <div class="guide-kv-item"><span class="kv-label">Campus</span><span class="kv-value">Madrid, Canaries</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Durée</span><span class="kv-value">6 ans</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Tarif/an</span><span class="kv-value">21 480€ (les 2 campus)</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Langue</span><span class="kv-value">Espagnol uniquement</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Test</span><span class="kv-value">PE — 4 épreuves</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Moyenne requise</span><span class="kv-value">16-17/20</span></div>
+          </div>
+          <div class="guide-info-card highlight">
+            <h4>⚠️ Conditions spécifiques Médecine</h4>
+            <ul>
+              <li><strong>2 spécialités scientifiques</strong> au bac obligatoires pour candidater</li>
+              <li><strong>Moyenne ≥ 12/20</strong> dans les spécialités scientifiques</li>
+              <li>Profils retenus : généralement <strong>16-17/20</strong> de moyenne générale</li>
+              <li>La filière la plus sélective de l'UE — places très limitées</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-section" data-guide-search data-ue-fil="dentaire">
+        <div class="guide-section-header ue-accent" onclick="toggleGuideSection(this)">
+          <h2>🦷 Dentaire — UE (5 campus)</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body">
+          <table class="guide-table" style="margin-bottom:14px;">
+            <thead><tr><th>Campus</th><th>Tarif/an</th><th>Langues</th><th>Moyenne</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Madrid</strong></td><td>20 820€</td><td>Espagnol, Anglais</td><td>15-16/20</td></tr>
+              <tr><td><strong>Malaga</strong></td><td>19 200€</td><td>Espagnol, Anglais</td><td>15-16/20</td></tr>
+              <tr><td><strong>Valence</strong></td><td>20 821€</td><td>Espagnol, Anglais</td><td>15-16/20</td></tr>
+              <tr><td><strong>Alicante</strong></td><td>20 821€</td><td>Espagnol, Anglais</td><td>15-16/20</td></tr>
+              <tr><td><strong>Canaries</strong></td><td>20 820€</td><td>Espagnol seul</td><td>15-16/20</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:12px;color:var(--text-muted);">Durée : 5 ans. Test PE obligatoire. Anglais disponible sur tous les campus sauf Canaries. <strong>Malaga est le campus le moins cher</strong> pour le dentaire (19 200€/an).</p>
+        </div>
+      </div>
+
+      <div class="guide-section" data-guide-search data-ue-fil="kine">
+        <div class="guide-section-header ue-accent" onclick="toggleGuideSection(this)">
+          <h2>💪 Kinésithérapie — UE (5 campus)</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body">
+          <table class="guide-table" style="margin-bottom:14px;">
+            <thead><tr><th>Campus</th><th>Tarif/an</th><th>Langues</th><th>Test PE ?</th><th>Moyenne</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Madrid</strong></td><td>10 020€</td><td>Français, Espagnol, Anglais</td><td>Seulement si FR</td><td>13-14/20</td></tr>
+              <tr><td><strong>Malaga</strong></td><td>10 020€</td><td>Espagnol</td><td>Non</td><td>13-14/20</td></tr>
+              <tr><td><strong>Valence</strong></td><td>10 080€</td><td>Espagnol</td><td>Non</td><td>13-14/20</td></tr>
+              <tr><td><strong>Alicante</strong></td><td>10 080€</td><td>Espagnol</td><td>Non</td><td>13-14/20</td></tr>
+              <tr><td><strong>Canaries</strong></td><td>10 020€</td><td>Espagnol</td><td>Non</td><td>13-14/20</td></tr>
+            </tbody>
+          </table>
+          <div class="guide-info-card highlight">
+            <h4>⚡ Kiné FR Madrid — Cas particulier</h4>
+            <p>La 1ère année se fait <strong>en français</strong>, puis les cours passent en espagnol à partir de la 2ème année. C'est la seule option kiné qui nécessite de passer le test PE (4 épreuves). Les autres campus/langues sont Hors PE (admission sur dossier uniquement).</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-section" data-guide-search data-ue-fil="pharmacie">
+        <div class="guide-section-header ue-accent" onclick="toggleGuideSection(this)">
+          <h2>💊 Pharmacie — UE</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body">
+          <div class="guide-kv" style="margin-bottom:16px;">
+            <div class="guide-kv-item"><span class="kv-label">Campus</span><span class="kv-value">Madrid uniquement</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Durée</span><span class="kv-value">5 ans</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Tarif/an</span><span class="kv-value">12 120€</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Langue</span><span class="kv-value">Espagnol</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Test</span><span class="kv-value">❌ Non — Hors PE</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Moyenne requise</span><span class="kv-value">Aucune</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-section" data-guide-search data-ue-fil="veterinaire">
+        <div class="guide-section-header ue-accent" onclick="toggleGuideSection(this)">
+          <h2>🐾 Vétérinaire — UE</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body">
+          <div class="guide-kv" style="margin-bottom:16px;">
+            <div class="guide-kv-item"><span class="kv-label">Campus</span><span class="kv-value">Madrid uniquement</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Durée</span><span class="kv-value">5 ans</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Tarif/an</span><span class="kv-value">19 500€</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Langue</span><span class="kv-value">Espagnol</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Test</span><span class="kv-value">PE — 4 épreuves</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Moyenne requise</span><span class="kv-value">14-15/20</span></div>
+          </div>
+          <div class="guide-info-card highlight">
+            <h4>⚠️ Filière exclusive UE</h4>
+            <p>Vétérinaire n'est disponible <strong>qu'à l'Universidad Europea de Madrid</strong>. LINK et UCJC ne proposent pas cette filière. Admission par test PE obligatoire.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-section" data-guide-search data-ue-fil="prepa">
+        <div class="guide-section-header ue-accent" onclick="toggleGuideSection(this)">
+          <h2>📚 Prépa Dentaire — UE</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body">
+          <div class="guide-kv" style="margin-bottom:16px;">
+            <div class="guide-kv-item"><span class="kv-label">Campus</span><span class="kv-value">Alicante uniquement</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Durée</span><span class="kv-value">1 an (+ 5 ans Dentaire)</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Tarif prépa</span><span class="kv-value">17 000€/an</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Tarif Dentaire après</span><span class="kv-value">20 821€/an (5 ans)</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Langue</span><span class="kv-value">Anglais (B2 requis)</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Test</span><span class="kv-value">❌ Non — Hors PE</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Coût total 6 ans</span><span class="kv-value">121 105€</span></div>
+          </div>
+          <div class="guide-info-card highlight">
+            <h4>💡 Comment ça marche ?</h4>
+            <p>L'année préparatoire (17 000€) permet de se préparer et d'intégrer directement le cursus Dentaire à Alicante l'année suivante (20 821€/an pendant 5 ans). <strong>Total sur 6 ans : 121 105€.</strong></p>
+            <p style="margin-top:6px;">C'est l'option idéale pour les étudiants qui veulent faire dentaire en anglais mais qui n'ont pas le profil pour intégrer directement. Le B2 en anglais est la seule condition d'admission — pas de test PE, pas de moyenne minimum.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gestion disponibilités (admin only) -->
+      <div id="ue-availability-manager" style="display:none;margin-top:20px;">
+        <div class="guide-section" style="border:2px solid var(--violet);">
+          <div class="guide-section-header ue-accent open" onclick="toggleGuideSection(this)">
+            <h2>🔧 Gestion des disponibilités en temps réel</h2>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="guide-section-body" style="display:block;">
+            <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
               <button onclick="refreshAvailability()" style="padding:6px 14px;background:var(--violet);color:white;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">↻ Rafraîchir</button>
             </div>
             <div id="ue-availability-table-wrap"></div>
@@ -1125,40 +1810,6 @@ tr:last-child td { border-bottom: none; }
       </div>
     </div>
 
-    <!-- Règles d'éligibilité -->
-    <div class="guide-section">
-      <div class="guide-section-header" style="border-left-color: var(--violet);">
-        <h2>🎯 Règles d'éligibilité</h2>
-      </div>
-      <div class="guide-section-body">
-        <div class="guide-grid">
-          <div class="guide-info-card">
-            <h4>LINK Campus University</h4>
-            <ul>
-              <li>Toutes les filières accessibles à tous les profils</li>
-              <li>Pharmacie : pas de test d'admission</li>
-            </ul>
-          </div>
-          <div class="guide-info-card">
-            <h4>UCJC</h4>
-            <ul>
-              <li><s>Médecine</s> — Plus de places disponibles</li>
-              <li>Vétérinaire — Non disponible à l'UCJC</li>
-              <li>Dentaire, Pharmacie, Kiné — Entretien uniquement (pas de test écrit)</li>
-            </ul>
-          </div>
-          <div class="guide-info-card full-width">
-            <h4>Universidad Europea</h4>
-            <ul>
-              <li>Médecine : nécessite au moins <strong>2 spécialités scientifiques</strong> et <strong>moyenne ≥ 12/20</strong></li>
-              <li>Pharmacie (partout) : <strong>pas de test</strong>, admission sur dossier</li>
-              <li>Kinésithérapie (sauf FR à Madrid) : <strong>pas de test</strong>, admission sur dossier</li>
-              <li>Kiné FR Madrid : test requis</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -2808,6 +3459,89 @@ function openGuide() {
     document.getElementById('ue-availability-manager').style.display = 'block';
     loadUeAvailability();
   }
+}
+
+// ── Guide interactive functions ──
+function toggleGuideSection(header) {
+  header.classList.toggle('open');
+  const body = header.nextElementSibling;
+  if (body && body.classList.contains('guide-section-body')) {
+    body.style.display = header.classList.contains('open') ? 'block' : 'none';
+  }
+}
+
+function switchGuideTab(tab, btn) {
+  // Update tab buttons
+  document.querySelectorAll('.guide-uni-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  // Show/hide tab content
+  ['all','link','ucjc','ue'].forEach(id => {
+    const el = document.getElementById('guide-tab-' + id);
+    if (el) el.style.display = (id === tab) ? 'block' : 'none';
+  });
+  // Clear search
+  const si = document.getElementById('guide-search-input');
+  if (si) si.value = '';
+  clearGuideSearch();
+}
+
+function filterLinkFiliere(fil, btn) {
+  const pills = btn.parentElement;
+  pills.querySelectorAll('.guide-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const sections = document.querySelectorAll('#guide-tab-link .guide-section[data-link-fil]');
+  sections.forEach(s => {
+    const fils = (s.getAttribute('data-link-fil') || '').split(' ');
+    s.style.display = fils.includes(fil) ? '' : 'none';
+  });
+}
+
+function filterUcjcFiliere(fil, btn) {
+  const pills = btn.parentElement;
+  pills.querySelectorAll('.guide-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const sections = document.querySelectorAll('#guide-tab-ucjc .guide-section[data-ucjc-fil]');
+  sections.forEach(s => {
+    const fils = (s.getAttribute('data-ucjc-fil') || '').split(' ');
+    s.style.display = fils.includes(fil) ? '' : 'none';
+  });
+}
+
+function filterUeFiliere(fil, btn) {
+  const pills = btn.parentElement;
+  pills.querySelectorAll('.guide-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const sections = document.querySelectorAll('#guide-tab-ue .guide-section[data-ue-fil]');
+  sections.forEach(s => {
+    const fils = (s.getAttribute('data-ue-fil') || '').split(' ');
+    s.style.display = fils.includes(fil) ? '' : 'none';
+  });
+}
+
+function filterGuide(query) {
+  if (!query || query.length < 2) { clearGuideSearch(); return; }
+  const q = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  document.querySelectorAll('.guide-section[data-guide-search]').forEach(section => {
+    const text = section.textContent.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    section.style.display = text.includes(q) ? '' : 'none';
+    if (text.includes(q)) {
+      const header = section.querySelector('.guide-section-header');
+      if (header && !header.classList.contains('open')) {
+        header.classList.add('open');
+        const body = header.nextElementSibling;
+        if (body) body.style.display = 'block';
+      }
+    }
+  });
+  // Show all tabs when searching
+  ['all','link','ucjc','ue'].forEach(id => {
+    const el = document.getElementById('guide-tab-' + id);
+    if (el) el.style.display = 'block';
+  });
+}
+
+function clearGuideSearch() {
+  document.querySelectorAll('.guide-section[data-guide-search]').forEach(s => s.style.display = '');
 }
 
 function backToDashboard() {
