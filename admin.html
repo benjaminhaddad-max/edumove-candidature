@@ -3262,32 +3262,76 @@ async function updateStatus(id, newStatus) {
 
   // Notifications étudiant quand réponse Edumove envoyée (une seule fois)
   if (newStatus === 'reponse_edumove' && c && !c.sms_reponse_sent) {
-    // SMS
-    if (c.tel) {
-      try {
-        await fetch('/api/send-sms', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tel: c.tel, prenom: c.prenom })
-        });
-      } catch (e) {
-        console.warn('SMS non envoyé :', e);
-      }
-    }
-    // Email Brevo (template 114)
-    if (c.email) {
-      try {
-        await fetch('/api/notify-response', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: c.email, prenom: c.prenom })
-        });
-      } catch (e) {
-        console.warn('Email réponse non envoyé :', e);
-      }
-    }
-    await supabase.from('candidatures').update({ sms_reponse_sent: true }).eq('id', id);
+    await sendStudentNotifications(id, c);
   }
+}
+
+async function sendStudentNotifications(candidatureId, c, isRetry = false) {
+  let emailOk = false;
+  let smsOk = false;
+  const results = [];
+
+  // Email Brevo (template 114)
+  if (c.email) {
+    try {
+      const resp = await fetch('/api/notify-response', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: c.email, prenom: c.prenom })
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (resp.ok && data.ok) {
+        emailOk = true;
+        results.push('✅ Email envoyé à ' + c.email);
+      } else {
+        results.push('❌ Email échoué : ' + (data.error || resp.status));
+        console.error('Email notify error:', data);
+      }
+    } catch (e) {
+      results.push('❌ Email erreur : ' + e.message);
+      console.error('Email notify error:', e);
+    }
+  }
+
+  // SMS
+  if (c.tel) {
+    try {
+      const resp = await fetch('/api/send-sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tel: c.tel, prenom: c.prenom })
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (resp.ok && data.ok) {
+        smsOk = true;
+        results.push('✅ SMS envoyé à ' + c.tel);
+      } else {
+        results.push('⚠️ SMS : ' + (data.reason || data.error || 'échec'));
+      }
+    } catch (e) {
+      results.push('⚠️ SMS erreur : ' + e.message);
+    }
+  }
+
+  // Ne marquer comme envoyé que si l'email a réussi
+  if (emailOk) {
+    await supabase.from('candidatures').update({ sms_reponse_sent: true }).eq('id', candidatureId);
+    if (c) c.sms_reponse_sent = true;
+  }
+
+  // Afficher le résultat
+  if (isRetry || results.some(r => r.startsWith('❌'))) {
+    alert('Notifications :\n' + results.join('\n'));
+  }
+}
+
+async function resendNotifications(candidatureId) {
+  const c = allCandidatures.find(x => x.id === candidatureId);
+  if (!c) return;
+  // Reset le flag pour permettre le renvoi
+  await supabase.from('candidatures').update({ sms_reponse_sent: false }).eq('id', candidatureId);
+  c.sms_reponse_sent = false;
+  await sendStudentNotifications(candidatureId, c, true);
 }
 
 function updateStatusFromDetail(newStatus) {
@@ -3469,12 +3513,18 @@ function renderDetailPage(c) {
   // Detail action buttons (archive/delete)
   const actionBtns = document.getElementById('detail-action-btns');
   if (window.adminRole === 'super_admin' || !window.adminRole) {
-    const isArchived = c.status !== 'en_cours' && c.status !== 'reponse_edumove';
-    actionBtns.innerHTML = isArchived
+    const isArchived = c.status !== 'en_attente' && c.status !== 'en_cours' && c.status !== 'reponse_edumove';
+    let btnsHtml = '';
+    // Resend notifications button (only for reponse_edumove)
+    if (c.status === 'reponse_edumove') {
+      btnsHtml += `<button onclick="resendNotifications('${c.id}')" style="padding:8px 16px;font-size:13px;background:#1565c0;color:white;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:600;">📧 Renvoyer notif</button>`;
+    }
+    btnsHtml += isArchived
       ? `<button class="btn-restore" onclick="restoreCandidature('${c.id}')" style="padding:8px 16px;font-size:13px;">&#x21A9; Restaurer</button>
          <button class="btn-delete" onclick="confirmDelete('${c.id}')" style="padding:8px 16px;font-size:13px;">Supprimer</button>`
       : `<button class="btn-archive" onclick="confirmArchive('${c.id}')" style="padding:8px 16px;font-size:13px;">Archiver</button>
          <button class="btn-delete" onclick="confirmDelete('${c.id}')" style="padding:8px 16px;font-size:13px;">Supprimer</button>`;
+    actionBtns.innerHTML = btnsHtml;
   } else {
     actionBtns.innerHTML = '';
   }
