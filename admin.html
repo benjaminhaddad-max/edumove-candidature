@@ -2670,13 +2670,16 @@ function renderDetailPage(c) {
       const _lp = uniTracking.LINK_test_paid || false;
       const _lf = uniSel.LINK.filiere;
       const _lPharm = _lf === 'pharmacie';
+      // Steps mirror exactly the dropdown order
+      const _lOrder = ['en_attente','dossier_envoye','test_paye','test_passe','accepte','inscrit'];
+      const _lIdx = _lOrder.indexOf(_ls);
       const _lSteps = [];
+      _lSteps.push({ done: _lIdx >= 1, txt: 'Dossier envoyé à la fac' });
       if (!_lPharm) {
-        _lSteps.push({ done: _lp, txt: 'Frais de test 200\u20ac réglés' });
-        _lSteps.push({ done: ['test_passe','accepte','inscrit'].includes(_ls), txt: 'Test d\'entrée passé (15 avril — Paris)' });
+        _lSteps.push({ done: _lIdx >= 2 || _lp, txt: 'Frais de test 200\u20ac réglés' });
+        _lSteps.push({ done: _lIdx >= 3, txt: 'Test d\'entrée passé (15 avril — Paris)' });
       }
-      _lSteps.push({ done: ['dossier_envoye','test_paye','test_passe','accepte','inscrit'].includes(_ls), txt: 'Dossier envoyé à la fac' });
-      _lSteps.push({ done: ['accepte','inscrit'].includes(_ls), txt: 'Accepté par LINK Campus' });
+      _lSteps.push({ done: _lIdx >= 4, txt: 'Accepté par LINK Campus' });
       _lSteps.push({ done: _ls === 'inscrit', txt: 'Inscription définitive confirmée' });
 
       html += `<div class="uni-selection-card link-card" style="margin-bottom:12px;">
@@ -2711,16 +2714,18 @@ function renderDetailPage(c) {
       const _uf = uniSel.UCJC.filiere;
       const _uEligTxt = _ucjcOk ? '✅ Éligible' : '❌ Non éligible — Esp. B2 requis';
       const _uEligCol = _ucjcOk ? '#2e7d52' : '#c62828';
+      // Steps mirror exactly the dropdown order
+      const _uOrder = ['en_attente','dossier_envoye','entretien_planifie','entretien_passe','accepte','inscrit'];
+      const _uIdx = _uOrder.indexOf(_us);
       const _uSteps = [];
       if (!_ucjcOk) {
         _uSteps.push({ warn: true, done: false, txt: 'Espagnol B2 requis — niveau actuel : ' + (_langLabels[_esp] || _esp) });
-      } else {
-        _uSteps.push({ done: true, txt: 'Espagnol B2+ validé' });
       }
-      _uSteps.push({ done: ['dossier_envoye','entretien_planifie','entretien_passe','accepte','inscrit'].includes(_us), txt: 'Dossier envoyé à la fac' });
-      _uSteps.push({ done: ['entretien_planifie','entretien_passe','accepte','inscrit'].includes(_us), txt: 'Entretien 15 min planifié' });
-      _uSteps.push({ done: ['entretien_passe','accepte','inscrit'].includes(_us), txt: 'Entretien passé' });
-      _uSteps.push({ done: ['accepte','inscrit'].includes(_us), txt: 'Accepté par UCJC' });
+      _uSteps.push({ done: _uIdx >= 1, txt: 'Dossier envoyé à la fac' });
+      _uSteps.push({ done: _uIdx >= 2, txt: 'Entretien 15 min planifié' });
+      _uSteps.push({ done: _uIdx >= 3, txt: 'Entretien passé' });
+      _uSteps.push({ done: _uIdx >= 4, txt: 'Accepté par UCJC' });
+      _uSteps.push({ done: _us === 'inscrit', txt: 'Inscription définitive confirmée' });
 
       html += `<div class="uni-selection-card ucjc-card" style="margin-bottom:12px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
@@ -2764,12 +2769,15 @@ function renderDetailPage(c) {
       } else {
         _eEligTxt = '❌ Non éligible — moy. spés < 10'; _eEligCol = '#c62828'; _eCampus = '';
       }
+      // Steps mirror exactly the dropdown order
+      const _eOrder = ['en_attente','dossier_envoye','tests_passes','accepte','acompte_verse','inscrit'];
+      const _eIdx = _eOrder.indexOf(_es);
       const _eSteps = [];
       if (!_hasLang) _eSteps.push({ warn: true, done: false, txt: 'Niveau langue insuffisant (Esp B2 ou Ang B1+ requis)' });
-      _eSteps.push({ done: ['dossier_envoye','tests_passes','accepte','acompte_verse','inscrit'].includes(_es), txt: 'Dossier envoyé à l\'université' });
-      _eSteps.push({ done: ['tests_passes','accepte','acompte_verse','inscrit'].includes(_es), txt: 'Tests de sélection passés' });
-      _eSteps.push({ done: ['accepte','acompte_verse','inscrit'].includes(_es), txt: 'Accepté par Universidad Europea' });
-      _eSteps.push({ done: ['acompte_verse','inscrit'].includes(_es), txt: 'Acompte 2 500\u20ac versé' });
+      _eSteps.push({ done: _eIdx >= 1, txt: 'Dossier envoyé à l\'université' });
+      _eSteps.push({ done: _eIdx >= 2, txt: 'Tests de sélection passés' });
+      _eSteps.push({ done: _eIdx >= 3, txt: 'Accepté par Universidad Europea' });
+      _eSteps.push({ done: _eIdx >= 4, txt: 'Acompte 2 500\u20ac versé' });
       _eSteps.push({ done: _es === 'inscrit', txt: 'Inscription définitive confirmée' });
 
       html += `<div class="uni-selection-card ue-card" style="margin-bottom:12px;">
