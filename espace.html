@@ -186,16 +186,16 @@ body {
   flex: 1;
   padding: 9px;
   background: transparent;
-  border: 1.5px solid var(--border);
-  color: var(--text-muted);
+  border: 1.5px solid #e53935;
+  color: #e53935;
   border-radius: 6px;
   font-family: inherit;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
 }
-.btn-logout:hover { border-color: var(--error); color: var(--error); }
+.btn-logout:hover { background: #ffebee; }
 .profil-backdrop {
   display: none;
   position: fixed;
@@ -1215,9 +1215,10 @@ let authChecked = false;
   document.getElementById('main-content').style.display = 'block';
 })();
 
-function logout() {
+async function logout() {
   if (messagesUnsubscribe) messagesUnsubscribe();
-  supabase.auth.signOut().then(() => { window.location.href = 'index.html'; });
+  try { await supabase.auth.signOut(); } catch(e) { console.error('Logout error:', e); }
+  window.location.href = 'index.html';
 }
 
 // ── PROFILE DROPDOWN ──
