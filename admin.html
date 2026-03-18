@@ -5,42 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Edumove — Back Office Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
 :root {
-  --orange: #f97316;
-  --orange-hover: #ea580c;
-  --navy: #0f172a;
-  --navy-light: #1e293b;
-  --violet: #6366f1;
-  --violet-hover: #4f46e5;
-  --violet-light: #a5b4fc;
-  --violet-bg: #eef2ff;
+  /* ── Charte Edumove ── */
+  --orange: #ec680a;
+  --orange-hover: #d45c06;
+  --navy: #1b1d3a;
+  --navy-light: #2a2d52;
+  --violet: #615ca5;
+  --violet-hover: #524d90;
+  --violet-light: #9b97cc;
+  --violet-bg: #f0effe;
   --cream: #fafafa;
   --white: #ffffff;
-  --border: #e2e8f0;
-  --border-light: #f1f5f9;
-  --text: #0f172a;
-  --text-muted: #64748b;
-  --text-light: #94a3b8;
+  --border: #e2e4f0;
+  --border-light: #f0f1f8;
+  --text: #1b1d3a;
+  --text-muted: #6b7280;
+  --text-light: #9ca3af;
   --success: #10b981;
   --success-bg: #ecfdf5;
   --error: #ef4444;
   --error-bg: #fef2f2;
-  --bg: #f8fafc;
+  --bg: #f5f6fb;
   --warning: #f59e0b;
   --warning-bg: #fffbeb;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+  --shadow-sm: 0 1px 2px rgba(27,29,58,0.06);
+  --shadow: 0 1px 3px rgba(27,29,58,0.1), 0 1px 2px rgba(27,29,58,0.06);
+  --shadow-md: 0 4px 6px -1px rgba(27,29,58,0.1), 0 2px 4px -2px rgba(27,29,58,0.08);
+  --shadow-lg: 0 10px 15px -3px rgba(27,29,58,0.1), 0 4px 6px -4px rgba(27,29,58,0.08);
   --radius: 10px;
   --radius-lg: 14px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-body { margin: 0; font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+body { margin: 0; font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
 
 /* ── HEADER ── */
 .site-header {
@@ -54,28 +56,39 @@ body { margin: 0; font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystem
   top: 0;
   z-index: 100;
 }
-.logo-zone { display: flex; align-items: center; gap: 12px; }
+.logo-zone { display: flex; align-items: center; gap: 11px; }
 .logo-wordmark {
-  font-size: 18px;
-  font-weight: 800;
+  font-family: 'Poppins', sans-serif;
+  font-size: 17px;
   color: #fff;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.01em;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0;
+  line-height: 1;
 }
-.logo-wordmark span { font-weight: 400; color: rgba(255,255,255,0.5); font-size: 14px; }
+.logo-wordmark .edu { font-weight: 800; }
+.logo-wordmark .move { font-weight: 300; }
+.logo-wordmark .admin-tag {
+  margin-left: 10px;
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-left: 1px solid rgba(255,255,255,0.18);
+  padding-left: 10px;
+  line-height: 1.2;
+}
 .logo-icon {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, var(--orange), #fb923c);
-  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  background: var(--orange);
+  border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
-  font-weight: 900;
-  color: white;
+  flex-shrink: 0;
 }
 .header-right { display: flex; align-items: center; gap: 10px; }
 .header-user { font-size: 12px; color: rgba(255,255,255,0.5); }
@@ -117,7 +130,7 @@ body { margin: 0; font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystem
   align-items: center;
   justify-content: center;
   min-height: calc(100vh - 56px);
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  background: linear-gradient(140deg, #1b1d3a 0%, #2a2d52 55%, #3d3870 100%);
 }
 .login-card {
   background: white;
@@ -149,7 +162,7 @@ body { margin: 0; font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystem
   transition: border-color 0.2s, box-shadow 0.2s;
   background: var(--bg);
 }
-.login-field:focus { outline: none; border-color: var(--violet); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); background: white; }
+.login-field:focus { outline: none; border-color: var(--violet); box-shadow: 0 0 0 3px rgba(97,92,165,0.12); background: white; }
 .btn-login {
   width: 100%;
   padding: 13px;
@@ -858,8 +871,16 @@ tr:last-child td { border-bottom: none; }
 ══════════════════════════════════════════ -->
 <header class="site-header">
   <div class="logo-zone">
-    <div class="logo-icon">E</div>
-    <div class="logo-wordmark">EDUMOVE <span>Admin</span></div>
+    <div class="logo-icon">
+      <svg width="22" height="20" viewBox="0 0 22 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 2.5H14L18 6.5L14 10.5H2V2.5Z" stroke="white" stroke-width="1.8" stroke-linejoin="round" fill="none"/>
+        <path d="M20 9.5H8L4 13.5L8 17.5H20V9.5Z" stroke="white" stroke-width="1.8" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="logo-wordmark">
+      <span class="edu">Edu</span><span class="move">move</span>
+      <span class="admin-tag" id="logo-role-tag">Admin</span>
+    </div>
   </div>
   <div class="header-right" id="header-right" style="display:none;">
     <button class="header-nav-btn" onclick="openFacMessaging()" id="btn-fac-messaging" style="display:none;">💬 Messagerie</button>
@@ -876,8 +897,18 @@ tr:last-child td { border-bottom: none; }
 <div id="login-view" class="login-view active">
   <div class="login-wrap">
     <div class="login-card">
-      <h2>Connexion Admin</h2>
-      <p>Accès réservé aux administrateurs EDUMOVE</p>
+      <!-- Logo Edumove -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:28px;">
+        <div style="width:42px;height:42px;background:var(--orange);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="27" height="24" viewBox="0 0 27 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 2.5H16L21 7L16 11.5H2V2.5Z" stroke="white" stroke-width="2" stroke-linejoin="round" fill="none"/>
+            <path d="M25 12.5H11L6 17L11 21.5H25V12.5Z" stroke="white" stroke-width="2" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
+        <div style="font-family:'Poppins',sans-serif;font-size:22px;line-height:1;color:var(--navy);"><span style="font-weight:800;">Edu</span><span style="font-weight:300;">move</span></div>
+      </div>
+      <h2 style="margin-bottom:4px;">Accès Admin</h2>
+      <p>Réservé aux administrateurs EDUMOVE</p>
       <input type="email" class="login-field" id="login-email" placeholder="Email"/>
       <input type="password" class="login-field" id="login-pass" placeholder="Mot de passe"/>
       <button class="btn-login" onclick="doLogin()">Se connecter</button>
@@ -2220,9 +2251,9 @@ function applyRoleRestrictions() {
   document.querySelector('.dash-title').textContent = titleMap[role] || 'Tableau de bord';
   document.querySelector('.dash-subtitle').textContent = 'Suivi des candidatures';
 
-  // Update navbar text
-  const navBrand = document.querySelector('.logo-wordmark');
-  if (navBrand) navBrand.innerHTML = '<strong>EDUMOVE</strong> ' + (titleMap[role] || 'Admin');
+  // Update navbar role tag
+  const roleTag = document.getElementById('logo-role-tag');
+  if (roleTag) roleTag.textContent = titleMap[role] || 'Admin';
 }
 
 function showDashboard(user) {
