@@ -3594,7 +3594,27 @@ function renderDetailPage(c) {
     }
   }
 
-  // ── Card 6: SUIVI CANDIDATURE (unifié) ──
+  // ── Card 6bis: PRÉVISUALISATION RÉPONSE ÉTUDIANTE ──
+  if (window.adminRole === 'super_admin' || !window.adminRole) {
+    adminPreviewSelections = { LINK: null, UCJC: null, UE: null };
+    if (c.uni_selections) {
+      if (c.uni_selections.LINK) adminPreviewSelections.LINK = { ...c.uni_selections.LINK };
+      if (c.uni_selections.UCJC) adminPreviewSelections.UCJC = { ...c.uni_selections.UCJC };
+      if (c.uni_selections.UE) adminPreviewSelections.UE = { ...c.uni_selections.UE };
+    }
+    html += `<div class="detail-card" style="background:#f5f0ff;border:2px solid #d1c4e9;">
+      <div class="detail-card-title${c.uni_selections ? ' collapsed' : ''}" onclick="toggleCard(this)" style="color:#4a148c;border-color:#d1c4e9;font-size:14px;">
+        PRÉVISUALISATION RÉPONSE ÉTUDIANTE
+      </div>
+      <div class="detail-card-body${c.uni_selections ? ' collapsed' : ''}">
+        <div id="admprev-container-${c.id}">
+          ${admin_buildPreviewSection(c, c.id)}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ── Card 7: SUIVI CANDIDATURE (unifié) ──
   const uniSel = c.uni_selections || {};
   const uniTracking = c.uni_tracking || {};
   const docs = c.documents || {};
