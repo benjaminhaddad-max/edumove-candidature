@@ -3042,6 +3042,8 @@ async function updateUniTracking(candidatureId, uniKey, field, value) {
       await supabase.from('candidatures').update({ status: 'accepte' }).eq('id', candidatureId);
       if (c) c.status = 'accepte';
     }
+    // Refresh table so "Suivi par fac" column reflects the new tracking status
+    renderTable();
     // Visual feedback
     const el = document.getElementById('track-' + uniKey + '-' + candidatureId);
     if (el) { el.style.boxShadow = '0 0 0 2px #2e7d52'; setTimeout(() => el.style.boxShadow = '', 1500); }
