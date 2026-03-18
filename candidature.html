@@ -941,13 +941,26 @@ select.nt-matiere:focus { border-color: var(--violet); }
 
   <hr class="form-divider"/>
 
-  <!-- UNIVERSITÉS PARTENAIRES -->
-  <div class="form-section-label">Universités partenaires</div>
-  <div class="section-desc" style="margin-bottom:16px;">Classez les universités par ordre de préférence (glissez-déposez ou utilisez les flèches). Vous pouvez exclure celles qui ne vous intéressent pas.</div>
+  <!-- CLASSEMENT PRÉFÉRENCES -->
+  <div class="form-section-label">Classement de vos préférences</div>
+  <div class="section-desc" style="margin-bottom:16px;">Classez par ordre de préférence (glissez-déposez ou utilisez les flèches). Vous pouvez exclure les options qui ne vous intéressent pas.</div>
 
   <div class="ranking-list" id="ranking-list">
-    <div class="ranking-item" data-value="LINK" draggable="true">
+    <div class="ranking-item" data-value="PASS_LAS" draggable="true">
       <span class="ranking-num">1</span>
+      <span class="flag-icon">🇫🇷</span>
+      <div style="flex:1;">
+        <span class="ranking-label" style="display:block;">PASS / LAS / L.SpS via Parcoursup</span>
+        <span style="font-size:12px;color:var(--text-muted);font-weight:400;">France</span>
+      </div>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
+      </span>
+      <button class="exclude-btn" onclick="excludeRankItem(this)" title="Exclure cette option">✕</button>
+    </div>
+    <div class="ranking-item" data-value="LINK" draggable="true">
+      <span class="ranking-num">2</span>
       <span class="flag-icon">🇮🇹</span>
       <div style="flex:1;">
         <span class="ranking-label" style="display:block;">LINK Campus University</span>
@@ -957,10 +970,10 @@ select.nt-matiere:focus { border-color: var(--violet); }
         <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
         <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
       </span>
-      <button class="exclude-btn" onclick="excludeRankItem(this)" title="Exclure cette université">✕</button>
+      <button class="exclude-btn" onclick="excludeRankItem(this)" title="Exclure cette option">✕</button>
     </div>
     <div class="ranking-item" data-value="UCJC" draggable="true">
-      <span class="ranking-num">2</span>
+      <span class="ranking-num">3</span>
       <span class="flag-icon">🇪🇸</span>
       <div style="flex:1;">
         <span class="ranking-label" style="display:block;">UCJC — Universidad Camilo José Cela</span>
@@ -970,10 +983,10 @@ select.nt-matiere:focus { border-color: var(--violet); }
         <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
         <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
       </span>
-      <button class="exclude-btn" onclick="excludeRankItem(this)" title="Exclure cette université">✕</button>
+      <button class="exclude-btn" onclick="excludeRankItem(this)" title="Exclure cette option">✕</button>
     </div>
     <div class="ranking-item" data-value="UE" draggable="true">
-      <span class="ranking-num">3</span>
+      <span class="ranking-num">4</span>
       <span class="flag-icon">🇪🇸</span>
       <div style="flex:1;">
         <span class="ranking-label" style="display:block;">Universidad Europea</span>
@@ -983,12 +996,12 @@ select.nt-matiere:focus { border-color: var(--violet); }
         <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
         <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
       </span>
-      <button class="exclude-btn" onclick="excludeRankItem(this)" title="Exclure cette université">✕</button>
+      <button class="exclude-btn" onclick="excludeRankItem(this)" title="Exclure cette option">✕</button>
     </div>
   </div>
 
   <div class="excluded-zone" id="excluded-zone" style="display:none;">
-    <div class="excluded-zone-title">Universités exclues</div>
+    <div class="excluded-zone-title">Options exclues</div>
     <div class="excluded-list" id="excluded-list"></div>
   </div>
 
@@ -1084,12 +1097,26 @@ let userProfile = {};
   }
   currentUser = user;
 
+  // Mode édition ?edit=ID
+  const _editId = new URLSearchParams(window.location.search).get('edit');
+
   // Check if already has a candidature
   try {
-    const { data } = await supabase.from('candidatures').select('id').eq('user_id', user.id).limit(1).maybeSingle();
-    if (data) {
+    const { data } = await supabase.from('candidatures').select('*').eq('user_id', user.id).limit(1).maybeSingle();
+    if (data && !_editId) {
       window.location.href = 'espace.html';
       return;
+    }
+    if (data && _editId) {
+      // Vérifier délai 2h
+      const createdAt = new Date(data.created_at);
+      const twoHoursMs = 2 * 60 * 60 * 1000;
+      if (Date.now() - createdAt.getTime() > twoHoursMs || data.status !== 'en_attente') {
+        alert('Le délai de modification de 2h est dépassé ou votre dossier a déjà été traité.');
+        window.location.href = 'espace.html';
+        return;
+      }
+      window._editingCandidature = data;
     }
   } catch(e) { console.error('Check candidature error:', e); }
 
@@ -1102,10 +1129,133 @@ let userProfile = {};
     }
   } catch(e) { console.error('Load profile error:', e); }
 
+  // Pré-remplir le formulaire si mode édition
+  if (window._editingCandidature) {
+    prefillFormFromCandidature(window._editingCandidature);
+  }
 })();
 
 function logout() {
   supabase.auth.signOut().then(() => { window.location.href = 'index.html'; });
+}
+
+// ── PRÉ-REMPLISSAGE MODE ÉDITION ──
+function prefillFormFromCandidature(c) {
+  // Bandeau édition
+  const main = document.querySelector('.main-wrap');
+  const banner = document.createElement('div');
+  const createdAt = new Date(c.created_at);
+  const twoHoursMs = 2 * 60 * 60 * 1000;
+  const timeLeft = twoHoursMs - (Date.now() - createdAt.getTime());
+  const minsLeft = Math.max(0, Math.ceil(timeLeft / 60000));
+  const hLeft = Math.floor(minsLeft / 60);
+  const mLeft = minsLeft % 60;
+  const timeStr = hLeft > 0 ? hLeft + 'h' + (mLeft > 0 ? mLeft.toString().padStart(2,'0') : '') : mLeft + ' min';
+  banner.innerHTML = `<div style="background:linear-gradient(135deg,#ec680a,#e17055);color:white;border-radius:10px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;">
+    <div style="font-size:20px;">✏️</div>
+    <div><div style="font-size:11px;opacity:0.7;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">Mode modification</div>
+    <div style="font-weight:700;font-size:14px;">Corrigez les erreurs — ${timeStr} restantes</div></div></div>`;
+  main.insertBefore(banner, main.firstChild);
+
+  // Changer le bouton submit
+  const submitBtn = document.querySelector('.btn-submit');
+  if (submitBtn) submitBtn.textContent = 'Enregistrer les modifications';
+
+  // Profil
+  if (c.profil) {
+    const opt = document.querySelector(`.profil-option[onclick*="'${c.profil}'"]`);
+    if (opt) { selectProfil(c.profil, opt); }
+  }
+
+  // Filières ranking
+  if (c.classement_filieres && c.classement_filieres.length > 0) {
+    const list = document.getElementById('filiere-ranking-list');
+    const excList = document.getElementById('filiere-excluded-list');
+    const excZone = document.getElementById('filiere-excluded-zone');
+    const allItems = Array.from(list.querySelectorAll('.ranking-item'));
+    // Réordonner selon le classement sauvegardé
+    c.classement_filieres.forEach(val => {
+      const item = allItems.find(i => i.dataset.value === val);
+      if (item) list.appendChild(item);
+    });
+    // Exclure les filières exclues
+    if (c.filieres_exclues) {
+      c.filieres_exclues.forEach(val => {
+        const item = allItems.find(i => i.dataset.value === val);
+        if (item) excludeFiliereItem(item.querySelector('.exclude-btn'));
+      });
+    }
+    updateFiliereRankNums();
+  }
+
+  // Notes Première
+  if (c.notes_premiere) {
+    c.notes_premiere.forEach((n, i) => {
+      const prefix = 'p' + (i + 1);
+      const sel = document.getElementById(prefix + '-nom');
+      if (sel && n.nom) { sel.value = n.nom; }
+      if (n.t1) document.getElementById(prefix + '-t1').value = n.t1;
+      if (n.t2) document.getElementById(prefix + '-t2').value = n.t2;
+      if (n.t3) document.getElementById(prefix + '-t3').value = n.t3;
+      calcMoy(prefix);
+    });
+    updateTerminaleOptions();
+  }
+
+  // Notes Terminale
+  if (c.notes_terminale) {
+    c.notes_terminale.forEach((n, i) => {
+      const rowId = 't' + (i + 1);
+      const row = document.getElementById('term-row-' + (i + 1));
+      if (row) row.style.display = '';
+      const nomEl = document.getElementById(rowId + '-nom');
+      if (nomEl && n.nom) nomEl.value = n.nom;
+      const dispEl = document.getElementById(rowId + '-nom-display');
+      if (dispEl && n.nom) dispEl.textContent = n.nom;
+      if (n.t1) document.getElementById(rowId + '-t1').value = n.t1;
+      calcMoy(rowId);
+      // Check the checkbox
+      const cbs = document.querySelectorAll('#terminale-checkboxes input');
+      cbs.forEach(cb => { if (cb.value === n.nom) { cb.checked = true; cb.closest('label')?.classList.add('selected'); } });
+    });
+    state.termSpe = c.notes_terminale.map(n => n.nom).filter(Boolean);
+  }
+
+  // Classement destinations
+  if (c.classement_destinations && c.classement_destinations.length > 0) {
+    const list = document.getElementById('ranking-list');
+    const allItems = Array.from(list.querySelectorAll('.ranking-item'));
+    c.classement_destinations.forEach(val => {
+      const item = allItems.find(i => i.dataset.value === val);
+      if (item) list.appendChild(item);
+    });
+    if (c.destinations_exclues) {
+      c.destinations_exclues.forEach(val => {
+        const item = allItems.find(i => i.dataset.value === val);
+        if (item) excludeRankItem(item.querySelector('.exclude-btn'));
+      });
+    }
+    updateRankNums();
+  }
+
+  // Langues
+  if (c.langues) {
+    ['espagnol', 'anglais', 'italien'].forEach(lang => {
+      if (c.langues[lang]) {
+        const radio = document.querySelector(`input[name="lvl-${lang}"][value="${c.langues[lang]}"]`);
+        if (radio) {
+          radio.checked = true;
+          const label = radio.closest('.level-option');
+          if (label) label.classList.add('selected');
+          state.langLevels[lang] = c.langues[lang];
+          document.getElementById('lc-' + lang).classList.add('lang-answered');
+        }
+      }
+    });
+    if (c.langues.autre) {
+      document.getElementById('autre-langue').value = c.langues.autre;
+    }
+  }
 }
 
 // ── PROFILE DROPDOWN ──
@@ -1177,7 +1327,7 @@ const state = {
   filiereRanking: ['medecine','dentaire','kinesitherapie','pharmacie','veterinaire'],
   filiereExclues: [],
   langLevels: {},
-  ranking: ['LINK','UCJC','UE'],
+  ranking: ['PASS_LAS','LINK','UCJC','UE'],
   termSpe: []
 };
 
@@ -1700,8 +1850,7 @@ async function submitCandidature() {
       nom: v(p+'-nom'), t1: v(p+'-t1'), moy: v(p+'-moy')
     })).filter(n => n.nom);
 
-    const { data: docRef, error: insertError } = await supabase.from('candidatures').insert({
-      user_id: currentUser.id,
+    const payload = {
       nom: userProfile.nom || '',
       prenom: userProfile.prenom || '',
       email: userProfile.email || currentUser.email,
@@ -1727,19 +1876,33 @@ async function submitCandidature() {
       destinations_exclues: Array.from(document.querySelectorAll('#excluded-list .ranking-item')).map(i => i.dataset.value),
       destination: ori.dest,
       universite: ori.uni,
-      niveau: ori.level,
-      uni_selections: null,
-      source: null,
-      documents: {},
-      status: 'en_attente',
-      status_history: [{ status: 'en_attente', at: new Date().toISOString(), by: 'system' }],
-      manual_override: false,
-      auto_response_text: null,
-      auto_response_generated_at: null,
-      callback_requested: false,
-      callback_requested_at: null
-    }).select().single();
-    if (insertError) throw insertError;
+      niveau: ori.level
+    };
+
+    let docRef, dbError;
+    if (window._editingCandidature) {
+      // Mode édition : UPDATE
+      const res = await supabase.from('candidatures').update(payload).eq('id', window._editingCandidature.id).select().single();
+      docRef = res.data;
+      dbError = res.error;
+    } else {
+      // Nouvelle candidature : INSERT
+      payload.user_id = currentUser.id;
+      payload.uni_selections = null;
+      payload.source = null;
+      payload.documents = {};
+      payload.status = 'en_attente';
+      payload.status_history = [{ status: 'en_attente', at: new Date().toISOString(), by: 'system' }];
+      payload.manual_override = false;
+      payload.auto_response_text = null;
+      payload.auto_response_generated_at = null;
+      payload.callback_requested = false;
+      payload.callback_requested_at = null;
+      const res = await supabase.from('candidatures').insert(payload).select().single();
+      docRef = res.data;
+      dbError = res.error;
+    }
+    if (dbError) throw dbError;
 
     // Sync vers HubSpot (non-bloquant)
     syncToHubSpot({
