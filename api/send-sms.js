@@ -10,6 +10,11 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
+  // ⚠️ SMS désactivé — mettre SMS_ENABLED=true dans Vercel pour activer
+  if (process.env.SMS_ENABLED !== 'true') {
+    return res.status(200).json({ ok: false, reason: 'SMS disabled' });
+  }
+
   const { tel, prenom } = req.body || {};
   if (!tel) return res.status(400).json({ error: 'Missing tel' });
 
@@ -37,7 +42,8 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({
         messages: {
           message: [{ text: message, to: phone }]
-        }
+        },
+        sender: 'Edumove'
       })
     });
 
