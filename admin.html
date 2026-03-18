@@ -967,6 +967,71 @@ tr:last-child td { border-bottom: none; }
 .guide-dl-btn:hover { border-color: var(--violet); color: var(--violet); background: var(--violet-bg); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
 .guide-dl-btn .dl-icon { font-size: 16px; }
 .guide-dl-btn .dl-size { font-size: 10px; color: var(--text-muted); font-weight: 400; }
+
+/* ── EXPORT PDF BUTTON ── */
+.btn-export-pdf {
+  padding: 10px 18px;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-export-pdf:hover { background: #b91c1c; transform: translateY(-1px); }
+
+/* ── PRINT STYLES ── */
+@media print {
+  /* Hide everything except the guide */
+  body { background: white !important; margin: 0; padding: 0; }
+  .navbar, #login-view, #dashboard, #detail-page, #fac-msg-page,
+  .add-modal-overlay, .reset-overlay, .confirm-overlay,
+  .guide-search, .guide-uni-tabs, .guide-filiere-pills,
+  .guide-dl-btn, .guide-downloads, .btn-export-pdf,
+  #ue-availability-manager, #header-right, .detail-back-link,
+  .guide-header > p { display: none !important; }
+
+  /* Show the guide page */
+  .guide-page { display: block !important; max-width: 100% !important; padding: 0 !important; }
+  .guide-page * { print-color-adjust: exact !important; -webkit-print-color-adjust: exact !important; }
+
+  /* Show ALL tabs content */
+  #guide-tab-all, #guide-tab-link, #guide-tab-ucjc, #guide-tab-ue { display: block !important; }
+
+  /* Show all sections open */
+  .guide-section-body { display: block !important; }
+  .guide-section-header .chevron { display: none !important; }
+  .guide-section-header { cursor: default !important; pointer-events: none !important; }
+
+  /* Typography */
+  .guide-header h1 { font-size: 22px !important; text-align: center; margin-bottom: 20px !important; }
+  .guide-section { break-inside: avoid; margin-bottom: 12px !important; box-shadow: none !important; border: 1px solid #ddd !important; }
+  .guide-section-header h2 { font-size: 14px !important; }
+  .guide-info-card { break-inside: avoid; }
+  .guide-stat { break-inside: avoid; }
+  .guide-stats { break-inside: avoid; }
+  .guide-process { break-inside: avoid; }
+  .guide-table { font-size: 10px !important; }
+  .guide-table th { font-size: 9px !important; padding: 5px 8px !important; }
+  .guide-table td { padding: 5px 8px !important; font-size: 10px !important; }
+  .guide-info-card p, .guide-info-card li { font-size: 11px !important; }
+  .guide-kv-item .kv-value { font-size: 11px !important; }
+  .guide-kv-item .kv-label { font-size: 9px !important; }
+
+  /* Add tab titles before each section */
+  #guide-tab-link::before { content: "LINK Campus University — Rome, Italie"; display: block; font-size: 20px; font-weight: 800; color: #3730a3; margin: 30px 0 16px; padding-top: 16px; border-top: 3px solid #3730a3; }
+  #guide-tab-ucjc::before { content: "UCJC — Madrid, Espagne"; display: block; font-size: 20px; font-weight: 800; color: #9d174d; margin: 30px 0 16px; padding-top: 16px; border-top: 3px solid #9d174d; }
+  #guide-tab-ue::before { content: "Universidad Europea — Espagne (5 campus)"; display: block; font-size: 20px; font-weight: 800; color: #1e40af; margin: 30px 0 16px; padding-top: 16px; border-top: 3px solid #1e40af; }
+
+  /* Page settings */
+  @page { margin: 15mm 12mm; size: A4; }
+}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1194,7 +1259,10 @@ tr:last-child td { border-bottom: none; }
 <div id="guide-page" class="guide-page">
   <div class="guide-content">
     <div class="guide-header">
-      <h1>📖 Guide de référence EDUMOVE</h1>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <h1>📖 Guide de référence EDUMOVE</h1>
+        <button class="btn-export-pdf" onclick="exportGuidePDF()">📄 Exporter en PDF</button>
+      </div>
       <p>Toutes les informations sur nos universités partenaires, tarifs, langues, tests, documents et règles d'admission.</p>
 
       <!-- Search -->
@@ -1254,9 +1322,9 @@ tr:last-child td { border-bottom: none; }
           <table class="guide-table">
             <thead><tr><th>Filière</th><th>LINK</th><th>UCJC</th><th>UE</th></tr></thead>
             <tbody>
-              <tr><td><strong>Médecine</strong></td><td>Test écrit 5 matières (200€)</td><td><s style="opacity:.4">Complet</s></td><td>Test PE — 4 épreuves · Moy. 16-17/20 · 2 spé sci obligatoires</td></tr>
-              <tr><td><strong>Dentaire</strong></td><td>Test écrit 5 matières (200€)</td><td>Entretien seul · 2 spé sci</td><td>Test PE — 4 épreuves · Moy. 15-16/20 · 2 spé sci</td></tr>
-              <tr><td><strong>Kinésithérapie</strong></td><td>Test écrit 5 matières (200€)</td><td>Entretien seul</td><td>Hors PE (sauf français Madrid = test) · Moy. 13-14/20</td></tr>
+              <tr><td><strong>Médecine</strong></td><td>Test écrit en français — 5 matières (200€)</td><td><s style="opacity:.4">Complet</s></td><td>Test PE — 4 épreuves · Moy. 16-17/20 · 2 spé sci obligatoires</td></tr>
+              <tr><td><strong>Dentaire</strong></td><td>Test écrit en français — 5 matières (200€)</td><td>Entretien seul · 2 spé sci</td><td>Test PE — 4 épreuves · Moy. 15-16/20 · 2 spé sci</td></tr>
+              <tr><td><strong>Kinésithérapie</strong></td><td>Test écrit en français — 5 matières (200€)</td><td>Entretien seul</td><td>Hors PE (sauf français Madrid = test) · Moy. 13-14/20</td></tr>
               <tr><td><strong>Pharmacie</strong></td><td>Admission sur dossier (pas de test)</td><td>Entretien seul</td><td>Hors PE — admission sur dossier</td></tr>
               <tr><td><strong>Vétérinaire</strong></td><td>—</td><td>—</td><td>Test PE — 4 épreuves · Moy. 14-15/20 · 2 spé sci</td></tr>
               <tr><td><strong>Prépa Dentaire</strong></td><td>—</td><td>—</td><td>Hors PE — B2 anglais requis</td></tr>
@@ -1314,6 +1382,104 @@ tr:last-child td { border-bottom: none; }
           </table>
         </div>
       </div>
+
+      <!-- Critères d'orientation algo -->
+      <div class="guide-section" data-guide-search>
+        <div class="guide-section-header" onclick="toggleGuideSection(this)">
+          <h2>🤖 Algorithme d'orientation — Critères internes</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body">
+          <div class="guide-info-card full-width highlight" style="margin-bottom:14px;">
+            <h4>⚙️ Comment fonctionne l'orientation automatique</h4>
+            <p>Quand un étudiant soumet sa candidature, l'algorithme calcule automatiquement la meilleure destination (Italie ou Espagne) et l'université recommandée, en fonction de 3 critères : <strong>filière visée</strong>, <strong>niveaux de langue</strong> et <strong>moyenne des spécialités de Première</strong>.</p>
+          </div>
+
+          <div class="guide-info-card full-width" style="margin-bottom:14px;">
+            <h4>📊 Seuils de notes (moyenne des 3 spécialités de Première)</h4>
+            <table class="guide-table">
+              <thead><tr><th>Seuil</th><th>Campus éligibles</th><th>Filières concernées</th><th>Condition supplémentaire</th></tr></thead>
+              <tbody>
+                <tr><td><strong>&gt; 15/20</strong></td><td>UE Madrid + Malaga</td><td>Médecine, Dentaire</td><td>2 spécialités scientifiques (Maths, Physique-Chimie, SVT)</td></tr>
+                <tr><td><strong>&gt; 12.5/20</strong></td><td>UE Valence, Alicante, Canaries</td><td>Médecine, Dentaire</td><td>—</td></tr>
+                <tr><td><strong>&ge; 10/20</strong></td><td>UE (tous campus)</td><td>Kinésithérapie, Pharmacie</td><td>—</td></tr>
+                <tr><td><strong>Aucun seuil</strong></td><td>UCJC (entretien) + LINK (test)</td><td>Toutes</td><td>UCJC : entretien requis / LINK : test ou dossier</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="guide-info-card full-width" style="margin-bottom:14px;">
+            <h4>🌐 Logique d'orientation par langue</h4>
+            <table class="guide-table">
+              <thead><tr><th>Niveau langue</th><th>Orientation Médecine/Dentaire</th><th>Orientation Kiné</th><th>Orientation Pharmacie</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Espagnol B2+</strong></td><td>UCJC + UE (si notes suffisantes)</td><td>UCJC + UE</td><td>UCJC + UE</td></tr>
+                <tr><td><strong>Anglais B1/B2</strong></td><td>UE cursus anglophone (si notes suffisantes)</td><td>UE</td><td>UE</td></tr>
+                <tr><td><strong>Espagnol A2/B1</strong></td><td>UCJC seule (entretien ⚠️)</td><td>UCJC</td><td>UCJC</td></tr>
+                <tr><td><strong>Aucune langue</strong></td><td>LINK Campus (Italie)</td><td>LINK Campus (Italie)</td><td>LINK Campus (Italie)</td></tr>
+              </tbody>
+            </table>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">LINK Campus accepte <strong>tous les profils sans prérequis linguistique</strong> — cours d'italien intensif inclus la 1ère année. C'est l'option par défaut quand le profil ne correspond pas aux critères espagnols.</p>
+          </div>
+
+          <div class="guide-grid">
+            <div class="guide-info-card">
+              <h4>🎯 Cas particuliers Médecine/Dentaire</h4>
+              <ul>
+                <li><strong>Espagnol B2 + notes &gt; 15</strong> → UCJC + UE Madrid/Malaga (profil fort)</li>
+                <li><strong>Espagnol B2 + notes &gt; 12.5</strong> → UCJC + UE Valence/Alicante/Canaries</li>
+                <li><strong>Espagnol B2 + notes &lt; 12.5</strong> → UCJC seule (entretien déterminant)</li>
+                <li><strong>Anglais B1+ + notes &gt; 15</strong> → UE Madrid/Malaga (anglophone)</li>
+                <li><strong>Anglais B1+ + notes &lt; 12.5</strong> → Redirection LINK</li>
+                <li><strong>UCJC Médecine/Dentaire</strong> : 2 spécialités scientifiques requises</li>
+              </ul>
+            </div>
+            <div class="guide-info-card">
+              <h4>⚡ Pharmacie — Règles spéciales</h4>
+              <ul>
+                <li><strong>LINK : acceptation automatique sans test</strong> — c'est la seule filière sans épreuve</li>
+                <li>UE &amp; UCJC : critères académiques très bas (&ge; 10)</li>
+                <li>Aucune spécialité scientifique requise (toutes les facs)</li>
+                <li>C'est l'argument de vente pour les profils non-scientifiques</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="guide-info-card full-width" style="margin-top:14px;">
+            <h4>⏱️ Transition automatique des statuts</h4>
+            <p>Le statut passe automatiquement de <strong>"En cours"</strong> à <strong>"Réponse Edumove"</strong> après <strong>2 heures ouvrables</strong> (9h-20h, 7j/7). Ce délai simule une validation humaine. La réponse personnalisée est générée automatiquement en fonction du profil de l'étudiant.</p>
+            <p style="margin-top:6px;font-size:11px;color:var(--text-muted);">Un SMS est envoyé automatiquement à l'étudiant quand la réponse Edumove est prête (via SMS Factor). Le <strong>manual_override</strong> permet de court-circuiter le timer si besoin.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spécialités scientifiques reconnues -->
+      <div class="guide-section" data-guide-search>
+        <div class="guide-section-header" onclick="toggleGuideSection(this)">
+          <h2>🔬 Spécialités scientifiques reconnues</h2>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="guide-section-body">
+          <div class="guide-grid">
+            <div class="guide-info-card">
+              <h4>✅ Spécialités comptabilisées comme "scientifiques"</h4>
+              <ul>
+                <li><strong>Mathématiques</strong></li>
+                <li><strong>Physique-Chimie</strong></li>
+                <li><strong>SVT</strong> (Sciences de la Vie et de la Terre)</li>
+              </ul>
+              <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">L'algorithme vérifie la présence de ces spécialités dans les notes de Première pour déterminer l'éligibilité aux filières exigeant 2 spés scientifiques (Médecine, Dentaire, Vétérinaire à l'UE et à l'UCJC).</p>
+            </div>
+            <div class="guide-info-card highlight">
+              <h4>⚠️ Impact sur l'orientation</h4>
+              <ul>
+                <li><strong>2 spés scientifiques requises</strong> : UE Médecine, UE Dentaire, UE Vétérinaire, UCJC Médecine (complet), UCJC Dentaire</li>
+                <li><strong>Aucune spé requise</strong> : Toutes les filières LINK, UCJC Kiné, UCJC Pharmacie, UE Kiné, UE Pharmacie, UE Prépa Dentaire</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ═══════════════════════════════════════════
@@ -1348,13 +1514,13 @@ tr:last-child td { border-bottom: none; }
             <table class="guide-table">
               <thead><tr><th>Filière</th><th>Durée</th><th>Tarif/an</th><th>Coût total</th><th>Langue</th><th>Test</th><th>Moyenne min.</th></tr></thead>
               <tbody>
-                <tr><td><strong>Médecine</strong></td><td>6 ans</td><td><strong>19 800€</strong></td><td>118 800€</td><td>Italien</td><td>Oui — 5 matières</td><td>Aucune</td></tr>
-                <tr><td><strong>Dentaire</strong></td><td>6 ans</td><td><strong>19 800€</strong></td><td>118 800€</td><td>Italien</td><td>Oui — 5 matières</td><td>Aucune</td></tr>
-                <tr><td><strong>Kinésithérapie</strong></td><td>3 ans</td><td><strong>11 900€</strong></td><td>35 700€</td><td>Italien</td><td>Oui — 5 matières</td><td>Aucune</td></tr>
+                <tr><td><strong>Médecine</strong></td><td>6 ans</td><td><strong>19 800€</strong></td><td>118 800€</td><td>Italien</td><td>Oui — QCM en français, 5 matières</td><td>Aucune</td></tr>
+                <tr><td><strong>Dentaire</strong></td><td>6 ans</td><td><strong>19 800€</strong></td><td>118 800€</td><td>Italien</td><td>Oui — QCM en français, 5 matières</td><td>Aucune</td></tr>
+                <tr><td><strong>Kinésithérapie</strong></td><td>3 ans</td><td><strong>11 900€</strong></td><td>35 700€</td><td>Italien</td><td>Oui — QCM en français, 5 matières</td><td>Aucune</td></tr>
                 <tr><td><strong>Pharmacie</strong></td><td>5 ans</td><td><strong>7 900€</strong></td><td>39 500€</td><td>Italien</td><td>❌ Non — sur dossier</td><td>Aucune</td></tr>
               </tbody>
             </table>
-            <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">Aucun prérequis linguistique. Cours d'italien intensif inclus la 1ère année. Toutes les filières ouvertes à tous les profils bac (aucune spécialité requise).</p>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">Aucun prérequis linguistique. Cours d'italien intensif inclus la 1ère année. Toutes les filières ouvertes à tous les profils bac (aucune spécialité requise). <strong>Le test d'admission est intégralement en français</strong> — pas besoin de parler italien pour le passer.</p>
           </div>
 
           <!-- Processus d'admission -->
@@ -1392,8 +1558,8 @@ tr:last-child td { border-bottom: none; }
               </div>
             </div>
             <div class="guide-info-card highlight">
-              <h4>📝 Format du QCM</h4>
-              <p>Le test est composé de <strong>80 questions</strong> réparties en 5 matières. Chaque bonne réponse vaut <strong>1,5 point</strong>, chaque mauvaise réponse vaut <strong>-0,4 point</strong>. Les questions non répondues valent 0 point.</p>
+              <h4>📝 Format du QCM — Intégralement en français</h4>
+              <p>Le test est composé de <strong>80 questions</strong> réparties en 5 matières, <strong>toutes rédigées en français</strong>. Aucune connaissance de l'italien n'est nécessaire. Chaque bonne réponse vaut <strong>1,5 point</strong>, chaque mauvaise réponse vaut <strong>-0,4 point</strong>. Les questions non répondues valent 0 point.</p>
               <p style="margin-top:8px;"><strong>Score minimum pour réussir :</strong> variable selon la filière et le nombre de candidats. Pas de seuil fixe communiqué à l'avance.</p>
             </div>
           </div>
@@ -1474,7 +1640,7 @@ tr:last-child td { border-bottom: none; }
             <div class="guide-kv-item"><span class="kv-label">Tarif/an</span><span class="kv-value">19 800€</span></div>
             <div class="guide-kv-item"><span class="kv-label">Coût total</span><span class="kv-value">118 800€</span></div>
             <div class="guide-kv-item"><span class="kv-label">Langue</span><span class="kv-value">Italien</span></div>
-            <div class="guide-kv-item"><span class="kv-label">Test</span><span class="kv-value">Oui — 5 matières (200€)</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Test</span><span class="kv-value">Oui — QCM en français, 5 matières (200€)</span></div>
             <div class="guide-kv-item"><span class="kv-label">Prérequis bac</span><span class="kv-value">Aucune spécialité requise</span></div>
             <div class="guide-kv-item"><span class="kv-label">Moyenne min.</span><span class="kv-value">Aucune exigée</span></div>
             <div class="guide-kv-item"><span class="kv-label">Diplôme</span><span class="kv-value">Laurea in Medicina e Chirurgia (reconnu UE)</span></div>
@@ -1495,7 +1661,7 @@ tr:last-child td { border-bottom: none; }
             <div class="guide-kv-item"><span class="kv-label">Tarif/an</span><span class="kv-value">19 800€</span></div>
             <div class="guide-kv-item"><span class="kv-label">Coût total</span><span class="kv-value">118 800€</span></div>
             <div class="guide-kv-item"><span class="kv-label">Langue</span><span class="kv-value">Italien</span></div>
-            <div class="guide-kv-item"><span class="kv-label">Test</span><span class="kv-value">Oui — 5 matières (200€)</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Test</span><span class="kv-value">Oui — QCM en français, 5 matières (200€)</span></div>
             <div class="guide-kv-item"><span class="kv-label">Prérequis bac</span><span class="kv-value">Aucune spécialité requise</span></div>
             <div class="guide-kv-item"><span class="kv-label">Moyenne min.</span><span class="kv-value">Aucune exigée</span></div>
             <div class="guide-kv-item"><span class="kv-label">Diplôme</span><span class="kv-value">Laurea in Odontoiatria (reconnu UE)</span></div>
@@ -1515,7 +1681,7 @@ tr:last-child td { border-bottom: none; }
             <div class="guide-kv-item"><span class="kv-label">Tarif/an</span><span class="kv-value">11 900€</span></div>
             <div class="guide-kv-item"><span class="kv-label">Coût total</span><span class="kv-value">35 700€</span></div>
             <div class="guide-kv-item"><span class="kv-label">Langue</span><span class="kv-value">Italien</span></div>
-            <div class="guide-kv-item"><span class="kv-label">Test</span><span class="kv-value">Oui — 5 matières (200€)</span></div>
+            <div class="guide-kv-item"><span class="kv-label">Test</span><span class="kv-value">Oui — QCM en français, 5 matières (200€)</span></div>
             <div class="guide-kv-item"><span class="kv-label">Prérequis bac</span><span class="kv-value">Aucune spécialité requise</span></div>
             <div class="guide-kv-item"><span class="kv-label">Diplôme</span><span class="kv-value">Laurea in Fisioterapia (reconnu UE)</span></div>
           </div>
@@ -4395,6 +4561,10 @@ function toggleGuideSection(header) {
   if (body && body.classList.contains('guide-section-body')) {
     body.style.display = header.classList.contains('open') ? 'block' : 'none';
   }
+}
+
+function exportGuidePDF() {
+  window.print();
 }
 
 function switchGuideTab(tab, btn) {
