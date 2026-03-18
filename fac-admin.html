@@ -499,15 +499,9 @@ function renderTable(list) {
   table.style.display = 'table';
   empty.style.display = 'none';
 
-  // Même labels/couleurs que admin.html
   const GLOBAL_STATUS = {
-    en_cours:        { label: 'En cours',         bg: '#ede9fe', color: '#5b21b6' },
-    reponse_edumove: { label: 'Réponse Edumove',  bg: '#dbeafe', color: '#1d4ed8' },
-    dossier_soumis:  { label: 'Dossier soumis',   bg: '#f3e8ff', color: '#7c3aed' },
-    accepte:         { label: 'Accepté',           bg: '#dcfce7', color: '#166534' },
-    inscrit:         { label: 'Inscrit',           bg: '#bbf7d0', color: '#14532d' },
-    refuse:          { label: 'Refusé',            bg: '#fee2e2', color: '#991b1b' },
-    archive:         { label: 'Archivé',           bg: '#f3f4f6', color: '#6b7280' },
+    en_cours:        { label: 'En cours de traitement', bg: '#ede9fe', color: '#5b21b6' },
+    reponse_edumove: { label: 'Réponse Edumove',        bg: '#dbeafe', color: '#1d4ed8' },
   };
   const TRACK_LABELS = { en_attente: 'En attente', dossier_envoye: 'Envoyé', test_paye: 'Test payé', test_passe: 'Test passé', tests_passes: 'Tests passés', entretien_planifie: 'Entretien', entretien_passe: 'Entretien OK', accepte: 'Accepté', acompte_verse: 'Acompte', refuse: 'Refusé', inscrit: 'Inscrit', autre_agence: 'Autre agence' };
   const TRACK_COLORS = { en_attente: '#999', dossier_envoye: '#1565c0', test_paye: '#6a1b9a', test_passe: '#6a1b9a', tests_passes: '#6a1b9a', entretien_planifie: '#e65100', entretien_passe: '#e65100', accepte: '#2e7d32', acompte_verse: '#2e7d32', refuse: '#d32f2f', inscrit: '#1b5e20', autre_agence: '#795548' };
