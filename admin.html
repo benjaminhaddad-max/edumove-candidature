@@ -2475,6 +2475,50 @@ function updateStatusFromDetail(newStatus) {
 }
 
 // ══════════════════════════════════════════
+// ADMIN DOCUMENT UPLOAD
+// ══════════════════════════════════════════
+window.adminUploadDoc = async function(inputEl) {
+  const file = inputEl?.files?.[0];
+  if (!file) return;
+  const candId = inputEl.dataset.candid;
+  const docKey = inputEl.dataset.dockey;
+  const safeKey = docKey.replace(/[^a-zA-Z0-9_]/g, '_');
+  const statusEl = document.getElementById('adoc-status-' + safeKey);
+  if (statusEl) statusEl.innerHTML = '<span style="color:#666;">⏳ Envoi...</span>';
+
+  try {
+    const ext = file.name.split('.').pop().toLowerCase();
+    const path = `candidatures/${candId}/${docKey}_${Date.now()}.${ext}`;
+    const { error: uploadError } = await supabase.storage
+      .from('candidature-docs')
+      .upload(path, file, { upsert: true });
+    if (uploadError) throw uploadError;
+
+    const { data: urlData } = supabase.storage.from('candidature-docs').getPublicUrl(path);
+    const publicUrl = urlData?.publicUrl;
+    if (!publicUrl) throw new Error('URL manquante');
+
+    // Mise à jour DB
+    const cand = allCandidatures.find(x => x.id === candId);
+    const updatedDocs = { ...(cand?.documents || {}), [docKey]: publicUrl };
+    const { error: updateError } = await supabase.from('candidatures').update({ documents: updatedDocs }).eq('id', candId);
+    if (updateError) throw updateError;
+
+    // Mise à jour mémoire + refresh fiche
+    if (cand) cand.documents = updatedDocs;
+    if (statusEl) statusEl.innerHTML = '<span style="color:#2e7d32;font-weight:600;">✓ Enregistré</span>';
+    setTimeout(() => {
+      const fresh = allCandidatures.find(x => x.id === candId);
+      if (fresh) renderDetailPage(fresh);
+    }, 800);
+  } catch (err) {
+    console.error('Admin upload error:', err);
+    if (statusEl) statusEl.innerHTML = '<span style="color:#c62828;">Erreur upload</span>';
+    inputEl.value = '';
+  }
+};
+
+// ══════════════════════════════════════════
 // DETAIL PAGE VIEW
 // ══════════════════════════════════════════
 function viewDetail(id) {
@@ -2652,15 +2696,29 @@ function renderDetailPage(c) {
   function renderDocRows(defs) {
     let h = '<div style="margin-top:10px;border-top:1px dashed #ddd;padding-top:8px;">';
     h += '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);font-weight:600;margin-bottom:5px;">Documents</div>';
+    const canEdit = !window.adminRole || window.adminRole === 'super_admin' || window.adminRole === 'fac_link' || window.adminRole === 'fac_ucjc' || window.adminRole === 'fac_ue';
     defs.forEach(({ key, label, boolean: isBool }) => {
       const val = docs[key];
+      const safeKey = key.replace(/[^a-zA-Z0-9_]/g, '_');
       if (isBool) {
         const ok = val === true || val === 'true';
         h += `<div style="font-size:11px;color:${ok ? '#1565c0' : '#aaa'};margin-bottom:2px;">○ ${label}${ok ? ' — lancée' : ''}</div>`;
       } else if (typeof val === 'string' && val.startsWith('http')) {
-        h += `<div style="font-size:11px;margin-bottom:2px;"><a href="${val}" target="_blank" rel="noopener" style="color:var(--violet);text-decoration:none;font-weight:500;">✅ ${label}</a></div>`;
+        // Doc présent : lien téléchargement + option remplacer
+        h += `<div style="font-size:11px;margin-bottom:5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <a href="${val}" target="_blank" rel="noopener" download style="color:var(--violet);text-decoration:none;font-weight:500;display:flex;align-items:center;gap:4px;">✅ ${label} <span style="font-size:9px;opacity:0.6;">(télécharger)</span></a>
+          ${canEdit ? `<label for="adoc-${safeKey}" style="cursor:pointer;color:#888;font-size:10px;text-decoration:underline;white-space:nowrap;">remplacer</label>
+          <input type="file" id="adoc-${safeKey}" data-candid="${c.id}" data-dockey="${key}" style="display:none" accept=".pdf,.jpg,.jpeg,.png" onchange="adminUploadDoc(this)">
+          <span id="adoc-status-${safeKey}" style="font-size:10px;"></span>` : ''}
+        </div>`;
       } else {
-        h += `<div style="font-size:11px;color:#c62828;margin-bottom:2px;">❌ ${label}</div>`;
+        // Doc manquant : bouton upload
+        h += `<div style="font-size:11px;margin-bottom:5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span style="color:#c62828;">❌ ${label}</span>
+          ${canEdit ? `<label for="adoc-${safeKey}" style="cursor:pointer;background:#fff3e0;border:1px solid #ffb74d;color:#e65100;padding:2px 9px;border-radius:4px;font-size:10px;font-weight:600;white-space:nowrap;">📎 Ajouter</label>
+          <input type="file" id="adoc-${safeKey}" data-candid="${c.id}" data-dockey="${key}" style="display:none" accept=".pdf,.jpg,.jpeg,.png" onchange="adminUploadDoc(this)">
+          <span id="adoc-status-${safeKey}" style="font-size:10px;"></span>` : ''}
+        </div>`;
       }
     });
     h += '</div>';
