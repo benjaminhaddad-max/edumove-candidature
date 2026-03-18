@@ -519,20 +519,6 @@ select.nt-matiere:focus { border-color: var(--violet); }
 }
 .lang-card.lang-answered .lang-required-dot { background: var(--success); }
 
-/* ── DIRECT FILIERE CHIPS ── */
-.direct-filiere-grid { display: flex; flex-wrap: wrap; gap: 10px; max-width: 600px; }
-.direct-filiere-chip {
-  display: flex; align-items: center; gap: 8px;
-  padding: 12px 20px; border-radius: 10px; border: 1.5px solid var(--border);
-  background: white; cursor: pointer; transition: all 0.2s; user-select: none;
-  font-size: 14px; font-weight: 500;
-}
-.direct-filiere-chip:hover { border-color: var(--violet); background: #f5f5fb; }
-.direct-filiere-chip.selected { border-color: var(--violet); background: var(--violet); color: white; }
-.direct-filiere-chip .chip-icon { font-size: 18px; }
-.direct-filiere-chip .chip-check { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; transition: all 0.2s; }
-.direct-filiere-chip.selected .chip-check { background: white; color: var(--violet); border-color: white; }
-
 /* ── RANKING SYSTEM ── */
 .ranking-list { display: flex; flex-direction: column; gap: 8px; max-width: 600px; }
 .ranking-item {
@@ -740,8 +726,6 @@ select.nt-matiere:focus { border-color: var(--violet); }
 
 <main class="main-wrap">
 
-  <div id="direct-uni-banner" style="display:none;"></div>
-
   <div class="section-title">Formulaire de candidature</div>
   <div class="rule"></div>
   <div class="section-desc">Complétez ce formulaire avec soin. Toutes les informations sont traitées de manière confidentielle par l'équipe EDUMOVE.</div>
@@ -810,8 +794,7 @@ select.nt-matiere:focus { border-color: var(--violet); }
 
   <hr class="form-divider"/>
 
-  <!-- CLASSEMENT FILIERES (mode normal) -->
-  <div id="section-filiere-ranking">
+  <!-- CLASSEMENT FILIERES -->
   <div class="form-section-label">Classement de vos filières par préférence</div>
   <div class="section-desc" style="margin-bottom:16px;">Classez les filières par ordre de préférence (glissez-déposez ou utilisez les flèches). Vous pouvez exclure celles qui ne vous intéressent pas.</div>
 
@@ -872,16 +855,7 @@ select.nt-matiere:focus { border-color: var(--violet); }
     <div class="excluded-zone-title">Filières exclues</div>
     <div class="excluded-list" id="filiere-excluded-list"></div>
   </div>
-  </div>
-
-  <!-- CHOIX FILIERES (mode direct — lien dédié par fac) -->
-  <div id="section-filiere-direct" style="display:none;">
-  <div class="form-section-label">Filière(s) souhaitée(s)</div>
-  <div class="section-desc" style="margin-bottom:16px;">Sélectionnez la ou les filières qui vous intéressent. Vous pouvez en choisir plusieurs.</div>
-  <div class="direct-filiere-grid" id="direct-filiere-grid"></div>
-  </div>
-
-  <div class="error-msg" id="err-filiere">Veuillez sélectionner au moins une filière.</div>
+  <div class="error-msg" id="err-filiere">Veuillez garder au moins une filière dans votre classement.</div>
 
   <hr class="form-divider"/>
 
@@ -965,49 +939,57 @@ select.nt-matiere:focus { border-color: var(--violet); }
     </div>
   </div>
 
-  <!-- CLASSEMENT DESTINATIONS (caché en mode direct) -->
-  <div id="section-dest-ranking">
   <hr class="form-divider"/>
-  <div class="form-section-label">Classement de vos préférences</div>
-  <div class="section-desc" style="margin-bottom:16px;">Classez vos préférences par ordre de priorité (glissez-déposez ou utilisez les flèches). EDUMOVE prépare les candidatures dans des villes accessibles en avion et à proximité de l'aéroport, pour faciliter vos futurs allers-retours avec la France.</div>
+
+  <!-- UNIVERSITÉS PARTENAIRES -->
+  <div class="form-section-label">Universités partenaires</div>
+  <div class="section-desc" style="margin-bottom:16px;">Classez les universités par ordre de préférence (glissez-déposez ou utilisez les flèches). Vous pouvez exclure celles qui ne vous intéressent pas.</div>
 
   <div class="ranking-list" id="ranking-list">
-    <div class="ranking-item" data-value="pass_las" draggable="true">
+    <div class="ranking-item" data-value="LINK" draggable="true">
       <span class="ranking-num">1</span>
-      <span class="flag-icon">🇫🇷</span>
-      <span class="ranking-label">PASS / LAS via Parcoursup</span>
-      <span class="ranking-arrows">
-        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
-        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
-      </span>
-      <button class="exclude-btn" onclick="excludeRankItem(this)" title="Exclure cette destination">✕</button>
-    </div>
-    <div class="ranking-item" data-value="italie" draggable="true">
-      <span class="ranking-num">2</span>
       <span class="flag-icon">🇮🇹</span>
-      <span class="ranking-label">Italie</span>
+      <div style="flex:1;">
+        <span class="ranking-label" style="display:block;">LINK Campus University</span>
+        <span style="font-size:12px;color:var(--text-muted);font-weight:400;">Rome, Italie</span>
+      </div>
       <span class="ranking-arrows">
         <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
         <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
       </span>
-      <button class="exclude-btn" onclick="excludeRankItem(this)" title="Exclure cette destination">✕</button>
+      <button class="exclude-btn" onclick="excludeRankItem(this)" title="Exclure cette université">✕</button>
     </div>
-    <div class="ranking-item" data-value="espagne" draggable="true">
+    <div class="ranking-item" data-value="UCJC" draggable="true">
+      <span class="ranking-num">2</span>
+      <span class="flag-icon">🇪🇸</span>
+      <div style="flex:1;">
+        <span class="ranking-label" style="display:block;">UCJC — Universidad Camilo José Cela</span>
+        <span style="font-size:12px;color:var(--text-muted);font-weight:400;">Madrid, Espagne</span>
+      </div>
+      <span class="ranking-arrows">
+        <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
+        <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
+      </span>
+      <button class="exclude-btn" onclick="excludeRankItem(this)" title="Exclure cette université">✕</button>
+    </div>
+    <div class="ranking-item" data-value="UE" draggable="true">
       <span class="ranking-num">3</span>
       <span class="flag-icon">🇪🇸</span>
-      <span class="ranking-label">Espagne</span>
+      <div style="flex:1;">
+        <span class="ranking-label" style="display:block;">Universidad Europea</span>
+        <span style="font-size:12px;color:var(--text-muted);font-weight:400;">Madrid, Valence, Malaga, Alicante, Canaries — Espagne</span>
+      </div>
       <span class="ranking-arrows">
         <button class="arrow-btn" onclick="moveRank(this,-1)">&#9650;</button>
         <button class="arrow-btn" onclick="moveRank(this,1)">&#9660;</button>
       </span>
-      <button class="exclude-btn" onclick="excludeRankItem(this)" title="Exclure cette destination">✕</button>
+      <button class="exclude-btn" onclick="excludeRankItem(this)" title="Exclure cette université">✕</button>
     </div>
   </div>
 
   <div class="excluded-zone" id="excluded-zone" style="display:none;">
-    <div class="excluded-zone-title">Destinations exclues</div>
+    <div class="excluded-zone-title">Universités exclues</div>
     <div class="excluded-list" id="excluded-list"></div>
-  </div>
   </div>
 
   <hr class="form-divider"/>
@@ -1093,85 +1075,11 @@ select.nt-matiere:focus { border-color: var(--violet); }
 let currentUser = null;
 let userProfile = {};
 
-// ── Détection lien direct (?direct=LINK|UCJC|UEM) ──
-const _directParam = new URLSearchParams(window.location.search).get('direct')?.toUpperCase();
-const _directUni = ['LINK', 'UCJC', 'UEM'].includes(_directParam) ? _directParam : null;
-const _directLabels = { LINK: 'LINK Campus University — Rome', UCJC: 'UCJC — Madrid', UEM: 'Universidad Europea' };
-const _directColors = { LINK: '#1a2744', UCJC: '#96234a', UEM: '#003da5' };
-
-// ── DIRECT FILIERE CHIPS (lien dédié par fac) ──
-const _directFilieresByUni = {
-  LINK: [
-    { id: 'medecine', label: 'Médecine', icon: '🩺' },
-    { id: 'dentaire', label: 'Dentaire', icon: '🦷' },
-    { id: 'kinesitherapie', label: 'Kinésithérapie', icon: '🏃' },
-    { id: 'pharmacie', label: 'Pharmacie', icon: '💊' }
-  ],
-  UCJC: [
-    { id: 'dentaire', label: 'Dentaire', icon: '🦷' },
-    { id: 'kinesitherapie', label: 'Kinésithérapie', icon: '🏃' },
-    { id: 'pharmacie', label: 'Pharmacie', icon: '💊' }
-  ],
-  UEM: [
-    { id: 'medecine', label: 'Médecine', icon: '🩺' },
-    { id: 'dentaire', label: 'Dentaire', icon: '🦷' },
-    { id: 'kinesitherapie', label: 'Kinésithérapie', icon: '🏃' },
-    { id: 'pharmacie', label: 'Pharmacie', icon: '💊' },
-    { id: 'veterinaire', label: 'Vétérinaire', icon: '🐾' },
-    { id: 'prepa_dentaire', label: 'Prépa Dentaire', icon: '🦷' }
-  ]
-};
-let directSelectedFilieres = [];
-
-function buildDirectFiliereChips(uniKey) {
-  const grid = document.getElementById('direct-filiere-grid');
-  const filieres = _directFilieresByUni[uniKey] || [];
-  grid.innerHTML = '';
-  filieres.forEach(f => {
-    const chip = document.createElement('div');
-    chip.className = 'direct-filiere-chip';
-    chip.dataset.value = f.id;
-    chip.innerHTML = `<span class="chip-icon">${f.icon}</span><span>${f.label}</span><span class="chip-check"></span>`;
-    chip.onclick = () => toggleDirectFiliere(chip, f.id);
-    grid.appendChild(chip);
-  });
-}
-
-function toggleDirectFiliere(chip, filiereId) {
-  chip.classList.toggle('selected');
-  const check = chip.querySelector('.chip-check');
-  if (chip.classList.contains('selected')) {
-    check.textContent = '✓';
-    if (!directSelectedFilieres.includes(filiereId)) directSelectedFilieres.push(filiereId);
-  } else {
-    check.textContent = '';
-    directSelectedFilieres = directSelectedFilieres.filter(f => f !== filiereId);
-  }
-  state.filiereRanking = [...directSelectedFilieres];
-  state.filiere = directSelectedFilieres[0] || '';
-  state.filiereExclues = [];
-  showErr('err-filiere', false);
-}
-
-// ── Adapter le formulaire IMMÉDIATEMENT si lien direct (avant auth) ──
-if (_directUni) {
-  document.getElementById('section-dest-ranking').style.display = 'none';
-  document.getElementById('section-filiere-ranking').style.display = 'none';
-  document.getElementById('section-filiere-direct').style.display = 'block';
-  const banner = document.getElementById('direct-uni-banner');
-  if (banner) {
-    banner.innerHTML = `<div style="background:${_directColors[_directUni]};color:white;border-radius:10px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;"><div style="font-size:20px;">🎓</div><div><div style="font-size:11px;opacity:0.7;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">Candidature directe</div><div style="font-weight:700;font-size:15px;">${_directLabels[_directUni]}</div></div></div>`;
-    banner.style.display = 'block';
-  }
-  buildDirectFiliereChips(_directUni);
-}
-
 (async () => {
   const { data: { session } } = await supabase.auth.getSession();
   const user = session?.user;
   if (!user) {
-    // Preserve direct param through login
-    window.location.href = 'index.html' + (_directUni ? '?direct=' + _directUni : '');
+    window.location.href = 'index.html';
     return;
   }
   currentUser = user;
@@ -1194,7 +1102,6 @@ if (_directUni) {
     }
   } catch(e) { console.error('Load profile error:', e); }
 
-  // (bandeau + sections direct déjà gérés au chargement, avant l'async)
 })();
 
 function logout() {
@@ -1270,7 +1177,7 @@ const state = {
   filiereRanking: ['medecine','dentaire','kinesitherapie','pharmacie','veterinaire'],
   filiereExclues: [],
   langLevels: {},
-  ranking: ['pass_las','italie','espagne'],
+  ranking: ['LINK','UCJC','UE'],
   termSpe: []
 };
 
@@ -1775,25 +1682,11 @@ async function submitCandidature() {
       nom: v(p+'-nom'), t1: v(p+'-t1'), t2: v(p+'-t2'), t3: v(p+'-t3'), moy: v(p+'-moy')
     })).filter(n => n.nom);
 
-    const ori = _directUni ? { dest: _directUni === 'LINK' ? 'italie' : 'espagne', uni: _directLabels[_directUni], level: 'direct' } : orient(score, state.langLevels, state.filiere, notesPremiere);
+    const ori = orient(score, state.langLevels, state.filiere, notesPremiere);
 
     const notesTerminale = ['t1','t2'].map(p => ({
       nom: v(p+'-nom'), t1: v(p+'-t1'), moy: v(p+'-moy')
     })).filter(n => n.nom);
-
-    // Pour les candidatures directes : uni_selections pré-remplie, statut direct
-    const filiereLabelsMap = { medecine: 'Médecine', dentaire: 'Dentaire', kinesitherapie: 'Kinésithérapie', pharmacie: 'Pharmacie', veterinaire: 'Vétérinaire', prepa_dentaire: 'Prépa Dentaire' };
-    let directUniSelections = null;
-    if (_directUni) {
-      const uniKey = _directUni === 'UEM' ? 'UE' : _directUni;
-      directUniSelections = {
-        [uniKey]: {
-          filieres: directSelectedFilieres.map(f => ({ id: f, label: filiereLabelsMap[f] || f })),
-          filiere: directSelectedFilieres[0],
-          filiereLabel: filiereLabelsMap[directSelectedFilieres[0]] || directSelectedFilieres[0]
-        }
-      };
-    }
 
     const { data: docRef, error: insertError } = await supabase.from('candidatures').insert({
       user_id: currentUser.id,
@@ -1823,12 +1716,12 @@ async function submitCandidature() {
       destination: ori.dest,
       universite: ori.uni,
       niveau: ori.level,
-      uni_selections: directUniSelections,
-      source: _directUni ? 'direct_' + _directUni : null,
+      uni_selections: null,
+      source: null,
       documents: {},
-      status: _directUni ? 'reponse_edumove' : 'en_attente',
-      status_history: [{ status: _directUni ? 'reponse_edumove' : 'en_attente', at: new Date().toISOString(), by: _directUni ? 'direct_link' : 'system' }],
-      manual_override: !!_directUni,
+      status: 'en_attente',
+      status_history: [{ status: 'en_attente', at: new Date().toISOString(), by: 'system' }],
+      manual_override: false,
       auto_response_text: null,
       auto_response_generated_at: null,
       callback_requested: false,

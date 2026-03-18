@@ -1381,13 +1381,9 @@ function renderDashboard() {
     showSelectionsSaved(c.uni_selections);
   }
 
-  // Show interactive response card
-  const _isDirect = c.source?.startsWith('direct_');
-  const _directFacKey = _isDirect ? c.source.replace('direct_', '') : null;
-  // Pour les candidatures directes OU les statuts réponse classiques
-  if (_isDirect || ['reponse_edumove', 'dossier_soumis', 'accepte', 'refuse', 'abandon'].includes(c.status)) {
+  // Show interactive response card if applicable
+  if (['reponse_edumove', 'dossier_soumis', 'accepte', 'refuse', 'abandon'].includes(c.status)) {
     document.getElementById('reponse-edumove-card').style.display = 'block';
-    window._directFacFilter = _directFacKey; // utilisé par rebuildCardsWithFilter
     renderInteractiveResponse(c);
     if (c.callback_requested) {
       document.getElementById('btn-callback').style.display = 'none';
@@ -2963,14 +2959,7 @@ function renderInteractiveResponse(c) {
 
   // Welcome text
   const prenom = esc(c.prenom || '');
-  const _isDirect = c.source?.startsWith('direct_');
-  if (_isDirect) {
-    const _facNames = { LINK: 'LINK Campus University — Rome', UCJC: 'UCJC — Madrid', UE: 'Universidad Europea', UEM: 'Universidad Europea' };
-    const _facKey = c.source.replace('direct_', '');
-    welcomeEl.innerHTML = 'Bonjour <strong>' + prenom + '</strong>,<br>Sélectionnez la filière qui vous intéresse à <strong>' + (_facNames[_facKey] || _facKey) + '</strong> pour poursuivre votre candidature.';
-  } else {
-    welcomeEl.innerHTML = 'Bonjour <strong>' + prenom + '</strong>,<br>Merci pour votre candidature ! Après analyse de votre dossier, voici les universités partenaires EDUMOVE auxquelles vous pouvez candidater. Sélectionnez une filière pour chaque université qui vous intéresse.';
-  }
+  welcomeEl.innerHTML = 'Bonjour <strong>' + prenom + '</strong>,<br>Merci pour votre candidature ! Après analyse de votre dossier, voici les universités partenaires EDUMOVE auxquelles vous pouvez candidater. Sélectionnez une filière pour chaque université qui vous intéresse.';
 
   // Eval banner — récap complet du profil
   const profile = computeStudentProfile(c);
@@ -3024,16 +3013,9 @@ function renderInteractiveResponse(c) {
   evalEl.className = 'reponse-eval ' + (profile.moySpeSci >= 16 ? 'excellent' : profile.moySpeSci >= 13 ? 'solide' : 'adapte');
   evalEl.innerHTML = evalHtml;
 
-  // Cacher éval et titres pour candidatures directes
-  if (_isDirect) {
-    evalEl.style.display = 'none';
-    titleEl.style.display = 'none';
-    subtitleEl.style.display = 'none';
-  } else {
-    evalEl.style.display = 'block';
-    titleEl.style.display = 'block';
-    subtitleEl.style.display = 'block';
-  }
+  evalEl.style.display = 'block';
+  titleEl.style.display = 'block';
+  subtitleEl.style.display = 'block';
 
   // Initialiser les filières exclues depuis les données soumises dans le formulaire
   window._excludedFilieres = new Set(Array.isArray(c.filieres_exclues) ? c.filieres_exclues : []);
@@ -3050,10 +3032,9 @@ function rebuildCardsWithFilter(c) {
   const filieres = allFilieres.filter(f => !window._excludedFilieres || !window._excludedFilieres.has(f.id));
 
   let html = '';
-  const facFilter = window._directFacFilter;
-  if (!facFilter || facFilter === 'LINK') html += buildLINKCard(filieres);
-  if (!facFilter || facFilter === 'UCJC') html += buildUCJCCard(filieres);
-  if (!facFilter || facFilter === 'UE' || facFilter === 'UEM') html += buildUECard(filieres);
+  html += buildLINKCard(filieres);
+  html += buildUCJCCard(filieres);
+  html += buildUECard(filieres);
   cardsContainer.innerHTML = html;
 
   // Mark ineligible filiere chips for UE
