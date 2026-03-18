@@ -2667,7 +2667,7 @@ function renderDetailPage(c) {
     // ── LINK ──
     if (uniSel.LINK && (!window.adminRole || window.adminRole === 'super_admin' || window.adminRole === 'fac_link')) {
       const _ls = uniTracking.LINK_status || 'en_attente';
-      const _lp = uniTracking.LINK_test_paid || false;
+      // _lp kept for backward compat but frais now driven by dropdown status
       const _lf = uniSel.LINK.filiere;
       const _lPharm = _lf === 'pharmacie';
       // Steps mirror exactly the dropdown order
@@ -2676,7 +2676,7 @@ function renderDetailPage(c) {
       const _lSteps = [];
       _lSteps.push({ done: _lIdx >= 1, txt: 'Dossier envoyé à la fac' });
       if (!_lPharm) {
-        _lSteps.push({ done: _lIdx >= 2 || _lp, txt: 'Frais de test 200\u20ac réglés' });
+        _lSteps.push({ done: _lIdx >= 2, txt: 'Frais de test 200\u20ac réglés' });
         _lSteps.push({ done: _lIdx >= 3, txt: 'Test d\'entrée passé (15 avril — Paris)' });
       }
       _lSteps.push({ done: _lIdx >= 4, txt: 'Accepté par LINK Campus' });
@@ -2701,7 +2701,6 @@ function renderDetailPage(c) {
         <div style="display:flex;gap:14px;font-size:11px;flex-wrap:wrap;">
           <div><span style="color:var(--text-muted);">Filière :</span> <strong>${filiereLabels[_lf] || uniSel.LINK.filiereLabel || '\u2014'}</strong></div>
           ${!_lPharm ? `<div><span style="color:var(--text-muted);">Test :</span> <strong>15 avril 2026 — Paris</strong></div>` : ''}
-          ${!_lPharm ? `<div style="display:flex;align-items:center;gap:5px;"><span style="color:var(--text-muted);">Frais 200\u20ac :</span><label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" ${_lp?'checked':''} onchange="updateUniTracking('${c.id}','LINK','test_paid',this.checked)" style="width:14px;height:14px;accent-color:#2e7d52;"><span style="font-weight:600;color:${_lp?'#2e7d52':'#d63031'};">${_lp?'Réglé':'Non réglé'}</span></label></div>` : ''}
         </div>
         ${renderDocRows(_linkDocDefs)}
         ${renderSteps(_lSteps)}
