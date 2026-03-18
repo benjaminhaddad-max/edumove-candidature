@@ -2887,13 +2887,14 @@ function renderTable() {
       ? `<span style="display:inline-block;padding:1px 7px;border-radius:4px;background:#e65100;color:white;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-left:4px;">Direct ${c.source.replace('direct_','')}</span>`
       : '';
 
-    const isArchived = c.status === 'archive';
+    const isActive = c.status === 'en_cours' || c.status === 'reponse_edumove';
+    const isArchived = !isActive;
     const archiveBtn = isArchived
-      ? `<button class="btn-restore" onclick="event.stopPropagation();restoreCandidature('${c.id}')" title="Restaurer">&#x21A9;</button>`
+      ? `<button class="btn-restore" onclick="event.stopPropagation();restoreCandidature('${c.id}')" title="Désarchiver / Restaurer">&#x21A9;</button>`
       : `<button class="btn-archive" onclick="event.stopPropagation();confirmArchive('${c.id}')" title="Archiver">&#x1F4E6;</button>`;
     const deleteBtn = `<button class="btn-delete" onclick="event.stopPropagation();confirmDelete('${c.id}')" title="Supprimer">&times;</button>`;
 
-    return `<tr${isArchived ? ' style="opacity:0.6"' : ''}>
+    return `<tr${c.status === 'archive' ? ' style="opacity:0.6"' : ''}>
       <td><div class="td-name">${esc(c.nom)} ${esc(c.prenom)}${directBadge}</div></td>
       <td>${filiere}</td>
       <td><div class="uni-badges">${uniBadges}</div></td>
@@ -3034,7 +3035,10 @@ async function restoreCandidature(id) {
   if (!confirm(`Voulez-vous restaurer le dossier de ${name} ?`)) return;
 
   const adminEmail = currentAdminUser?.email || 'admin';
-  const previousStatus = c?.previous_status || 'en_cours';
+  // Restore to previous_status, or default to reponse_edumove (most common active status)
+  const validStatuses = ['en_cours', 'reponse_edumove'];
+  const previousStatus = (c?.previous_status && validStatuses.includes(c.previous_status))
+    ? c.previous_status : 'reponse_edumove';
   const existing = Array.isArray(c?.status_history) ? c.status_history : [];
   const { error } = await supabase.from('candidatures').update({
     status: previousStatus,
@@ -3140,7 +3144,7 @@ function renderDetailPage(c) {
   // Detail action buttons (archive/delete)
   const actionBtns = document.getElementById('detail-action-btns');
   if (window.adminRole === 'super_admin' || !window.adminRole) {
-    const isArchived = c.status === 'archive';
+    const isArchived = c.status !== 'en_cours' && c.status !== 'reponse_edumove';
     actionBtns.innerHTML = isArchived
       ? `<button class="btn-restore" onclick="restoreCandidature('${c.id}')" style="padding:8px 16px;font-size:13px;">&#x21A9; Restaurer</button>
          <button class="btn-delete" onclick="confirmDelete('${c.id}')" style="padding:8px 16px;font-size:13px;">Supprimer</button>`
