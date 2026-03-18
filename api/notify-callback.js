@@ -16,7 +16,7 @@ module.exports = async function handler(req, res) {
   const brevoApiKey = process.env.BREVO_API_KEY;
   if (!brevoApiKey) return res.status(500).json({ error: 'BREVO_API_KEY not configured' });
 
-  const adminEmail = process.env.ADMIN_NOTIFY_EMAIL || 'contact@edumove.fr';
+  const adminEmail = process.env.ADMIN_NOTIFY_EMAIL || 'admissions@edumove.fr';
   const adminUrl   = process.env.SITE_URL
     ? `${process.env.SITE_URL}/admin.html`
     : 'https://candidature.edumove.fr/admin.html';
@@ -99,7 +99,7 @@ module.exports = async function handler(req, res) {
         'Accept': 'application/json'
       },
       body: JSON.stringify({
-        sender: { name: 'Edumove Plateforme', email: 'noreply@edumove.fr' },
+        sender: { name: 'Edumove Admissions', email: 'admissions@edumove.fr' },
         to: [{ email: adminEmail, name: 'Équipe Edumove' }],
         subject: `📞 Rappel demandé — ${studentFullName}`,
         htmlContent
