@@ -318,8 +318,8 @@ async function loadCandidatures() {
 
 function matchUniversity(c) {
   if (currentUniversity === 'ue')   return c.ue_choices != null;
-  if (currentUniversity === 'ucjc') return c.ucjc_docs_confirmed === true;
-  if (currentUniversity === 'link') return c.link_docs_confirmed === true;
+  if (currentUniversity === 'ucjc') return (c.universite || '').toUpperCase().includes('UCJC');
+  if (currentUniversity === 'link') return (c.universite || '').toUpperCase().includes('LINK') || c.destination === 'italie';
   return false;
 }
 
@@ -371,11 +371,19 @@ function renderTable(list) {
     if (currentUniversity === 'ue' && c.ue_choices) {
       uniCell = `<span class="badge badge-uni">${esc(c.ue_choices.ville)} · ${esc(c.ue_choices.filiere)} · ${esc(c.ue_choices.langue)}</span>`;
     } else if (currentUniversity === 'ucjc') {
-      const d = c.ucjc_docs_confirmed_at ? new Date(c.ucjc_docs_confirmed_at).toLocaleDateString('fr-FR') : '';
-      uniCell = `<span class="badge badge-confirmed">✅ Confirmé${d ? ' le ' + d : ''}</span>`;
+      if (c.ucjc_docs_confirmed) {
+        const d = c.ucjc_docs_confirmed_at ? new Date(c.ucjc_docs_confirmed_at).toLocaleDateString('fr-FR') : '';
+        uniCell = `<span class="badge badge-confirmed">✅ Confirmé${d ? ' le ' + d : ''}</span>`;
+      } else {
+        uniCell = `<span class="badge" style="background:#fff8e1;color:#b45309;">⏳ En attente</span>`;
+      }
     } else if (currentUniversity === 'link') {
-      const d = c.link_docs_confirmed_at ? new Date(c.link_docs_confirmed_at).toLocaleDateString('fr-FR') : '';
-      uniCell = `<span class="badge badge-confirmed">✅ Confirmé${d ? ' le ' + d : ''}</span>`;
+      if (c.link_docs_confirmed) {
+        const d = c.link_docs_confirmed_at ? new Date(c.link_docs_confirmed_at).toLocaleDateString('fr-FR') : '';
+        uniCell = `<span class="badge badge-confirmed">✅ Confirmé${d ? ' le ' + d : ''}</span>`;
+      } else {
+        uniCell = `<span class="badge" style="background:#fff8e1;color:#b45309;">⏳ En attente</span>`;
+      }
     }
 
     // Docs status
