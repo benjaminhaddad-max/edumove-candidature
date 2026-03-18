@@ -1083,6 +1083,11 @@ body {
           Notre équipe analyse votre candidature. Vous recevrez votre recommandation personnalisée <strong>dans un délai de 2 heures</strong> pendant nos horaires d'ouverture <strong>(8h – 20h, 7j/7)</strong>.<br><br>
           Vous serez <strong>notifié par e-mail</strong> dès que votre réponse est disponible. Vous pourrez également la consulter directement dans votre espace.
         </div>
+        <div id="edit-reminder-banner" style="display:none;margin-top:14px;background:white;border:1.5px solid #e0d4f5;border-radius:10px;padding:14px 16px;">
+          <div style="font-size:13px;color:var(--navy);line-height:1.6;">
+            <strong>✏️ Vérifiez vos informations !</strong> Consultez votre dossier complet via le bouton <strong>« Mon dossier »</strong> en haut à droite. Si vous constatez une erreur, vous pouvez la corriger pendant encore <strong id="edit-time-left">—</strong>.
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1468,6 +1473,22 @@ function updateStatusDisplay(status) {
   // Bannière info visible uniquement en attente
   const banner = document.getElementById('attente-info-banner');
   if (banner) banner.style.display = status === 'en_attente' ? 'block' : 'none';
+
+  // Rappel modification dans les 2h
+  const editBanner = document.getElementById('edit-reminder-banner');
+  if (editBanner && status === 'en_attente' && candidatureData?.created_at) {
+    const createdAt = new Date(candidatureData.created_at);
+    const twoHoursMs = 2 * 60 * 60 * 1000;
+    const timeLeft = twoHoursMs - (Date.now() - createdAt.getTime());
+    if (timeLeft > 0) {
+      const minsLeft = Math.ceil(timeLeft / 60000);
+      const hLeft = Math.floor(minsLeft / 60);
+      const mLeft = minsLeft % 60;
+      const timeStr = hLeft > 0 ? hLeft + 'h' + (mLeft > 0 ? mLeft.toString().padStart(2,'0') : '') : mLeft + ' min';
+      document.getElementById('edit-time-left').textContent = timeStr;
+      editBanner.style.display = 'block';
+    }
+  }
 }
 
 function updateTimeline(status) {
