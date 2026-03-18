@@ -124,6 +124,7 @@ async function checkAndAdvanceStatus(candidatureId, data) {
           auto_response_generated_at: new Date().toISOString(),
           status_history: [...existing, { status: 'reponse_edumove', at: new Date().toISOString(), by: 'auto' }]
         }).eq('id', candidatureId);
+        sendSmsReponseEdumove(data);
         return true;
       }
     } else {
@@ -140,6 +141,7 @@ async function checkAndAdvanceStatus(candidatureId, data) {
             auto_response_generated_at: new Date().toISOString(),
             status_history: [...existing, { status: 'reponse_edumove', at: new Date().toISOString(), by: 'auto' }]
           }).eq('id', candidatureId);
+          sendSmsReponseEdumove(data);
           return true;
         }
       }
@@ -147,6 +149,20 @@ async function checkAndAdvanceStatus(candidatureId, data) {
   }
 
   return false;
+}
+
+// ── Envoi SMS via SMS Factor (transition auto → reponse_edumove) ──
+function sendSmsReponseEdumove(c) {
+  if (!c || !c.tel || c.sms_reponse_sent) return;
+  fetch('/api/send-sms', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tel: c.tel, prenom: c.prenom })
+  }).then(r => r.json()).then(data => {
+    if (data.ok) {
+      supabase.from('candidatures').update({ sms_reponse_sent: true }).eq('id', c.id);
+    }
+  }).catch(e => console.warn('SMS auto non envoyé :', e));
 }
 
 // ── Génération de la réponse EDUMOVE (côté étudiant) ──

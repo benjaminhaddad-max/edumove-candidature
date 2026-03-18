@@ -2438,6 +2438,20 @@ async function updateStatus(id, newStatus) {
     updateData.auto_response_generated_at = new Date().toISOString();
   }
   await supabase.from('candidatures').update(updateData).eq('id', id);
+
+  // Envoi SMS SMS Factor quand réponse Edumove envoyée (une seule fois)
+  if (newStatus === 'reponse_edumove' && c && !c.sms_reponse_sent && c.tel) {
+    try {
+      await fetch('/api/send-sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tel: c.tel, prenom: c.prenom })
+      });
+      await supabase.from('candidatures').update({ sms_reponse_sent: true }).eq('id', id);
+    } catch (e) {
+      console.warn('SMS non envoyé :', e);
+    }
+  }
 }
 
 function updateStatusFromDetail(newStatus) {
