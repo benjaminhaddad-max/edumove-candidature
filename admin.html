@@ -3259,18 +3259,33 @@ async function updateStatus(id, newStatus) {
   }
   await supabase.from('candidatures').update(updateData).eq('id', id);
 
-  // Envoi SMS SMS Factor quand réponse Edumove envoyée (une seule fois)
-  if (newStatus === 'reponse_edumove' && c && !c.sms_reponse_sent && c.tel) {
-    try {
-      await fetch('/api/send-sms', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tel: c.tel, prenom: c.prenom })
-      });
-      await supabase.from('candidatures').update({ sms_reponse_sent: true }).eq('id', id);
-    } catch (e) {
-      console.warn('SMS non envoyé :', e);
+  // Notifications étudiant quand réponse Edumove envoyée (une seule fois)
+  if (newStatus === 'reponse_edumove' && c && !c.sms_reponse_sent) {
+    // SMS
+    if (c.tel) {
+      try {
+        await fetch('/api/send-sms', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tel: c.tel, prenom: c.prenom })
+        });
+      } catch (e) {
+        console.warn('SMS non envoyé :', e);
+      }
     }
+    // Email Brevo (template 114)
+    if (c.email) {
+      try {
+        await fetch('/api/notify-response', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: c.email, prenom: c.prenom })
+        });
+      } catch (e) {
+        console.warn('Email réponse non envoyé :', e);
+      }
+    }
+    await supabase.from('candidatures').update({ sms_reponse_sent: true }).eq('id', id);
   }
 }
 
