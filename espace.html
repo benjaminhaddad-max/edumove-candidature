@@ -1060,6 +1060,20 @@ body {
     <div class="timeline-step" id="step-reponse"><div class="tl-dot"></div><div class="tl-label">R&eacute;ponse</div></div>
   </div>
 
+  <!-- BANNIÈRE INFO EN ATTENTE -->
+  <div id="attente-info-banner" style="display:none;background:linear-gradient(135deg,#fff8f0 0%,#fff3e0 100%);border:1.5px solid #ffcc80;border-radius:14px;padding:20px 22px;margin-bottom:20px;">
+    <div style="display:flex;align-items:flex-start;gap:14px;">
+      <div style="font-size:26px;flex-shrink:0;margin-top:2px;">📬</div>
+      <div>
+        <div style="font-weight:700;font-size:15px;color:#bf360c;margin-bottom:6px;">Votre dossier est bien reçu !</div>
+        <div style="font-size:13px;color:#4e342e;line-height:1.65;">
+          Notre équipe analyse votre candidature. Vous recevrez votre recommandation personnalisée <strong>dans un délai de 2 heures</strong> pendant nos horaires d'ouverture <strong>(8h – 20h, 7j/7)</strong>.<br><br>
+          Vous serez <strong>notifié par e-mail</strong> dès que votre espace est mis à jour. Vous pourrez également consulter directement votre réponse ici.
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- REPONSE EDUMOVE — Interactive Card System -->
   <div class="section-card" id="reponse-edumove-card" style="display:none;">
     <div class="section-card-header reponse-card-header">
@@ -1413,6 +1427,10 @@ function updateStatusDisplay(status) {
 
   // Update timeline
   updateTimeline(status);
+
+  // Bannière info visible uniquement en attente
+  const banner = document.getElementById('attente-info-banner');
+  if (banner) banner.style.display = status === 'en_attente' ? 'block' : 'none';
 }
 
 function updateTimeline(status) {
