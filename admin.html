@@ -947,9 +947,9 @@ tr:last-child td { border-bottom: none; }
               <th>Nom - Pr&eacute;nom</th>
               <th>Fili&egrave;re</th>
               <th>Universit&eacute;s</th>
-              <th>Suivi par fac</th>
-              <th>Date</th>
               <th>Statut</th>
+              <th>Date</th>
+              <th>Suivi par fac</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -2401,9 +2401,9 @@ function renderTable() {
       <td><div class="td-name">${esc(c.nom)} ${esc(c.prenom)}${directBadge}</div></td>
       <td>${filiere}</td>
       <td><div class="uni-badges">${uniBadges}</div></td>
-      <td>${trackSummary}</td>
-      <td class="td-date">${date}</td>
       <td><span class="status-badge status-${c.status}">${statusLabels[c.status] || c.status}</span></td>
+      <td class="td-date">${date}</td>
+      <td>${trackSummary}</td>
       <td><button class="btn-view" onclick="viewDetail('${c.id}')">Voir</button></td>
     </tr>`;
   }).join('');
