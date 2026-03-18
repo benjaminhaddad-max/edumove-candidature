@@ -1086,12 +1086,6 @@ body {
       <div class="reponse-section-title" id="reponse-parcours-title" style="display:none;">Choisissez votre parcours</div>
       <p id="reponse-parcours-subtitle" style="font-size:12px;color:var(--text-muted);margin-bottom:16px;display:none;">Sélectionnez une filière pour chaque université qui vous intéresse. Vous pouvez candidater à plusieurs universités en même temps.</p>
 
-      <!-- Filtre des filières -->
-      <div id="filiere-filter" style="display:none;margin-bottom:20px;padding:16px 20px;background:#f8f8fb;border:1.5px solid var(--border);border-radius:12px;">
-        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--navy);margin-bottom:10px;">Filières qui m'intéressent</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">Décochez les filières que vous souhaitez exclure. Seules les filières cochées seront proposées.</div>
-        <div id="filiere-filter-checks" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
-      </div>
 
       <div id="uni-partner-cards"></div>
 
@@ -3005,51 +2999,13 @@ function renderInteractiveResponse(c) {
   titleEl.style.display = 'block';
   subtitleEl.style.display = 'block';
 
-  // Filière filter
-  const allFilieres = getAvailableFilieres(c);
-  const filterEl = document.getElementById('filiere-filter');
-  const filterChecks = document.getElementById('filiere-filter-checks');
-  filterEl.style.display = 'block';
+  // Initialiser les filières exclues depuis les données soumises dans le formulaire
+  window._excludedFilieres = new Set(Array.isArray(c.filieres_exclues) ? c.filieres_exclues : []);
 
-  // Initialize excluded filières from storage or empty
-  if (!window._excludedFilieres) {
-    window._excludedFilieres = new Set();
-  }
-
-  filterChecks.innerHTML = allFilieres.map(f => {
-    const checked = !window._excludedFilieres.has(f.id) ? 'checked' : '';
-    return '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 14px;background:white;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:500;transition:all 0.2s;' + (!checked ? 'opacity:0.5;' : '') + '">' +
-      '<input type="checkbox" ' + checked + ' onchange="toggleFiliereFilter(\'' + f.id + '\', this.checked)" style="width:16px;height:16px;accent-color:var(--violet);">' +
-      f.label + '</label>';
-  }).join('');
-
-  // Build cards with filtered filières
+  // Build cards
   rebuildCardsWithFilter(c);
 }
 
-function toggleFiliereFilter(filiereId, checked) {
-  if (!window._excludedFilieres) window._excludedFilieres = new Set();
-  if (checked) {
-    window._excludedFilieres.delete(filiereId);
-  } else {
-    window._excludedFilieres.add(filiereId);
-    // Reset selection for this filière across all unis
-    ['LINK', 'UCJC', 'UE'].forEach(uni => {
-      if (uniSelections[uni] && uniSelections[uni].filiere === filiereId) {
-        uniSelections[uni] = null;
-      }
-    });
-  }
-  // Update checkbox label opacity
-  const labels = document.querySelectorAll('#filiere-filter-checks label');
-  labels.forEach(label => {
-    const cb = label.querySelector('input');
-    label.style.opacity = cb.checked ? '1' : '0.5';
-  });
-  // Rebuild cards
-  const c = window._currentCandidature;
-  if (c) rebuildCardsWithFilter(c);
-}
 
 function rebuildCardsWithFilter(c) {
   window._currentCandidature = c;
