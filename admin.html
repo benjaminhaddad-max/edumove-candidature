@@ -792,6 +792,10 @@ tr:last-child td { border-bottom: none; }
 .guide-info-card { background: var(--bg); border-radius: var(--radius); padding: 18px 20px; border: 1px solid var(--border-light); }
 .guide-info-card.full-width { grid-column: 1 / -1; }
 .guide-info-card.highlight { border-color: var(--violet-light); background: var(--violet-bg); }
+.guide-info-card.doc-edumove { border-left: 4px solid #6366f1; background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%); }
+.guide-info-card.doc-edumove h4 { color: #4f46e5; }
+.guide-info-card.doc-uni { border-left: 4px solid #f59e0b; background: linear-gradient(135deg, #fffbeb 0%, #f8fafc 100%); }
+.guide-info-card.doc-uni h4 { color: #d97706; }
 .guide-info-card h4 { font-size: 13px; font-weight: 700; color: var(--navy); margin: 0 0 10px; display: flex; align-items: center; gap: 6px; }
 .guide-info-card p { font-size: 13px; margin: 4px 0; line-height: 1.6; }
 .guide-info-card ul, .guide-info-card ol { padding-left: 18px; margin: 0; }
@@ -1232,8 +1236,8 @@ tr:last-child td { border-bottom: none; }
         </div>
         <div class="guide-section-body" style="display:block;">
           <div class="guide-grid">
-            <div class="guide-info-card">
-              <h4>📄 Documents pour la candidature Edumove</h4>
+            <div class="guide-info-card doc-edumove">
+              <h4>📋 Documents pour la candidature Edumove</h4>
               <ol>
                 <li><strong>Formulaire de pré-candidature LINK</strong><br><span style="font-size:11px;color:var(--text-muted);">PDF à télécharger, imprimer, remplir à la main et scanner. Disponible sur le portail LINK ou envoyé par Edumove.</span></li>
                 <li><strong>Pièce d'identité</strong> (carte d'identité ou passeport)<br><span style="font-size:11px;color:var(--text-muted);">Scan recto-verso en couleur, lisible.</span></li>
@@ -1245,8 +1249,8 @@ tr:last-child td { border-bottom: none; }
                 <a href="programme-test-link.pdf" target="_blank" class="guide-dl-btn"><span class="dl-icon">📚</span> Programme de l'épreuve <span class="dl-size">PDF</span></a>
               </div>
             </div>
-            <div class="guide-info-card">
-              <h4>📄 Documents demandés par l'université après soumission</h4>
+            <div class="guide-info-card doc-uni">
+              <h4>🏛️ Documents demandés par l'université après soumission</h4>
               <ol>
                 <li><strong>Diplôme du baccalauréat</strong> (ou attestation de réussite)<br><span style="font-size:11px;color:var(--text-muted);">Obligatoire pour finaliser l'inscription.</span></li>
                 <li><strong>Photo d'identité</strong> format numérique</li>
@@ -1419,8 +1423,8 @@ tr:last-child td { border-bottom: none; }
         </div>
         <div class="guide-section-body" style="display:block;">
           <div class="guide-grid">
-            <div class="guide-info-card">
-              <h4>📄 Documents pour la candidature Edumove</h4>
+            <div class="guide-info-card doc-edumove">
+              <h4>📋 Documents pour la candidature Edumove</h4>
               <ol>
                 <li><strong>Formulaire d'admission UCJC</strong><br><span style="font-size:11px;color:var(--text-muted);">PDF fourni par Edumove ou téléchargeable sur le portail UCJC. À remplir et signer.</span></li>
                 <li><strong>Lettre de motivation</strong><br><span style="font-size:11px;color:var(--text-muted);">Langue selon filière (voir ci-dessous).</span></li>
@@ -1431,7 +1435,7 @@ tr:last-child td { border-bottom: none; }
                 <a href="formulaire-admission-ucjc.pdf" target="_blank" class="guide-dl-btn"><span class="dl-icon">📄</span> Télécharger le formulaire UCJC <span class="dl-size">PDF</span></a>
               </div>
             </div>
-            <div class="guide-info-card">
+            <div class="guide-info-card doc-uni">
               <h4>🗣️ Langue de la lettre de motivation</h4>
               <table class="guide-table small">
                 <thead><tr><th>Filière</th><th>Langue lettre</th></tr></thead>
@@ -1442,7 +1446,7 @@ tr:last-child td { border-bottom: none; }
                 </tbody>
               </table>
               <div style="margin-top:14px;">
-                <h4>📄 Documents demandés par l'université après soumission</h4>
+                <h4>🏛️ Documents demandés par l'université après soumission</h4>
                 <ol>
                   <li>Diplôme du baccalauréat</li>
                   <li>Relevé de notes du bac</li>
@@ -1648,8 +1652,8 @@ tr:last-child td { border-bottom: none; }
         </div>
         <div class="guide-section-body" style="display:block;">
           <div class="guide-grid">
-            <div class="guide-info-card">
-              <h4>📄 Documents pour la candidature Edumove</h4>
+            <div class="guide-info-card doc-edumove">
+              <h4>📋 Documents pour la candidature Edumove</h4>
               <ol>
                 <li><strong>3 bulletins de Première</strong><br><span style="font-size:11px;color:var(--text-muted);">Fusionnés en 1 seul fichier PDF. Les 3 trimestres/semestres de l'année de Première.</span></li>
                 <li><strong>Pièce d'identité</strong> (carte d'identité ou passeport)<br><span style="font-size:11px;color:var(--text-muted);">Scan recto-verso en couleur, lisible.</span></li>
@@ -1659,8 +1663,8 @@ tr:last-child td { border-bottom: none; }
                 <a href="https://hostudents.com" target="_blank" class="guide-dl-btn"><span class="dl-icon">🌐</span> Commander le rapport technique <span class="dl-size">hostudents.com — 60€</span></a>
               </div>
             </div>
-            <div class="guide-info-card">
-              <h4>📄 Documents demandés par l'université après soumission</h4>
+            <div class="guide-info-card doc-uni">
+              <h4>🏛️ Documents demandés par l'université après soumission</h4>
               <ol>
                 <li><strong>Diplôme du baccalauréat</strong> (ou attestation de réussite)</li>
                 <li><strong>Relevé de notes du bac</strong></li>
