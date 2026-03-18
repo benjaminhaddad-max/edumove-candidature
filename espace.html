@@ -1515,6 +1515,25 @@ async function requestCallback() {
       content: '📞 Je souhaite etre rappele(e) pour discuter de ma recommandation EDUMOVE.',
       sender: 'etudiant'
     });
+
+    // Notification email Brevo → équipe Edumove (non-bloquant)
+    try {
+      const c = candidatureData || {};
+      await fetch('/api/notify-callback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nom: c.nom || '',
+          prenom: c.prenom || '',
+          tel: c.tel || '',
+          email: c.email || currentUser?.email || '',
+          candidatureId
+        })
+      });
+    } catch(emailErr) {
+      console.warn('Email notification failed (non-bloquant):', emailErr);
+    }
+
     btn.style.display = 'none';
     document.getElementById('callback-confirmed').style.display = 'block';
   } catch(e) {
