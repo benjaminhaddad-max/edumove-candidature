@@ -508,6 +508,73 @@ tr:last-child td { border-bottom: none; }
   text-transform: uppercase;
 }
 
+/* ── INLINE EDIT MODE ── */
+.btn-edit-card {
+  padding: 4px 12px;
+  background: transparent;
+  color: var(--violet);
+  border: 1.5px solid var(--violet);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  margin-left: auto;
+}
+.btn-edit-card:hover { background: var(--violet); color: white; }
+.edit-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+.btn-save-edit {
+  padding: 8px 20px;
+  background: var(--violet);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-save-edit:hover { background: var(--violet-hover); }
+.btn-cancel-edit {
+  padding: 8px 20px;
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.edit-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  background: white;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.edit-input:focus { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+.edit-select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  background: white;
+  cursor: pointer;
+  outline: none;
+}
+
 /* ── UNI SELECTION CARDS (inside detail) ── */
 .uni-selection-card {
   background: white;
@@ -2790,8 +2857,14 @@ function renderTable() {
 
   tbody.innerHTML = pageItems.map(c => {
     const date = c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '\u2014';
-    const filiere = c.filiere ? (filiereLabels[c.filiere] || c.filiere) : '\u2014';
     const sel = c.uni_selections || {};
+    // Fallback: récupérer la filière depuis uni_selections si pas au niveau racine
+    let rawFiliere = c.filiere;
+    if (!rawFiliere) {
+      const firstUni = sel.UE || sel.UCJC || sel.LINK;
+      if (firstUni?.filiere) rawFiliere = firstUni.filiere;
+    }
+    const filiere = rawFiliere ? (filiereLabels[rawFiliere] || rawFiliere) : '\u2014';
     const tracking = c.uni_tracking || {};
     let uniBadges = '';
     if (sel.LINK) uniBadges += '<span class="uni-badge link">LINK</span>';
@@ -3072,9 +3145,12 @@ function renderDetailPage(c) {
 
   // ── Card 0: RÉSUMÉ ADMIN (toujours ouvert, en haut) ──
   // ── Card 1: INFORMATIONS ETUDIANT ── (collapsed by default)
+  const _isSA = !window.adminRole || window.adminRole === 'super_admin';
+  const _editBtnInfo = _isSA ? `<button class="btn-edit-card" onclick="event.stopPropagation();toggleEditInfo('${c.id}')">Modifier</button>` : '';
   html += `<div class="detail-card">
-    <div class="detail-card-title collapsed" onclick="toggleCard(this)">Informations étudiant</div>
+    <div class="detail-card-title collapsed" onclick="toggleCard(this)">Informations étudiant ${_editBtnInfo}</div>
     <div class="detail-card-body collapsed">
+    <div id="info-display-${c.id}">
     <div class="detail-grid">
       <div class="detail-item"><span class="detail-item-label">Nom</span><span class="detail-item-value">${esc(c.nom)}</span></div>
       <div class="detail-item"><span class="detail-item-label">Prénom</span><span class="detail-item-value">${esc(c.prenom)}</span></div>
@@ -3082,6 +3158,23 @@ function renderDetailPage(c) {
       <div class="detail-item"><span class="detail-item-label">Téléphone</span><span class="detail-item-value">${esc(c.tel || '\u2014')}</span></div>
       <div class="detail-item"><span class="detail-item-label">Département</span><span class="detail-item-value">${esc(c.departement || c.codePostal || '\u2014')}</span></div>
       <div class="detail-item"><span class="detail-item-label">Profil</span><span class="detail-item-value">${c.profil === 'reorientation' ? 'R\u00e9orientation' : 'Terminale'}</span></div>
+      <div class="detail-item"><span class="detail-item-label">Filière</span><span class="detail-item-value">${filiereLabels[c.filiere] || c.filiere || '\u2014'}</span></div>
+    </div>
+    </div>
+    <div id="info-edit-${c.id}" style="display:none;">
+    <div class="detail-grid">
+      <div class="detail-item"><span class="detail-item-label">Nom</span><input class="edit-input" id="edit-nom-${c.id}" value="${esc(c.nom || '')}"></div>
+      <div class="detail-item"><span class="detail-item-label">Prénom</span><input class="edit-input" id="edit-prenom-${c.id}" value="${esc(c.prenom || '')}"></div>
+      <div class="detail-item"><span class="detail-item-label">Email</span><input class="edit-input" type="email" id="edit-email-${c.id}" value="${esc(c.email || '')}"></div>
+      <div class="detail-item"><span class="detail-item-label">Téléphone</span><input class="edit-input" type="tel" id="edit-tel-${c.id}" value="${esc(c.tel || '')}"></div>
+      <div class="detail-item"><span class="detail-item-label">Département</span><input class="edit-input" id="edit-departement-${c.id}" value="${esc(c.departement || c.codePostal || '')}"></div>
+      <div class="detail-item"><span class="detail-item-label">Profil</span><select class="edit-select" id="edit-profil-${c.id}"><option value="terminale" ${c.profil !== 'reorientation' ? 'selected' : ''}>Terminale</option><option value="reorientation" ${c.profil === 'reorientation' ? 'selected' : ''}>Réorientation</option></select></div>
+      <div class="detail-item"><span class="detail-item-label">Filière</span><select class="edit-select" id="edit-filiere-${c.id}"><option value="">—</option><option value="medecine" ${c.filiere==='medecine'?'selected':''}>Médecine</option><option value="dentaire" ${c.filiere==='dentaire'?'selected':''}>Dentaire</option><option value="kine" ${c.filiere==='kine'?'selected':''}>Kinésithérapie</option><option value="pharmacie" ${c.filiere==='pharmacie'?'selected':''}>Pharmacie</option><option value="veterinaire" ${c.filiere==='veterinaire'?'selected':''}>Vétérinaire</option><option value="prepa_dentaire" ${c.filiere==='prepa_dentaire'?'selected':''}>Prépa Dentaire</option></select></div>
+    </div>
+    <div class="edit-actions">
+      <button class="btn-cancel-edit" onclick="cancelEditInfo('${c.id}')">Annuler</button>
+      <button class="btn-save-edit" onclick="saveEditInfo('${c.id}')">Sauvegarder</button>
+    </div>
     </div>
     </div>
   </div>`;
@@ -3129,15 +3222,29 @@ function renderDetailPage(c) {
   }
 
   // ── Card 4: ORIENTATION ──
+  const _editBtnOrient = _isSA ? `<button class="btn-edit-card" onclick="event.stopPropagation();toggleEditOrient('${c.id}')">Modifier</button>` : '';
   html += `<div class="detail-card">
-    <div class="detail-card-title collapsed" onclick="toggleCard(this)">Orientation</div>
+    <div class="detail-card-title collapsed" onclick="toggleCard(this)">Orientation ${_editBtnOrient}</div>
     <div class="detail-card-body collapsed">
+    <div id="orient-display-${c.id}">
     <div class="detail-grid">
       <div class="detail-item"><span class="detail-item-label">Score académique</span><span class="detail-item-value">${c.score ? parseFloat(c.score).toFixed(1) : '\u2014'}/20</span></div>
       <div class="detail-item"><span class="detail-item-label">Niveau</span><span class="detail-item-value">${esc(c.niveau || '\u2014')}</span></div>
       <div class="detail-item" style="grid-column:1/-1"><span class="detail-item-label">Classement destinations</span><span class="detail-item-value">${(c.classement_destinations||[]).map((d,i) => (i+1)+'. '+d).join(' | ') || '\u2014'}</span></div>
       <div class="detail-item"><span class="detail-item-label">Destination recommandée</span><span class="detail-item-value">${esc(c.destination || '\u2014')}</span></div>
       <div class="detail-item"><span class="detail-item-label">Université</span><span class="detail-item-value">${esc(c.universite || '\u2014')}</span></div>
+    </div>
+    </div>
+    <div id="orient-edit-${c.id}" style="display:none;">
+    <div class="detail-grid">
+      <div class="detail-item"><span class="detail-item-label">Score académique</span><input class="edit-input" type="number" step="0.1" min="0" max="20" id="edit-score-${c.id}" value="${c.score || ''}"></div>
+      <div class="detail-item"><span class="detail-item-label">Destination</span><select class="edit-select" id="edit-destination-${c.id}"><option value="">—</option><option value="espagne" ${c.destination==='espagne'?'selected':''}>Espagne</option><option value="italie" ${c.destination==='italie'?'selected':''}>Italie</option></select></div>
+      <div class="detail-item"><span class="detail-item-label">Université</span><input class="edit-input" id="edit-universite-${c.id}" value="${esc(c.universite || '')}"></div>
+    </div>
+    <div class="edit-actions">
+      <button class="btn-cancel-edit" onclick="cancelEditOrient('${c.id}')">Annuler</button>
+      <button class="btn-save-edit" onclick="saveEditOrient('${c.id}')">Sauvegarder</button>
+    </div>
     </div>
     </div>
   </div>`;
@@ -4561,6 +4668,66 @@ function toggleGuideSection(header) {
   if (body && body.classList.contains('guide-section-body')) {
     body.style.display = header.classList.contains('open') ? 'block' : 'none';
   }
+}
+
+// ══════════════════════════════════════════
+// INLINE EDIT — Informations étudiant
+// ══════════════════════════════════════════
+function toggleEditInfo(id) {
+  const display = document.getElementById('info-display-' + id);
+  const edit = document.getElementById('info-edit-' + id);
+  if (!display || !edit) return;
+  const showing = edit.style.display !== 'none';
+  display.style.display = showing ? '' : 'none';
+  edit.style.display = showing ? 'none' : '';
+}
+function cancelEditInfo(id) { toggleEditInfo(id); }
+
+async function saveEditInfo(id) {
+  const data = {
+    nom: document.getElementById('edit-nom-' + id)?.value?.trim() || '',
+    prenom: document.getElementById('edit-prenom-' + id)?.value?.trim() || '',
+    email: document.getElementById('edit-email-' + id)?.value?.trim() || '',
+    tel: document.getElementById('edit-tel-' + id)?.value?.trim() || null,
+    departement: document.getElementById('edit-departement-' + id)?.value?.trim() || null,
+    profil: document.getElementById('edit-profil-' + id)?.value || 'terminale',
+    filiere: document.getElementById('edit-filiere-' + id)?.value || null
+  };
+  const { error } = await supabase.from('candidatures').update(data).eq('id', id);
+  if (error) { alert('Erreur: ' + error.message); return; }
+  // Update local data and re-render
+  const c = allCandidatures.find(x => x.id === id);
+  if (c) Object.assign(c, data);
+  renderDetailPage(c);
+  applyFilters();
+}
+
+// ══════════════════════════════════════════
+// INLINE EDIT — Orientation
+// ══════════════════════════════════════════
+function toggleEditOrient(id) {
+  const display = document.getElementById('orient-display-' + id);
+  const edit = document.getElementById('orient-edit-' + id);
+  if (!display || !edit) return;
+  const showing = edit.style.display !== 'none';
+  display.style.display = showing ? '' : 'none';
+  edit.style.display = showing ? 'none' : '';
+}
+function cancelEditOrient(id) { toggleEditOrient(id); }
+
+async function saveEditOrient(id) {
+  const scoreVal = document.getElementById('edit-score-' + id)?.value;
+  const data = {
+    score: scoreVal ? parseFloat(scoreVal) : null,
+    destination: document.getElementById('edit-destination-' + id)?.value || null,
+    universite: document.getElementById('edit-universite-' + id)?.value?.trim() || null
+  };
+  const { error } = await supabase.from('candidatures').update(data).eq('id', id);
+  if (error) { alert('Erreur: ' + error.message); return; }
+  const c = allCandidatures.find(x => x.id === id);
+  if (c) Object.assign(c, data);
+  renderDetailPage(c);
+  applyFilters();
 }
 
 function exportGuidePDF() {
