@@ -322,6 +322,30 @@ tr:last-child td { border-bottom: none; }
 .btn-restore:hover { background: #059669; transform: translateY(-1px); }
 .td-actions { display: flex; gap: 6px; align-items: center; }
 
+/* ── ADMIN PREVIEW: UNI CARDS ── */
+.admprev-card { border: 1.5px solid #ddd; border-radius: 12px; overflow: hidden; margin-bottom: 16px; transition: all 0.3s; }
+.admprev-card.selected { border-color: #615ca5; box-shadow: 0 0 0 2px rgba(97,92,165,0.15); }
+.admprev-header { padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; }
+.admprev-header.link-hdr { background: linear-gradient(135deg, #1a2744, #2a3d66); color: #fff; }
+.admprev-header.ucjc-hdr { background: linear-gradient(135deg, #96234a, #b84068); color: #fff; }
+.admprev-header.ue-hdr { background: linear-gradient(135deg, #003da5, #1565c0); color: #fff; }
+.admprev-name { font-size: 14px; font-weight: 700; }
+.admprev-country { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+.admprev-badge { display: none; font-size: 11px; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+.admprev-card.selected .admprev-badge { display: block; }
+.admprev-subtitle { padding: 10px 18px 0; font-size: 12px; color: #666; }
+.admprev-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 18px; }
+.admprev-chip { padding: 9px 16px; border: 1.5px solid #ddd; border-radius: 8px; background: #fff; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; font-family: inherit; }
+.admprev-chip:hover { border-color: #615ca5; background: #f5f5fb; }
+.admprev-chip.active { background: #615ca5; color: #fff; border-color: #615ca5; }
+.admprev-chip.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; background: #f9f9f9; }
+.admprev-sub { display: none; padding: 0 18px 12px; }
+.admprev-sub.open { display: block; }
+.admprev-sub-chip { padding: 7px 12px; border: 1.5px solid #ddd; border-radius: 6px; background: #fff; cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.2s; font-family: inherit; display: inline-block; margin: 0 6px 6px 0; }
+.admprev-sub-chip:hover { border-color: #615ca5; }
+.admprev-sub-chip.active { background: #615ca5; color: #fff; border-color: #615ca5; }
+.admprev-info { padding: 10px 18px; font-size: 12px; border-radius: 8px; margin: 4px 18px 10px; }
+
 /* ── CONFIRM MODAL ── */
 .confirm-overlay {
   display: none;
@@ -1343,6 +1367,7 @@ tr:last-child td { border-bottom: none; }
         <button class="guide-uni-tab" onclick="switchGuideTab('link',this)"><span class="tab-flag">🇮🇹</span><span class="tab-label">LINK Campus</span></button>
         <button class="guide-uni-tab" onclick="switchGuideTab('ucjc',this)"><span class="tab-flag">🇪🇸</span><span class="tab-label">UCJC</span></button>
         <button class="guide-uni-tab" onclick="switchGuideTab('ue',this)"><span class="tab-flag">🇪🇸</span><span class="tab-label">Universidad Europea</span></button>
+        <button class="guide-uni-tab" onclick="switchGuideTab('auto',this)"><span class="tab-flag">⚡</span><span class="tab-label">Automatisations</span></button>
       </div>
     </div>
 
@@ -2272,6 +2297,284 @@ tr:last-child td { border-bottom: none; }
           </div>
         </div>
       </div>
+
+    <!-- ═══════════════════════════════════════════
+         AUTOMATISATIONS & FONCTIONNALITÉS
+    ═══════════════════════════════════════════ -->
+    <div id="guide-tab-auto" style="display:none;">
+
+      <!-- FLUX DE STATUTS -->
+      <div class="guide-section" data-guide-search>
+        <div class="guide-section-header open" style="background:linear-gradient(135deg,#1b1d3a,#2d3065);" onclick="toggleGuideSection(this)">
+          <h2 style="color:white;">🔄 Flux de statuts — Parcours étudiant</h2>
+          <span class="chevron" style="color:white;">▼</span>
+        </div>
+        <div class="guide-section-body" style="display:block;">
+          <div style="overflow-x:auto;margin-bottom:20px;">
+            <div style="display:flex;align-items:center;gap:0;flex-wrap:nowrap;min-width:700px;padding:20px 0;">
+              <div style="text-align:center;flex:1;">
+                <div style="background:#fef3c7;border:2px solid #f59e0b;border-radius:10px;padding:10px 8px;">
+                  <div style="font-size:18px;">📋</div>
+                  <div style="font-size:11px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:0.04em;">en_attente</div>
+                  <div style="font-size:10px;color:#78350f;margin-top:3px;">Formulaire soumis</div>
+                </div>
+              </div>
+              <div style="color:#9ca3af;font-size:18px;flex-shrink:0;padding:0 4px;">→</div>
+              <div style="text-align:center;flex:1;">
+                <div style="background:#ede9fe;border:2px solid #7c3aed;border-radius:10px;padding:10px 8px;">
+                  <div style="font-size:18px;">⚙️</div>
+                  <div style="font-size:11px;font-weight:700;color:#5b21b6;text-transform:uppercase;letter-spacing:0.04em;">en_cours</div>
+                  <div style="font-size:10px;color:#4c1d95;margin-top:3px;">Docs confirmés → timer 2h</div>
+                </div>
+              </div>
+              <div style="color:#9ca3af;font-size:18px;flex-shrink:0;padding:0 4px;">→</div>
+              <div style="text-align:center;flex:1;">
+                <div style="background:#dbeafe;border:2px solid #1d4ed8;border-radius:10px;padding:10px 8px;">
+                  <div style="font-size:18px;">💬</div>
+                  <div style="font-size:11px;font-weight:700;color:#1e40af;text-transform:uppercase;letter-spacing:0.04em;">reponse_edumove</div>
+                  <div style="font-size:10px;color:#1e3a8a;margin-top:3px;">Réponse auto générée</div>
+                </div>
+              </div>
+              <div style="color:#9ca3af;font-size:18px;flex-shrink:0;padding:0 4px;">→</div>
+              <div style="text-align:center;flex:1;">
+                <div style="background:#f3e8ff;border:2px solid #7c3aed;border-radius:10px;padding:10px 8px;">
+                  <div style="font-size:18px;">📤</div>
+                  <div style="font-size:11px;font-weight:700;color:#6d28d9;text-transform:uppercase;letter-spacing:0.04em;">dossier_soumis</div>
+                  <div style="font-size:10px;color:#5b21b6;margin-top:3px;">Envoyé à l'université</div>
+                </div>
+              </div>
+              <div style="color:#9ca3af;font-size:18px;flex-shrink:0;padding:0 4px;">→</div>
+              <div style="text-align:center;flex:1;">
+                <div style="background:#dcfce7;border:2px solid #16a34a;border-radius:10px;padding:10px 8px;">
+                  <div style="font-size:18px;">🎉</div>
+                  <div style="font-size:11px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:0.04em;">accepte</div>
+                  <div style="font-size:10px;color:#14532d;margin-top:3px;">Université accepte</div>
+                </div>
+              </div>
+              <div style="color:#9ca3af;font-size:14px;flex-shrink:0;padding:0 4px;">ou</div>
+              <div style="text-align:center;flex:1;">
+                <div style="background:#fee2e2;border:2px solid #dc2626;border-radius:10px;padding:10px 8px;">
+                  <div style="font-size:18px;">❌</div>
+                  <div style="font-size:11px;font-weight:700;color:#991b1b;text-transform:uppercase;letter-spacing:0.04em;">refuse</div>
+                  <div style="font-size:10px;color:#7f1d1d;margin-top:3px;">Université refuse</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <table class="guide-table">
+            <thead><tr><th>Statut</th><th>Déclencheur</th><th>Ce qui se passe</th><th>Visible par l'étudiant</th></tr></thead>
+            <tbody>
+              <tr><td><strong>en_attente</strong></td><td>Soumission du formulaire</td><td>Dossier créé en base, étudiant peut uploader ses docs</td><td>✅ Page "En attente de validation"</td></tr>
+              <tr><td><strong>en_cours</strong></td><td>Admin change le statut OU manuellement</td><td>Timer 2h démarre (heures ouvrées 9h-20h 7j/7). Étudiant choisit ses universités.</td><td>✅ Countdown + sélection universités</td></tr>
+              <tr><td><strong>reponse_edumove</strong></td><td><strong>AUTO</strong> — 120 min ouvrées après uni_selections_at</td><td>Réponse IA générée, stockée en base. SMS envoyé si activé.</td><td>✅ Réponse + bouton rappel</td></tr>
+              <tr><td><strong>dossier_soumis</strong></td><td>Étudiant clique "Confirmer" dans son espace</td><td>Flag docs_confirmed = true. Suivi université commence.</td><td>✅ "Dossier soumis à l'université"</td></tr>
+              <tr><td><strong>accepte</strong></td><td>Admin met le suivi fac à "Inscrit" OU action manuelle</td><td>Statut principal passe à accepté automatiquement.</td><td>✅ Page de félicitations</td></tr>
+              <tr><td><strong>refuse</strong></td><td>Admin action manuelle</td><td>Statut final, archivable.</td><td>✅ Page de refus</td></tr>
+              <tr><td><strong>archive</strong></td><td>Admin action manuelle</td><td>Masqué de la vue par défaut. Accessible via filtre "Archivés".</td><td>❌ Non visible</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- BREVO -->
+      <div class="guide-section" data-guide-search>
+        <div class="guide-section-header open" style="background:linear-gradient(135deg,#0f4c81,#1a6bb5);" onclick="toggleGuideSection(this)">
+          <h2 style="color:white;">📧 Brevo — Emails automatiques</h2>
+          <span class="chevron" style="color:white;">▼</span>
+        </div>
+        <div class="guide-section-body" style="display:block;">
+          <div class="guide-grid">
+            <div class="guide-info-card" style="border-left:4px solid #0f4c81;">
+              <h4>📞 Email "Rappel demandé"</h4>
+              <table class="guide-table small" style="margin-top:8px;">
+                <tr><td style="color:var(--text-muted);width:110px;">Déclencheur</td><td>Étudiant clique <strong>"Je souhaite être rappelé(e)"</strong> dans son espace</td></tr>
+                <tr><td style="color:var(--text-muted);">Destinataire</td><td><strong>admissions@edumove.fr</strong></td></tr>
+                <tr><td style="color:var(--text-muted);">Contenu</td><td>Nom, téléphone, email de l'étudiant + lien direct vers le dossier admin</td></tr>
+                <tr><td style="color:var(--text-muted);">Statut</td><td><span style="color:#16a34a;font-weight:600;">✅ LIVE</span></td></tr>
+              </table>
+            </div>
+            <div class="guide-info-card" style="border-left:4px solid #0f4c81;">
+              <h4>🔑 Email "Réinitialisation mot de passe"</h4>
+              <table class="guide-table small" style="margin-top:8px;">
+                <tr><td style="color:var(--text-muted);width:110px;">Déclencheur</td><td>Admin ou accès fac clique <strong>"Mot de passe oublié ?"</strong></td></tr>
+                <tr><td style="color:var(--text-muted);">Destinataire</td><td>L'email saisi dans le formulaire de reset</td></tr>
+                <tr><td style="color:var(--text-muted);">Contenu</td><td>Lien de réinitialisation Supabase brandé Edumove, valable <strong>1 heure</strong></td></tr>
+                <tr><td style="color:var(--text-muted);">Statut</td><td><span style="color:#16a34a;font-weight:600;">✅ LIVE</span></td></tr>
+              </table>
+            </div>
+          </div>
+          <div class="guide-info-card highlight" style="margin-top:16px;">
+            <h4>⚙️ Configuration Brevo</h4>
+            <p>Expéditeur : <strong>Edumove Admissions &lt;admissions@edumove.fr&gt;</strong><br/>
+            API key configurée dans les variables d'environnement Vercel : <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">BREVO_API_KEY</code></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SMS FACTOR -->
+      <div class="guide-section" data-guide-search>
+        <div class="guide-section-header open" style="background:linear-gradient(135deg,#065f46,#047857);" onclick="toggleGuideSection(this)">
+          <h2 style="color:white;">📱 SMS Factor — Notifications SMS</h2>
+          <span class="chevron" style="color:white;">▼</span>
+        </div>
+        <div class="guide-section-body" style="display:block;">
+          <div class="guide-info-card" style="border-left:4px solid #f59e0b;background:#fffbeb;">
+            <h4>⚠️ Statut actuel : DÉSACTIVÉ</h4>
+            <p>Le code SMS est en place mais la variable d'environnement <code style="background:#fef3c7;padding:2px 6px;border-radius:4px;">SMS_ENABLED=true</code> n'est pas configurée sur Vercel. Pour activer, l'ajouter dans les env vars Vercel du projet <strong>edumove-candidature-main</strong>.</p>
+          </div>
+          <div class="guide-info-card" style="margin-top:12px;border-left:4px solid #065f46;">
+            <h4>📱 SMS "Réponse disponible"</h4>
+            <table class="guide-table small" style="margin-top:8px;">
+              <tr><td style="color:var(--text-muted);width:110px;">Déclencheur</td><td>Transition automatique <strong>en_cours → reponse_edumove</strong></td></tr>
+              <tr><td style="color:var(--text-muted);">Destinataire</td><td>Numéro de téléphone de l'étudiant</td></tr>
+              <tr><td style="color:var(--text-muted);">Message</td><td><em>"Bonjour [Prénom], votre réponse Edumove est disponible ! Connectez-vous à votre espace candidat : [URL]"</em></td></tr>
+              <tr><td style="color:var(--text-muted);">Expéditeur</td><td>"Edumove"</td></tr>
+              <tr><td style="color:var(--text-muted);">Anti-doublon</td><td>Flag <code>sms_reponse_sent</code> en base — jamais envoyé deux fois</td></tr>
+              <tr><td style="color:var(--text-muted);">Statut</td><td><span style="color:#d97706;font-weight:600;">⏸️ DÉSACTIVÉ</span> (SMS_ENABLED manquant)</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- REALTIME SUPABASE -->
+      <div class="guide-section" data-guide-search>
+        <div class="guide-section-header open" style="background:linear-gradient(135deg,#374151,#4b5563);" onclick="toggleGuideSection(this)">
+          <h2 style="color:white;">⚡ Supabase Realtime — Mises à jour live</h2>
+          <span class="chevron" style="color:white;">▼</span>
+        </div>
+        <div class="guide-section-body" style="display:block;">
+          <table class="guide-table">
+            <thead><tr><th>Page</th><th>Canal</th><th>Ce qui se met à jour</th></tr></thead>
+            <tbody>
+              <tr><td><strong>admin.html</strong></td><td>admin-candidatures</td><td>Tableau de bord rechargé automatiquement à chaque changement en base (INSERT, UPDATE, DELETE)</td></tr>
+              <tr><td><strong>admin.html</strong></td><td>admin-msgs-[id]</td><td>Messages du chat étudiant ↔ admin apparaissent en temps réel</td></tr>
+              <tr><td><strong>admin.html</strong></td><td>fac-detail-[fac]-[id]</td><td>Messages université ↔ admin apparaissent en temps réel</td></tr>
+              <tr><td><strong>espace.html</strong></td><td>candidature-[id]</td><td>Statut de l'étudiant se met à jour sans rechargement page</td></tr>
+              <tr><td><strong>fac-admin.html</strong></td><td>fac-candidatures</td><td>Liste des dossiers université mise à jour automatiquement</td></tr>
+            </tbody>
+          </table>
+          <div class="guide-info-card highlight" style="margin-top:12px;">
+            <h4>💡 Ce que ça veut dire</h4>
+            <p>Si tu changes le statut d'un dossier dans l'admin, l'étudiant le voit dans son espace <strong>instantanément</strong> sans recharger la page. Idem dans l'autre sens.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- AUTO-RESPONSE -->
+      <div class="guide-section" data-guide-search>
+        <div class="guide-section-header open" style="background:linear-gradient(135deg,#312e81,#4338ca);" onclick="toggleGuideSection(this)">
+          <h2 style="color:white;">🤖 Réponse automatique — Comment ça marche</h2>
+          <span class="chevron" style="color:white;">▼</span>
+        </div>
+        <div class="guide-section-body" style="display:block;">
+          <div class="guide-grid">
+            <div class="guide-info-card" style="border-left:4px solid #4338ca;">
+              <h4>⏱️ Déclenchement du timer</h4>
+              <ol style="padding-left:18px;font-size:13px;line-height:1.8;">
+                <li>L'étudiant confirme ses choix d'universités dans son espace</li>
+                <li>Le champ <code>uni_selections_at</code> est enregistré en base</li>
+                <li>Un timer démarre : <strong>120 minutes ouvrées</strong></li>
+                <li>Horaires ouvrées : <strong>9h–20h, 7j/7</strong> (= 11h/jour)</li>
+                <li>À l'expiration → statut passe automatiquement à <strong>reponse_edumove</strong></li>
+              </ol>
+            </div>
+            <div class="guide-info-card" style="border-left:4px solid #4338ca;">
+              <h4>✍️ Génération de la réponse</h4>
+              <p style="font-size:13px;margin-bottom:8px;">La réponse est générée par la fonction <code>generateReponseEdumove()</code> basée sur :</p>
+              <ul style="padding-left:18px;font-size:13px;line-height:1.8;">
+                <li><strong>Score académique</strong> (interprétation : &lt;10 = fragile, 10–13 = solide, 13+ = excellent)</li>
+                <li><strong>Niveaux de langues</strong> (espagnol, anglais, 5 niveaux)</li>
+                <li><strong>Filière</strong> (pharmacie, kiné, médecine, dentaire…)</li>
+                <li><strong>Destination</strong> (Espagne / Italie)</li>
+                <li><strong>Universités sélectionnées</strong> par l'étudiant</li>
+              </ul>
+            </div>
+          </div>
+          <div class="guide-info-card highlight" style="margin-top:12px;">
+            <h4>🔧 Déclenchement du timer — cas particulier</h4>
+            <p>Si l'étudiant n'a pas encore fait ses choix d'universités (<code>uni_selections_at</code> = null), le système estime l'heure de réponse à partir de <code>created_at + 2h</code>. La réponse générée est stockée dans <code>auto_response_text</code> en base et affichée à l'étudiant.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- HUBSPOT -->
+      <div class="guide-section" data-guide-search>
+        <div class="guide-section-header open" style="background:linear-gradient(135deg,#7c2d12,#c2410c);" onclick="toggleGuideSection(this)">
+          <h2 style="color:white;">🧲 HubSpot — Synchronisation CRM</h2>
+          <span class="chevron" style="color:white;">▼</span>
+        </div>
+        <div class="guide-section-body" style="display:block;">
+          <div class="guide-info-card" style="border-left:4px solid #f59e0b;background:#fffbeb;">
+            <h4>⚠️ Statut actuel : NON AUTO-DÉCLENCHÉ</h4>
+            <p>L'API <code>/api/hubspot</code> est disponible mais n'est pas appelée automatiquement. Elle peut être invoquée manuellement ou intégrée à une future action admin.</p>
+          </div>
+          <div class="guide-info-card" style="margin-top:12px;">
+            <h4>📊 Champs synchronisés vers HubSpot</h4>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;font-size:12px;">
+              <div>• Prénom / Nom / Email / Téléphone</div>
+              <div>• Score académique</div>
+              <div>• Département</div>
+              <div>• Profil (terminale / réorientation)</div>
+              <div>• Niveaux espagnol, anglais, italien</div>
+              <div>• Moyenne 1ère / Terminale</div>
+              <div>• Destination / Université</div>
+              <div>• ID candidature Edumove</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACCÈS FAC -->
+      <div class="guide-section" data-guide-search>
+        <div class="guide-section-header open" style="background:linear-gradient(135deg,#1e3a5f,#2563eb);" onclick="toggleGuideSection(this)">
+          <h2 style="color:white;">🏛️ Accès Back-Office Université</h2>
+          <span class="chevron" style="color:white;">▼</span>
+        </div>
+        <div class="guide-section-body" style="display:block;">
+          <table class="guide-table">
+            <thead><tr><th>Université</th><th>Email d'accès</th><th>URL</th><th>Couleur</th></tr></thead>
+            <tbody>
+              <tr><td>🇮🇹 LINK Campus</td><td>link@edumove.fr</td><td>/fac-admin.html</td><td style="color:#004d40;font-weight:600;">■ Vert foncé</td></tr>
+              <tr><td>🇪🇸 UCJC</td><td>ucjc@edumove.fr</td><td>/fac-admin.html</td><td style="color:#1a237e;font-weight:600;">■ Bleu marine</td></tr>
+              <tr><td>🇪🇸 Universidad Europea</td><td>ue@edumove.fr</td><td>/fac-admin.html</td><td style="color:#c62828;font-weight:600;">■ Rouge</td></tr>
+            </tbody>
+          </table>
+          <div class="guide-info-card" style="margin-top:12px;">
+            <h4>👁️ Ce que voit chaque fac</h4>
+            <ul style="padding-left:18px;font-size:13px;line-height:1.8;">
+              <li>Uniquement les dossiers ayant sélectionné leur université</li>
+              <li>Statut global + suivi fac (leur propre colonne dans uni_tracking)</li>
+              <li>Documents uploadés</li>
+              <li>Infos personnelles et académiques</li>
+              <li><strong>Lecture seule</strong> — ne peut pas modifier les statuts</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- VARIABLES ENV -->
+      <div class="guide-section" data-guide-search>
+        <div class="guide-section-header open" style="background:linear-gradient(135deg,#1f2937,#374151);" onclick="toggleGuideSection(this)">
+          <h2 style="color:white;">🔐 Variables d'environnement Vercel</h2>
+          <span class="chevron" style="color:white;">▼</span>
+        </div>
+        <div class="guide-section-body" style="display:block;">
+          <table class="guide-table">
+            <thead><tr><th>Variable</th><th>Usage</th><th>Statut</th></tr></thead>
+            <tbody>
+              <tr><td><code>BREVO_API_KEY</code></td><td>Envoi emails (callback + reset mdp)</td><td><span style="color:#16a34a;font-weight:600;">✅ Configuré</span></td></tr>
+              <tr><td><code>SUPABASE_URL</code></td><td>URL du projet Supabase</td><td><span style="color:#16a34a;font-weight:600;">✅ Configuré</span></td></tr>
+              <tr><td><code>SUPABASE_SERVICE_ROLE_KEY</code></td><td>Reset mot de passe (génération lien via API admin)</td><td><span style="color:#16a34a;font-weight:600;">✅ Configuré</span></td></tr>
+              <tr><td><code>SITE_URL</code></td><td>URL de base pour les liens dans les emails/SMS</td><td><span style="color:#16a34a;font-weight:600;">✅ Configuré</span></td></tr>
+              <tr><td><code>SMS_FACTOR_TOKEN</code></td><td>Authentification SMS Factor</td><td><span style="color:#16a34a;font-weight:600;">✅ Configuré</span></td></tr>
+              <tr><td><code>SMS_ENABLED</code></td><td>Active l'envoi des SMS (feature flag)</td><td><span style="color:#d97706;font-weight:600;">⏸️ Non configuré → SMS désactivés</span></td></tr>
+              <tr><td><code>ADMIN_NOTIFY_EMAIL</code></td><td>Email destinataire des notifications callback (défaut: admissions@edumove.fr)</td><td><span style="color:#6b7280;font-weight:600;">⬜ Optionnel</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
     </div>
 
   </div>
@@ -3769,6 +4072,349 @@ async function sendFacDetailMessage(candidatureId) {
 }
 
 // ══════════════════════════════════════════
+// ADMIN PREVIEW — STUDENT RESPONSE PREVIEW
+// ══════════════════════════════════════════
+let adminPreviewSelections = { LINK: null, UCJC: null, UE: null };
+let adminPreviewProfile = null;
+
+function admin_computeStudentProfile(c) {
+  const sciNames = ['mathematiques','maths','mathématiques','physique-chimie','physique chimie','pc','svt','sciences de la vie','nsi','si'];
+  let sciSum = 0, sciCount = 0;
+  function isSci(name) { const n = (name||'').toLowerCase().trim(); return sciNames.some(s => n.includes(s)); }
+  function avgNote(note) { const vals = [note.t1,note.t2,note.t3].map(v=>parseFloat(v)).filter(v=>!isNaN(v)); return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null; }
+  if (c.notes_premiere) {
+    c.notes_premiere.filter(n=>isSci(n.nom)).forEach(n => { const avg = n.moy ? parseFloat(n.moy) : avgNote(n); if (avg !== null && !isNaN(avg)) { sciSum+=avg; sciCount++; } });
+  }
+  if (c.notes_terminale) {
+    c.notes_terminale.filter(n=>isSci(n.nom)).forEach(n => { const t1 = parseFloat(n.t1); if (!isNaN(t1)) { sciSum+=t1; sciCount++; } });
+  }
+  const moySpeSci = sciCount > 0 ? sciSum/sciCount : 0;
+  const langMap = { b2:3, b1:2, debut:1, aucun:0 };
+  const langues = c.langues || {};
+  return { moySpeSci: Math.round(moySpeSci*100)/100, nbSpeSci: sciCount, moyPremiere: c.moyenne_premiere ? parseFloat(c.moyenne_premiere) : 0, espLevel: langMap[langues.espagnol]??0, engLevel: langMap[langues.anglais]??0 };
+}
+
+function admin_checkEligibility(uniKey, filiereId, profile) {
+  if (uniKey === 'LINK') {
+    if (filiereId === 'veterinaire') return { eligible:false, reason:'Non disponible à LINK' };
+    return { eligible:true, reason:'' };
+  }
+  if (uniKey === 'UCJC') {
+    if (filiereId === 'veterinaire') return { eligible:false, reason:'Non disponible à l\'UCJC' };
+    if (filiereId === 'medecine') return { eligible:false, reason:'Plus de places pour Médecine à l\'UCJC cette année' };
+    if (filiereId === 'dentaire' && profile.nbSpeSci < 2) return { eligible:false, reason:'UCJC exige 2 spé scientifiques pour Dentaire.' };
+    return { eligible:true, reason:'' };
+  }
+  if (uniKey === 'UE') {
+    const fMap = { medecine:16, dentaire:15, veterinaire:14, kinesitherapie:13, pharmacie:0 };
+    if (filiereId === 'prepa_dentaire') {
+      if (profile.engLevel < 2) return { eligible:false, reason:'Prépa Dentaire requiert Anglais B2 minimum.' };
+      return { eligible:true, reason:'' };
+    }
+    if (['medecine','dentaire','veterinaire'].includes(filiereId) && profile.nbSpeSci < 2)
+      return { eligible:false, reason:'UE exige 2 spé scientifiques pour cette filière.' };
+    const threshold = fMap[filiereId] ?? 0;
+    if (threshold > 0 && profile.moySpeSci < threshold) {
+      const fLabels = { medecine:'Médecine', dentaire:'Dentaire', veterinaire:'Vétérinaire', kinesitherapie:'Kinésithérapie' };
+      return { eligible:false, reason:'UE demande ~' + threshold + '/20 en spé sci pour ' + (fLabels[filiereId]||filiereId) + ' (étudiant: ' + profile.moySpeSci.toFixed(1) + '/20).' };
+    }
+    return { eligible:true, reason:'' };
+  }
+  return { eligible:true, reason:'' };
+}
+
+function admin_getAvailableFilieres(c) {
+  const ranking = c.classement_filieres || ['medecine','dentaire','kinesitherapie','pharmacie','veterinaire','prepa_dentaire'];
+  const labels = { medecine:'Médecine', dentaire:'Dentaire', kinesitherapie:'Kinésithérapie', pharmacie:'Pharmacie', veterinaire:'Vétérinaire', prepa_dentaire:'Prépa Dentaire' };
+  return ranking.map(f => ({ id:f, label:labels[f]||f }));
+}
+
+function admin_getUEVilles(filiere) {
+  if (filiere==='medecine'||filiere==='Médecine') return ['Madrid','Canaries'];
+  if (filiere==='pharmacie'||filiere==='Pharmacie') return ['Madrid'];
+  if (filiere==='veterinaire'||filiere==='Vétérinaire') return ['Madrid'];
+  if (filiere==='prepa_dentaire'||filiere==='Prépa Dentaire') return ['Alicante'];
+  return ['Madrid','Malaga','Valence','Alicante','Canaries'];
+}
+
+function admin_getUELangues(ville, filiere) {
+  if (filiere==='Prépa Dentaire') return ['Anglais'];
+  if (filiere==='Médecine'||filiere==='Pharmacie'||filiere==='Vétérinaire') return ['Espagnol'];
+  if (filiere==='Kinésithérapie') { return ville==='Madrid' ? ['Français','Espagnol','Anglais'] : ['Espagnol']; }
+  if (filiere==='Dentaire') { return ville==='Canaries' ? ['Espagnol'] : ['Espagnol','Anglais']; }
+  return ['Espagnol','Anglais'];
+}
+
+function admin_buildPreviewSection(c, candidatureId) {
+  const profile = admin_computeStudentProfile(c);
+  adminPreviewProfile = profile;
+  const filieres = admin_getAvailableFilieres(c);
+  const excludedFilieres = new Set(Array.isArray(c.filieres_exclues) ? c.filieres_exclues : []);
+
+  // Profile banner
+  const langLabels = { 3:'B2+ / Bilingue', 2:'B1 / Intermédiaire', 1:'A1-A2 / Débutant', 0:'Non renseigné' };
+  let html = '<div style="background:#2d2457;color:white;border-radius:10px;padding:16px 20px;margin-bottom:16px;">';
+  html += '<div style="font-size:13px;font-weight:700;margin-bottom:12px;">📋 Profil académique calculé</div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;font-size:12px;">';
+  if (profile.moySpeSci > 0) html += '<div>🔬 Moy. spé sci : <strong>' + profile.moySpeSci.toFixed(1) + '/20</strong></div>';
+  if (profile.nbSpeSci >= 2) html += '<div>✅ ' + profile.nbSpeSci + ' spé scientifiques</div>';
+  else if (profile.nbSpeSci === 1) html += '<div>⚠️ 1 seule spé scientifique</div>';
+  else html += '<div>⚠️ Aucune spé scientifique détectée</div>';
+  if (profile.moyPremiere > 0) html += '<div>📊 Moy. Première : <strong>' + profile.moyPremiere.toFixed(1) + '/20</strong></div>';
+  html += '<div>🇪🇸 Espagnol : <strong>' + (langLabels[profile.espLevel]||'?') + '</strong></div>';
+  html += '<div>🇬🇧 Anglais : <strong>' + (langLabels[profile.engLevel]||'?') + '</strong></div>';
+  html += '</div>';
+  // Orientation message
+  html += '<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.15);font-size:11px;">';
+  if (profile.moySpeSci >= 16) html += '🌟 <strong>Excellent profil</strong> — Accès à toutes les universités.';
+  else if (profile.moySpeSci >= 15) html += '💪 <strong>Très bon profil</strong> — Accès UE Dentaire+, LINK, UCJC.';
+  else if (profile.moySpeSci >= 13) html += '📚 <strong>Bon profil</strong> — UE Kiné/Pharmacie, LINK, UCJC ouvertes.';
+  else if (profile.moySpeSci >= 10) html += '🎓 LINK et UCJC accessibles. UE Pharmacie possible.';
+  else html += '🎓 LINK et UCJC principales cibles.';
+  html += '</div></div>';
+
+  // Build university cards
+  function buildChips(uniKey) {
+    const eligible = [], ineligible = [];
+    filieres.filter(f => !excludedFilieres.has(f.id)).forEach(f => {
+      const elig = admin_checkEligibility(uniKey, f.id, profile);
+      if (elig.eligible) eligible.push(f); else ineligible.push({ ...f, reason: elig.reason });
+    });
+    let chips = '';
+    eligible.forEach(f => {
+      const isActive = adminPreviewSelections[uniKey]?.filiere === f.id;
+      chips += '<button class="admprev-chip' + (isActive?' active':'') + '" onclick="adminSelectFiliere(\'' + uniKey + '\',\'' + f.id + '\',\'' + f.label + '\',\'' + candidatureId + '\')">' + f.label + '</button>';
+    });
+    let inelHtml = '';
+    if (ineligible.length) {
+      inelHtml += '<div style="padding:4px 18px 12px;">';
+      inelHtml += '<div style="font-size:10px;color:#999;font-weight:600;margin-bottom:4px;">Non éligible :</div>';
+      ineligible.forEach(f => {
+        inelHtml += '<div style="display:flex;gap:6px;padding:6px 10px;background:#f8f8fb;border:1px solid #eee;border-radius:6px;margin-bottom:4px;">';
+        inelHtml += '<span style="font-size:11px;color:#999;text-decoration:line-through;">' + f.label + '</span>';
+        inelHtml += '<span style="font-size:10px;color:#888;">' + f.reason + '</span></div>';
+      });
+      inelHtml += '</div>';
+    }
+    return { chips, inelHtml, hasEligible: eligible.length > 0 };
+  }
+
+  // LINK Card
+  const linkData = buildChips('LINK');
+  const linkSelected = adminPreviewSelections.LINK ? ' selected' : '';
+  html += '<div class="admprev-card' + linkSelected + '" id="admprev-card-LINK">';
+  html += '<div class="admprev-header link-hdr"><div><div class="admprev-name">🇮🇹 LINK Campus — Rome</div><div class="admprev-country">Italie — Pas de prérequis linguistique</div></div><div class="admprev-badge">Sélectionné</div></div>';
+  html += '<div class="admprev-chips">' + linkData.chips + '</div>';
+  html += '<div class="admprev-sub" id="admprev-sub-LINK"></div>';
+  html += linkData.inelHtml;
+  html += '</div>';
+
+  // UCJC Card
+  const ucjcData = buildChips('UCJC');
+  const ucjcSelected = adminPreviewSelections.UCJC ? ' selected' : '';
+  let ucjcWarning = '';
+  if (profile.espLevel < 3) ucjcWarning = '<div class="admprev-info" style="background:#fff3e0;color:#e65100;">⚠️ Espagnol insuffisant (B2 requis pour l\'UCJC) — l\'étudiant ne pourra pas s\'inscrire sans améliorer son niveau.</div>';
+  html += '<div class="admprev-card' + ucjcSelected + '" id="admprev-card-UCJC">';
+  html += '<div class="admprev-header ucjc-hdr"><div><div class="admprev-name">🇪🇸 UCJC — Madrid</div><div class="admprev-country">Espagne — 100% espagnol</div></div><div class="admprev-badge">Sélectionné</div></div>';
+  html += ucjcWarning;
+  html += '<div class="admprev-chips">' + ucjcData.chips + '</div>';
+  html += '<div class="admprev-sub" id="admprev-sub-UCJC"></div>';
+  html += ucjcData.inelHtml;
+  html += '</div>';
+
+  // UE Card
+  const ueData = buildChips('UE');
+  const ueSelected = adminPreviewSelections.UE ? ' selected' : '';
+  let ueWarning = '';
+  if (profile.espLevel < 3 && profile.engLevel < 2) ueWarning = '<div class="admprev-info" style="background:#fce4ec;color:#c62828;">❌ Langue insuffisante (Esp B2 ou Ang B1+ requis pour UE).</div>';
+  html += '<div class="admprev-card' + ueSelected + '" id="admprev-card-UE">';
+  html += '<div class="admprev-header ue-hdr"><div><div class="admprev-name">🇪🇸 Universidad Europea</div><div class="admprev-country">Espagne — Plusieurs campus</div></div><div class="admprev-badge">Sélectionné</div></div>';
+  html += ueWarning;
+  html += '<div class="admprev-chips">' + ueData.chips + '</div>';
+  html += '<div class="admprev-sub" id="admprev-sub-UE"></div>';
+  html += ueData.inelHtml;
+  html += '</div>';
+
+  // Summary of current selections
+  const sel = adminPreviewSelections;
+  const hasSel = sel.LINK || sel.UCJC || sel.UE;
+  html += '<div id="admprev-summary" style="margin-top:12px;">';
+  if (hasSel) {
+    html += '<div style="font-size:12px;font-weight:600;color:#333;margin-bottom:8px;">Sélections actuelles :</div>';
+    if (sel.LINK) html += '<div style="font-size:12px;margin-bottom:3px;">🇮🇹 LINK : ' + sel.LINK.filiereLabel + '</div>';
+    if (sel.UCJC) html += '<div style="font-size:12px;margin-bottom:3px;">🇪🇸 UCJC : ' + sel.UCJC.filiereLabel + '</div>';
+    if (sel.UE) html += '<div style="font-size:12px;margin-bottom:3px;">🇪🇸 UE : ' + sel.UE.filiereLabel + (sel.UE.ville ? ' — ' + sel.UE.ville : '') + (sel.UE.langue ? ' (' + sel.UE.langue + ')' : '') + '</div>';
+  }
+  html += '</div>';
+
+  // Confirm button
+  html += '<div style="padding:12px 0;display:flex;gap:10px;">';
+  html += '<button onclick="adminConfirmSelections(\'' + candidatureId + '\')" style="padding:10px 20px;background:#615ca5;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;"' + (!hasSel?' disabled style="padding:10px 20px;background:#ccc;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:not-allowed;font-family:inherit;"':'') + '>Confirmer les sélections pour cet étudiant</button>';
+  html += '<button onclick="adminRegeneratePreview(\'' + candidatureId + '\')" style="padding:10px 20px;background:white;color:#615ca5;border:1.5px solid #615ca5;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">🔄 Régénérer</button>';
+  html += '</div>';
+
+  return html;
+}
+
+// ── ADMIN SELECTION HANDLERS ──
+function adminSelectFiliere(uniKey, filiereId, filiereLabel, candidatureId) {
+  const card = document.getElementById('admprev-card-' + uniKey);
+  const subEl = document.getElementById('admprev-sub-' + uniKey);
+
+  // Toggle deselect
+  if (adminPreviewSelections[uniKey]?.filiere === filiereId) {
+    adminPreviewSelections[uniKey] = null;
+    card.classList.remove('selected');
+    card.querySelectorAll('.admprev-chip').forEach(c => c.classList.remove('active'));
+    subEl.classList.remove('open'); subEl.innerHTML = '';
+    adminUpdateSummary(candidatureId);
+    return;
+  }
+
+  // Select
+  card.classList.add('selected');
+  card.querySelectorAll('.admprev-chip').forEach(c => c.classList.remove('active'));
+  const chip = card.querySelector('.admprev-chip[onclick*="' + filiereId + '"]');
+  if (chip) chip.classList.add('active');
+
+  if (uniKey === 'UE') {
+    // Show ville sub-options
+    adminPreviewSelections.UE = { filiere: filiereId, filiereLabel: filiereLabel };
+    const villes = admin_getUEVilles(filiereId);
+    let subHtml = '<div style="font-size:11px;font-weight:600;color:#555;margin-bottom:6px;">Campus :</div>';
+    villes.forEach(v => {
+      subHtml += '<button class="admprev-sub-chip" onclick="adminSelectUEVille(\'' + v + '\',\'' + filiereLabel + '\',\'' + filiereId + '\',\'' + candidatureId + '\')">' + v + '</button>';
+    });
+    subEl.innerHTML = subHtml;
+    subEl.classList.add('open');
+  } else {
+    adminPreviewSelections[uniKey] = { filiere: filiereId, filiereLabel: filiereLabel };
+    subEl.classList.remove('open'); subEl.innerHTML = '';
+  }
+  adminUpdateSummary(candidatureId);
+}
+
+function adminSelectUEVille(ville, filiereLabel, filiereId, candidatureId) {
+  adminPreviewSelections.UE.ville = ville;
+  const subEl = document.getElementById('admprev-sub-UE');
+  const langues = admin_getUELangues(ville, filiereLabel);
+  if (langues.length === 1) {
+    adminPreviewSelections.UE.langue = langues[0];
+    // Update sub chips to show selected
+    let subHtml = '<div style="font-size:11px;font-weight:600;color:#555;margin-bottom:6px;">Campus :</div>';
+    admin_getUEVilles(filiereId).forEach(v => {
+      subHtml += '<button class="admprev-sub-chip' + (v===ville?' active':'') + '" onclick="adminSelectUEVille(\'' + v + '\',\'' + filiereLabel + '\',\'' + filiereId + '\',\'' + candidatureId + '\')">' + v + '</button>';
+    });
+    subHtml += '<div style="font-size:11px;font-weight:600;color:#555;margin:8px 0 6px;">Langue : <strong>' + langues[0] + '</strong></div>';
+    subEl.innerHTML = subHtml;
+    adminUpdateSummary(candidatureId);
+    return;
+  }
+  // Multiple langues
+  let subHtml = '<div style="font-size:11px;font-weight:600;color:#555;margin-bottom:6px;">Campus :</div>';
+  admin_getUEVilles(filiereId).forEach(v => {
+    subHtml += '<button class="admprev-sub-chip' + (v===ville?' active':'') + '" onclick="adminSelectUEVille(\'' + v + '\',\'' + filiereLabel + '\',\'' + filiereId + '\',\'' + candidatureId + '\')">' + v + '</button>';
+  });
+  subHtml += '<div style="font-size:11px;font-weight:600;color:#555;margin:8px 0 6px;">Langue :</div>';
+  langues.forEach(l => {
+    subHtml += '<button class="admprev-sub-chip" onclick="adminSelectUELangue(\'' + l + '\',\'' + candidatureId + '\')">' + l + '</button>';
+  });
+  subEl.innerHTML = subHtml;
+  delete adminPreviewSelections.UE.langue;
+  adminUpdateSummary(candidatureId);
+}
+
+function adminSelectUELangue(langue, candidatureId) {
+  adminPreviewSelections.UE.langue = langue;
+  const subEl = document.getElementById('admprev-sub-UE');
+  subEl.querySelectorAll('.admprev-sub-chip').forEach(c => c.classList.remove('active'));
+  // Mark both ville and langue as active
+  const chips = subEl.querySelectorAll('.admprev-sub-chip');
+  chips.forEach(c => {
+    if (c.textContent === adminPreviewSelections.UE.ville || c.textContent === langue) c.classList.add('active');
+  });
+  adminUpdateSummary(candidatureId);
+}
+
+function adminUpdateSummary(candidatureId) {
+  const summaryEl = document.getElementById('admprev-summary');
+  const sel = adminPreviewSelections;
+  const hasSel = sel.LINK || sel.UCJC || (sel.UE && sel.UE.ville && sel.UE.langue);
+  let html = '';
+  if (hasSel || sel.LINK || sel.UCJC || sel.UE) {
+    html += '<div style="font-size:12px;font-weight:600;color:#333;margin-bottom:8px;">Sélections :</div>';
+    if (sel.LINK) html += '<div style="font-size:12px;margin-bottom:3px;">🇮🇹 LINK : ' + sel.LINK.filiereLabel + '</div>';
+    if (sel.UCJC) html += '<div style="font-size:12px;margin-bottom:3px;">🇪🇸 UCJC : ' + sel.UCJC.filiereLabel + '</div>';
+    if (sel.UE) {
+      html += '<div style="font-size:12px;margin-bottom:3px;">🇪🇸 UE : ' + sel.UE.filiereLabel;
+      if (sel.UE.ville) html += ' — ' + sel.UE.ville;
+      if (sel.UE.langue) html += ' (' + sel.UE.langue + ')';
+      html += '</div>';
+    }
+  }
+  summaryEl.innerHTML = html;
+  // Enable/disable confirm button
+  const confirmBtn = summaryEl.parentElement.querySelector('button[onclick*="adminConfirmSelections"]');
+  if (confirmBtn) {
+    const complete = sel.LINK || sel.UCJC || (sel.UE && sel.UE.ville && sel.UE.langue);
+    confirmBtn.disabled = !complete;
+    confirmBtn.style.background = complete ? '#615ca5' : '#ccc';
+    confirmBtn.style.cursor = complete ? 'pointer' : 'not-allowed';
+  }
+}
+
+async function adminConfirmSelections(candidatureId) {
+  const sel = adminPreviewSelections;
+  const complete = sel.LINK || sel.UCJC || (sel.UE && sel.UE.ville && sel.UE.langue);
+  if (!complete) { alert('Sélectionnez au moins une université avec tous les choix.'); return; }
+
+  if (!confirm('Confirmer les sélections pour cet étudiant ? Cela passera le dossier en statut "En cours".')) return;
+
+  const selections = {};
+  if (sel.LINK) selections.LINK = { filiere: sel.LINK.filiere, filiereLabel: sel.LINK.filiereLabel };
+  if (sel.UCJC) selections.UCJC = { filiere: sel.UCJC.filiere, filiereLabel: sel.UCJC.filiereLabel };
+  if (sel.UE && sel.UE.ville && sel.UE.langue) selections.UE = { filiere: sel.UE.filiere, filiereLabel: sel.UE.filiereLabel, ville: sel.UE.ville, langue: sel.UE.langue };
+
+  const c = allCandidatures.find(x => x.id === candidatureId);
+  const existing = Array.isArray(c?.status_history) ? c.status_history : [];
+  const now = new Date().toISOString();
+  const adminEmail = currentAdminUser?.email || 'admin';
+
+  const { error } = await supabase.from('candidatures').update({
+    uni_selections: selections,
+    uni_selections_at: now,
+    status: 'en_cours',
+    status_history: [...existing, { status: 'en_cours', at: now, by: adminEmail, note: 'sélections admin' }]
+  }).eq('id', candidatureId);
+
+  if (error) { alert('Erreur : ' + error.message); console.error(error); return; }
+
+  // Update local data
+  if (c) {
+    c.uni_selections = selections;
+    c.uni_selections_at = now;
+    c.status = 'en_cours';
+  }
+  await loadCandidatures();
+  viewDetail(candidatureId);
+}
+
+function adminRegeneratePreview(candidatureId) {
+  adminPreviewSelections = { LINK: null, UCJC: null, UE: null };
+  const c = allCandidatures.find(x => x.id === candidatureId);
+  if (!c) return;
+  // If existing selections, pre-populate
+  if (c.uni_selections) {
+    const sel = c.uni_selections;
+    if (sel.LINK) adminPreviewSelections.LINK = { ...sel.LINK };
+    if (sel.UCJC) adminPreviewSelections.UCJC = { ...sel.UCJC };
+    if (sel.UE) adminPreviewSelections.UE = { ...sel.UE };
+  }
+  const container = document.querySelector('#detail-cards [id^="admprev-container-"]');
+  if (container) container.innerHTML = admin_buildPreviewSection(c, candidatureId);
+}
+
+// ══════════════════════════════════════════
 // UNI TRACKING
 // ══════════════════════════════════════════
 async function updateUniTracking(candidatureId, uniKey, field, value) {
@@ -4763,7 +5409,7 @@ function switchGuideTab(tab, btn) {
   document.querySelectorAll('.guide-uni-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
   // Show/hide tab content
-  ['all','link','ucjc','ue'].forEach(id => {
+  ['all','link','ucjc','ue','auto'].forEach(id => {
     const el = document.getElementById('guide-tab-' + id);
     if (el) el.style.display = (id === tab) ? 'block' : 'none';
   });
