@@ -2368,8 +2368,8 @@ function renderTable() {
 
   const statusLabels = { en_cours: 'En cours', reponse_edumove: 'R\u00e9ponse Edumove' };
   const filiereLabels = { medecine: 'M\u00e9decine', dentaire: 'Dentaire', kine: 'Kin\u00e9sith\u00e9rapie', pharmacie: 'Pharmacie', veterinaire: 'V\u00e9t\u00e9rinaire', prepa_dentaire: 'Pr\u00e9pa Dentaire' };
-  const trackLabels = { en_attente: 'En attente', dossier_envoye: 'Envoy\u00e9', test_paye: 'Test pay\u00e9', test_passe: 'Test pass\u00e9', tests_passes: 'Tests pass\u00e9s', entretien_planifie: 'Entretien', entretien_passe: 'Entretien OK', accepte: 'Accept\u00e9', acompte_verse: 'Acompte', refuse: 'Refus\u00e9', inscrit: 'Inscrit' };
-  const trackColors = { en_attente: '#999', dossier_envoye: '#1565c0', test_paye: '#6a1b9a', test_passe: '#6a1b9a', tests_passes: '#6a1b9a', entretien_planifie: '#e65100', entretien_passe: '#e65100', accepte: '#2e7d32', acompte_verse: '#2e7d32', refuse: '#d32f2f', inscrit: '#1b5e20' };
+  const trackLabels = { en_attente: 'En attente', dossier_envoye: 'Envoy\u00e9', test_paye: 'Test pay\u00e9', test_passe: 'Test pass\u00e9', tests_passes: 'Tests pass\u00e9s', entretien_planifie: 'Entretien', entretien_passe: 'Entretien OK', accepte: 'Accept\u00e9', acompte_verse: 'Acompte', refuse: 'Refus\u00e9', inscrit: 'Inscrit', autre_agence: 'Autre agence' };
+  const trackColors = { en_attente: '#999', dossier_envoye: '#1565c0', test_paye: '#6a1b9a', test_passe: '#6a1b9a', tests_passes: '#6a1b9a', entretien_planifie: '#e65100', entretien_passe: '#e65100', accepte: '#2e7d32', acompte_verse: '#2e7d32', refuse: '#d32f2f', inscrit: '#1b5e20', autre_agence: '#795548' };
 
   tbody.innerHTML = pageItems.map(c => {
     const date = c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '\u2014';
@@ -2785,6 +2785,7 @@ function renderDetailPage(c) {
             <option value="accepte" ${_ls==='accepte'?'selected':''}>Accepté</option>
             <option value="refuse" ${_ls==='refuse'?'selected':''}>Refusé</option>
             <option value="inscrit" ${_ls==='inscrit'?'selected':''}>Inscrit</option>
+            <option value="autre_agence" ${_ls==='autre_agence'?'selected':''}>Autre agence</option>
           </select>
         </div>
         <div style="display:flex;gap:14px;font-size:11px;flex-wrap:wrap;">
@@ -2829,6 +2830,7 @@ function renderDetailPage(c) {
             <option value="accepte" ${_us==='accepte'?'selected':''}>Accepté</option>
             <option value="refuse" ${_us==='refuse'?'selected':''}>Refusé</option>
             <option value="inscrit" ${_us==='inscrit'?'selected':''}>Inscrit</option>
+            <option value="autre_agence" ${_us==='autre_agence'?'selected':''}>Autre agence</option>
           </select>
         </div>
         <div style="display:flex;gap:14px;font-size:11px;flex-wrap:wrap;">
@@ -2882,6 +2884,7 @@ function renderDetailPage(c) {
             <option value="acompte_verse" ${_es==='acompte_verse'?'selected':''}>Acompte 2 500\u20ac versé</option>
             <option value="refuse" ${_es==='refuse'?'selected':''}>Refusé</option>
             <option value="inscrit" ${_es==='inscrit'?'selected':''}>Inscrit</option>
+            <option value="autre_agence" ${_es==='autre_agence'?'selected':''}>Autre agence</option>
           </select>
         </div>
         <div style="display:flex;gap:14px;font-size:11px;flex-wrap:wrap;">
