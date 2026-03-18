@@ -2195,8 +2195,14 @@ supabase.auth.onAuthStateChange((event) => {
       showDashboard(user);
       applyRoleRestrictions();
     } else {
-      await supabase.auth.signOut();
-      showLoginError("Ce compte n'a pas les droits administrateur.");
+      // Vérifier si c'est un compte fac → redirection automatique
+      const { data: facData } = await supabase.from('fac_admins').select('email').eq('email', user.email).maybeSingle();
+      if (facData) {
+        window.location.href = 'fac-admin.html';
+      } else {
+        await supabase.auth.signOut();
+        showLoginError("Ce compte n'a pas les droits administrateur.");
+      }
     }
   } else {
     showLogin();
@@ -2219,8 +2225,14 @@ async function doLogin() {
       showDashboard(user);
       applyRoleRestrictions();
     } else {
-      await supabase.auth.signOut();
-      showLoginError("Ce compte n'a pas les droits administrateur.");
+      // Vérifier si c'est un compte fac → redirection automatique
+      const { data: facData } = await supabase.from('fac_admins').select('email').eq('email', user.email).maybeSingle();
+      if (facData) {
+        window.location.href = 'fac-admin.html';
+      } else {
+        await supabase.auth.signOut();
+        showLoginError("Ce compte n'a pas les droits administrateur.");
+      }
     }
   } catch (err) {
     showLoginError('Identifiants incorrects.');
