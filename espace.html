@@ -1059,7 +1059,7 @@ body {
     <div class="status-icon en_attente" id="status-icon-box">⏳</div>
     <div class="status-info">
         <div class="status-label">Statut de votre dossier</div>
-      <div class="status-value en_attente" id="status-text">En attente</div>
+      <div class="status-value en_attente" id="status-text">En cours de traitement</div>
     </div>
     <div class="status-date" id="status-date"></div>
   </div>
@@ -1456,7 +1456,7 @@ function renderDashboard() {
 }
 
 function updateStatusDisplay(status) {
-  const statusLabels = { en_attente: 'En attente', en_cours: 'En attente de validation', reponse_edumove: 'Réponse Edumove', dossier_soumis: 'Dossier soumis à l\'université', accepte: 'Accepté', refuse: 'Refusé', abandon: 'Abandon du dossier' };
+  const statusLabels = { en_attente: 'En cours de traitement', en_cours: 'En cours de traitement', reponse_edumove: 'Réponse Edumove', dossier_soumis: 'Dossier soumis à l\'université', accepte: 'Accepté', refuse: 'Refusé', abandon: 'Abandon du dossier' };
   const statusIcons = { en_attente: '\u23f3', en_cours: '\ud83d\udccb', reponse_edumove: '\ud83d\udce9', dossier_soumis: '\ud83c\udf93', accepte: '\u2705', refuse: '\u274c', abandon: '\ud83d\udeab' };
 
   const textEl = document.getElementById('status-text');

@@ -1254,6 +1254,7 @@ tr:last-child td { border-bottom: none; }
       </select>
       <select class="filter-select" id="filter-status" onchange="applyFilters()">
         <option value="">Tous statuts actifs</option>
+        <option value="en_attente">Nouveaux dossiers</option>
         <option value="en_cours">En cours de traitement</option>
         <option value="reponse_edumove">R&eacute;ponse Edumove</option>
         <option value="archive">Archiv&eacute;s / Termin&eacute;s</option>
@@ -3092,7 +3093,7 @@ async function loadCandidatures() {
 function updateStats() {
   const active = allCandidatures.filter(c => c.status !== 'archive');
   const total = active.length;
-  const encours = active.filter(c => c.status === 'en_cours').length;
+  const encours = active.filter(c => c.status === 'en_cours' || c.status === 'en_attente').length;
   const reponse = active.filter(c => c.status === 'reponse_edumove').length;
   const inscrit = active.filter(c => {
     const t = c.uni_tracking || {};
@@ -3117,12 +3118,12 @@ function applyFilters() {
   const source = document.getElementById('filter-source').value;
 
   filteredCandidatures = allCandidatures.filter(c => {
-    // Par défaut : seulement les 2 statuts actifs
+    // Par défaut : les 3 statuts actifs (en_attente + en_cours + reponse_edumove)
     if (!status) {
-      if (c.status !== 'en_cours' && c.status !== 'reponse_edumove') return false;
+      if (c.status !== 'en_attente' && c.status !== 'en_cours' && c.status !== 'reponse_edumove') return false;
     } else if (status === 'archive') {
       // "Archivés/Terminés" = tout ce qui n'est pas un statut actif
-      if (c.status === 'en_cours' || c.status === 'reponse_edumove') return false;
+      if (c.status === 'en_attente' || c.status === 'en_cours' || c.status === 'reponse_edumove') return false;
     } else {
       if (c.status !== status) return false;
     }
@@ -3159,7 +3160,7 @@ function renderTable() {
   }
   empty.style.display = 'none';
 
-  const statusLabels = { en_cours: 'En cours', reponse_edumove: 'R\u00e9ponse Edumove', archive: 'Archiv\u00e9' };
+  const statusLabels = { en_attente: 'Nouveau', en_cours: 'En cours', reponse_edumove: 'R\u00e9ponse Edumove', archive: 'Archiv\u00e9' };
   const filiereLabels = { medecine: 'M\u00e9decine', dentaire: 'Dentaire', kine: 'Kin\u00e9sith\u00e9rapie', pharmacie: 'Pharmacie', veterinaire: 'V\u00e9t\u00e9rinaire', prepa_dentaire: 'Pr\u00e9pa Dentaire' };
   const trackLabels = { en_attente: 'En attente', dossier_envoye: 'Envoy\u00e9', test_paye: 'Test pay\u00e9', test_passe: 'Test pass\u00e9', tests_passes: 'Tests pass\u00e9s', entretien_planifie: 'Entretien', entretien_passe: 'Entretien OK', accepte: 'Accept\u00e9', acompte_verse: 'Acompte', refuse: 'Refus\u00e9', inscrit: 'Inscrit', autre_agence: 'Autre agence' };
   const trackColors = { en_attente: '#999', dossier_envoye: '#1565c0', test_paye: '#6a1b9a', test_passe: '#6a1b9a', tests_passes: '#6a1b9a', entretien_planifie: '#e65100', entretien_passe: '#e65100', accepte: '#2e7d32', acompte_verse: '#2e7d32', refuse: '#d32f2f', inscrit: '#1b5e20', autre_agence: '#795548' };
