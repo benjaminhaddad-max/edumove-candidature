@@ -1037,20 +1037,6 @@ select.nt-matiere:focus { border-color: var(--violet); }
         <label class="level-option" onclick="selectLevel(this,'italien','aucun')"><input type="radio" name="lvl-italien" value="aucun"/><div class="level-info"><div class="level-name">Aucune connaissance</div><div class="level-desc">Je ne parle pas italien</div></div><span class="level-badge badge-none">—</span></label>
       </div>
     </div>
-    <!-- PORTUGAIS -->
-    <div class="lang-card" id="lc-portugais">
-      <div class="lang-card-header" onclick="toggleLangCard('portugais')">
-        <span class="lang-card-flag">🇵🇹</span>
-        <span class="lang-card-name">Portugais</span>
-        <span class="lang-required-dot"></span><span class="lang-card-toggle" id="lct-portugais">+</span>
-      </div>
-      <div class="lang-level-options" id="llo-portugais">
-        <label class="level-option" onclick="selectLevel(this,'portugais','b2')"><input type="radio" name="lvl-portugais" value="b2"/><div class="level-info"><div class="level-name">Bilingue / Courant</div><div class="level-desc">Je m'exprime aisément</div></div><span class="level-badge badge-b2">B2 +</span></label>
-        <label class="level-option" onclick="selectLevel(this,'portugais','b1')"><input type="radio" name="lvl-portugais" value="b1"/><div class="level-info"><div class="level-name">Intermédiaire</div><div class="level-desc">Notions correctes</div></div><span class="level-badge badge-b1">B1</span></label>
-        <label class="level-option" onclick="selectLevel(this,'portugais','debut')"><input type="radio" name="lvl-portugais" value="debut"/><div class="level-info"><div class="level-name">Débutant</div><div class="level-desc">Quelques bases</div></div><span class="level-badge badge-a">A1/A2</span></label>
-        <label class="level-option" onclick="selectLevel(this,'portugais','aucun')"><input type="radio" name="lvl-portugais" value="aucun"/><div class="level-info"><div class="level-name">Aucune connaissance</div><div class="level-desc">Je ne parle pas portugais</div></div><span class="level-badge badge-none">—</span></label>
-      </div>
-    </div>
     <!-- AUTRE -->
     <div class="autre-lang-wrap">
       <label>Autre langue :</label>
@@ -1527,7 +1513,7 @@ function updateGlobalMoy() {
 function toggleLangCard(lang) {
   const card = document.getElementById('lc-'+lang);
   const isOpen = card.classList.contains('open');
-  ['espagnol','anglais','italien','portugais'].forEach(l => {
+  ['espagnol','anglais','italien'].forEach(l => {
     document.getElementById('lc-'+l).classList.remove('open');
     document.getElementById('lct-'+l).textContent = '+';
   });
@@ -1676,7 +1662,7 @@ async function submitCandidature() {
   }
 
   // Langues
-  const langues = ['espagnol','anglais','italien','portugais'];
+  const langues = ['espagnol','anglais','italien'];
   const allLangs = langues.every(l => state.langLevels[l]);
   showErr('err-langues', !allLangs);
   if (!allLangs) {
