@@ -301,6 +301,16 @@ body {
 .auth-divider::before { left: 0; }
 .auth-divider::after { right: 0; }
 
+/* ── PASSWORD TOGGLE ── */
+.pw-wrap { position: relative; }
+.pw-wrap input { width: 100%; padding-right: 40px; }
+.pw-toggle {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; font-size: 16px;
+  color: var(--text-muted); padding: 4px; line-height: 1;
+}
+.pw-toggle:hover { color: var(--violet); }
+
 /* ── PASSWORD REQUIREMENTS ── */
 .password-reqs {
   margin-top: 8px;
@@ -431,7 +441,7 @@ body {
       </div>
       <div class="auth-field">
         <label>Mot de passe <span class="req">*</span></label>
-        <input type="password" id="login-pass" placeholder="Votre mot de passe"/>
+        <div class="pw-wrap"><input type="password" id="login-pass" placeholder="Votre mot de passe"/><button type="button" class="pw-toggle" onclick="togglePw(this)">👁</button></div>
       </div>
       <button class="btn-auth" onclick="doLogin()">Se connecter</button>
       <div class="auth-error" id="login-error"></div>
@@ -467,11 +477,11 @@ body {
       </div>
       <div class="auth-field">
         <label>Mot de passe <span class="req">*</span></label>
-        <input type="password" id="signup-pass" placeholder="Minimum 6 caractères"/>
+        <div class="pw-wrap"><input type="password" id="signup-pass" placeholder="Minimum 6 caractères"/><button type="button" class="pw-toggle" onclick="togglePw(this)">👁</button></div>
       </div>
       <div class="auth-field">
         <label>Confirmer le mot de passe <span class="req">*</span></label>
-        <input type="password" id="signup-pass2" placeholder="Retapez votre mot de passe"/>
+        <div class="pw-wrap"><input type="password" id="signup-pass2" placeholder="Retapez votre mot de passe"/><button type="button" class="pw-toggle" onclick="togglePw(this)">👁</button></div>
       </div>
       <button class="btn-auth" onclick="doSignup()">Créer mon compte</button>
       <div class="auth-error" id="signup-error"></div>
@@ -541,6 +551,13 @@ function switchTab(tab) {
   }
   // Clear errors
   document.querySelectorAll('.auth-error, .auth-success').forEach(e => { e.classList.remove('visible'); e.textContent = ''; });
+}
+
+// ── PASSWORD TOGGLE ──
+function togglePw(btn) {
+  const input = btn.previousElementSibling;
+  if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+  else { input.type = 'password'; btn.textContent = '👁'; }
 }
 
 // ── LOGIN ──
