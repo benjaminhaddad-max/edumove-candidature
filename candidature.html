@@ -1256,7 +1256,19 @@ function toggleAutreFormation() {
 
 // ── TERMINALE OPTIONS from Premiere ──
 function updateTerminaleOptions() {
-  const spes = ['p1-nom','p2-nom','p3-nom'].map(id => document.getElementById(id).value).filter(v => v);
+  // Empêcher les doublons : désactiver les options déjà choisies dans les autres selects
+  const ids = ['p1-nom','p2-nom','p3-nom'];
+  const selected = ids.map(id => document.getElementById(id).value);
+  ids.forEach(id => {
+    const sel = document.getElementById(id);
+    Array.from(sel.options).forEach(opt => {
+      if (!opt.value) return; // skip placeholder
+      const usedElsewhere = selected.some((v, i) => v === opt.value && ids[i] !== id);
+      opt.disabled = usedElsewhere;
+    });
+  });
+
+  const spes = selected.filter(v => v);
   const container = document.getElementById('terminale-checkboxes');
   container.innerHTML = '';
   state.termSpe = [];
