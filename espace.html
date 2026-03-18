@@ -1845,9 +1845,9 @@ const uePrix = {
   'Madrid-Kinésithérapie': { prix: '10 020', duree: '4 ans' },
   'Madrid-Pharmacie': { prix: '12 120', duree: '5 ans' },
   'Madrid-Vétérinaire': { prix: '19 500', duree: '5 ans' },
-  'Canaries-Médecine': { prix: '21 480', duree: '6 ans' },
-  'Canaries-Dentaire': { prix: '20 820', duree: '5 ans' },
-  'Canaries-Kinésithérapie': { prix: '10 020', duree: '4 ans' },
+  'Canaries-Médecine': { prix: '18 900', duree: '6 ans' },
+  'Canaries-Dentaire': { prix: '16 900', duree: '5 ans' },
+  'Canaries-Kinésithérapie': { prix: '9 780', duree: '4 ans' },
   'Valence-Dentaire': { prix: '20 821', duree: '5 ans' },
   'Valence-Kinésithérapie': { prix: '10 080', duree: '4 ans' },
   'Alicante-Dentaire': { prix: '20 821', duree: '5 ans' },
@@ -2638,6 +2638,11 @@ function selectUEFiliere(filiereId, filiereLabel) {
       extra = ' title="Complet"';
     }
     let label = v;
+    // Canaries: B2 Spanish required — show warning if insufficient
+    if (v === 'Canaries' && profile.espLevel < 3 && !allComplet && elig.eligible) {
+      label += ' ⚠️';
+      extra = ' title="B2 espagnol requis pour les Canaries"';
+    }
     if (allComplet) label += ' (Complet)';
     else if (anyLA) label += ' &#x26A0;&#xFE0F;';
     html += '<button class="' + cls + '"' + extra + ' onclick="selectUEVille(\'' + v + '\',\'' + fLabel + '\')">' + label + '</button>';
@@ -2661,9 +2666,19 @@ function selectUEVille(ville, filiereLabel) {
     if (c.textContent.trim().startsWith(ville)) c.classList.add('active');
   });
 
-  // Remove old langue section if exists
+  // Remove old langue section and warnings if exists
   const oldLang = document.getElementById('ue-langue-section');
   if (oldLang) oldLang.remove();
+  const oldWarn = document.getElementById('ue-ville-warning');
+  if (oldWarn) oldWarn.remove();
+
+  // Canaries: B2 Spanish required for all filières
+  if (ville === 'Canaries' && profile.espLevel < 3) {
+    let warnHtml = '<div id="ue-ville-warning" style="margin:10px 0;padding:12px 16px;background:#fff3e0;border:1px solid #ffb74d;border-radius:8px;font-size:12px;color:#e65100;">';
+    warnHtml += '⚠️ <strong>B2 espagnol requis</strong> — Toutes les filières aux Canaries sont 100% en espagnol. Un niveau B2 minimum est exigé pour l\'inscription.';
+    warnHtml += '</div>';
+    subEl.insertAdjacentHTML('beforeend', warnHtml);
+  }
 
   // Show langue chips
   const langues = getUELangues(ville, filiereLabel);
