@@ -2461,7 +2461,7 @@ function viewDetail(id) {
   window.scrollTo(0, 0);
 
   renderDetailPage(c);
-  loadMessagesForCandidature(id);
+  loadMessagesForCandidature(c.id);
 }
 
 function renderDetailPage(c) {
@@ -2485,6 +2485,14 @@ function renderDetailPage(c) {
 
   // Build cards
   let html = '';
+
+  // ── Card 0: RÉSUMÉ ADMIN (toujours ouvert, en haut) ──
+  if (!window.adminRole || window.adminRole === 'super_admin') {
+    html += `<div class="detail-card" style="background:#f8f9ff;border:2px solid var(--border);">
+      <div class="detail-card-title" onclick="toggleCard(this)" style="color:var(--navy);">Résumé admin</div>
+      <div class="detail-card-body">${generateAdminResume(c)}</div>
+    </div>`;
+  }
 
   // ── Card 1: INFORMATIONS ETUDIANT ── (collapsed by default)
   html += `<div class="detail-card">
@@ -2919,6 +2927,266 @@ function toggleCard(titleEl) {
   if (body && body.classList.contains('detail-card-body')) {
     body.classList.toggle('collapsed');
   }
+}
+
+// ══════════════════════════════════════════
+// RÉSUMÉ ADMIN PAR ÉTUDIANT
+// ══════════════════════════════════════════
+function generateAdminResume(c) {
+  const score = parseFloat(c.score) || 0;
+  const langues = c.langues || {};
+  const esp = langues.espagnol || 'aucun';
+  const eng = langues.anglais || 'aucun';
+  const filiere = c.filiere || '';
+  const dest = c.destination || '';
+  const uni = c.universite || '';
+
+  const filiereLabels = { medecine: 'Médecine', dentaire: 'Dentaire', kine: 'Kinésithérapie', pharmacie: 'Pharmacie' };
+  const langLabels = { b2: 'B2+', b1: 'B1', debut: 'A1/A2', aucun: 'Aucun' };
+
+  // Calcul moyennes spécialités 1ère
+  const notesPremiere = c.notes_premiere || [];
+  const SCIENCES = ['Mathématiques', 'Physique-Chimie', 'SVT'];
+  const validSpecs = notesPremiere.filter(n => !isNaN(parseFloat(n.moy)));
+  const spesAvg = validSpecs.length > 0
+    ? validSpecs.reduce((s, n) => s + parseFloat(n.moy), 0) / validSpecs.length : 0;
+  const sciCount = notesPremiere.filter(n => SCIENCES.includes(n.nom)).length;
+
+  // ── Éligibilité UCJC ──
+  const ucjcOk = esp === 'b2';
+  const ucjcItems = [];
+  if (esp === 'b2') {
+    ucjcItems.push({ ok: true, warn: false, txt: 'Espagnol B2+ validé' });
+    ucjcItems.push({ ok: null, warn: true, txt: 'Entretien 15 min avec prof. obligatoire' });
+  } else if (esp === 'b1') {
+    ucjcItems.push({ ok: false, warn: false, txt: 'Espagnol B1 — B2 minimum requis' });
+  } else {
+    ucjcItems.push({ ok: false, warn: false, txt: 'Pas d\'espagnol — B2 minimum requis' });
+  }
+
+  // ── Éligibilité UEM ──
+  const uemMadridMalaga = sciCount >= 2 && spesAvg > 15;
+  const uemAutres = spesAvg > 12.5;
+  const uemFacile = spesAvg >= 10;
+  const hasLang = esp === 'b2' || eng === 'b2' || eng === 'b1';
+  let uemStatus = 'none';
+  let uemCampus = '';
+  const uemItems = [];
+
+  if (!hasLang) {
+    uemItems.push({ ok: false, txt: 'Pas de niveau langue suffisant (Esp B2 ou Ang B1+)' });
+  } else {
+    const langUsed = esp === 'b2' ? 'Espagnol B2+' : `Anglais ${eng.toUpperCase()}`;
+    uemItems.push({ ok: true, txt: `Langue : ${langUsed}` });
+    if (uemMadridMalaga) {
+      uemStatus = 'premium';
+      uemCampus = 'Madrid / Málaga';
+      uemItems.push({ ok: true, txt: `Moy. spés : ${spesAvg.toFixed(1)}/20 (≥ 15 ✓)` });
+      uemItems.push({ ok: true, txt: `${sciCount} spé(s) sciences (≥ 2 ✓)` });
+    } else if (uemAutres) {
+      uemStatus = 'autres';
+      uemCampus = 'Valence / Alicante / Canaries';
+      uemItems.push({ ok: true, txt: `Moy. spés : ${spesAvg.toFixed(1)}/20 (> 12.5 ✓)` });
+      uemItems.push({ ok: false, txt: `Madrid/Málaga : moy. ${spesAvg.toFixed(1)} < 15 ou < 2 spés sci.` });
+    } else if (uemFacile) {
+      uemStatus = 'facile';
+      uemCampus = 'Campus accessibles';
+      uemItems.push({ ok: true, txt: `Moy. spés : ${spesAvg.toFixed(1)}/20 (≥ 10 ✓)` });
+      uemItems.push({ ok: false, txt: `Campus premium : moy. insuffisante` });
+    } else {
+      uemItems.push({ ok: false, txt: `Moy. spés : ${spesAvg.toFixed(1)}/20 (< 10 — insuffisant)` });
+    }
+  }
+
+  // ── Documents requis selon école cible ──
+  const docs = c.documents || {};
+  const uploadedKeys = Object.keys(docs);
+  const targetIsLink = uni.toUpperCase().includes('LINK') || dest === 'italie';
+  const targetIsUCJC = uni.toUpperCase().includes('UCJC');
+  const targetIsUEM = uni.toUpperCase().includes('UEM');
+
+  const requiredDocs = [
+    { key: 'passeport', alt: 'identite', label: 'Passeport / Pièce d\'identité' },
+    { key: 'bulletins', label: 'Bulletins scolaires' }
+  ];
+  if (targetIsLink) {
+    requiredDocs.push({ key: 'formulaire', label: 'Formulaire pré-candidature LINK' });
+    if (filiere !== 'pharmacie') requiredDocs.push({ key: 'rapport_technique', label: 'Test LINK (à compléter)' });
+  }
+  if (targetIsUCJC || (dest === 'espagne' && esp === 'b2')) {
+    requiredDocs.push({ key: 'lettre_motivation', label: 'Lettre de motivation (espagnol)' });
+    requiredDocs.push({ key: 'attestation_b2', label: 'Attestation espagnol B2 (optionnel)' });
+  }
+  if (targetIsUEM || (dest === 'espagne' && !targetIsUCJC)) {
+    if (!requiredDocs.find(d => d.key === 'lettre_motivation')) {
+      requiredDocs.push({ key: 'lettre_motivation', label: 'Lettre de motivation' });
+    }
+    requiredDocs.push({ key: 'releves', label: 'Relevés de notes officiels' });
+  }
+
+  // ── Prochaines étapes selon statut ──
+  const status = c.status;
+  const steps = [];
+
+  if (status === 'en_attente' || status === 'en_cours') {
+    if (c.callback_requested) steps.push({ done: false, urgent: true, txt: 'Rappel téléphonique demandé — à planifier en priorité' });
+    steps.push({ done: false, urgent: false, txt: 'Envoyer la réponse Edumove à l\'étudiant' });
+  } else if (status === 'reponse_edumove') {
+    if (c.callback_requested) steps.push({ done: false, urgent: true, txt: 'Rappel téléphonique demandé — à planifier' });
+    steps.push({ done: true, urgent: false, txt: 'Réponse Edumove envoyée à l\'étudiant' });
+    steps.push({ done: false, urgent: false, txt: 'Confirmer les choix de l\'étudiant' });
+    if (targetIsLink) {
+      if (!docs.formulaire) steps.push({ done: false, urgent: false, txt: 'Faire compléter le formulaire LINK' });
+      if (filiere !== 'pharmacie' && !docs.rapport_technique) steps.push({ done: false, urgent: false, txt: 'Faire passer le test LINK (15 avril)' });
+      steps.push({ done: !!c.link_docs_confirmed, urgent: false, txt: 'Confirmer le dossier LINK' });
+    }
+    if (targetIsUCJC) {
+      if (!docs.lettre_motivation) steps.push({ done: false, urgent: false, txt: 'Faire rédiger la lettre de motivation en espagnol' });
+      steps.push({ done: false, urgent: false, txt: 'Planifier l\'entretien UCJC (15 min avec professeur)' });
+      steps.push({ done: !!c.ucjc_docs_confirmed, urgent: false, txt: 'Confirmer le dossier UCJC' });
+    }
+    if (targetIsUEM) {
+      if (!c.ue_choices) {
+        steps.push({ done: false, urgent: false, txt: 'Faire choisir le campus UEM à l\'étudiant' });
+      } else {
+        steps.push({ done: true, urgent: false, txt: `Campus UEM choisi : ${c.ue_choices.ville || ''}${c.ue_choices.filiere ? ' — ' + c.ue_choices.filiere : ''}` });
+      }
+    }
+  } else if (status === 'dossier_soumis') {
+    steps.push({ done: true, urgent: false, txt: 'Dossier soumis à l\'université' });
+    steps.push({ done: false, urgent: false, txt: 'Attendre et suivre le retour de l\'université' });
+    steps.push({ done: false, urgent: false, txt: 'Informer l\'étudiant de la décision' });
+  } else if (status === 'accepte') {
+    steps.push({ done: true, urgent: false, txt: 'Dossier accepté par l\'université' });
+    steps.push({ done: false, urgent: false, txt: 'Envoyer les informations de rentrée à l\'étudiant' });
+    steps.push({ done: false, urgent: false, txt: 'Préparer les documents d\'inscription définitive' });
+  } else if (status === 'refuse') {
+    steps.push({ done: true, urgent: false, txt: 'Dossier refusé' });
+    steps.push({ done: false, urgent: false, txt: 'Informer l\'étudiant et proposer des alternatives' });
+  }
+
+  // ══ Construction HTML ══
+  let html = '';
+
+  // ── Bandeau récap ──
+  const scoreLabel = score >= 13 ? 'Excellent' : score >= 10 ? 'Correct' : 'Faible';
+  html += `<div style="background:var(--navy);color:white;border-radius:10px;padding:16px 20px;margin-bottom:14px;display:flex;gap:20px;flex-wrap:wrap;align-items:center;">`;
+  if (filiere) html += `<div><div style="font-size:10px;opacity:0.55;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">Filière</div><div style="font-weight:700;font-size:14px;">${esc(filiereLabels[filiere] || filiere)}</div></div>`;
+  html += `<div><div style="font-size:10px;opacity:0.55;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">Score académique</div><div style="font-weight:700;font-size:14px;">${score.toFixed(1)}/20 — ${scoreLabel}</div></div>`;
+  html += `<div><div style="font-size:10px;opacity:0.55;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">Orientation</div><div style="font-weight:700;font-size:14px;">${dest === 'espagne' ? '🇪🇸 ' : dest === 'italie' ? '🇮🇹 ' : ''}${esc(uni || '—')}</div></div>`;
+  html += `<div><div style="font-size:10px;opacity:0.55;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">Langues</div><div style="font-weight:600;font-size:12px;opacity:0.9;">Esp ${langLabels[esp] || esp} · Ang ${langLabels[eng] || eng}</div></div>`;
+  if (validSpecs.length > 0) html += `<div><div style="font-size:10px;opacity:0.55;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">Moy. spés 1ère</div><div style="font-weight:700;font-size:14px;">${spesAvg.toFixed(1)}/20</div></div>`;
+  if (c.callback_requested) html += `<div style="margin-left:auto;background:#e65100;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;">📞 Rappel demandé</div>`;
+  html += `</div>`;
+
+  // ── Éligibilité par école ──
+  html += `<div style="margin-bottom:14px;">`;
+  html += `<div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">🎓 Éligibilité par école</div>`;
+  html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">`;
+
+  // LINK Campus
+  html += `<div style="border:2px solid #c8e6c9;border-radius:8px;padding:12px;background:#f1f8e9;">`;
+  html += `<div style="font-weight:700;font-size:12px;margin-bottom:6px;color:var(--navy);">🇮🇹 LINK Campus</div>`;
+  html += `<div style="color:#2e7d52;font-weight:700;font-size:12px;margin-bottom:6px;">✅ Éligible</div>`;
+  if (filiere === 'pharmacie') {
+    html += `<div style="font-size:11px;color:#555;line-height:1.6;">✅ Acceptation automatique<br>✅ Aucun test requis</div>`;
+  } else {
+    html += `<div style="font-size:11px;color:#555;line-height:1.6;">✅ Tous profils acceptés<br>⚠️ Test d\'entrée (15 avril)<br>✅ Accompagnement linguistique inclus</div>`;
+  }
+  html += `</div>`;
+
+  // UCJC
+  const ucjcBorder = ucjcOk ? '#c8e6c9' : '#ffcdd2';
+  const ucjcBg = ucjcOk ? '#f1f8e9' : '#ffebee';
+  html += `<div style="border:2px solid ${ucjcBorder};border-radius:8px;padding:12px;background:${ucjcBg};">`;
+  html += `<div style="font-weight:700;font-size:12px;margin-bottom:6px;color:var(--navy);">🇪🇸 UCJC</div>`;
+  html += `<div style="color:${ucjcOk ? '#2e7d52' : '#c62828'};font-weight:700;font-size:12px;margin-bottom:6px;">${ucjcOk ? '✅ Éligible' : '❌ Non éligible'}</div>`;
+  html += `<div style="font-size:11px;line-height:1.6;">`;
+  ucjcItems.forEach(item => {
+    const col = item.warn ? '#e65100' : item.ok ? '#2e7d52' : '#c62828';
+    const icon = item.warn ? '⚠️' : item.ok ? '✅' : '❌';
+    html += `<span style="color:${col};display:block;">${icon} ${item.txt}</span>`;
+  });
+  html += `</div></div>`;
+
+  // UEM
+  const uemEligible = uemStatus !== 'none';
+  const uemBorder = uemStatus === 'premium' ? '#c8e6c9' : uemEligible ? '#bbdefb' : '#ffcdd2';
+  const uemBg = uemStatus === 'premium' ? '#f1f8e9' : uemEligible ? '#e3f2fd' : '#ffebee';
+  const uemStatusLabel = uemStatus === 'premium' ? '✅ Éligible' : uemStatus === 'autres' ? '⚠️ Campus secondaires' : uemStatus === 'facile' ? '⚠️ Campus accessibles' : '❌ Non éligible';
+  const uemStatusColor = uemStatus === 'premium' ? '#2e7d52' : uemEligible ? '#1565c0' : '#c62828';
+  html += `<div style="border:2px solid ${uemBorder};border-radius:8px;padding:12px;background:${uemBg};">`;
+  html += `<div style="font-weight:700;font-size:12px;margin-bottom:6px;color:var(--navy);">🇪🇸 UEM</div>`;
+  html += `<div style="color:${uemStatusColor};font-weight:700;font-size:12px;margin-bottom:6px;">${uemStatusLabel}</div>`;
+  if (uemCampus) html += `<div style="font-size:11px;font-weight:600;color:var(--navy);margin-bottom:4px;">📍 ${uemCampus}</div>`;
+  html += `<div style="font-size:11px;line-height:1.6;">`;
+  uemItems.forEach(item => {
+    html += `<span style="color:${item.ok ? '#2e7d52' : '#c62828'};display:block;">${item.ok ? '✅' : '❌'} ${item.txt}</span>`;
+  });
+  html += `</div></div>`;
+  html += `</div></div>`;
+
+  // ── Documents ──
+  html += `<div style="margin-bottom:14px;">`;
+  html += `<div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">📂 Documents</div>`;
+  html += `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;">`;
+
+  const coveredKeys = new Set();
+  requiredDocs.forEach(doc => {
+    const hasMain = uploadedKeys.includes(doc.key);
+    const hasAlt = doc.alt && uploadedKeys.includes(doc.alt);
+    const uploaded = hasMain || hasAlt;
+    const url = hasMain ? docs[doc.key] : (hasAlt ? docs[doc.alt] : null);
+    if (hasMain) coveredKeys.add(doc.key);
+    if (hasAlt && doc.alt) coveredKeys.add(doc.alt);
+    if (uploaded && url) {
+      html += `<a href="${url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid #c8e6c9;border-radius:6px;background:#e8f5e9;color:#2e7d52;font-size:11px;font-weight:600;text-decoration:none;">✅ ${doc.label}</a>`;
+    } else {
+      html += `<div style="display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px dashed #ffcdd2;border-radius:6px;background:#ffebee;color:#c62828;font-size:11px;font-weight:600;">❌ ${doc.label} <span style="font-weight:400;font-style:italic;">(manquant)</span></div>`;
+    }
+  });
+
+  // Docs supplémentaires uploadés non couverts par la liste requise
+  const extraLabels = { rapport_technique: 'Rapport technique', attestation_b2: 'Attestation B2', releves: 'Relevés de notes', lettre_motivation: 'Lettre de motivation', formulaire: 'Formulaire', passeport: 'Passeport', identite: 'Pièce d\'identité', bulletins: 'Bulletins scolaires' };
+  uploadedKeys.filter(k => !coveredKeys.has(k)).forEach(k => {
+    html += `<a href="${docs[k]}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid #c8e6c9;border-radius:6px;background:#e8f5e9;color:#2e7d52;font-size:11px;font-weight:600;text-decoration:none;">✅ ${extraLabels[k] || k}</a>`;
+  });
+
+  html += `</div></div>`;
+
+  // ── Prochaines étapes ──
+  if (steps.length > 0) {
+    html += `<div style="margin-bottom:14px;">`;
+    html += `<div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">➡️ Prochaines étapes</div>`;
+    html += `<div style="display:flex;flex-direction:column;gap:5px;">`;
+    steps.forEach(step => {
+      const bg = step.done ? '#e8f5e9' : step.urgent ? '#fff3e0' : '#f8f8f8';
+      const border = step.done ? '#c8e6c9' : step.urgent ? '#ffe0b2' : '#e0e0e0';
+      const col = step.done ? '#2e7d52' : step.urgent ? '#e65100' : '#333';
+      const weight = step.urgent ? '700' : step.done ? '500' : '400';
+      const icon = step.done ? '✅' : step.urgent ? '🔴' : '☐';
+      html += `<div style="display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid ${border};border-radius:6px;background:${bg};color:${col};font-size:12px;font-weight:${weight};">${icon} ${step.txt}</div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // ── Actions ──
+  html += `<div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--border);">`;
+  if (c.status !== 'reponse_edumove') {
+    html += `<button class="btn-view" style="background:#1565c0;padding:8px 16px;" onclick="applyAiAction('${c.id}','reponse_edumove')">📩 Envoyer réponse</button>`;
+  }
+  html += `<button class="btn-view" style="background:#7b1fa2;padding:8px 16px;" onclick="applyAiAction('${c.id}','dossier_soumis')">🎓 Dossier soumis</button>`;
+  html += `<button class="btn-view" style="background:var(--success);padding:8px 16px;" onclick="applyAiAction('${c.id}','accepte')">✅ Accepté</button>`;
+  html += `<button class="btn-view" style="background:var(--error);padding:8px 16px;" onclick="applyAiAction('${c.id}','refuse')">❌ Refusé</button>`;
+  html += `<button class="btn-view" style="background:#757575;padding:8px 16px;" onclick="applyAiAction('${c.id}','abandon')">🚫 Abandon</button>`;
+  html += `</div>`;
+
+  const overrideMsg = c.manual_override
+    ? `<div style="margin-top:8px;font-size:11px;color:var(--text-muted);font-style:italic;">⚠️ L'auto-progression est désactivée (intervention manuelle détectée)</div>`
+    : `<div style="margin-top:8px;font-size:11px;color:var(--text-muted);">🤖 L'auto-progression est active</div>`;
+  html += overrideMsg;
+
+  return html;
 }
 
 // Enter key on login fields
