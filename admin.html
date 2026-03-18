@@ -3013,23 +3013,43 @@ async function archiveCandidature(id) {
   const adminEmail = currentAdminUser?.email || 'admin';
   const c = allCandidatures.find(x => x.id === id);
   const existing = Array.isArray(c?.status_history) ? c.status_history : [];
-  await supabase.from('candidatures').update({
+  const { error } = await supabase.from('candidatures').update({
     status: 'archive',
     previous_status: c?.status || 'en_cours',
     status_history: [...existing, { status: 'archive', at: new Date().toISOString(), by: adminEmail }]
   }).eq('id', id);
+
+  if (error) { alert('Erreur lors de l\'archivage'); console.error(error); return; }
+
+  // Refresh UI
+  await loadCandidatures();
+  if (currentDetailId === id) {
+    viewDetail(id);
+  }
 }
 
 async function restoreCandidature(id) {
-  const adminEmail = currentAdminUser?.email || 'admin';
   const c = allCandidatures.find(x => x.id === id);
+  const name = c ? `${c.nom || ''} ${c.prenom || ''}`.trim() : '';
+  if (!confirm(`Voulez-vous restaurer le dossier de ${name} ?`)) return;
+
+  const adminEmail = currentAdminUser?.email || 'admin';
   const previousStatus = c?.previous_status || 'en_cours';
   const existing = Array.isArray(c?.status_history) ? c.status_history : [];
-  await supabase.from('candidatures').update({
+  const { error } = await supabase.from('candidatures').update({
     status: previousStatus,
     previous_status: null,
     status_history: [...existing, { status: previousStatus, at: new Date().toISOString(), by: adminEmail, note: 'restauré' }]
   }).eq('id', id);
+
+  if (error) { alert('Erreur lors de la restauration'); console.error(error); return; }
+
+  // Refresh UI
+  await loadCandidatures();
+  // If viewing detail, refresh it or go back to list
+  if (currentDetailId === id) {
+    viewDetail(id);
+  }
 }
 
 async function deleteCandidature(id) {
