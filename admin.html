@@ -1666,7 +1666,7 @@ tr:last-child td { border-bottom: none; }
                 <li><strong>Relevé de notes du bac</strong></li>
                 <li><strong>Photo d'identité</strong> format numérique</li>
                 <li><strong>Certificat médical</strong></li>
-                <li><strong>Attestation B2</strong> dans la langue de la filière visée (anglais, espagnol, ou français pour kiné Madrid)<br><span style="font-size:11px;color:var(--text-muted);">Prépa Dentaire : B2 anglais obligatoire à l'inscription.</span></li>
+                <li id="ue-b2-line"><strong>Attestation B2</strong> dans la langue de la filière visée (anglais, espagnol, ou français selon cursus)</li>
               </ol>
               <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">Le rapport technique de hostudents.com est le document qui prend le plus de temps — anticiper au maximum.</p>
             </div>
@@ -3563,6 +3563,20 @@ function filterUeFiliere(fil, btn) {
     const fils = (s.getAttribute('data-ue-fil') || '').split(' ');
     s.style.display = fils.includes(fil) ? '' : 'none';
   });
+  // Adapter la ligne B2 selon la filière sélectionnée
+  const b2 = document.getElementById('ue-b2-line');
+  if (b2) {
+    const b2Map = {
+      all: '<strong>Attestation B2</strong> dans la langue de la filière visée (anglais, espagnol, ou français selon cursus)',
+      medecine: '<strong>Attestation B2 espagnol</strong>',
+      dentaire: '<strong>Attestation B2 anglais ou espagnol</strong> selon la langue du campus choisi',
+      kine: '<strong>Attestation B2 français, espagnol ou anglais</strong> selon la langue du campus choisi',
+      pharmacie: '<strong>Attestation B2 espagnol</strong>',
+      veterinaire: '<strong>Attestation B2 espagnol</strong>',
+      prepa: '<strong>Attestation B2 anglais</strong> obligatoire à l\'inscription'
+    };
+    b2.innerHTML = b2Map[fil] || b2Map.all;
+  }
 }
 
 function filterGuide(query) {
