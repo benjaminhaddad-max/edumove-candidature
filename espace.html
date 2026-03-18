@@ -924,6 +924,18 @@ body {
 .uni-info-bandeau { padding: 10px 20px; font-size: 12px; line-height: 1.6; }
 .uni-warning-bandeau { padding: 10px 20px; font-size: 12px; background: #fff3e0; color: #e65100; }
 
+.uni-infos-faculte { border-top: 1px solid var(--border); }
+.uni-infos-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: none; border: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--violet); transition: background 0.2s; }
+.uni-infos-toggle:hover { background: #f8f7fd; }
+.toggle-arrow { font-size: 10px; transition: transform 0.2s; }
+.uni-infos-content { padding: 0 20px 16px; }
+.uni-infos-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 13px; color: var(--text); }
+.uni-infos-row a:hover { text-decoration: underline !important; }
+.infos-icon { font-size: 16px; flex-shrink: 0; width: 22px; text-align: center; }
+.uni-ville-select { padding: 6px 12px; border: 1.5px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 12px; background: #fff; cursor: pointer; color: var(--text); }
+.uni-ville-select:focus { outline: none; border-color: var(--violet); }
+.flight-duration { background: var(--bg); padding: 4px 10px; border-radius: 6px; font-size: 13px; }
+
 .uni-doc-upload-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
 .uni-doc-upload-row:last-child { border-bottom: none; }
 .uni-doc-upload-status { font-size: 11px; color: var(--success); font-weight: 500; }
@@ -1350,6 +1362,16 @@ function renderDashboard() {
   document.getElementById('recap-body').innerHTML = html;
   document.getElementById('btn-recap').style.display = '';
 
+  // Start validation countdown if en_cours
+  if (c.status === 'en_cours' && c.uni_selections_at) {
+    startValidationCountdown();
+  }
+
+  // Show locked selections when en_cours (validation in progress)
+  if (c.status === 'en_cours' && c.uni_selections) {
+    showSelectionsSaved(c.uni_selections);
+  }
+
   // Show interactive response card if applicable (masqué pour candidatures directes)
   const _isDirect = c.source?.startsWith('direct_');
   if (!_isDirect && ['reponse_edumove', 'dossier_soumis', 'accepte', 'refuse', 'abandon'].includes(c.status)) {
@@ -1378,7 +1400,7 @@ function renderDashboard() {
 }
 
 function updateStatusDisplay(status) {
-  const statusLabels = { en_attente: 'En attente', en_cours: 'En cours de traitement', reponse_edumove: 'Réponse Edumove', dossier_soumis: 'Dossier soumis à l\'université', accepte: 'Accepté', refuse: 'Refusé', abandon: 'Abandon du dossier' };
+  const statusLabels = { en_attente: 'En attente', en_cours: 'En attente de validation', reponse_edumove: 'Réponse Edumove', dossier_soumis: 'Dossier soumis à l\'université', accepte: 'Accepté', refuse: 'Refusé', abandon: 'Abandon du dossier' };
   const statusIcons = { en_attente: '\u23f3', en_cours: '\ud83d\udccb', reponse_edumove: '\ud83d\udce9', dossier_soumis: '\ud83c\udf93', accepte: '\u2705', refuse: '\u274c', abandon: '\ud83d\udeab' };
 
   const textEl = document.getElementById('status-text');
@@ -1410,6 +1432,59 @@ function updateTimeline(status) {
     el.className = 'timeline-line';
     if (i < currentIdx) el.classList.add('done');
   });
+}
+
+// ── VALIDATION COUNTDOWN ──
+let validationInterval = null;
+
+function startValidationCountdown() {
+  if (validationInterval) clearInterval(validationInterval);
+
+  const selectionsAt = candidatureData?.uni_selections_at;
+  if (!selectionsAt || candidatureData?.status !== 'en_cours') return;
+
+  const startDate = new Date(selectionsAt);
+  const unlockDate = addBusinessMinutes(startDate, 120);
+
+  // Afficher le bandeau countdown sous le statut
+  let banner = document.getElementById('validation-countdown-banner');
+  if (!banner) {
+    const statusCard = document.querySelector('.status-card');
+    if (!statusCard) return;
+    banner = document.createElement('div');
+    banner.id = 'validation-countdown-banner';
+    banner.style.cssText = 'padding:12px 16px;background:linear-gradient(135deg,#e8eaf6 0%,#f3e5f5 100%);border-radius:10px;margin-top:12px;text-align:center;font-size:12px;color:#3949ab;line-height:1.6;';
+    statusCard.appendChild(banner);
+  }
+
+  function tick() {
+    const now = new Date();
+    if (now >= unlockDate) {
+      // Temps écoulé — auto-refresh pour déclencher la transition
+      clearInterval(validationInterval);
+      banner.innerHTML = '<div style="font-weight:700;color:#2e7d32;">✅ Validation terminée — actualisation en cours...</div>';
+      setTimeout(() => { window.location.reload(); }, 1500);
+      return;
+    }
+
+    // Calculer le temps restant en temps réel (pas en business hours)
+    // mais on affiche un message générique
+    const diffMs = unlockDate.getTime() - now.getTime();
+    const diffMin = Math.ceil(diffMs / 60000);
+    const hours = Math.floor(diffMin / 60);
+    const mins = diffMin % 60;
+
+    let timeStr = '';
+    if (hours > 0) timeStr += hours + 'h ';
+    timeStr += mins + 'min';
+
+    banner.innerHTML = '<div style="font-weight:700;margin-bottom:4px;">⏳ Votre dossier est en cours de validation par notre équipe</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);">Temps estimé restant : <strong style="color:#3949ab;">' + timeStr + '</strong></div>' +
+      '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">Nos conseillers examinent votre dossier du lundi au dimanche, de 9h à 20h.</div>';
+  }
+
+  tick();
+  validationInterval = setInterval(tick, 30000); // refresh every 30s
 }
 
 // ── CALLBACK REQUEST ──
@@ -1512,6 +1587,161 @@ async function uploadDocument(input) {
 // ══════════════════════════════════════════════
 // ── INTERACTIVE CARD SYSTEM ──
 // ══════════════════════════════════════════════
+
+// ── UNIVERSITY PRACTICAL INFOS ──
+const UNIV_INFOS = {
+  LINK: {
+    site: 'https://www.unilink.it/',
+    aeroport: 'Rome Fiumicino (FCO)',
+    distanceCampus: '20 min en voiture',
+    extras: ['Grand parking en face de l\u2019universit\u00e9', 'Cours d\u2019italien en d\u00e9but d\u2019ann\u00e9e pour se mettre \u00e0 niveau'],
+    vols: {
+      'Paris': '2h10', 'Lyon': '1h30', 'Marseille': '1h45', 'Toulouse': '2h00',
+      'Bordeaux': '2h05', 'Nice': '1h15', 'Nantes': '2h10', 'Strasbourg': '2h00',
+      'Lille': '2h15', 'Montpellier': '1h40', 'Rennes': '2h15'
+    }
+  },
+  UCJC: {
+    site: 'https://www.ucjc.edu/',
+    aeroport: 'Madrid Barajas (MAD)',
+    distanceCampus: '30 min en voiture',
+    extras: ['Grand parking en face de l\u2019universit\u00e9'],
+    vols: {
+      'Paris': '2h10', 'Lyon': '2h00', 'Marseille': '1h45', 'Toulouse': '1h25',
+      'Bordeaux': '1h50', 'Nice': '2h00', 'Nantes': '1h55', 'Strasbourg': '2h15',
+      'Lille': '2h20', 'Montpellier': '1h40', 'Rennes': '2h10'
+    }
+  },
+  UE: {
+    site: 'https://universidadeuropea.com/',
+    campus: {
+      'Madrid': { aeroport: 'Madrid Barajas (MAD)', distanceCampus: '35 min en voiture',
+        vols: { 'Paris': '2h10', 'Lyon': '2h00', 'Marseille': '1h45', 'Toulouse': '1h25', 'Bordeaux': '1h50', 'Nice': '2h00', 'Nantes': '1h55', 'Strasbourg': '2h15', 'Lille': '2h20', 'Montpellier': '1h40', 'Rennes': '2h10' }
+      },
+      'Valence': { aeroport: 'Valence Manises (VLC)', distanceCampus: '15 min en voiture',
+        vols: { 'Paris': '2h00', 'Lyon': '1h35', 'Marseille': '1h20', 'Toulouse': '1h10', 'Bordeaux': '1h45', 'Nice': '1h30', 'Nantes': '2h00', 'Strasbourg': '2h10', 'Lille': '2h15', 'Montpellier': '1h15', 'Rennes': '2h10' }
+      },
+      'Canaries': { aeroport: 'Tenerife Sud (TFS)', distanceCampus: '20 min en voiture',
+        vols: { 'Paris': '4h15', 'Lyon': '4h00', 'Marseille': '3h45', 'Toulouse': '3h40', 'Bordeaux': '3h50', 'Nice': '4h00', 'Nantes': '4h10', 'Strasbourg': '4h30', 'Lille': '4h30', 'Montpellier': '3h50', 'Rennes': '4h20' }
+      },
+      'Malaga': { aeroport: 'M\u00e1laga Costa del Sol (AGP)', distanceCampus: '20 min en voiture',
+        vols: { 'Paris': '2h30', 'Lyon': '2h15', 'Marseille': '2h00', 'Toulouse': '1h50', 'Bordeaux': '2h10', 'Nice': '2h10', 'Nantes': '2h20', 'Strasbourg': '2h35', 'Lille': '2h40', 'Montpellier': '1h55', 'Rennes': '2h30' }
+      },
+      'Alicante': { aeroport: 'Alicante-Elche (ALC)', distanceCampus: '15 min en voiture',
+        vols: { 'Paris': '2h10', 'Lyon': '1h50', 'Marseille': '1h30', 'Toulouse': '1h20', 'Bordeaux': '1h55', 'Nice': '1h40', 'Nantes': '2h05', 'Strasbourg': '2h20', 'Lille': '2h25', 'Montpellier': '1h25', 'Rennes': '2h15' }
+      }
+    },
+    extras: ['Grand parking en face de chaque universit\u00e9']
+  }
+};
+
+const VILLES_DEPART = ['Paris', 'Lyon', 'Marseille', 'Toulouse', 'Bordeaux', 'Nice', 'Nantes', 'Strasbourg', 'Lille', 'Montpellier', 'Rennes'];
+
+function buildInfosFaculte(uniKey) {
+  const info = UNIV_INFOS[uniKey];
+  const isUE = uniKey === 'UE';
+  const selectId = 'ville-select-' + uniKey;
+
+  let volsData, aeroportText, distanceText;
+  if (isUE) {
+    volsData = info.campus['Madrid'].vols;
+    aeroportText = info.campus['Madrid'].aeroport;
+    distanceText = info.campus['Madrid'].distanceCampus;
+  } else {
+    volsData = info.vols;
+    aeroportText = info.aeroport;
+    distanceText = info.distanceCampus;
+  }
+
+  const villeOptions = VILLES_DEPART.map(v => '<option value="' + v + '"' + (v === 'Paris' ? ' selected' : '') + '>' + v + '</option>').join('');
+  const campusOptions = isUE ? Object.keys(info.campus).map(c => '<option value="' + c + '"' + (c === 'Madrid' ? ' selected' : '') + '>' + c + '</option>').join('') : '';
+
+  let html = '<div class="uni-infos-faculte" id="infos-' + uniKey + '">';
+  html += '<button class="uni-infos-toggle" onclick="toggleInfosFaculte(\'' + uniKey + '\')">';
+  html += '<span>Infos pratiques sur la facult\u00e9</span><span class="toggle-arrow" id="arrow-' + uniKey + '">\u25B6</span>';
+  html += '</button>';
+  html += '<div class="uni-infos-content" id="infos-content-' + uniKey + '" style="display:none;">';
+
+  // Site web
+  html += '<div class="uni-infos-row">';
+  html += '<span class="infos-icon">\uD83C\uDF10</span>';
+  html += '<a href="' + info.site + '" target="_blank" style="color:var(--violet);font-weight:500;text-decoration:none;">' + info.site.replace('https://','').replace(/\/$/,'') + '</a>';
+  html += '</div>';
+
+  // Campus selector for UE
+  if (isUE) {
+    html += '<div class="uni-infos-row">';
+    html += '<span class="infos-icon">\uD83C\uDFEB</span>';
+    html += '<label style="font-weight:500;margin-right:8px;">Campus :</label>';
+    html += '<select class="uni-ville-select" id="campus-select-' + uniKey + '" onchange="updateInfosCampus()">';
+    html += campusOptions;
+    html += '</select>';
+    html += '</div>';
+  }
+
+  // Ville de départ selector
+  html += '<div class="uni-infos-row">';
+  html += '<span class="infos-icon">\u2708\uFE0F</span>';
+  html += '<label style="font-weight:500;margin-right:8px;">Vol depuis :</label>';
+  html += '<select class="uni-ville-select" id="' + selectId + '" onchange="updateFlightInfo(\'' + uniKey + '\')">';
+  html += villeOptions;
+  html += '</select>';
+  html += '<span class="flight-duration" id="flight-' + uniKey + '" style="margin-left:10px;font-weight:600;color:var(--navy);">' + volsData['Paris'] + '</span>';
+  html += '</div>';
+
+  // Distance aéroport → campus
+  html += '<div class="uni-infos-row" id="distance-row-' + uniKey + '">';
+  html += '<span class="infos-icon">\uD83D\uDE97</span>';
+  html += '<span>A\u00e9roport <span id="aeroport-name-' + uniKey + '">' + aeroportText + '</span> \u2192 Campus : <strong id="distance-val-' + uniKey + '">' + distanceText + '</strong></span>';
+  html += '</div>';
+
+  // Extras
+  const extras = isUE ? info.extras : (info.extras || []);
+  extras.forEach(function(e) {
+    html += '<div class="uni-infos-row">';
+    if (e.includes('parking')) html += '<span class="infos-icon">\uD83C\uDD7F\uFE0F</span>';
+    else if (e.includes('italien') || e.includes('langue')) html += '<span class="infos-icon">\uD83D\uDCDA</span>';
+    else html += '<span class="infos-icon">\u2705</span>';
+    html += '<span>' + e + '</span>';
+    html += '</div>';
+  });
+
+  html += '</div></div>';
+  return html;
+}
+
+function toggleInfosFaculte(uniKey) {
+  const content = document.getElementById('infos-content-' + uniKey);
+  const arrow = document.getElementById('arrow-' + uniKey);
+  if (content.style.display === 'none') {
+    content.style.display = 'block';
+    arrow.textContent = '\u25BC';
+  } else {
+    content.style.display = 'none';
+    arrow.textContent = '\u25B6';
+  }
+}
+
+function updateFlightInfo(uniKey) {
+  const ville = document.getElementById('ville-select-' + uniKey).value;
+  let vols;
+  if (uniKey === 'UE') {
+    const campusSel = document.getElementById('campus-select-UE');
+    const campus = campusSel ? campusSel.value : 'Madrid';
+    vols = UNIV_INFOS.UE.campus[campus].vols;
+  } else {
+    vols = UNIV_INFOS[uniKey].vols;
+  }
+  document.getElementById('flight-' + uniKey).textContent = vols[ville] || '--';
+}
+
+function updateInfosCampus() {
+  const campus = document.getElementById('campus-select-UE').value;
+  const info = UNIV_INFOS.UE.campus[campus];
+  document.getElementById('aeroport-name-UE').textContent = info.aeroport;
+  document.getElementById('distance-val-UE').textContent = info.distanceCampus;
+  updateFlightInfo('UE');
+}
 
 // ── PRICING DATA ──
 const uePrix = {
@@ -1656,10 +1886,13 @@ function checkEligibility(uniKey, filiereId, profile, extra) {
     if (filiereId === 'veterinaire') return { eligible: false, reason: 'Non disponible à LINK' };
     return { eligible: true, reason: '' };
   }
-  // UCJC: no veterinaire, no medecine (complet)
+  // UCJC: no veterinaire, no medecine (complet), 2 spé sci for médecine/dentaire
   if (uniKey === 'UCJC') {
     if (filiereId === 'veterinaire') return { eligible: false, reason: 'Non disponible à l\'UCJC' };
     if (filiereId === 'medecine') return { eligible: false, reason: 'Plus de places disponibles pour Médecine à l\'UCJC pour cette année' };
+    if (['dentaire'].includes(filiereId) && profile.nbSpeSci < 2) {
+      return { eligible: false, reason: 'L\'UCJC exige au moins 2 spécialités scientifiques en Terminale pour ' + (filiereId === 'dentaire' ? 'Dentaire' : 'Médecine') + '.' };
+    }
     return { eligible: true, reason: '' };
   }
   // UE rules (March 2026)
@@ -1675,9 +1908,14 @@ function checkEligibility(uniKey, filiereId, profile, extra) {
       if (profile.engLevel < 2) return { eligible: false, reason: 'La Prépa Dentaire requiert un niveau B2 en anglais minimum.' };
       return { eligible: true, reason: '' };
     }
+    // 2 spé sci required for Médecine, Dentaire, Vétérinaire
+    if (['medecine', 'dentaire', 'veterinaire'].includes(filiereId) && profile.nbSpeSci < 2) {
+      return { eligible: false, reason: 'L\'Universidad Europea exige au moins 2 spécialités scientifiques en Terminale pour cette filière.' };
+    }
     const threshold = fMap[filiereId] ?? 0;
     if (threshold > 0 && profile.moySpeSci < threshold) {
-      return { eligible: false, reason: 'L\'Universidad Europea exige ≥ ' + threshold + '/20 en spé. scientifiques pour cette filière (vous avez ' + profile.moySpeSci.toFixed(1) + '/20). Tous les campus sont concernés.' };
+      const fLabels = { medecine: 'Médecine', dentaire: 'Dentaire', veterinaire: 'Vétérinaire', kinesitherapie: 'Kinésithérapie' };
+      return { eligible: false, reason: 'L\'Universidad Europea demande une moyenne d\'environ ' + threshold + '/20 en spécialités scientifiques pour ' + (fLabels[filiereId] || filiereId) + ' (vous avez ' + profile.moySpeSci.toFixed(1) + '/20).' };
     }
     return { eligible: true, reason: '' };
   }
@@ -1731,6 +1969,7 @@ function buildLINKCard(filieres) {
   html += '</div>';
   html += '<div class="uni-filiere-subtitle">Cours en italien — Pas de prérequis linguistique</div>';
   html += '<div class="uni-filiere-grid">' + chips + '</div>';
+  html += buildInfosFaculte('LINK');
   html += '<div id="link-sub-options" class="uni-sub-options"></div>';
   html += '<div class="uni-docs-section" id="docs-LINK"></div>';
   html += '<div class="uni-next-step" id="next-step-LINK"></div>';
@@ -1748,6 +1987,7 @@ function buildUCJCCard(filieres) {
   html += '</div>';
   html += '<div class="uni-filiere-subtitle">Cours 100% en espagnol</div>';
   html += '<div class="uni-filiere-grid">' + chips + '</div>';
+  html += buildInfosFaculte('UCJC');
   html += '<div id="ucjc-sub-options" class="uni-sub-options"></div>';
   html += '<div class="uni-docs-section" id="docs-UCJC"></div>';
   html += '<div class="uni-next-step" id="next-step-UCJC"></div>';
@@ -1765,6 +2005,7 @@ function buildUECard(filieres) {
   html += '</div>';
   html += '<div class="uni-filiere-subtitle">Cours en espagnol, anglais ou français selon campus</div>';
   html += '<div class="uni-filiere-grid">' + chips + '</div>';
+  html += buildInfosFaculte('UE');
   html += '<div id="ue-sub-options" class="uni-sub-options"></div>';
   html += '<div class="uni-docs-section" id="docs-UE"></div>';
   html += '<div class="uni-next-step" id="next-step-UE"></div>';
@@ -1850,8 +2091,8 @@ function selectLINKFiliere(filiereId, filiereLabel) {
     html += '</div>';
   }
 
-  // Required docs
-  html += '<div class="uni-docs-title" style="padding:0;">Documents requis</div>';
+  // Required docs — Edumove candidature docs
+  html += '<div class="uni-docs-title" style="padding:0;color:#4f46e5;">&#x1F4E4; Documents pour la candidature Edumove</div>';
   html += '<div class="uni-doc-upload-row">';
   html += '<div>&#x1F4CB; Formulaire de pré-candidature LINK à remplir <a href="formulaire-precandidature-link.pdf" download="Formulaire-PreCandidature-LINK.pdf" style="color:var(--violet);font-size:11px;font-weight:600;margin-left:6px;">&#x2B07; Télécharger</a></div>';
   html += '<div id="upload-status-LINK-formulaire"><label class="uni-doc-upload-btn" style="cursor:pointer;">Envoyer <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleDocUpload(this,\'LINK\',\'formulaire\')"></label></div>';
@@ -1864,6 +2105,14 @@ function selectLINKFiliere(filiereId, filiereLabel) {
   html += '<div>&#x1F393; Relevé de notes du baccalauréat <span style="font-size:11px;color:var(--text-muted);">(optionnel)</span></div>';
   html += '<div id="upload-status-LINK-releves"><label class="uni-doc-upload-btn" style="cursor:pointer;">Envoyer <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleDocUpload(this,\'LINK\',\'releves\')"></label></div>';
   html += '</div>';
+
+  // University-side info for LINK
+  if (['medecine', 'dentaire', 'kinesitherapie'].includes(filiereId)) {
+    html += '<div class="uni-docs-title" style="padding:8px 0 4px;color:#d97706;">&#x1F3E2; Documents demandés par l\'université si acceptation après le test</div>';
+    html += '<div style="font-size:12px;line-height:1.6;color:var(--text);padding:8px 12px;background:#fffbeb;border-radius:8px;border-left:3px solid #f59e0b;margin-bottom:8px;">';
+    html += 'En cas d\'acceptation suite au test d\'admission, LINK vous demandera directement les pièces complémentaires nécessaires à la finalisation de votre inscription (diplôme traduit, certificats, etc.).';
+    html += '</div>';
+  }
 
   docsEl.innerHTML = html;
   docsEl.classList.add('open');
@@ -2013,25 +2262,11 @@ function selectUCJCFiliere(filiereId, filiereLabel) {
     html += '<div class="uni-pricing-bandeau ucjc-pricing">&#x1F4B0; ' + prix.prix + ' €/an — Durée des études : ' + prix.duree + '</div>';
   }
 
-  // Entretien bandeau — en espagnol pour med/dent, en français pour pharma/kiné
-  html += '<div class="uni-info-bandeau" style="background:#fce4ec;color:#96234a;">';
-  if (['medecine', 'dentaire'].includes(filiereId)) {
-    html += '<strong>&#x1F399;&#xFE0F; Entretien en visio-conférence</strong> de 15 min en espagnol<br>';
-    html += '<span style="font-size:11px;">Un niveau B1/B2 en espagnol est attendu pour Médecine / Dentaire</span>';
-  } else {
-    html += '<strong>&#x1F399;&#xFE0F; Entretien en visio-conférence</strong> de 15 min en français<br>';
-    html += '<span style="font-size:11px;">Aucun niveau d\'espagnol requis pour cet entretien</span>';
-  }
-  html += '</div>';
 
-  // Required docs
-  html += '<div class="uni-docs-title" style="padding:0;">Documents requis</div>';
+  // Required docs — UCJC
+  html += '<div class="uni-docs-title" style="padding:0;color:#4f46e5;">&#x1F4E4; Documents pour la candidature Edumove</div>';
   html += '<div class="uni-doc-upload-row">';
-  if (['medecine', 'dentaire'].includes(filiereId)) {
-    html += '<div>&#x1F4DD; Lettre de motivation <strong>en espagnol</strong></div>';
-  } else {
-    html += '<div>&#x1F4DD; Lettre de motivation <strong>en français</strong></div>';
-  }
+  html += '<div>&#x1F4DD; Lettre de motivation <strong>en espagnol</strong></div>';
   html += '<div id="upload-status-UCJC-lettre_motivation"><label class="uni-doc-upload-btn" style="cursor:pointer;">Envoyer <input type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleDocUpload(this,\'UCJC\',\'lettre_motivation\')"></label></div>';
   html += '</div>';
   html += '<div class="uni-doc-upload-row">';
@@ -2049,8 +2284,18 @@ function selectUCJCFiliere(filiereId, filiereLabel) {
 
   // Prochaines étapes toggle
   html += '<div style="padding:8px 0 4px;">';
+  html += '<div class="uni-docs-title" style="padding:8px 0 4px;color:#d97706;">&#x1F3E2; Documents & Tests demandés par l\'université</div>';
+  html += '<div style="padding:0 0 8px;font-size:12px;line-height:1.6;color:var(--text);">';
+  html += '<div style="padding:8px 12px;background:#fef3c7;border-radius:8px;border-left:3px solid #f59e0b;margin-bottom:8px;">';
+  html += '&#x1F399;&#xFE0F; <strong>Entretien en visio-conférence</strong> avec le directeur — ';
+  if (['medecine', 'dentaire'].includes(filiereId)) {
+    html += '15 min en espagnol (niveau B1/B2 attendu)';
+  } else {
+    html += '15 min en français';
+  }
+  html += '</div></div>';
   html += '<button class="link-test-toggle" onclick="toggleUCJCEtapes()" id="ucjc-etapes-toggle-btn" style="width:100%;background:none;border:1.5px solid #96234a;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:600;color:#96234a;cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between;font-family:inherit;">';
-  html += '<span>&#x1F4C5; Prochaines étapes en direct avec la faculté</span><span class="link-test-toggle-arrow" style="transition:transform 0.2s;font-size:11px;">&#x25BC;</span></button>';
+  html += '<span>&#x1F4C5; Prochaines étapes après l\'entretien</span><span class="link-test-toggle-arrow" style="transition:transform 0.2s;font-size:11px;">&#x25BC;</span></button>';
   html += '<div id="ucjc-etapes-content" style="display:none;background:var(--bg);border-radius:8px;padding:14px;margin-top:8px;font-size:12px;line-height:1.7;">';
   html += buildUCJCEtapes();
   html += '</div>';
@@ -2396,8 +2641,8 @@ function finalizeUESelection(filiereLabel, ville, langue) {
     html += '<div class="uni-info-bandeau" style="background:#e3f2fd;color:#1565c0;">&#x2139;&#xFE0F; La 1ère année se déroule en <strong>français</strong>. À partir de la 2ème année (stage), les cours passent en <strong>espagnol</strong>.</div>';
   }
 
-  // Required docs
-  html += '<div class="uni-docs-title" style="padding:0;">Documents requis</div>';
+  // Required docs — UE
+  html += '<div class="uni-docs-title" style="padding:0;color:#4f46e5;">&#x1F4E4; Documents pour la candidature Edumove</div>';
   html += '<div class="uni-doc-upload-row">';
   html += '<div>&#x1F4C4; <strong>3 bulletins de Première</strong> fusionnés en 1 seul PDF</div>';
   html += '<div id="upload-status-UE-bulletins"><label class="uni-doc-upload-btn" style="cursor:pointer;">Envoyer <input type="file" accept=".pdf" style="display:none;" onchange="handleDocUpload(this,\'UE\',\'bulletins\')"></label></div>';
@@ -2427,10 +2672,11 @@ function finalizeUESelection(filiereLabel, ville, langue) {
   html += '</div>';
   html += '</div>';
 
-  // Prochaines étapes toggle
-  html += '<div style="padding:8px 0 4px;">';
+  // University-side section
+  html += '<div class="uni-docs-title" style="padding:8px 0 4px;color:#d97706;">&#x1F3E2; Documents & étapes demandés par l\'université</div>';
+  html += '<div style="padding:0 0 8px;">';
   html += '<button class="link-test-toggle" onclick="toggleUEEtapes()" id="ue-etapes-toggle-btn" style="width:100%;background:none;border:1.5px solid #003da5;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:600;color:#003da5;cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between;font-family:inherit;">';
-  html += '<span>&#x1F4C5; Prochaines étapes après dépôt du dossier</span><span class="link-test-toggle-arrow" style="transition:transform 0.2s;font-size:11px;">&#x25BC;</span></button>';
+  html += '<span>&#x1F4C5; Détail des étapes après dépôt du dossier</span><span class="link-test-toggle-arrow" style="transition:transform 0.2s;font-size:11px;">&#x25BC;</span></button>';
   html += '<div id="ue-etapes-content" style="display:none;background:var(--bg);border-radius:8px;padding:14px;margin-top:8px;font-size:12px;line-height:1.7;">';
   html += buildUEEtapes(langue, filiereLabel, ville);
   html += '</div>';
@@ -2487,12 +2733,21 @@ async function confirmAllSelections() {
   }
 
   try {
+    const now = new Date().toISOString();
+    const existing = Array.isArray(candidatureData.status_history) ? candidatureData.status_history : [];
     await supabase.from('candidatures').update({
       uni_selections: selections,
-      uni_selections_at: new Date().toISOString()
+      uni_selections_at: now,
+      status: 'en_cours',
+      status_history: [...existing, { status: 'en_cours', at: now, by: 'auto' }]
     }).eq('id', candidatureId);
     candidatureData.uni_selections = selections;
+    candidatureData.uni_selections_at = now;
+    candidatureData.status = 'en_cours';
+    updateStatusDisplay('en_cours');
     showSelectionsSaved(selections);
+    // Lancer le timer de validation visuelle
+    startValidationCountdown();
   } catch (err) {
     console.error('Confirm selections error:', err);
     btn.disabled = false;

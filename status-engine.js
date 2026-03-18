@@ -3,10 +3,10 @@
 // Charge par espace.html et admin.html apres firebase-config.js
 // ═══════════════════════════════════════════════════════
 
-const OFFICE_OPEN_H = 8, OFFICE_OPEN_M = 30;   // 08:30
-const OFFICE_CLOSE_H = 19, OFFICE_CLOSE_M = 30; // 19:30
-const OFFICE_OPEN_MIN = OFFICE_OPEN_H * 60 + OFFICE_OPEN_M;     // 510
-const OFFICE_CLOSE_MIN = OFFICE_CLOSE_H * 60 + OFFICE_CLOSE_M;  // 1170
+const OFFICE_OPEN_H = 9, OFFICE_OPEN_M = 0;     // 09:00
+const OFFICE_CLOSE_H = 20, OFFICE_CLOSE_M = 0;  // 20:00
+const OFFICE_OPEN_MIN = OFFICE_OPEN_H * 60 + OFFICE_OPEN_M;     // 540
+const OFFICE_CLOSE_MIN = OFFICE_CLOSE_H * 60 + OFFICE_CLOSE_M;  // 1200
 const OFFICE_DAY_MIN = OFFICE_CLOSE_MIN - OFFICE_OPEN_MIN;      // 660 = 11h
 
 // ── Calcul heures ouvrables ──
@@ -90,32 +90,37 @@ function toDate(ts) {
 
 async function checkAndAdvanceStatus(candidatureId, data) {
   if (data.manualOverride) return false;
-  const now = new Date();
 
-  // TRANSITION 1: en_attente → en_cours (2h ouvrables = 120 min)
-  if (data.status === 'en_attente' && data.created_at) {
-    const submittedAt = toDate(data.created_at);
-    if (!submittedAt) return false;
-    const elapsed = businessMinutesElapsed(submittedAt);
+  // ── TRANSITION : en_cours → reponse_edumove ──
+  // Le timer de 2h ouvrées (9h-20h, lun-dim) démarre quand l'étudiant
+  // confirme ses choix d'universités (uni_selections_at).
+  // Pendant ces 2h le statut reste "en_cours" ("En attente de validation")
+  // pour simuler une validation humaine.
+  if (data.status === 'en_cours' && data.uni_selections_at) {
+    const selectionsAt = toDate(data.uni_selections_at);
+    if (!selectionsAt) return false;
+    const elapsed = businessMinutesElapsed(selectionsAt);
 
     if (elapsed >= 120) {
-      const transitionTime = addBusinessMinutes(submittedAt, 120);
+      const responseText = generateReponseEdumove(data);
       const existing = Array.isArray(data.status_history) ? data.status_history : [];
       await supabase.from('candidatures').update({
-        status: 'en_cours',
-        status_history: [...existing, { status: 'en_cours', at: transitionTime.toISOString(), by: 'auto' }]
+        status: 'reponse_edumove',
+        auto_response_text: responseText,
+        auto_response_generated_at: new Date().toISOString(),
+        status_history: [...existing, { status: 'reponse_edumove', at: new Date().toISOString(), by: 'auto' }]
       }).eq('id', candidatureId);
       return true;
     }
   }
 
-  // TRANSITION 2: en_cours → reponse_edumove (24h reelles)
-  if (data.status === 'en_cours') {
-    const history = data.status_history || [];
-    const enCoursEntry = history.find(h => h.status === 'en_cours');
-    if (enCoursEntry) {
-      const enCoursAt = toDate(enCoursEntry.at);
-      if (enCoursAt && (now.getTime() - enCoursAt.getTime()) >= 24 * 60 * 60 * 1000) {
+  // Fallback : si en_cours mais pas de uni_selections_at (anciens dossiers),
+  // utiliser created_at + 2h ouvrées comme estimation
+  if (data.status === 'en_cours' && !data.uni_selections_at && data.created_at) {
+    const submittedAt = toDate(data.created_at);
+    if (submittedAt) {
+      const elapsed = businessMinutesElapsed(submittedAt);
+      if (elapsed >= 120) {
         const responseText = generateReponseEdumove(data);
         const existing = Array.isArray(data.status_history) ? data.status_history : [];
         await supabase.from('candidatures').update({
