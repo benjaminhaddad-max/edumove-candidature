@@ -1099,6 +1099,73 @@ const _directUni = ['LINK', 'UCJC', 'UEM'].includes(_directParam) ? _directParam
 const _directLabels = { LINK: 'LINK Campus University — Rome', UCJC: 'UCJC — Madrid', UEM: 'Universidad Europea' };
 const _directColors = { LINK: '#1a2744', UCJC: '#96234a', UEM: '#003da5' };
 
+// ── DIRECT FILIERE CHIPS (lien dédié par fac) ──
+const _directFilieresByUni = {
+  LINK: [
+    { id: 'medecine', label: 'Médecine', icon: '🩺' },
+    { id: 'dentaire', label: 'Dentaire', icon: '🦷' },
+    { id: 'kinesitherapie', label: 'Kinésithérapie', icon: '🏃' },
+    { id: 'pharmacie', label: 'Pharmacie', icon: '💊' }
+  ],
+  UCJC: [
+    { id: 'dentaire', label: 'Dentaire', icon: '🦷' },
+    { id: 'kinesitherapie', label: 'Kinésithérapie', icon: '🏃' },
+    { id: 'pharmacie', label: 'Pharmacie', icon: '💊' }
+  ],
+  UEM: [
+    { id: 'medecine', label: 'Médecine', icon: '🩺' },
+    { id: 'dentaire', label: 'Dentaire', icon: '🦷' },
+    { id: 'kinesitherapie', label: 'Kinésithérapie', icon: '🏃' },
+    { id: 'pharmacie', label: 'Pharmacie', icon: '💊' },
+    { id: 'veterinaire', label: 'Vétérinaire', icon: '🐾' },
+    { id: 'prepa_dentaire', label: 'Prépa Dentaire', icon: '🦷' }
+  ]
+};
+let directSelectedFilieres = [];
+
+function buildDirectFiliereChips(uniKey) {
+  const grid = document.getElementById('direct-filiere-grid');
+  const filieres = _directFilieresByUni[uniKey] || [];
+  grid.innerHTML = '';
+  filieres.forEach(f => {
+    const chip = document.createElement('div');
+    chip.className = 'direct-filiere-chip';
+    chip.dataset.value = f.id;
+    chip.innerHTML = `<span class="chip-icon">${f.icon}</span><span>${f.label}</span><span class="chip-check"></span>`;
+    chip.onclick = () => toggleDirectFiliere(chip, f.id);
+    grid.appendChild(chip);
+  });
+}
+
+function toggleDirectFiliere(chip, filiereId) {
+  chip.classList.toggle('selected');
+  const check = chip.querySelector('.chip-check');
+  if (chip.classList.contains('selected')) {
+    check.textContent = '✓';
+    if (!directSelectedFilieres.includes(filiereId)) directSelectedFilieres.push(filiereId);
+  } else {
+    check.textContent = '';
+    directSelectedFilieres = directSelectedFilieres.filter(f => f !== filiereId);
+  }
+  state.filiereRanking = [...directSelectedFilieres];
+  state.filiere = directSelectedFilieres[0] || '';
+  state.filiereExclues = [];
+  showErr('err-filiere', false);
+}
+
+// ── Adapter le formulaire IMMÉDIATEMENT si lien direct (avant auth) ──
+if (_directUni) {
+  document.getElementById('section-dest-ranking').style.display = 'none';
+  document.getElementById('section-filiere-ranking').style.display = 'none';
+  document.getElementById('section-filiere-direct').style.display = 'block';
+  const banner = document.getElementById('direct-uni-banner');
+  if (banner) {
+    banner.innerHTML = `<div style="background:${_directColors[_directUni]};color:white;border-radius:10px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;"><div style="font-size:20px;">🎓</div><div><div style="font-size:11px;opacity:0.7;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">Candidature directe</div><div style="font-weight:700;font-size:15px;">${_directLabels[_directUni]}</div></div></div>`;
+    banner.style.display = 'block';
+  }
+  buildDirectFiliereChips(_directUni);
+}
+
 (async () => {
   const { data: { session } } = await supabase.auth.getSession();
   const user = session?.user;
@@ -1127,21 +1194,7 @@ const _directColors = { LINK: '#1a2744', UCJC: '#96234a', UEM: '#003da5' };
     }
   } catch(e) { console.error('Load profile error:', e); }
 
-  // Afficher bandeau si lien direct + adapter le formulaire
-  if (_directUni) {
-    const banner = document.getElementById('direct-uni-banner');
-    if (banner) {
-      banner.innerHTML = `<div style="background:${_directColors[_directUni]};color:white;border-radius:10px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;"><div style="font-size:20px;">🎓</div><div><div style="font-size:11px;opacity:0.7;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">Candidature directe</div><div style="font-weight:700;font-size:15px;">${_directLabels[_directUni]}</div></div></div>`;
-      banner.style.display = 'block';
-    }
-    // Cacher classement destinations + classement filières ranking
-    const destSection = document.getElementById('section-dest-ranking');
-    if (destSection) destSection.style.display = 'none';
-    document.getElementById('section-filiere-ranking').style.display = 'none';
-    // Afficher les chips filières direct
-    document.getElementById('section-filiere-direct').style.display = 'block';
-    buildDirectFiliereChips(_directUni);
-  }
+  // (bandeau + sections direct déjà gérés au chargement, avant l'async)
 })();
 
 function logout() {
@@ -1220,61 +1273,6 @@ const state = {
   ranking: ['pass_las','italie','espagne'],
   termSpe: []
 };
-
-// ── DIRECT FILIERE CHIPS (lien dédié par fac) ──
-const _directFilieresByUni = {
-  LINK: [
-    { id: 'medecine', label: 'Médecine', icon: '🩺' },
-    { id: 'dentaire', label: 'Dentaire', icon: '🦷' },
-    { id: 'kinesitherapie', label: 'Kinésithérapie', icon: '🏃' },
-    { id: 'pharmacie', label: 'Pharmacie', icon: '💊' }
-  ],
-  UCJC: [
-    { id: 'dentaire', label: 'Dentaire', icon: '🦷' },
-    { id: 'kinesitherapie', label: 'Kinésithérapie', icon: '🏃' },
-    { id: 'pharmacie', label: 'Pharmacie', icon: '💊' }
-  ],
-  UEM: [
-    { id: 'medecine', label: 'Médecine', icon: '🩺' },
-    { id: 'dentaire', label: 'Dentaire', icon: '🦷' },
-    { id: 'kinesitherapie', label: 'Kinésithérapie', icon: '🏃' },
-    { id: 'pharmacie', label: 'Pharmacie', icon: '💊' },
-    { id: 'veterinaire', label: 'Vétérinaire', icon: '🐾' },
-    { id: 'prepa_dentaire', label: 'Prépa Dentaire', icon: '🦷' }
-  ]
-};
-let directSelectedFilieres = [];
-
-function buildDirectFiliereChips(uniKey) {
-  const grid = document.getElementById('direct-filiere-grid');
-  const filieres = _directFilieresByUni[uniKey] || [];
-  grid.innerHTML = '';
-  filieres.forEach(f => {
-    const chip = document.createElement('div');
-    chip.className = 'direct-filiere-chip';
-    chip.dataset.value = f.id;
-    chip.innerHTML = `<span class="chip-icon">${f.icon}</span><span>${f.label}</span><span class="chip-check"></span>`;
-    chip.onclick = () => toggleDirectFiliere(chip, f.id);
-    grid.appendChild(chip);
-  });
-}
-
-function toggleDirectFiliere(chip, filiereId) {
-  chip.classList.toggle('selected');
-  const check = chip.querySelector('.chip-check');
-  if (chip.classList.contains('selected')) {
-    check.textContent = '✓';
-    if (!directSelectedFilieres.includes(filiereId)) directSelectedFilieres.push(filiereId);
-  } else {
-    check.textContent = '';
-    directSelectedFilieres = directSelectedFilieres.filter(f => f !== filiereId);
-  }
-  // Mettre à jour state pour la compatibilité
-  state.filiereRanking = [...directSelectedFilieres];
-  state.filiere = directSelectedFilieres[0] || '';
-  state.filiereExclues = [];
-  showErr('err-filiere', false);
-}
 
 // ── FILIERE RANKING ──
 function moveFiliereRank(btn, dir) {
