@@ -344,6 +344,16 @@ tr:last-child td { border-bottom: none; }
 
 /* ── DETAIL CARDS ── */
 .detail-cards { display: flex; flex-direction: column; gap: 16px; }
+.detail-split { display: flex; gap: 20px; align-items: flex-start; }
+.detail-split-left { flex: 1; min-width: 0; }
+.detail-split-right { width: 380px; flex-shrink: 0; position: sticky; top: 80px; height: calc(100vh - 120px); display: flex; flex-direction: column; gap: 12px; }
+.fac-tab-btn { flex: 1; padding: 10px 0; border: none; background: none; font-family: inherit; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; border-bottom: 2px solid transparent; }
+.fac-tab-btn:hover { color: var(--violet); background: var(--bg); }
+.fac-tab-btn.active { color: var(--violet); border-bottom-color: var(--violet); }
+@media (max-width: 900px) {
+  .detail-split { flex-direction: column; }
+  .detail-split-right { width: 100%; position: static; height: auto; }
+}
 .detail-card {
   background: white;
   border-radius: var(--radius-lg);
@@ -1004,7 +1014,10 @@ tr:last-child td { border-bottom: none; }
       <select class="detail-page-status-select" id="detail-page-status-select" onchange="updateStatusFromDetail(this.value)"></select>
     </div>
   </div>
-  <div class="detail-cards" id="detail-cards"></div>
+  <div class="detail-split">
+    <div class="detail-split-left" id="detail-cards"></div>
+    <div class="detail-split-right" id="detail-messaging"></div>
+  </div>
 </div>
 
 <!-- ══════════════════════════════════════════
@@ -2559,6 +2572,7 @@ function viewDetail(id) {
 
   renderDetailPage(c);
   loadMessagesForCandidature(c.id);
+  setTimeout(() => switchFacTab('LINK', c.id), 100);
 }
 
 function renderDetailPage(c) {
@@ -2929,15 +2943,20 @@ function renderDetailPage(c) {
   }
   html += `</div></div>`;
 
-  // ── Card 8: MESSAGERIE ── (super_admin only)
+  document.getElementById('detail-cards').innerHTML = html;
+
+  // ── RIGHT PANEL: MESSAGING (sticky) ──
+  let msgHtml = '';
+
+  // Messagerie étudiant (super_admin only)
   if (window.adminRole === 'super_admin' || !window.adminRole) {
-    html += `<div class="detail-card">
-      <div class="detail-card-title" onclick="toggleCard(this)" style="color:var(--orange);border-color:var(--orange);">Messagerie avec l'étudiant</div>
-      <div class="detail-card-body">
-      <div class="msg-container" id="msg-container-${c.id}">
+    msgHtml += `<div class="detail-card" style="flex:1;display:flex;flex-direction:column;min-height:0;">
+      <div class="detail-card-title" style="color:var(--orange);border-color:var(--orange);flex-shrink:0;">Messagerie étudiant</div>
+      <div class="detail-card-body" style="flex:1;display:flex;flex-direction:column;min-height:0;padding:12px 16px;">
+      <div class="msg-container" id="msg-container-${c.id}" style="flex:1;min-height:0;max-height:none;">
         <div class="msg-empty" id="msg-empty-${c.id}">Aucun message</div>
       </div>
-      <div class="msg-input-row">
+      <div class="msg-input-row" style="flex-shrink:0;">
         <textarea class="msg-input" id="msg-input-${c.id}" placeholder="Écrire un message..."></textarea>
         <button class="btn-msg-send" onclick="sendAdminMessage('${c.id}')">Envoyer</button>
       </div>
@@ -2945,7 +2964,26 @@ function renderDetailPage(c) {
     </div>`;
   }
 
-  document.getElementById('detail-cards').innerHTML = html;
+  // Messagerie fac (par université)
+  msgHtml += `<div class="detail-card" style="flex:1;display:flex;flex-direction:column;min-height:0;">
+    <div class="detail-card-title" onclick="toggleCard(this)" style="color:var(--violet);border-color:var(--violet);flex-shrink:0;">Messagerie facultés</div>
+    <div class="detail-card-body" style="flex:1;display:flex;flex-direction:column;min-height:0;padding:0;">
+      <div style="display:flex;gap:0;border-bottom:1px solid var(--border-light);flex-shrink:0;">
+        <button class="fac-tab-btn active" data-fac="LINK" onclick="switchFacTab('LINK','${c.id}')">LINK</button>
+        <button class="fac-tab-btn" data-fac="UCJC" onclick="switchFacTab('UCJC','${c.id}')">UCJC</button>
+        <button class="fac-tab-btn" data-fac="UE" onclick="switchFacTab('UE','${c.id}')">UE</button>
+      </div>
+      <div class="msg-container" id="fac-msg-detail-container" style="flex:1;min-height:0;max-height:none;padding:12px;">
+        <div class="msg-empty" id="fac-msg-detail-empty">Sélectionnez une fac</div>
+      </div>
+      <div class="msg-input-row" style="flex-shrink:0;padding:8px 12px;">
+        <textarea class="msg-input" id="fac-msg-detail-input" placeholder="Écrire à la fac..."></textarea>
+        <button class="btn-msg-send" onclick="sendFacDetailMessage('${c.id}')">Envoyer</button>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById('detail-messaging').innerHTML = msgHtml;
 
   // For fac users, hide detailed student info cards
   if (window.adminRole && window.adminRole !== 'super_admin') {
@@ -3042,6 +3080,89 @@ async function sendAdminMessage(candidatureId) {
     input.value = '';
   } catch (err) {
     console.error('Erreur envoi message:', err);
+    alert('Erreur lors de l\'envoi.');
+  }
+}
+
+// ══════════════════════════════════════════
+// FAC MESSAGING IN DETAIL PANEL
+// ══════════════════════════════════════════
+let currentFacDetailTab = 'LINK';
+let facDetailMsgSub = null;
+
+async function switchFacTab(facKey, candidatureId) {
+  currentFacDetailTab = facKey;
+  // Update tab UI
+  document.querySelectorAll('.fac-tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.fac === facKey);
+  });
+  // Load messages for this fac + candidature
+  await loadFacDetailMessages(facKey, candidatureId);
+}
+
+async function loadFacDetailMessages(facKey, candidatureId) {
+  const container = document.getElementById('fac-msg-detail-container');
+  const emptyEl = document.getElementById('fac-msg-detail-empty');
+  if (!container) return;
+
+  // Unsubscribe previous
+  if (facDetailMsgSub) { supabase.removeChannel(facDetailMsgSub); facDetailMsgSub = null; }
+
+  const renderFacMsgs = (msgs) => {
+    container.innerHTML = '';
+    if (!msgs || !msgs.length) {
+      container.innerHTML = '<div class="msg-empty">Aucun message avec ' + facKey + '</div>';
+      return;
+    }
+    msgs.forEach(m => {
+      const div = document.createElement('div');
+      const isSent = m.sender_role === 'super_admin';
+      div.className = 'msg-bubble ' + (isSent ? 'admin' : 'etudiant');
+      let inner = '<div class="msg-sender">' + (isSent ? 'Edumove' : facKey) + '</div>';
+      inner += '<div>' + esc(m.content) + '</div>';
+      if (m.created_at) {
+        const d = new Date(m.created_at);
+        inner += '<div class="msg-time">' + d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) + '</div>';
+      }
+      div.innerHTML = inner;
+      container.appendChild(div);
+    });
+    container.scrollTop = container.scrollHeight;
+  };
+
+  const { data } = await supabase.from('fac_messages').select('*')
+    .eq('fac_key', facKey).eq('candidature_id', candidatureId)
+    .order('created_at', { ascending: true });
+  renderFacMsgs(data);
+
+  // Realtime
+  const channel = supabase.channel('fac-detail-' + facKey + '-' + candidatureId)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'fac_messages',
+      filter: 'candidature_id=eq.' + candidatureId }, async () => {
+      const { data: msgs } = await supabase.from('fac_messages').select('*')
+        .eq('fac_key', facKey).eq('candidature_id', candidatureId)
+        .order('created_at', { ascending: true });
+      renderFacMsgs(msgs);
+    })
+    .subscribe();
+  facDetailMsgSub = channel;
+}
+
+async function sendFacDetailMessage(candidatureId) {
+  const input = document.getElementById('fac-msg-detail-input');
+  const text = input.value.trim();
+  if (!text) return;
+  try {
+    await supabase.from('fac_messages').insert({
+      fac_key: currentFacDetailTab,
+      candidature_id: candidatureId,
+      sender_role: 'super_admin',
+      sender_email: currentAdminUser?.email || 'admin',
+      content: text
+    });
+    input.value = '';
+  } catch (err) {
+    console.error('Erreur envoi fac message:', err);
     alert('Erreur lors de l\'envoi.');
   }
 }
