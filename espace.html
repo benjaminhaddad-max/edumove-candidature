@@ -91,20 +91,30 @@ body {
   overflow: hidden;
 }
 .profil-dropdown.open { display: block; }
+.recap-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(27,29,58,0.5);
+  z-index: 300;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 16px;
+  overflow-y: auto;
+}
+.recap-overlay.open { display: flex; }
 .recap-dropdown {
   display: none;
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  width: 560px;
-  max-width: calc(100vw - 32px);
+  width: 600px;
+  max-width: 100%;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(27,29,58,0.18);
-  z-index: 200;
+  border-radius: 14px;
+  box-shadow: 0 12px 48px rgba(27,29,58,0.25);
+  z-index: 301;
   overflow: hidden;
+  margin: auto;
 }
-.recap-dropdown.open { display: block; }
+.recap-overlay.open .recap-dropdown { display: block; }
 .recap-dropdown-header {
   background: var(--navy);
   padding: 16px 20px;
@@ -112,12 +122,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 .recap-dropdown-title { font-size: 14px; font-weight: 700; }
 .recap-dropdown-body {
   padding: 20px;
-  max-height: 70vh;
-  overflow-y: auto;
 }
 .profil-dropdown-header {
   background: var(--navy);
@@ -986,6 +997,7 @@ body {
         <span style="font-size:15px;">📋</span>
         <span class="btn-profil-name">Mon dossier</span>
       </button>
+      <div class="recap-overlay" id="recap-overlay" onclick="if(event.target===this)closeRecapDropdown()">
       <div class="recap-dropdown" id="recap-dropdown">
         <div class="recap-dropdown-header">
           <span class="recap-dropdown-title">📋 Récapitulatif de votre dossier</span>
@@ -994,6 +1006,7 @@ body {
         <div class="recap-dropdown-body" id="recap-body">
           <!-- Filled by JS -->
         </div>
+      </div>
       </div>
     </div>
     <button class="btn-profil" id="btn-profil" onclick="toggleProfilDropdown()">
@@ -1237,18 +1250,16 @@ function fillProfilDropdown() {
 }
 
 function toggleRecapDropdown() {
-  const dd = document.getElementById('recap-dropdown');
-  const isOpen = dd.classList.contains('open');
-  closeRecapDropdown();
-  if (!isOpen) {
-    dd.classList.add('open');
-    document.getElementById('profil-backdrop').classList.add('open');
+  const overlay = document.getElementById('recap-overlay');
+  if (overlay.classList.contains('open')) {
+    closeRecapDropdown();
+  } else {
+    overlay.classList.add('open');
   }
 }
 
 function closeRecapDropdown() {
-  document.getElementById('recap-dropdown').classList.remove('open');
-  document.getElementById('profil-backdrop').classList.remove('open');
+  document.getElementById('recap-overlay').classList.remove('open');
 }
 
 function toggleProfilDropdown() {
