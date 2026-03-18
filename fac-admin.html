@@ -278,11 +278,11 @@ const UNI_CONFIG = {
 
 function applyUniTheme(uni) {
   const cfg = UNI_CONFIG[uni];
+  if (!cfg) return;
   document.documentElement.style.setProperty('--uni-color', cfg.color);
   document.documentElement.style.setProperty('--uni-light', cfg.light);
   document.getElementById('uni-label').textContent = '· ' + cfg.emoji + ' ' + cfg.label;
   document.getElementById('dash-title').textContent = 'Dossiers — ' + cfg.label;
-  document.getElementById('col-uni').textContent = cfg.colLabel;
 }
 
 // ── AUTH ──
