@@ -2805,14 +2805,67 @@ function finalizeUESelection(filiereLabel, ville, langue) {
 }
 
 // ── CONFIRM BUTTON ──
+function getRequiredDocs(uniKey) {
+  if (uniKey === 'LINK') return ['formulaire', 'identite'];
+  if (uniKey === 'UCJC') return ['lettre_motivation', 'identite', 'formulaire'];
+  if (uniKey === 'UE') return ['bulletins', 'identite'];
+  return [];
+}
+
+function getMissingDocs() {
+  const docs = candidatureData.documents || {};
+  const missing = [];
+  const docLabels = {
+    LINK_formulaire: 'Formulaire LINK', LINK_identite: 'Pièce d\'identité (LINK)',
+    UCJC_lettre_motivation: 'Lettre de motivation (UCJC)', UCJC_identite: 'Pièce d\'identité (UCJC)', UCJC_formulaire: 'Formulaire UCJC',
+    UE_bulletins: 'Bulletins de Première (UE)', UE_identite: 'Pièce d\'identité (UE)'
+  };
+  ['LINK', 'UCJC', 'UE'].forEach(uni => {
+    if (!uniSelections[uni]) return;
+    getRequiredDocs(uni).forEach(docKey => {
+      const fullKey = uni + '_' + docKey;
+      if (!docs[fullKey]) missing.push(docLabels[fullKey] || fullKey);
+    });
+  });
+  // UE rapport technique: required unless rapport_demarche checkbox is checked
+  if (uniSelections.UE) {
+    const rapportCb = document.getElementById('cb-rapport-demarche');
+    if (!docs['UE_rapport_technique'] && !(rapportCb && rapportCb.checked) && !docs['UE_rapport_demarche']) {
+      missing.push('Rapport technique académique (UE)');
+    }
+  }
+  return missing;
+}
+
 function updateConfirmButton() {
   const btn = document.getElementById('btn-confirm-selections');
   const hasSelection = uniSelections.LINK || uniSelections.UCJC || uniSelections.UE;
-  btn.disabled = !hasSelection;
+  if (!hasSelection) { btn.disabled = true; return; }
+  const missing = getMissingDocs();
+  btn.disabled = missing.length > 0;
+  // Show/update missing docs hint
+  let hint = document.getElementById('missing-docs-hint');
+  if (!hint) {
+    hint = document.createElement('div');
+    hint.id = 'missing-docs-hint';
+    hint.style.cssText = 'font-size:12px;color:#e65100;margin-top:8px;line-height:1.6;';
+    btn.parentElement.appendChild(hint);
+  }
+  if (missing.length > 0) {
+    hint.innerHTML = '⚠️ <strong>Documents manquants :</strong><br>' + missing.map(m => '• ' + m).join('<br>');
+  } else {
+    hint.innerHTML = '';
+  }
 }
 
 async function confirmAllSelections() {
   const btn = document.getElementById('btn-confirm-selections');
+  // Final doc check before confirming
+  const missing = getMissingDocs();
+  if (missing.length > 0) {
+    alert('Documents manquants :\n' + missing.join('\n') + '\n\nVeuillez les uploader avant de confirmer.');
+    return;
+  }
   btn.disabled = true;
   btn.textContent = 'Enregistrement en cours...';
 
@@ -3022,6 +3075,7 @@ async function handleDocUpload(input, uniKey, docKey) {
 
     if (statusEl) statusEl.innerHTML = '<span class="uni-doc-upload-status">&#x2705; Envoyé</span>';
     input.value = '';
+    updateConfirmButton();
   } catch (err) {
     console.error('Upload error:', err);
     if (statusEl) statusEl.innerHTML = '<span style="font-size:12px;color:var(--error);">Erreur</span>';
