@@ -174,6 +174,25 @@ body {
   padding: 36px 32px;
 }
 
+/* Select fields — match input styling */
+.auth-field select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+  background: var(--white);
+  color: var(--text);
+  appearance: auto;
+}
+.auth-field select:focus {
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px rgba(97,92,165,0.1);
+}
+
 /* Profil toggle */
 .profil-toggle { display: flex; gap: 10px; }
 .profil-btn { flex: 1; padding: 12px 10px; border: 1.5px solid var(--border); border-radius: 8px; background: white; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
@@ -475,7 +494,7 @@ body {
       <div style="font-size:13px;font-weight:700;color:#1b1d3a;margin-bottom:12px;">📋 Votre situation actuelle</div>
       <div class="auth-field">
         <label>Formation actuelle <span class="req">*</span></label>
-        <select id="signup-reori-formation" style="width:100%;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:14px;" onchange="document.getElementById('signup-reori-autre-wrap').style.display=this.value==='autre'?'block':'none';">
+        <select id="signup-reori-formation" onchange="document.getElementById('signup-reori-autre-wrap').style.display=this.value==='autre'?'block':'none';">
           <option value="">— Sélectionner —</option>
           <option value="PASS">PASS</option>
           <option value="LAS">L.AS</option>
@@ -493,7 +512,7 @@ body {
       <div class="auth-field-row" style="margin-top:4px;">
         <div class="auth-field">
           <label>Année en cours</label>
-          <select id="signup-reori-annee" style="width:100%;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:14px;">
+          <select id="signup-reori-annee">
             <option value="">— Sélectionner —</option>
             <option value="1ere annee">1ère année</option>
             <option value="2eme annee">2ème année</option>
