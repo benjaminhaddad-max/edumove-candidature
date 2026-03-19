@@ -35,7 +35,8 @@ module.exports = async function handler(req, res) {
     if (action === 'list') return await listFromCache(req, res);
     if (action === 'sync') return await syncFromHubSpot(req, res);
     if (action === 'update') return await updateContact(req, res);
-    return safeError(res, 400, 'Invalid action. Use: list, sync, update');
+    if (action === 'assign') return await assignContacts(req, res);
+    return safeError(res, 400, 'Invalid action');
   } catch (err) {
     console.error('CRM error:', err.message);
     return safeError(res, 500, 'CRM request failed');
@@ -45,16 +46,16 @@ module.exports = async function handler(req, res) {
 // ── LIST: Read from Supabase cache (instant) ──
 async function listFromCache(req, res) {
   const sb = getSupabase();
-  // Supabase default limit is 1000 — fetch all with pagination
+  const { assignedTo } = req.body || {};
   let allData = [];
   let from = 0;
   const PAGE = 1000;
   while (true) {
-    const { data: batch, error: batchErr } = await sb
-      .from('crm_contacts')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .range(from, from + PAGE - 1);
+    let q = sb.from('crm_contacts').select('*').order('synced_at', { ascending: false });
+    if (assignedTo && typeof assignedTo === 'string' && assignedTo.trim()) {
+      q = q.eq('assigned_to', assignedTo.trim());
+    }
+    const { data: batch, error: batchErr } = await q.range(from, from + PAGE - 1);
     if (batchErr) { console.error('Cache read error:', batchErr); break; }
     allData = allData.concat(batch || []);
     if (!batch || batch.length < PAGE) break;
@@ -78,7 +79,10 @@ async function listFromCache(req, res) {
     hsLeadStatus: r.hs_lead_status || '',
     formName: r.form_name || '',
     source: r.source || '',
-    createdAt: r.created_at || ''
+    assignedTo: r.assigned_to || '',
+    assignedName: r.assigned_name || '',
+    createdAt: r.created_at || '',
+    syncedAt: r.synced_at || ''
   }));
 
   return res.status(200).json({ contacts, total: contacts.length, cached: true });
@@ -201,6 +205,25 @@ function mapHsToEdumove(hsStatus) {
     'NRP4': 'Nouveau'
   };
   return map[hsStatus] || '';
+}
+
+// ── ASSIGN: Assign contacts to a telepro ──
+async function assignContacts(req, res) {
+  const { contactIds, assignTo, assignName } = req.body;
+  if (!Array.isArray(contactIds) || !contactIds.length) return safeError(res, 400, 'contactIds required');
+
+  const sb = getSupabase();
+  const updateData = { assigned_to: assignTo || null, assigned_name: assignName || null };
+
+  let updated = 0;
+  for (let i = 0; i < contactIds.length; i += 500) {
+    const batch = contactIds.slice(i, i + 500);
+    const { error } = await sb.from('crm_contacts').update(updateData).in('id', batch);
+    if (!error) updated += batch.length;
+    else console.error('Assign error:', error.message);
+  }
+
+  return res.status(200).json({ ok: true, updated });
 }
 
 function cleanFormName(raw) {
