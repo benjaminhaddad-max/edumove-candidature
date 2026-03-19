@@ -124,7 +124,7 @@ async function syncFromHubSpot(req, res) {
       prenom: p.firstname || '',
       email: p.email || '',
       tel: p.phone || '',
-      lead_status: p.edumove_lead_status || '',
+      lead_status: p.edumove_lead_status || mapHsToEdumove(p.hs_lead_status || ''),
       hs_lead_status: p.hs_lead_status || '',
       form_name: cleanFormName(p.recent_conversion_event_name || ''),
       source: p.hs_analytics_source || '',
@@ -180,6 +180,29 @@ async function updateContact(req, res) {
 }
 
 // ── HELPERS ──
+// Map HubSpot hs_lead_status → Edumove lead_status (when edumove_lead_status is empty)
+function mapHsToEdumove(hsStatus) {
+  const map = {
+    'Nouveau': 'Nouveau',
+    'Nouveau - Chaud': 'Nouveau',
+    'Disqualifié': 'Disqualifié',
+    'Mauvais numéro': 'Disqualifié',
+    'Raccroche au nez': 'Disqualifié',
+    'Doublon': 'Disqualifié',
+    'Autre prépa concurrente': 'Disqualifié',
+    'Inscrit': 'Va candidater',
+    'Pré-inscrit 2025/2026': 'Va candidater',
+    'Pré-inscrit 2026/2027': 'Va candidater',
+    'En cours': 'Nouveau',
+    'Rdv pris': 'Va candidater',
+    'NRP1': 'Nouveau',
+    'NRP2': 'Nouveau',
+    'NRP3': 'Disqualifié',
+    'NRP4': 'Disqualifié'
+  };
+  return map[hsStatus] || '';
+}
+
 function cleanFormName(raw) {
   if (!raw) return '';
   if (raw.includes('EDUMOVE - CONTACT')) return 'Edumove Contact';
