@@ -9,10 +9,12 @@ module.exports = async function handler(req, res) {
 
   if (process.env.SMS_ENABLED !== 'true') return res.status(200).json({ ok: false, reason: 'SMS disabled' });
 
-  const { recipients, message } = req.body || {};
+  const { recipients, message, shortLinks, pushtype } = req.body || {};
   if (!Array.isArray(recipients) || !recipients.length) return safeError(res, 400, 'Missing recipients');
   if (!message || typeof message !== 'string') return safeError(res, 400, 'Missing message');
   if (recipients.length > 200) return safeError(res, 400, 'Max 200 recipients per batch');
+
+  const smsType = pushtype === 'marketing' ? 'marketing' : 'alert'; // default to transactionnel
 
   const token = process.env.SMS_FACTOR_TOKEN;
   if (!token) return safeError(res, 500, 'SMS service not configured');
@@ -29,7 +31,7 @@ module.exports = async function handler(req, res) {
       const resp = await fetch('https://api.smsfactor.com/send', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ sms: { message: { text: personalizedMsg, pushtype: 'marketing', sender: 'Edumove' }, recipients: { gsm: [{ value: phone }] } } })
+        body: JSON.stringify({ sms: { message: { text: personalizedMsg, pushtype: smsType, sender: 'Edumove', ...(shortLinks ? { shortlink: 1 } : {}) }, recipients: { gsm: [{ value: phone }] } } })
       });
       const data = await resp.json().catch(() => ({}));
       if (resp.ok && data.status !== 0) { results.sent++; }

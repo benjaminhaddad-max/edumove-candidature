@@ -3040,8 +3040,24 @@ body.closer-mode .msg-new-btn { display: none !important; }
       <div style="font-size:13px;color:#6b7280;margin-bottom:16px;" id="bulk-sms-info">0 destinataires sélectionnés</div>
       <div style="margin-bottom:12px;">
         <label style="font-size:12px;font-weight:600;color:#1b1d3a;text-transform:uppercase;letter-spacing:0.04em;">Message SMS</label>
-        <textarea id="bulk-sms-content" rows="4" placeholder="Tapez votre message SMS ici..." style="width:100%;box-sizing:border-box;margin-top:6px;padding:12px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:14px;resize:vertical;outline:none;"></textarea>
-        <div style="font-size:11px;color:#9ca3af;margin-top:4px;">Utilisez <code>{prenom}</code> pour personnaliser. Max 160 caractères recommandé.</div>
+        <textarea id="bulk-sms-content" rows="4" placeholder="Tapez votre message SMS ici..." oninput="updateSmsCharCount()" style="width:100%;box-sizing:border-box;margin-top:6px;padding:12px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:14px;resize:vertical;outline:none;"></textarea>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;">
+          <div style="font-size:11px;color:#9ca3af;">Utilisez <code>{prenom}</code> pour personnaliser.</div>
+          <div id="sms-char-count" style="font-size:11px;color:#9ca3af;font-weight:600;">0 / 160</div>
+        </div>
+      </div>
+      <div style="margin-bottom:12px;display:flex;gap:16px;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;">
+          <input type="checkbox" id="sms-shortlinks" checked style="width:15px;height:15px;accent-color:var(--violet);">
+          <span><strong>Raccourcir les liens</strong> <span style="color:#9ca3af;">(URL → lien court)</span></span>
+        </label>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <label style="font-size:12px;font-weight:600;">Type :</label>
+          <select id="sms-pushtype" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:6px;font-family:inherit;font-size:12px;cursor:pointer;">
+            <option value="alert" selected>📨 Transactionnel</option>
+            <option value="marketing">📢 Marketing</option>
+          </select>
+        </div>
       </div>
       <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
         <button onclick="closeBulkSmsModal()" style="padding:10px 18px;border:1.5px solid #d1d5db;background:white;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">Annuler</button>
@@ -7204,14 +7220,25 @@ async function loadCRMContacts() {
   tbody.innerHTML = '';
 
   try {
-    const data = await crmApiCall({ action: 'list' });
+    const body = { action: 'list' };
+    if (window.adminRole === 'telepro' && currentAdminUser?.email) {
+      body.assignedTo = currentAdminUser.email;
+    }
+    const data = await crmApiCall(body);
     crmContacts = data.contacts || [];
     crmHasMore = false;
 
-    // If cache is empty, auto-sync from HubSpot
+    // Si cache vide : super_admin déclenche sync, télépro affiche message
     if (crmContacts.length === 0) {
-      empty.querySelector('p').textContent = '⏳ Premier chargement — sync HubSpot...';
-      await syncCRMFromHubSpot();
+      if (window.adminRole === 'telepro') {
+        empty.querySelector('p').textContent = 'Vous n\'avez aucun lead assigné. Contactez l\'administrateur pour qu\'il vous assigne des leads.';
+        empty.style.display = 'block';
+        renderCRMTable();
+        updateCRMStats();
+      } else {
+        empty.querySelector('p').textContent = '⏳ Premier chargement — sync HubSpot...';
+        await syncCRMFromHubSpot();
+      }
       return;
     }
 
@@ -7447,6 +7474,14 @@ function getSelectedCrmContacts() {
 }
 
 // ── SMS MODAL ──
+function updateSmsCharCount() {
+  const text = document.getElementById('bulk-sms-content').value || '';
+  const el = document.getElementById('sms-char-count');
+  const count = text.length;
+  el.textContent = count + ' / 160';
+  el.style.color = count > 160 ? '#ef4444' : count > 140 ? '#f59e0b' : '#9ca3af';
+}
+
 function openBulkSmsModal() {
   const selected = getSelectedCrmContacts();
   const withPhone = selected.filter(c => c.tel);
@@ -7473,7 +7508,12 @@ async function sendBulkSms() {
   try {
     const resp = await fetch('/api/bulk-sms', {
       method: 'POST', headers: apiHeaders(),
-      body: JSON.stringify({ recipients: selected.map(c => ({ tel: c.tel, prenom: c.prenom })), message })
+      body: JSON.stringify({
+        recipients: selected.map(c => ({ tel: c.tel, prenom: c.prenom })),
+        message,
+        shortLinks: document.getElementById('sms-shortlinks')?.checked || false,
+        pushtype: document.getElementById('sms-pushtype')?.value || 'alert'
+      })
     });
     const data = await resp.json();
     const resultEl = document.getElementById('bulk-sms-result');
