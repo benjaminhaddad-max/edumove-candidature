@@ -2920,6 +2920,10 @@ body.closer-mode .msg-new-btn { display: none !important; }
       <div style="position:relative;display:inline-block;">
         <button class="filter-select" onclick="var d=document.getElementById('crm-form-dd');d.style.display=d.style.display==='block'?'none':'block'" style="min-width:140px;text-align:left;cursor:pointer;background:white;" id="crm-form-btn">Formulaire ▾</button>
         <div id="crm-form-dd" style="display:none;position:absolute;top:100%;left:0;z-index:300;background:white;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:8px 0;min-width:200px;margin-top:4px;">
+          <div style="padding:4px 12px 6px;border-bottom:1px solid var(--border-light);display:flex;gap:8px;">
+            <button onclick="document.querySelectorAll('.crm-form-cb').forEach(c=>c.checked=true);filterCRMContacts()" style="font-size:10px;padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:white;cursor:pointer;font-family:inherit;font-weight:600;">✅ Tout</button>
+            <button onclick="document.querySelectorAll('.crm-form-cb').forEach(c=>c.checked=false);filterCRMContacts()" style="font-size:10px;padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:white;cursor:pointer;font-family:inherit;font-weight:600;">❌ Aucun</button>
+          </div>
           <label class="crm-hs-lbl"><input type="checkbox" class="crm-form-cb" value="Edumove Contact" checked onchange="filterCRMContacts()"> Edumove Contact</label>
           <label class="crm-hs-lbl"><input type="checkbox" class="crm-form-cb" value="Edumove Qualification" checked onchange="filterCRMContacts()"> Edumove Qualification</label>
           <label class="crm-hs-lbl"><input type="checkbox" class="crm-form-cb" value="Meta Lead Gen (LGF V2)" checked onchange="filterCRMContacts()"> Meta Lead Gen (LGF V2)</label>
@@ -2929,6 +2933,10 @@ body.closer-mode .msg-new-btn { display: none !important; }
       <div style="position:relative;display:inline-block;">
         <button class="filter-select" onclick="var d=document.getElementById('crm-edm-dd');d.style.display=d.style.display==='block'?'none':'block'" style="min-width:150px;text-align:left;cursor:pointer;background:white;" id="crm-edm-btn">Statut Edumove ▾</button>
         <div id="crm-edm-dd" style="display:none;position:absolute;top:100%;left:0;z-index:300;background:white;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:8px 0;min-width:220px;margin-top:4px;">
+          <div style="padding:4px 12px 6px;border-bottom:1px solid var(--border-light);display:flex;gap:8px;">
+            <button onclick="document.querySelectorAll('.crm-edm-cb').forEach(c=>c.checked=true);filterCRMContacts()" style="font-size:10px;padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:white;cursor:pointer;font-family:inherit;font-weight:600;">✅ Tout</button>
+            <button onclick="document.querySelectorAll('.crm-edm-cb').forEach(c=>c.checked=false);filterCRMContacts()" style="font-size:10px;padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:white;cursor:pointer;font-family:inherit;font-weight:600;">❌ Aucun</button>
+          </div>
           <label class="crm-hs-lbl"><input type="checkbox" class="crm-edm-cb" value="Nouveau" checked onchange="filterCRMContacts()"> Nouveau</label>
           <label class="crm-hs-lbl"><input type="checkbox" class="crm-edm-cb" value="Va candidater" checked onchange="filterCRMContacts()"> Va candidater</label>
           <label class="crm-hs-lbl"><input type="checkbox" class="crm-edm-cb" value="Veut absolument autre pays" checked onchange="filterCRMContacts()"> Veut autre pays</label>
@@ -2939,36 +2947,6 @@ body.closer-mode .msg-new-btn { display: none !important; }
           <label class="crm-hs-lbl" style="color:#999;"><input type="checkbox" class="crm-edm-cb" value="" checked onchange="filterCRMContacts()"> (Aucun statut)</label>
         </div>
       </div>
-      <div style="position:relative;display:inline-block;">
-        <button class="filter-select" onclick="var d=document.getElementById('crm-hs-dd');d.style.display=d.style.display==='block'?'none':'block'" style="min-width:170px;text-align:left;cursor:pointer;background:white;" id="crm-hs-btn">Statut HubSpot ▾</button>
-        <div id="crm-hs-dd" style="display:none;position:absolute;top:100%;left:0;z-index:300;background:white;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:8px 0;min-width:230px;max-height:360px;overflow-y:auto;margin-top:4px;">
-          <div style="padding:6px 12px 8px;border-bottom:1px solid var(--border-light);display:flex;gap:8px;">
-            <button onclick="document.querySelectorAll('.crm-hs-cb').forEach(c=>c.checked=true);filterCRMContacts()" style="font-size:10px;padding:4px 10px;border:1px solid var(--border);border-radius:4px;background:white;cursor:pointer;font-family:inherit;font-weight:600;">✅ Tout</button>
-            <button onclick="document.querySelectorAll('.crm-hs-cb').forEach(c=>c.checked=false);filterCRMContacts()" style="font-size:10px;padding:4px 10px;border:1px solid var(--border);border-radius:4px;background:white;cursor:pointer;font-family:inherit;font-weight:600;">❌ Aucun</button>
-          </div>
-          <label class="crm-hs-lbl"><input type="checkbox" class="crm-hs-cb" value="Nouveau" checked onchange="filterCRMContacts()"> Nouveau</label>
-          <label class="crm-hs-lbl"><input type="checkbox" class="crm-hs-cb" value="Nouveau - Chaud" checked onchange="filterCRMContacts()"> Nouveau - Chaud</label>
-          <label class="crm-hs-lbl"><input type="checkbox" class="crm-hs-cb" value="En cours" checked onchange="filterCRMContacts()"> En cours</label>
-          <label class="crm-hs-lbl"><input type="checkbox" class="crm-hs-cb" value="Rdv pris" checked onchange="filterCRMContacts()"> Rdv pris</label>
-          <label class="crm-hs-lbl"><input type="checkbox" class="crm-hs-cb" value="A relancer" checked onchange="filterCRMContacts()"> A rappeler</label>
-          <label class="crm-hs-lbl"><input type="checkbox" class="crm-hs-cb" value="A replanifier" checked onchange="filterCRMContacts()"> A replanifier</label>
-          <label class="crm-hs-lbl"><input type="checkbox" class="crm-hs-cb" value="En attente / Réfléchit" checked onchange="filterCRMContacts()"> En attente / Réfléchit</label>
-          <label class="crm-hs-lbl" style="color:#16a34a;font-weight:600;"><input type="checkbox" class="crm-hs-cb" value="Inscrit" checked onchange="filterCRMContacts()"> Pré-inscrit</label>
-          <label class="crm-hs-lbl" style="color:#16a34a;font-weight:600;"><input type="checkbox" class="crm-hs-cb" value="Pré-inscrit 2025/2026" checked onchange="filterCRMContacts()"> Pré-inscrit 2025/2026</label>
-          <label class="crm-hs-lbl" style="color:#16a34a;font-weight:600;"><input type="checkbox" class="crm-hs-cb" value="Pré-inscrit 2026/2027" checked onchange="filterCRMContacts()"> Pré-inscrit 2026/2027</label>
-          <label class="crm-hs-lbl"><input type="checkbox" class="crm-hs-cb" value="A garder pour l'an prochain" checked onchange="filterCRMContacts()"> A garder an prochain</label>
-          <div style="border-top:1px solid var(--border-light);margin:4px 0;padding:2px 12px 0;"><span style="font-size:9px;color:#999;font-weight:600;text-transform:uppercase;">À décocher pour exclure</span></div>
-          <label class="crm-hs-lbl" style="color:#ef4444;"><input type="checkbox" class="crm-hs-cb" value="NRP1" checked onchange="filterCRMContacts()"> NRP1</label>
-          <label class="crm-hs-lbl" style="color:#ef4444;"><input type="checkbox" class="crm-hs-cb" value="NRP2" checked onchange="filterCRMContacts()"> NRP2</label>
-          <label class="crm-hs-lbl" style="color:#ef4444;"><input type="checkbox" class="crm-hs-cb" value="NRP3" checked onchange="filterCRMContacts()"> NRP3</label>
-          <label class="crm-hs-lbl" style="color:#ef4444;"><input type="checkbox" class="crm-hs-cb" value="NRP4" checked onchange="filterCRMContacts()"> NRP4</label>
-          <label class="crm-hs-lbl" style="color:#dc2626;"><input type="checkbox" class="crm-hs-cb" value="Disqualifié" checked onchange="filterCRMContacts()"> Disqualifié</label>
-          <label class="crm-hs-lbl" style="color:#dc2626;"><input type="checkbox" class="crm-hs-cb" value="Mauvais numéro" checked onchange="filterCRMContacts()"> Mauvais/faux numéro</label>
-          <label class="crm-hs-lbl" style="color:#dc2626;"><input type="checkbox" class="crm-hs-cb" value="Raccroche au nez" checked onchange="filterCRMContacts()"> Raccroche au nez</label>
-          <label class="crm-hs-lbl" style="color:#dc2626;"><input type="checkbox" class="crm-hs-cb" value="Autre prépa concurrente" checked onchange="filterCRMContacts()"> Autre prépa</label>
-          <label class="crm-hs-lbl" style="color:#dc2626;"><input type="checkbox" class="crm-hs-cb" value="Doublon" checked onchange="filterCRMContacts()"> Doublon</label>
-          <label class="crm-hs-lbl" style="color:#999;"><input type="checkbox" class="crm-hs-cb" value="" checked onchange="filterCRMContacts()"> (Aucun statut)</label>
-        </div>
       </div>
       <select class="filter-select" id="crm-filter-assigned" onchange="filterCRMContacts()" style="min-width:120px;">
         <option value="">Assigné — Tous</option>
@@ -2994,14 +2972,13 @@ body.closer-mode .msg-new-btn { display: none !important; }
         <table style="font-size:12px;">
           <thead><tr>
             <th style="width:3%;"><input type="checkbox" id="crm-select-all" onchange="toggleCrmSelectAll(this.checked)" style="cursor:pointer;"/></th>
-            <th style="width:14%;">Nom</th>
-            <th style="width:17%;">Email</th>
-            <th style="width:10%;">Tél</th>
-            <th style="width:11%;">Formulaire</th>
-            <th style="width:11%;">Statut HS</th>
-            <th style="width:12%;">Statut Edumove</th>
-            <th style="width:8%;">Assigné</th>
-            <th style="width:6%;">Date</th>
+            <th style="width:15%;">Nom</th>
+            <th style="width:18%;">Email</th>
+            <th style="width:11%;">Tél</th>
+            <th style="width:13%;">Formulaire</th>
+            <th style="width:14%;">Statut Edumove</th>
+            <th style="width:10%;">Assigné</th>
+            <th style="width:8%;">Date</th>
           </tr></thead>
           <tbody id="crm-table-body"></tbody>
         </table>
@@ -7443,11 +7420,6 @@ function renderCRMTable() {
   document.getElementById('crm-next-btn').disabled = crmPage >= totalPages;
   document.getElementById('crm-prev-btn').style.opacity = crmPage <= 1 ? '0.4' : '1';
   document.getElementById('crm-next-btn').style.opacity = crmPage >= totalPages ? '0.4' : '1';
-
-  const HS_STATUS_COLORS = {
-    'Nouveau': '#3b82f6', 'En cours': '#f59e0b', 'Disqualifié': '#ef4444',
-    'NRP1': '#9ca3af', 'NRP2': '#6b7280', 'Converti': '#10b981'
-  };
 
   tbody.innerHTML = pageItems.map(c => {
     const date = c.syncedAt ? new Date(c.syncedAt).toLocaleDateString('fr-FR') : (c.createdAt ? new Date(c.createdAt).toLocaleDateString('fr-FR') : '—');
