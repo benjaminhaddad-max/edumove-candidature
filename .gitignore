@@ -5,3 +5,4 @@ node_modules/
 .vercel
 .mcp.json
 .claude/
+.env*.local
