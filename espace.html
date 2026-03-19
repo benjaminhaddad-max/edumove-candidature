@@ -1129,10 +1129,8 @@ body {
 
   <!-- TIMELINE -->
   <div class="status-timeline" id="status-timeline">
-    <div class="timeline-step" id="step-attente"><div class="tl-dot"></div><div class="tl-label">Dossier re&ccedil;u</div></div>
+    <div class="timeline-step" id="step-encours"><div class="tl-dot"></div><div class="tl-label">Dossier en cours de traitement</div></div>
     <div class="timeline-line" id="line-1"></div>
-    <div class="timeline-step" id="step-encours"><div class="tl-dot"></div><div class="tl-label">En cours de traitement</div></div>
-    <div class="timeline-line" id="line-2"></div>
     <div class="timeline-step" id="step-reponse"><div class="tl-dot"></div><div class="tl-label">R&eacute;ponse Edumove</div></div>
   </div>
 
@@ -1635,9 +1633,9 @@ function updateStatusDisplay(status) {
 }
 
 function updateTimeline(status) {
-  const steps = ['step-attente', 'step-encours', 'step-reponse'];
-  const lines = ['line-1', 'line-2'];
-  const statusOrder = { en_attente: 0, en_cours: 1, reponse_edumove: 2, dossier_soumis: 2, accepte: 2, refuse: 2, abandon: 2 };
+  const steps = ['step-encours', 'step-reponse'];
+  const lines = ['line-1'];
+  const statusOrder = { en_attente: 0, en_cours: 0, reponse_edumove: 1, dossier_soumis: 1, accepte: 1, refuse: 1, abandon: 1 };
   const currentIdx = statusOrder[status] ?? 0;
 
   steps.forEach((id, i) => {
