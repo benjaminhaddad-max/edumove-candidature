@@ -508,13 +508,7 @@ body.closer-mode .msg-new-btn { display: none !important; }
   user-select: none;
 }
 .detail-card-title:hover { background: var(--bg); }
-.detail-card-title::after {
-  content: '▾';
-  font-size: 12px;
-  color: var(--text-muted);
-  transition: transform 0.2s;
-}
-.detail-card-title.collapsed::after { transform: rotate(-90deg); }
+.detail-card-title::after { display: none; }
 .detail-card-body { padding: 20px 24px; transition: all 0.3s ease; }
 .detail-card-body.collapsed { display: none; }
 .detail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -5850,6 +5844,13 @@ function toggleEditInfo(id) {
   const display = document.getElementById('info-display-' + id);
   const edit = document.getElementById('info-edit-' + id);
   if (!display || !edit) return;
+  // Expand the card if collapsed
+  const cardBody = edit.closest('.detail-card-body');
+  const cardTitle = cardBody?.previousElementSibling;
+  if (cardBody?.classList.contains('collapsed')) {
+    cardBody.classList.remove('collapsed');
+    cardTitle?.classList.remove('collapsed');
+  }
   const showing = edit.style.display !== 'none';
   display.style.display = showing ? '' : 'none';
   edit.style.display = showing ? 'none' : '';
@@ -5882,6 +5883,9 @@ function toggleEditOrient(id) {
   const display = document.getElementById('orient-display-' + id);
   const edit = document.getElementById('orient-edit-' + id);
   if (!display || !edit) return;
+  const cardBody = edit.closest('.detail-card-body');
+  const cardTitle = cardBody?.previousElementSibling;
+  if (cardBody?.classList.contains('collapsed')) { cardBody.classList.remove('collapsed'); cardTitle?.classList.remove('collapsed'); }
   const showing = edit.style.display !== 'none';
   display.style.display = showing ? '' : 'none';
   edit.style.display = showing ? 'none' : '';
@@ -5910,6 +5914,9 @@ function toggleEditNotes(type, id) {
   const display = document.getElementById('notes-' + type + '-display-' + id);
   const edit = document.getElementById('notes-' + type + '-edit-' + id);
   if (!display || !edit) return;
+  const cardBody = edit.closest('.detail-card-body');
+  const cardTitle = cardBody?.previousElementSibling;
+  if (cardBody?.classList.contains('collapsed')) { cardBody.classList.remove('collapsed'); cardTitle?.classList.remove('collapsed'); }
   const showing = edit.style.display !== 'none';
   display.style.display = showing ? '' : 'none';
   edit.style.display = showing ? 'none' : '';
@@ -5973,6 +5980,9 @@ function toggleEditLangues(id) {
   const display = document.getElementById('langues-display-' + id);
   const edit = document.getElementById('langues-edit-' + id);
   if (!display || !edit) return;
+  const cardBody = edit.closest('.detail-card-body');
+  const cardTitle = cardBody?.previousElementSibling;
+  if (cardBody?.classList.contains('collapsed')) { cardBody.classList.remove('collapsed'); cardTitle?.classList.remove('collapsed'); }
   const showing = edit.style.display !== 'none';
   display.style.display = showing ? '' : 'none';
   edit.style.display = showing ? 'none' : '';
