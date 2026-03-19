@@ -1367,10 +1367,7 @@ body.closer-mode .msg-new-btn { display: none !important; }
             <strong style="color:#059669;">🏫 ÉTUDIANTS ↔ UNIVERSITÉ</strong><br>
             Vos messages directs avec vos étudiants. L'étudiant voit vos messages dans son espace.
           </div>
-          <div style="background:#ede9fe;border-radius:10px;padding:12px 16px;border-left:3px solid #7c3aed;">
-            <strong style="color:#5b21b6;">🔔 Mentionner @Edumove ou @Fac</strong><br>
-            Dans n'importe quel message, tapez <code style="background:white;padding:1px 6px;border-radius:4px;font-size:12px;">@Edumove</code> ou <code style="background:white;padding:1px 6px;border-radius:4px;font-size:12px;">@LINK</code> / <code style="background:white;padding:1px 6px;border-radius:4px;font-size:12px;">@UCJC</code> / <code style="background:white;padding:1px 6px;border-radius:4px;font-size:12px;">@UE</code> pour alerter la partie concernée. Une notification email est envoyée automatiquement. <strong>Invisible pour l'étudiant.</strong>
-          </div>
+          <div id="fac-guide-mention-block" style="background:#ede9fe;border-radius:10px;padding:12px 16px;border-left:3px solid #7c3aed;"></div>
         </div>
       </div>
     </div>
@@ -5504,13 +5501,28 @@ function openFacMessaging() {
   document.getElementById('btn-guide').style.display = 'none';
   document.getElementById('btn-back-dashboard').style.display = '';
   loadFacConversations();
+
+  const role = window.adminRole;
+  const isFac = role && role !== 'super_admin';
+  const _facTagMap = { fac_link: '@LINK', fac_ucjc: '@UCJC', fac_ue: '@UE' };
+  const _myFacTag = _facTagMap[role];
+
+  // Update guide mention block based on role
+  const mentionBlock = document.getElementById('fac-guide-mention-block');
+  if (mentionBlock) {
+    const code = s => `<code style="background:white;padding:1px 6px;border-radius:4px;font-size:12px;">${s}</code>`;
+    if (isFac) {
+      mentionBlock.innerHTML = `<strong style="color:#5b21b6;">🔔 Mentionner @Edumove</strong><br>
+        Dans n'importe quel message, tapez ${code('@Edumove')} pour alerter l'équipe Edumove. Une notification email est envoyée automatiquement. <strong>Invisible pour l'étudiant.</strong>`;
+    } else {
+      mentionBlock.innerHTML = `<strong style="color:#5b21b6;">🔔 Mentionner @Edumove ou @Fac</strong><br>
+        Dans n'importe quel message, tapez ${code('@Edumove')} ou ${code('@LINK')} / ${code('@UCJC')} / ${code('@UE')} pour alerter la partie concernée. Une notification email est envoyée automatiquement. <strong>Invisible pour l'étudiant.</strong>`;
+    }
+  }
+
   setTimeout(() => {
     const inp = document.getElementById('fac-msg-input');
-    if (inp) {
-      const role = window.adminRole;
-      const facKey = role === 'fac_link' ? ['@LINK'] : role === 'fac_ucjc' ? ['@UCJC'] : role === 'fac_ue' ? ['@UE'] : ['@LINK', '@UCJC', '@UE'];
-      initMentionInput(inp, role === 'super_admin' || !role ? facKey : ['@Edumove']);
-    }
+    if (inp) initMentionInput(inp, isFac ? ['@Edumove'] : (_myFacTag ? [_myFacTag] : ['@LINK', '@UCJC', '@UE']));
   }, 100);
 }
 
