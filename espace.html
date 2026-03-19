@@ -1601,6 +1601,8 @@ async function requestCallback() {
 
     btn.style.display = 'none';
     document.getElementById('callback-confirmed').style.display = 'block';
+    // Refresh chat to show the callback message
+    if (typeof loadMessages === 'function') loadMessages();
   } catch(e) {
     console.error('Callback request error:', e);
     btn.disabled = false;

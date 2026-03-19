@@ -255,6 +255,9 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
     <div class="msg-section-title">💬 Messagerie Edumove <span class="msg-unread-badge" id="msg-unread-badge" style="display:none;">0</span></div>
     <div class="msg-card">
       <div class="msg-layout">
+        <div style="padding:8px 10px;border-bottom:1px solid var(--border);">
+          <input id="fac-msg-conv-search" type="text" placeholder="🔍 Rechercher…" oninput="renderConvList()" style="width:100%;box-sizing:border-box;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:inherit;font-size:12px;outline:none;">
+        </div>
         <div class="msg-conv-list" id="msg-conv-list">
           <div class="msg-empty-state">Chargement…</div>
         </div>
@@ -738,12 +741,21 @@ function renderConvList() {
   if (unreadCount > 0) { badge.textContent = unreadCount; badge.style.display = ''; }
   else badge.style.display = 'none';
 
-  if (!facMsgConversations.length) {
-    list.innerHTML = '<div class="msg-empty-state">Aucun message pour l\'instant</div>';
+  const q = (document.getElementById('fac-msg-conv-search')?.value || '').toLowerCase().trim();
+  const visible = facMsgConversations.filter((conv, i) => {
+    if (!q) return true;
+    const cand = conv.candidature_id ? allCandidatures.find(c => c.id === conv.candidature_id) : null;
+    const name = cand ? ((cand.prenom || '') + ' ' + (cand.nom || '')).toLowerCase() : '';
+    return name.includes(q);
+  });
+
+  if (!visible.length) {
+    list.innerHTML = `<div class="msg-empty-state">${q ? 'Aucun résultat pour "'+q+'"' : 'Aucun message pour l\'instant'}</div>`;
     return;
   }
 
-  list.innerHTML = facMsgConversations.map((conv, i) => {
+  list.innerHTML = visible.map((conv, i) => {
+    const originalIndex = facMsgConversations.indexOf(conv);
     const cand = conv.candidature_id ? allCandidatures.find(c => c.id === conv.candidature_id) : null;
     const candName = cand ? ((cand.prenom || '') + ' ' + (cand.nom || '')).trim() : (conv.candidature_id ? 'Étudiant inconnu' : 'Conversation générale');
     const filiere = cand?.filiere || cand?.filiereBac || '';
@@ -753,7 +765,7 @@ function renderConvList() {
       currentFacMsgConv.candidature_id === conv.candidature_id ? ' active' : '';
     const unreadClass = conv.hasUnread ? ' msg-conv-unread' : '';
     const fromLabel = conv.lastMsg.sender_role === 'fac' || conv.lastMsg.sender_role?.startsWith('fac_') ? 'Vous' : 'Edumove';
-    return `<div class="msg-conv-item${isActive}${unreadClass}" onclick="selectFacConv(${i})">
+    return `<div class="msg-conv-item${isActive}${unreadClass}" onclick="selectFacConv(${originalIndex})">
       <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;">
         <div class="msg-conv-subject" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(candName || 'Général')}</div>
         <div class="msg-conv-date" style="float:none;flex-shrink:0;">${date}</div>

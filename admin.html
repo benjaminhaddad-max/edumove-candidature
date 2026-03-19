@@ -948,6 +948,13 @@ body.closer-mode .msg-new-btn { display: none !important; }
 .msg-empty-conv { display: flex; align-items: center; justify-content: center; flex: 1; color: var(--text-muted); font-size: 13px; }
 .msg-new-btn { margin: 12px 16px; padding: 10px; background: var(--violet); color: white; border: none; border-radius: var(--radius); font-weight: 600; cursor: pointer; font-family: inherit; font-size: 12px; transition: all 0.2s; }
 .msg-new-btn:hover { background: var(--violet-hover); }
+.msg-search-wrap { padding:0 12px 10px; }
+.msg-search-input { width:100%; box-sizing:border-box; padding:8px 12px; border:1.5px solid var(--border); border-radius:8px; font-family:inherit; font-size:12px; outline:none; background:var(--bg); }
+.msg-search-input:focus { border-color:var(--violet); }
+.msg-section-hdr { padding:8px 16px 6px; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; background:var(--bg); display:flex; justify-content:space-between; align-items:center; cursor:pointer; border-bottom:1px solid var(--border-light); border-top:1px solid var(--border-light); user-select:none; }
+.msg-section-hdr:hover { background:#e8eaf6; }
+.msg-section-count { background:var(--violet); color:white; font-size:9px; font-weight:700; padding:1px 6px; border-radius:10px; }
+.msg-section-items.collapsed { display:none; }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
@@ -1334,8 +1341,12 @@ body.closer-mode .msg-new-btn { display: none !important; }
 ══════════════════════════════════════════ -->
 <div id="fac-msg-page" class="msg-page">
   <div class="msg-sidebar">
-    <div class="msg-sidebar-title">Conversations</div>
-    <button class="msg-new-btn" onclick="startNewConversation()">+ Nouvelle conversation</button>
+    <div style="padding:12px 16px 8px;">
+      <button class="msg-new-btn" style="margin:0;width:100%;" onclick="startNewConversation()">+ Nouvelle conversation</button>
+    </div>
+    <div class="msg-search-wrap">
+      <input class="msg-search-input" id="fac-msg-search" type="text" placeholder="🔍 Rechercher…" oninput="renderFacConvList()">
+    </div>
     <div class="msg-conv-list" id="fac-conv-list"></div>
   </div>
   <div class="msg-main">
@@ -5397,6 +5408,8 @@ async function submitManualDossier() {
 // FAC MESSAGING SYSTEM
 // ══════════════════════════════════════════
 let facConversations = []; // grouped conversations
+let studentConversations = []; // grouped student ↔ admin conversations
+let studentMsgSubscription = null;
 let currentFacConv = null; // { fac_key, candidature_id }
 let facMsgSubscription = null;
 
@@ -5789,70 +5802,125 @@ function backToDashboard() {
 async function loadFacConversations() {
   const role = window.adminRole;
   let query = supabase.from('fac_messages').select('*').order('created_at', { ascending: false });
-
-  // Fac users only see their own conversations
   const facKey = getFacKeyForRole(role);
-  if (facKey) {
-    query = query.eq('fac_key', facKey);
-  }
+  if (facKey) query = query.eq('fac_key', facKey);
 
   const { data, error } = await query;
   if (error) { console.error('Load fac messages error:', error); return; }
 
-  // Group by conversation (fac_key + candidature_id)
+  // Group fac_messages by fac_key + candidature_id
   const convMap = {};
   (data || []).forEach(m => {
     const key = m.fac_key + '|' + (m.candidature_id || 'general');
-    if (!convMap[key]) {
-      convMap[key] = { fac_key: m.fac_key, candidature_id: m.candidature_id, messages: [], lastMsg: m };
-    }
+    if (!convMap[key]) convMap[key] = { fac_key: m.fac_key, candidature_id: m.candidature_id, messages: [], lastMsg: m };
     convMap[key].messages.push(m);
   });
-
   facConversations = Object.values(convMap).sort((a, b) => new Date(b.lastMsg.created_at) - new Date(a.lastMsg.created_at));
+
+  // Also load student ↔ admin messages (super_admin only)
+  if (role === 'super_admin' || !role) {
+    const { data: msgs } = await supabase.from('messages').select('*').order('created_at', { ascending: false });
+    const msgMap = {};
+    (msgs || []).forEach(m => {
+      if (!m.candidature_id) return;
+      if (!msgMap[m.candidature_id]) msgMap[m.candidature_id] = { candidature_id: m.candidature_id, messages: [], lastMsg: m };
+      msgMap[m.candidature_id].messages.push(m);
+    });
+    studentConversations = Object.values(msgMap).sort((a, b) => new Date(b.lastMsg.created_at) - new Date(a.lastMsg.created_at));
+  }
+
   renderFacConvList();
 }
 
 function renderFacConvList() {
   const listEl = document.getElementById('fac-conv-list');
-  const role = window.adminRole;
+  const q = (document.getElementById('fac-msg-search')?.value || '').toLowerCase().trim();
   const facLabels = { LINK: 'LINK Campus', UCJC: 'UCJC Madrid', UE: 'Universidad Europea' };
 
-  if (facConversations.length === 0) {
-    listEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:12px;">Aucune conversation</div>';
-    return;
-  }
+  const getStudentName = (candidatureId) => {
+    if (!candidatureId) return '';
+    const c = allCandidatures.find(x => x.id === candidatureId);
+    return c ? ((c.prenom || '') + ' ' + (c.nom || '')).trim() : 'Dossier';
+  };
 
-  listEl.innerHTML = facConversations.map((conv, i) => {
-    const isActive = currentFacConv && currentFacConv.fac_key === conv.fac_key &&
-      (currentFacConv.candidature_id || null) === (conv.candidature_id || null);
-    const preview = conv.lastMsg.content.substring(0, 50) + (conv.lastMsg.content.length > 50 ? '...' : '');
+  // Partition fac_messages into "general" (no student) and "student-specific"
+  const facGenConvs = facConversations.filter(c => !c.candidature_id).filter(c => {
+    if (!q) return true;
+    return (facLabels[c.fac_key] || c.fac_key).toLowerCase().includes(q);
+  });
+  const studFacConvs = facConversations.filter(c => !!c.candidature_id).filter(c => {
+    if (!q) return true;
+    const name = getStudentName(c.candidature_id).toLowerCase();
+    const fac = (facLabels[c.fac_key] || c.fac_key).toLowerCase();
+    return name.includes(q) || fac.includes(q);
+  });
+  const studConvs = studentConversations.filter(c => {
+    if (!q) return true;
+    return getStudentName(c.candidature_id).toLowerCase().includes(q);
+  });
 
-    let name = '';
-    if (role === 'super_admin') {
-      name = facLabels[conv.fac_key] || conv.fac_key;
-    } else {
-      name = 'Edumove';
-    }
+  const mkSection = (title, id, items, renderItem) => {
+    const count = items.length;
+    const countBadge = count ? `<span class="msg-section-count">${count}</span>` : '';
+    const items_html = count
+      ? items.map(renderItem).join('')
+      : `<div style="padding:10px 20px;font-size:12px;color:var(--text-muted);">Aucune conversation${q ? ' pour "'+q+'"' : ''}</div>`;
+    return `<div class="msg-section-hdr" onclick="toggleMsgSection('${id}')" id="msg-section-hdr-${id}">
+      <span>${title}</span>${countBadge}
+    </div>
+    <div class="msg-section-items" id="msg-section-items-${id}">${items_html}</div>`;
+  };
 
-    let studentInfo = '';
-    if (conv.candidature_id) {
-      const c = allCandidatures.find(x => x.id === conv.candidature_id);
-      studentInfo = c ? (c.prenom + ' ' + c.nom) : 'Dossier';
-    } else {
-      studentInfo = 'Conversation générale';
-    }
+  // Section 1: Fac ↔ Edumove (general, no student)
+  const sec1 = mkSection('Fac ↔ Edumove', 'fac_gen', facGenConvs, conv => {
+    const name = facLabels[conv.fac_key] || conv.fac_key;
+    const preview = esc(conv.lastMsg.content.substring(0, 55) + (conv.lastMsg.content.length > 55 ? '…' : ''));
+    const isActive = currentFacConv?.type === 'fac' && !currentFacConv.candidature_id && currentFacConv.fac_key === conv.fac_key;
+    return `<div class="msg-conv-item${isActive ? ' active' : ''}" onclick="selectFacConv('${conv.fac_key}', null)">
+      <div class="conv-name">${name}</div>
+      <div class="conv-preview">${preview}</div>
+    </div>`;
+  });
 
-    return '<div class="msg-conv-item ' + (isActive ? 'active' : '') + '" onclick="selectFacConv(\'' + conv.fac_key + '\', ' + (conv.candidature_id ? '\'' + conv.candidature_id + '\'' : 'null') + ')">' +
-      '<div class="conv-name">' + name + '</div>' +
-      '<div class="conv-student">' + studentInfo + '</div>' +
-      '<div class="conv-preview">' + esc(preview) + '</div>' +
-    '</div>';
-  }).join('');
+  // Section 2: Étudiants ↔ Edumove (messages table)
+  const sec2 = mkSection('Étudiants ↔ Edumove', 'stud_emu', studConvs, conv => {
+    const name = getStudentName(conv.candidature_id);
+    const lastMsg = conv.lastMsg;
+    const isAdmin = lastMsg.sender_role === 'admin';
+    const preview = (isAdmin ? 'Vous : ' : '') + esc(lastMsg.content.substring(0, 50) + (lastMsg.content.length > 50 ? '…' : ''));
+    const date = new Date(lastMsg.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' });
+    const isActive = currentFacConv?.type === 'student' && currentFacConv.candidature_id === conv.candidature_id;
+    return `<div class="msg-conv-item${isActive ? ' active' : ''}" onclick="selectStudentConv('${conv.candidature_id}')">
+      <div style="display:flex;justify-content:space-between;"><div class="conv-name">${esc(name)}</div><div style="font-size:10px;color:var(--text-muted);">${date}</div></div>
+      <div class="conv-preview">${preview}</div>
+    </div>`;
+  });
+
+  // Section 3: Étudiants ↔ Université (fac_messages with student)
+  const sec3 = mkSection('Étudiants ↔ Université', 'stud_fac', studFacConvs, conv => {
+    const name = getStudentName(conv.candidature_id);
+    const facName = facLabels[conv.fac_key] || conv.fac_key;
+    const preview = esc(conv.lastMsg.content.substring(0, 50) + (conv.lastMsg.content.length > 50 ? '…' : ''));
+    const date = new Date(conv.lastMsg.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' });
+    const isActive = currentFacConv?.type === 'fac' && !!currentFacConv.candidature_id &&
+      currentFacConv.fac_key === conv.fac_key && currentFacConv.candidature_id === conv.candidature_id;
+    return `<div class="msg-conv-item${isActive ? ' active' : ''}" onclick="selectFacConv('${conv.fac_key}', '${conv.candidature_id}')">
+      <div style="display:flex;justify-content:space-between;"><div class="conv-name">${esc(name)}</div><div style="font-size:10px;color:var(--text-muted);">${date}</div></div>
+      <div class="conv-student">${facName}</div>
+      <div class="conv-preview">${preview}</div>
+    </div>`;
+  });
+
+  listEl.innerHTML = sec1 + sec2 + sec3;
+}
+
+function toggleMsgSection(id) {
+  const items = document.getElementById('msg-section-items-' + id);
+  if (items) items.classList.toggle('collapsed');
 }
 
 async function selectFacConv(facKey, candidatureId) {
-  currentFacConv = { fac_key: facKey, candidature_id: candidatureId };
+  currentFacConv = { type: 'fac', fac_key: facKey, candidature_id: candidatureId };
 
   const facLabels = { LINK: 'LINK Campus', UCJC: 'UCJC Madrid', UE: 'Universidad Europea' };
   const role = window.adminRole;
@@ -5881,6 +5949,48 @@ async function selectFacConv(facKey, candidatureId) {
       if (m.fac_key === facKey && (m.candidature_id || null) === (candidatureId || null)) {
         appendFacMessage(m);
       }
+    })
+    .subscribe();
+
+  renderFacConvList();
+}
+
+async function selectStudentConv(candidatureId) {
+  currentFacConv = { type: 'student', candidature_id: candidatureId };
+
+  const c = allCandidatures.find(x => x.id === candidatureId);
+  const name = c ? (c.prenom + ' ' + c.nom) : 'Étudiant';
+
+  document.getElementById('fac-msg-conv-title').textContent = name;
+  document.getElementById('fac-msg-conv-student').textContent = 'Chat étudiant ↔ Edumove';
+  document.getElementById('fac-msg-footer').style.display = 'flex';
+
+  const body = document.getElementById('fac-msg-body');
+  const { data, error } = await supabase.from('messages').select('*')
+    .eq('candidature_id', candidatureId).order('created_at', { ascending: true });
+
+  if (error) { console.error('Load student messages error:', error); return; }
+
+  body.innerHTML = (data || []).length === 0
+    ? '<div class="msg-empty-conv">Aucun message</div>'
+    : (data || []).map(m => {
+        const isMine = m.sender_role === 'admin';
+        const time = new Date(m.created_at).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+        return `<div class="msg-bubble ${isMine ? 'sent' : 'received'}"><div>${esc(m.content)}</div><div class="msg-meta">${time}</div></div>`;
+      }).join('');
+  body.scrollTop = body.scrollHeight;
+
+  // Realtime
+  if (studentMsgSubscription) supabase.removeChannel(studentMsgSubscription);
+  studentMsgSubscription = supabase.channel('admin-stud-msg-' + candidatureId)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'candidature_id=eq.' + candidatureId }, async () => {
+      const { data: msgs } = await supabase.from('messages').select('*').eq('candidature_id', candidatureId).order('created_at', { ascending: true });
+      body.innerHTML = (msgs || []).map(m => {
+        const isMine = m.sender_role === 'admin';
+        const time = new Date(m.created_at).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+        return `<div class="msg-bubble ${isMine ? 'sent' : 'received'}"><div>${esc(m.content)}</div><div class="msg-meta">${time}</div></div>`;
+      }).join('');
+      body.scrollTop = body.scrollHeight;
     })
     .subscribe();
 
@@ -5951,6 +6061,19 @@ async function sendFacMessage() {
 
   const role = window.adminRole;
   const email = currentAdminUser?.email || 'admin';
+
+  // Student ↔ Edumove: insert into messages table
+  if (currentFacConv.type === 'student') {
+    const { error } = await supabase.from('messages').insert({
+      candidature_id: currentFacConv.candidature_id,
+      sender_id: currentAdminUser?.id || email,
+      sender_role: 'admin',
+      sender_name: 'Équipe EDUMOVE',
+      content
+    });
+    if (error) { console.error('Send student message error:', error); alert('Erreur lors de l\'envoi.'); return; }
+    return;
+  }
 
   const msg = {
     fac_key: currentFacConv.fac_key,
