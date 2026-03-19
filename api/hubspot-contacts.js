@@ -45,10 +45,23 @@ module.exports = async function handler(req, res) {
 // ── LIST: Read from Supabase cache (instant) ──
 async function listFromCache(req, res) {
   const sb = getSupabase();
-  const { data, error } = await sb
-    .from('crm_contacts')
-    .select('*')
-    .order('created_at', { ascending: false });
+  // Supabase default limit is 1000 — fetch all with pagination
+  let allData = [];
+  let from = 0;
+  const PAGE = 1000;
+  while (true) {
+    const { data: batch, error: batchErr } = await sb
+      .from('crm_contacts')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .range(from, from + PAGE - 1);
+    if (batchErr) { console.error('Cache read error:', batchErr); break; }
+    allData = allData.concat(batch || []);
+    if (!batch || batch.length < PAGE) break;
+    from += PAGE;
+  }
+  const data = allData;
+  const error = null;
 
   if (error) {
     console.error('Supabase read error:', error);
