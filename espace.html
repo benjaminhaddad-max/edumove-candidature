@@ -1158,6 +1158,15 @@ body {
       <div style="text-align:center;">
         <a id="btn-financement-mailto" href="#" onclick="openFinancementEmail()" style="display:inline-block;background:#003da5;color:white;text-decoration:none;padding:14px 28px;border-radius:10px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;">🏦 Envoyer ma demande de financement à LCL</a>
         <div style="font-size:11px;color:#888;margin-top:10px;">Un e-mail pré-rédigé s'ouvrira dans votre messagerie. Vous n'aurez qu'à l'envoyer.</div>
+        <div id="financement-fallback" style="display:none;margin-top:16px;background:#f5f6fb;border-radius:10px;padding:16px 18px;text-align:left;">
+          <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:10px;">📧 Si votre messagerie ne s'est pas ouverte :</div>
+          <div style="font-size:12px;color:#555;line-height:1.7;margin-bottom:12px;">
+            <strong>Destinataires :</strong> jean-christophe.thomas@lcl.fr, meriem.guendouz@lcl.com<br>
+            <strong>CC :</strong> admissions@edumove.fr<br>
+            <strong>Objet :</strong> Demande de financement - Edumove - Diploma Education
+          </div>
+          <button id="btn-copy-financement" onclick="copyFinancementEmail()" style="padding:10px 20px;background:#615ca5;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">📋 Copier le message complet</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1659,19 +1668,49 @@ function openFinancementEmail() {
   const prenom = (c.prenom || '').trim();
   const fullName = prenom + ' ' + nom;
 
-  const to = 'jean-christophe.thomas@lcl.fr,meriem.guendouz@lcl.com';
-  const cc = 'admissions@edumove.fr';
-  const subject = encodeURIComponent('Demande de financement - Edumove - Diploma Education');
-  const body = encodeURIComponent(
+  const toAddresses = 'jean-christophe.thomas@lcl.fr, meriem.guendouz@lcl.com';
+  const ccAddress = 'admissions@edumove.fr';
+  const subjectText = 'Demande de financement - Edumove - Diploma Education';
+  const bodyText =
     'Bonjour,\n\n' +
     'Je m\'appelle ' + fullName + ', je viens de la part de Edumove (Groupe Diploma Education), ' +
     'et j\'aimerais poursuivre mes études de santé à l\'étranger.\n\n' +
     'Pouvons-nous convenir d\'un rendez-vous téléphonique prochainement pour en discuter ?\n\n' +
     'Bien cordialement,\n' +
-    fullName
-  );
+    fullName;
 
-  window.open('mailto:' + to + '?cc=' + cc + '&subject=' + subject + '&body=' + body, '_self');
+  // Try mailto first
+  const mailtoUrl = 'mailto:' + encodeURIComponent(toAddresses).replace(/%40/g,'@').replace(/%2C/g,',') +
+    '?cc=' + encodeURIComponent(ccAddress).replace(/%40/g,'@') +
+    '&subject=' + encodeURIComponent(subjectText) +
+    '&body=' + encodeURIComponent(bodyText);
+  window.location.href = mailtoUrl;
+
+  // Show fallback info after a small delay (in case mailto didn't work)
+  setTimeout(() => {
+    const fallback = document.getElementById('financement-fallback');
+    if (fallback) fallback.style.display = 'block';
+  }, 1500);
+}
+
+function copyFinancementEmail() {
+  const c = candidatureData || {};
+  const fullName = ((c.prenom || '') + ' ' + (c.nom || '')).trim();
+  const text =
+    'À : jean-christophe.thomas@lcl.fr, meriem.guendouz@lcl.com\n' +
+    'CC : admissions@edumove.fr\n' +
+    'Objet : Demande de financement - Edumove - Diploma Education\n\n' +
+    'Bonjour,\n\n' +
+    'Je m\'appelle ' + fullName + ', je viens de la part de Edumove (Groupe Diploma Education), ' +
+    'et j\'aimerais poursuivre mes études de santé à l\'étranger.\n\n' +
+    'Pouvons-nous convenir d\'un rendez-vous téléphonique prochainement pour en discuter ?\n\n' +
+    'Bien cordialement,\n' +
+    fullName;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('btn-copy-financement');
+    btn.textContent = '✅ Copié ! Collez dans votre messagerie';
+    setTimeout(() => { btn.textContent = '📋 Copier le message complet'; }, 3000);
+  });
 }
 
 function listenForStatusChanges() {
