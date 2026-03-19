@@ -1122,6 +1122,46 @@ body {
     </div>
   </div>
 
+  <!-- FINANCEMENT -->
+  <div class="section-card" id="financement-card" style="display:none;">
+    <div class="section-card-header">
+      <div class="section-card-title" style="color:#003da5;">💰 Financement de vos études</div>
+    </div>
+    <div class="section-card-body" style="padding:20px 24px;">
+      <div style="background:linear-gradient(135deg,#f0f4ff 0%,#e8eaf6 100%);border-radius:12px;padding:20px 22px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <img src="https://upload.wikimedia.org/wikipedia/fr/thumb/b/b5/Logo_LCL_2022.svg/1200px-Logo_LCL_2022.svg.png" alt="LCL" style="height:32px;width:auto;" onerror="this.style.display='none'">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:#1a237e;">Partenariat exclusif LCL × Edumove</div>
+            <div style="font-size:12px;color:#5c6bc0;">Groupe Diploma Education</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:#333;line-height:1.7;">
+          Grâce à notre partenariat exclusif avec <strong>LCL</strong>, vous pouvez bénéficier d'un <strong>prêt étudiant jusqu'à 75 000 €</strong> pour financer vos études de santé à l'étranger.<br><br>
+          <strong>Les avantages :</strong>
+          <ul style="margin:8px 0 0 0;padding-left:18px;">
+            <li>Financement <strong>jusqu'à 75 000 €</strong> (possibilité de demander plus si besoin)</li>
+            <li><strong>Remboursement différé</strong> — vous commencez à rembourser une fois praticien(ne)</li>
+            <li>Possibilité de <strong>rallonge en cours d'études</strong> (ex : 3ème année)</li>
+            <li>Conditions préférentielles car vous venez de la part d'<strong>Edumove</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="background:#fff8f0;border:1.5px solid #ffcc80;border-radius:10px;padding:16px 18px;margin-bottom:16px;">
+        <div style="font-size:13px;font-weight:600;color:#e65100;margin-bottom:6px;">📧 Comment faire votre demande ?</div>
+        <div style="font-size:12px;color:#555;line-height:1.6;">
+          Cliquez sur le bouton ci-dessous pour envoyer un e-mail pré-rédigé à notre conseiller LCL dédié. Il vous recontactera pour convenir d'un rendez-vous téléphonique.
+        </div>
+      </div>
+
+      <div style="text-align:center;">
+        <a id="btn-financement-mailto" href="#" onclick="openFinancementEmail()" style="display:inline-block;background:#003da5;color:white;text-decoration:none;padding:14px 28px;border-radius:10px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;">🏦 Envoyer ma demande de financement à LCL</a>
+        <div style="font-size:11px;color:#888;margin-top:10px;">Un e-mail pré-rédigé s'ouvrira dans votre messagerie. Vous n'aurez qu'à l'envoyer.</div>
+      </div>
+    </div>
+  </div>
+
   <!-- MESSAGERIE -->
   <div class="section-card">
       <div class="section-card-header">
@@ -1432,6 +1472,7 @@ function renderDashboard() {
   // Show interactive response card if applicable
   if (['reponse_edumove', 'dossier_soumis', 'accepte', 'refuse', 'abandon'].includes(c.status)) {
     document.getElementById('reponse-edumove-card').style.display = 'block';
+    document.getElementById('financement-card').style.display = 'block';
     renderInteractiveResponse(c);
     if (c.callback_requested) {
       document.getElementById('btn-callback').style.display = 'none';
@@ -1609,6 +1650,28 @@ async function requestCallback() {
     btn.textContent = '📞 Demander un rappel telephonique';
     alert('Erreur lors de la demande. Veuillez reessayer.');
   }
+}
+
+// ── FINANCEMENT LCL ──
+function openFinancementEmail() {
+  const c = candidatureData || {};
+  const nom = (c.nom || '').trim();
+  const prenom = (c.prenom || '').trim();
+  const fullName = prenom + ' ' + nom;
+
+  const to = 'jean-christophe.thomas@lcl.fr,meriem.guendouz@lcl.com';
+  const cc = 'admissions@edumove.fr';
+  const subject = encodeURIComponent('Demande de financement - Edumove - Diploma Education');
+  const body = encodeURIComponent(
+    'Bonjour,\n\n' +
+    'Je m\'appelle ' + fullName + ', je viens de la part de Edumove (Groupe Diploma Education), ' +
+    'et j\'aimerais poursuivre mes études de santé à l\'étranger.\n\n' +
+    'Pouvons-nous convenir d\'un rendez-vous téléphonique prochainement pour en discuter ?\n\n' +
+    'Bien cordialement,\n' +
+    fullName
+  );
+
+  window.open('mailto:' + to + '?cc=' + cc + '&subject=' + subject + '&body=' + body, '_self');
 }
 
 function listenForStatusChanges() {
