@@ -2961,8 +2961,8 @@ body.closer-mode .msg-new-btn { display: none !important; }
           <label class="crm-hs-lbl" style="color:#999;"><input type="checkbox" class="crm-hs-cb" value="" checked onchange="filterCRMContacts()"> (Aucun statut)</label>
         </div>
       </div>
-      <button class="btn-export" onclick="loadCRMContacts()" style="padding:11px 14px;">🔄</button>
-      <button class="btn-export" style="background:var(--orange);padding:11px 14px;" onclick="syncAllToHubSpot()" id="btn-crm-sync">⬆️ Sync</button>
+      <button class="btn-export" onclick="syncCRMFromHubSpot()" style="padding:11px 14px;">🔄 Sync HubSpot</button>
+      <button class="btn-export" style="background:var(--orange);padding:11px 14px;" onclick="syncAllToHubSpot()" id="btn-crm-sync">⬆️ Candidatures</button>
     </div>
 
     <!-- BARRE D'ACTIONS BULK (apparaît quand des contacts sont sélectionnés) -->
@@ -7126,34 +7126,47 @@ async function crmApiCall(body) {
   return res.json();
 }
 
+// Load from Supabase cache (instant)
 async function loadCRMContacts() {
   const tbody = document.getElementById('crm-table-body');
   const empty = document.getElementById('crm-empty');
   empty.style.display = 'block';
-  empty.querySelector('p').textContent = '⏳ Chargement des contacts HubSpot...';
+  empty.querySelector('p').textContent = '⏳ Chargement...';
   tbody.innerHTML = '';
 
   try {
-    crmContacts = [];
-    let after = null;
-    let page = 0;
-    // Auto-paginate to load ALL contacts
-    do {
-      page++;
-      empty.querySelector('p').textContent = `⏳ Chargement... (page ${page})`;
-      const data = await crmApiCall({ action: 'list', after });
-      crmContacts = crmContacts.concat(data.contacts || []);
-      after = data.after;
-      crmHasMore = data.hasMore;
-    } while (crmHasMore && after && page < 50); // safety limit at 5000 contacts
+    const data = await crmApiCall({ action: 'list' });
+    crmContacts = data.contacts || [];
+    crmHasMore = false;
 
-    crmAfterCursor = after;
+    // If cache is empty, auto-sync from HubSpot
+    if (crmContacts.length === 0) {
+      empty.querySelector('p').textContent = '⏳ Premier chargement — sync HubSpot...';
+      await syncCRMFromHubSpot();
+      return;
+    }
+
     renderCRMTable();
     updateCRMStats();
   } catch (err) {
     console.error('CRM load error:', err);
-    empty.querySelector('p').textContent = '❌ Erreur de chargement des contacts';
+    empty.querySelector('p').textContent = '❌ Erreur de chargement';
     empty.style.display = 'block';
+  }
+}
+
+// Sync from HubSpot → Supabase, then reload
+async function syncCRMFromHubSpot() {
+  const btn = document.querySelector('[onclick="loadCRMContacts()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Sync...'; }
+  try {
+    const result = await crmApiCall({ action: 'sync' });
+    console.log('CRM sync result:', result);
+    if (btn) { btn.textContent = '✅ ' + (result.synced || 0); btn.disabled = false; setTimeout(() => btn.textContent = '🔄', 2000); }
+    await loadCRMContacts();
+  } catch (err) {
+    console.error('CRM sync error:', err);
+    if (btn) { btn.textContent = '❌'; btn.disabled = false; setTimeout(() => btn.textContent = '🔄', 2000); }
   }
 }
 

@@ -1,14 +1,18 @@
-// Vercel Serverless Function — CRM: List & Update HubSpot contacts
-// POST /api/hubspot-contacts { action: "list" | "update", ... }
+// Vercel Serverless Function — CRM: List from Supabase cache, Sync from HubSpot
+// POST /api/hubspot-contacts { action: "list" | "sync" | "update" }
 const { setCorsHeaders, safeError } = require('./_shared');
+const { createClient } = require('@supabase/supabase-js');
 
 const ALLOWED_ORIGINS = [
   'https://candidature.edumove.fr',
   'https://edumove-candidature-main.vercel.app'
 ];
 
+function getSupabase() {
+  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+}
+
 module.exports = async function handler(req, res) {
-  // CORS
   const origin = req.headers.origin || '';
   if (ALLOWED_ORIGINS.some(o => origin.startsWith(o)) || origin.includes('edumove-candidature')) {
     res.setHeader('Access-Control-Allow-Origin', origin);
@@ -22,143 +26,151 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // Verify API key
   const key = req.headers['x-api-key'];
   if (!key || key !== process.env.API_SHARED_SECRET) return safeError(res, 401, 'Unauthorized');
-
-  const hubspotToken = process.env.HUBSPOT_ACCESS_TOKEN;
-  if (!hubspotToken) return safeError(res, 500, 'HubSpot not configured');
 
   const { action } = req.body;
 
   try {
-    if (action === 'list') {
-      return await listContacts(req, res, hubspotToken);
-    } else if (action === 'update') {
-      return await updateContact(req, res, hubspotToken);
-    } else if (action === 'forms') {
-      return await listFormSubmissions(req, res, hubspotToken);
-    } else {
-      return safeError(res, 400, 'Invalid action. Use: list, update, forms');
-    }
+    if (action === 'list') return await listFromCache(req, res);
+    if (action === 'sync') return await syncFromHubSpot(req, res);
+    if (action === 'update') return await updateContact(req, res);
+    return safeError(res, 400, 'Invalid action. Use: list, sync, update');
   } catch (err) {
-    console.error('HubSpot CRM error:', err.message);
-    return safeError(res, 500, 'HubSpot request failed');
+    console.error('CRM error:', err.message);
+    return safeError(res, 500, 'CRM request failed');
   }
 };
 
-const CONTACT_PROPERTIES = ['firstname', 'lastname', 'email', 'phone', 'edumove_lead_status', 'edumove_profil', 'edumove_score', 'edumove_destination', 'edumove_candidature_id', 'createdate', 'hs_lead_status', 'lifecyclestage', 'edumove_departement', 'recent_conversion_event_name', 'hs_analytics_source'];
+// ── LIST: Read from Supabase cache (instant) ──
+async function listFromCache(req, res) {
+  const sb = getSupabase();
+  const { data, error } = await sb
+    .from('crm_contacts')
+    .select('*')
+    .order('created_at', { ascending: false });
 
-// ── LIST CONTACTS (only from Edumove forms) ──
-// Uses HubSpot search API filtering on recent_conversion_event_name containing "EDUMOVE"
-async function listContacts(req, res, token) {
-  const { after, search } = req.body;
+  if (error) {
+    console.error('Supabase read error:', error);
+    return safeError(res, 502, 'Cache read failed');
+  }
 
-  // Base filter: only contacts who submitted an EDUMOVE form
+  const contacts = (data || []).map(r => ({
+    id: r.id,
+    nom: r.nom || '',
+    prenom: r.prenom || '',
+    email: r.email || '',
+    tel: r.tel || '',
+    leadStatus: r.lead_status || '',
+    hsLeadStatus: r.hs_lead_status || '',
+    formName: r.form_name || '',
+    source: r.source || '',
+    createdAt: r.created_at || ''
+  }));
+
+  return res.status(200).json({ contacts, total: contacts.length, cached: true });
+}
+
+// ── SYNC: Fetch all Edumove contacts from HubSpot → upsert into Supabase ──
+async function syncFromHubSpot(req, res) {
+  const hubspotToken = process.env.HUBSPOT_ACCESS_TOKEN;
+  if (!hubspotToken) return safeError(res, 500, 'HubSpot not configured');
+
+  const sb = getSupabase();
+  const PROPS = ['firstname', 'lastname', 'email', 'phone', 'edumove_lead_status', 'hs_lead_status', 'recent_conversion_event_name', 'hs_analytics_source', 'createdate'];
+
   const edumoveFilter = {
     propertyName: 'recent_conversion_event_name',
     operator: 'CONTAINS_TOKEN',
     value: 'EDUMOVE'
   };
 
-  // Search with text query + Edumove filter
-  if (search && search.trim()) {
-    const searchRes = await hubFetch(token, 'POST', '/crm/v3/objects/contacts/search', {
+  let allContacts = [];
+  let after = 0;
+  let safety = 0;
+
+  // Paginate through all Edumove contacts
+  do {
+    safety++;
+    const searchRes = await hubFetch(hubspotToken, 'POST', '/crm/v3/objects/contacts/search', {
       filterGroups: [{ filters: [edumoveFilter] }],
-      query: search.trim(),
       limit: 100,
-      properties: CONTACT_PROPERTIES,
+      after,
+      properties: PROPS,
       sorts: [{ propertyName: 'createdate', direction: 'DESCENDING' }]
     });
     const data = await searchRes.json();
-    return res.status(200).json({
-      contacts: (data.results || []).map(formatContact),
-      total: data.total || 0,
-      hasMore: false
-    });
+    const results = data.results || [];
+    allContacts = allContacts.concat(results);
+    after = data.paging?.next?.after || null;
+  } while (after && safety < 50);
+
+  // Transform and upsert into Supabase
+  const now = new Date().toISOString();
+  const rows = allContacts.map(c => {
+    const p = c.properties || {};
+    return {
+      id: c.id,
+      nom: p.lastname || '',
+      prenom: p.firstname || '',
+      email: p.email || '',
+      tel: p.phone || '',
+      lead_status: p.edumove_lead_status || '',
+      hs_lead_status: p.hs_lead_status || '',
+      form_name: cleanFormName(p.recent_conversion_event_name || ''),
+      source: p.hs_analytics_source || '',
+      created_at: p.createdate || null,
+      synced_at: now
+    };
+  });
+
+  // Upsert in batches of 500
+  let upserted = 0;
+  for (let i = 0; i < rows.length; i += 500) {
+    const batch = rows.slice(i, i + 500);
+    const { error } = await sb.from('crm_contacts').upsert(batch, { onConflict: 'id' });
+    if (error) console.error('Upsert error batch', i, error.message);
+    else upserted += batch.length;
   }
 
-  // Paginated list of Edumove contacts only (search API, max 100 per page)
-  const afterNum = after ? parseInt(after) : 0;
-  const searchRes = await hubFetch(token, 'POST', '/crm/v3/objects/contacts/search', {
-    filterGroups: [{ filters: [edumoveFilter] }],
-    limit: 100,
-    after: afterNum,
-    properties: CONTACT_PROPERTIES,
-    sorts: [{ propertyName: 'createdate', direction: 'DESCENDING' }]
-  });
-  const data = await searchRes.json();
-  const nextAfter = data.paging?.next?.after || null;
-
-  return res.status(200).json({
-    contacts: (data.results || []).map(formatContact),
-    total: data.total || 0,
-    hasMore: !!nextAfter,
-    after: nextAfter
-  });
+  return res.status(200).json({ success: true, synced: upserted, total: rows.length });
 }
 
-// ── UPDATE CONTACT ──
-async function updateContact(req, res, token) {
+// ── UPDATE: Update on HubSpot + Supabase cache ──
+async function updateContact(req, res) {
+  const hubspotToken = process.env.HUBSPOT_ACCESS_TOKEN;
+  if (!hubspotToken) return safeError(res, 500, 'HubSpot not configured');
+
   const { contactId, properties } = req.body;
   if (!contactId) return safeError(res, 400, 'contactId required');
 
-  // Only allow updating specific safe properties
-  const allowed = ['edumove_lead_status', 'hs_lead_status', 'lifecyclestage', 'edumove_profil'];
+  const allowed = ['edumove_lead_status', 'hs_lead_status', 'lifecyclestage'];
   const safeProps = {};
   for (const [key, val] of Object.entries(properties || {})) {
     if (allowed.includes(key)) safeProps[key] = val;
   }
 
-  const updateRes = await hubFetch(token, 'PATCH', `/crm/v3/objects/contacts/${contactId}`, { properties: safeProps });
+  // Update HubSpot
+  const updateRes = await hubFetch(hubspotToken, 'PATCH', `/crm/v3/objects/contacts/${contactId}`, { properties: safeProps });
   if (!updateRes.ok) {
     const err = await updateRes.text();
     console.error('HubSpot update error:', err);
     return safeError(res, 502, 'HubSpot update failed');
   }
 
+  // Update Supabase cache
+  const sb = getSupabase();
+  const cacheUpdate = {};
+  if (safeProps.hs_lead_status !== undefined) cacheUpdate.hs_lead_status = safeProps.hs_lead_status;
+  if (safeProps.edumove_lead_status !== undefined) cacheUpdate.lead_status = safeProps.edumove_lead_status;
+  if (Object.keys(cacheUpdate).length > 0) {
+    await sb.from('crm_contacts').update(cacheUpdate).eq('id', contactId);
+  }
+
   return res.status(200).json({ success: true });
 }
 
-// ── FORM SUBMISSIONS ──
-async function listFormSubmissions(req, res, token) {
-  // List recent form submissions
-  const formsRes = await hubFetch(token, 'GET', '/marketing/v3/forms?limit=50');
-  const formsData = await formsRes.json();
-
-  return res.status(200).json({
-    forms: (formsData.results || []).map(f => ({
-      id: f.id,
-      name: f.name,
-      createdAt: f.createdAt,
-      updatedAt: f.updatedAt
-    }))
-  });
-}
-
 // ── HELPERS ──
-function formatContact(c) {
-  const p = c.properties || {};
-  return {
-    id: c.id,
-    nom: p.lastname || '',
-    prenom: p.firstname || '',
-    email: p.email || '',
-    tel: p.phone || '',
-    leadStatus: p.edumove_lead_status || '',
-    hsLeadStatus: p.hs_lead_status || '',
-    lifecycle: p.lifecyclestage || '',
-    profil: p.edumove_profil || '',
-    score: p.edumove_score || '',
-    destination: p.edumove_destination || '',
-    departement: p.edumove_departement || '',
-    candidatureId: p.edumove_candidature_id || '',
-    formName: cleanFormName(p.recent_conversion_event_name || ''),
-    source: p.hs_analytics_source || '',
-    createdAt: p.createdate || ''
-  };
-}
-
 function cleanFormName(raw) {
   if (!raw) return '';
   if (raw.includes('EDUMOVE - CONTACT')) return 'Edumove Contact';
@@ -171,10 +183,7 @@ function cleanFormName(raw) {
 async function hubFetch(token, method, path, body) {
   const opts = {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
   };
   if (body) opts.body = JSON.stringify(body);
   return fetch(`https://api.hubapi.com${path}`, opts);
