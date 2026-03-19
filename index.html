@@ -48,13 +48,20 @@ body {
 }
 .logo-zone { display: flex; align-items: center; gap: 10px; }
 .logo-svg { height: 32px; width: auto; }
-.header-right {
-  font-size: 11px;
-  color: rgba(255,255,255,0.4);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-weight: 400;
+.btn-header-login {
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  color: white;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
 }
+.btn-header-login:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.7); }
 
 /* ── HERO ── */
 .hero-band {
@@ -160,43 +167,19 @@ body {
   padding: 0 24px 80px;
 }
 
-.auth-tabs {
-  display: flex;
-  margin-bottom: 0;
-  border-radius: 10px 10px 0 0;
-  overflow: hidden;
-}
-.auth-tab {
-  flex: 1;
-  padding: 14px;
-  text-align: center;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  font-family: inherit;
-  transition: all 0.2s;
-  background: var(--border);
-  color: var(--text-muted);
-}
-.auth-tab.active {
-  background: white;
-  color: var(--navy);
-}
-.auth-tab:hover:not(.active) {
-  background: #d8d8ea;
-}
-
 .auth-card {
   background: white;
   border: 1px solid var(--border);
-  border-top: none;
-  border-radius: 0 0 12px 12px;
+  border-radius: 12px;
   padding: 36px 32px;
 }
 
-.auth-form { display: none; }
-.auth-form.active { display: block; }
+/* Login modal overlay */
+.login-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: none; align-items: center; justify-content: center; }
+.login-overlay.visible { display: flex; }
+.login-modal { background: white; border-radius: 16px; padding: 36px 32px; max-width: 400px; width: 90%; box-shadow: 0 8px 40px rgba(0,0,0,0.18); position: relative; }
+.login-modal-close { position: absolute; top: 14px; right: 16px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); line-height: 1; padding: 4px; }
+.login-modal-close:hover { color: var(--navy); }
 
 .auth-title {
   font-size: 20px;
@@ -393,7 +376,8 @@ body {
 
 /* ── RESPONSIVE ── */
 @media (max-width: 600px) {
-  .site-header { padding: 0 20px; }
+  .site-header { padding: 0 16px; }
+  .btn-header-login { font-size: 11px; padding: 7px 12px; }
   .hero-band { padding: 36px 20px 36px; }
   .auth-section { margin: 28px auto; padding: 0 16px 60px; }
   .auth-card { padding: 28px 20px; }
@@ -421,7 +405,7 @@ body {
       <path fill="white" d="M84.64,55.74v-22.54h22.8l17.4-16.6L107.43,0H40.19v27.79h-22.78L0,44.4l17.41,16.6h22.78v27.96h67.24l17.4-16.6-17.41-16.61h-22.79ZM45.51,5.32h59.79l11.83,11.28-11.83,11.29h-59.79V5.32ZM19.53,55.68l-11.83-11.28,11.83-11.29h59.78v22.57H19.53ZM105.3,83.64h-59.79v-22.57h59.79l11.83,11.29-11.83,11.28Z"/>
     </svg>
   </div>
-  <div class="header-right">Études supérieures en Europe · 2026 – 2027</div>
+  <button class="btn-header-login" onclick="openLoginModal()">Se connecter à ma candidature</button>
 </header>
 
 <!-- HERO -->
@@ -444,72 +428,66 @@ body {
   </div>
 </div>
 
-<!-- AUTH SECTION -->
+<!-- AUTH SECTION — Candidature form -->
 <div class="auth-section">
-  <div class="auth-tabs">
-    <button class="auth-tab active" onclick="switchTab('login')">Se connecter</button>
-    <button class="auth-tab" onclick="switchTab('signup')">S'inscrire</button>
-  </div>
   <div class="auth-card">
-
-    <!-- LOGIN FORM -->
-    <div id="form-login" class="auth-form active">
-      <div class="auth-title">Connexion</div>
-      <div class="auth-subtitle">Accédez à votre espace candidat EDUMOVE</div>
+    <div class="auth-title" style="font-size:22px;text-align:center;">Déposez votre candidature</div>
+    <div class="auth-subtitle" style="text-align:center;">Créez votre compte en 30 secondes pour accéder à votre espace candidat</div>
+    <div class="auth-field-row">
       <div class="auth-field">
-        <label>Adresse email <span class="req">*</span></label>
-        <input type="email" id="login-email" placeholder="exemple@email.com"/>
+        <label>Nom <span class="req">*</span></label>
+        <input type="text" id="signup-nom" placeholder="Votre nom"/>
       </div>
       <div class="auth-field">
-        <label>Mot de passe <span class="req">*</span></label>
-        <div class="pw-wrap"><input type="password" id="login-pass" placeholder="Votre mot de passe"/><button type="button" class="pw-toggle" onclick="togglePw(this)">👁</button></div>
+        <label>Prénom <span class="req">*</span></label>
+        <input type="text" id="signup-prenom" placeholder="Votre prénom"/>
       </div>
-      <button class="btn-auth" onclick="doLogin()">Se connecter</button>
-      <div class="auth-error" id="login-error"></div>
-      <a href="javascript:void(0)" class="forgot-link" onclick="showResetModal()">Mot de passe oublié ?</a>
     </div>
-
-    <!-- SIGNUP FORM -->
-    <div id="form-signup" class="auth-form">
-      <div class="auth-title">Créer un compte</div>
-      <div class="auth-subtitle">Inscrivez-vous pour démarrer votre candidature</div>
-      <div class="auth-field-row">
-        <div class="auth-field">
-          <label>Nom <span class="req">*</span></label>
-          <input type="text" id="signup-nom" placeholder="Votre nom"/>
-        </div>
-        <div class="auth-field">
-          <label>Prénom <span class="req">*</span></label>
-          <input type="text" id="signup-prenom" placeholder="Votre prénom"/>
-        </div>
-      </div>
+    <div class="auth-field">
+      <label>Adresse email <span class="req">*</span></label>
+      <input type="email" id="signup-email" placeholder="exemple@email.com"/>
+    </div>
+    <div class="auth-field-row">
       <div class="auth-field">
-        <label>Adresse email <span class="req">*</span></label>
-        <input type="email" id="signup-email" placeholder="exemple@email.com"/>
-      </div>
-      <div class="auth-field-row">
-        <div class="auth-field">
         <label>Téléphone <span class="req">*</span></label>
-          <input type="tel" id="signup-tel" placeholder="+33 6 XX XX XX XX"/>
-        </div>
-        <div class="auth-field">
+        <input type="tel" id="signup-tel" placeholder="+33 6 XX XX XX XX"/>
+      </div>
+      <div class="auth-field">
         <label>Département <span class="req">*</span></label>
-          <input type="text" id="signup-departement" placeholder="Ex : 75, 13, 69..." maxlength="3"/>
-        </div>
+        <input type="text" id="signup-departement" placeholder="Ex : 75, 13, 69..." maxlength="3"/>
       </div>
-      <div class="auth-field">
-        <label>Mot de passe <span class="req">*</span></label>
-        <div class="pw-wrap"><input type="password" id="signup-pass" placeholder="Minimum 6 caractères"/><button type="button" class="pw-toggle" onclick="togglePw(this)">👁</button></div>
-      </div>
-      <div class="auth-field">
-        <label>Confirmer le mot de passe <span class="req">*</span></label>
-        <div class="pw-wrap"><input type="password" id="signup-pass2" placeholder="Retapez votre mot de passe"/><button type="button" class="pw-toggle" onclick="togglePw(this)">👁</button></div>
-      </div>
-      <button class="btn-auth" onclick="doSignup()">Créer mon compte</button>
-      <div class="auth-error" id="signup-error"></div>
-      <div class="auth-success" id="signup-success"></div>
     </div>
+    <div class="auth-field">
+      <label>Mot de passe <span class="req">*</span></label>
+      <div class="pw-wrap"><input type="password" id="signup-pass" placeholder="Minimum 6 caractères"/><button type="button" class="pw-toggle" onclick="togglePw(this)">👁</button></div>
+    </div>
+    <div class="auth-field">
+      <label>Confirmer le mot de passe <span class="req">*</span></label>
+      <div class="pw-wrap"><input type="password" id="signup-pass2" placeholder="Retapez votre mot de passe"/><button type="button" class="pw-toggle" onclick="togglePw(this)">👁</button></div>
+    </div>
+    <button class="btn-auth" onclick="doSignup()">Déposer ma candidature</button>
+    <div class="auth-error" id="signup-error"></div>
+    <div class="auth-success" id="signup-success"></div>
+  </div>
+</div>
 
+<!-- LOGIN MODAL -->
+<div class="login-overlay" id="login-overlay" onclick="if(event.target===this)closeLoginModal()">
+  <div class="login-modal">
+    <button class="login-modal-close" onclick="closeLoginModal()">&times;</button>
+    <div class="auth-title">Connexion</div>
+    <div class="auth-subtitle">Accédez à votre espace candidat EDUMOVE</div>
+    <div class="auth-field">
+      <label>Adresse email <span class="req">*</span></label>
+      <input type="email" id="login-email" placeholder="exemple@email.com"/>
+    </div>
+    <div class="auth-field">
+      <label>Mot de passe <span class="req">*</span></label>
+      <div class="pw-wrap"><input type="password" id="login-pass" placeholder="Votre mot de passe"/><button type="button" class="pw-toggle" onclick="togglePw(this)">👁</button></div>
+    </div>
+    <button class="btn-auth" onclick="doLogin()">Se connecter</button>
+    <div class="auth-error" id="login-error"></div>
+    <a href="javascript:void(0)" class="forgot-link" onclick="showResetModal()">Mot de passe oublié ?</a>
   </div>
 </div>
 
@@ -560,19 +538,14 @@ body {
   }
 })();
 
-// ── TABS ──
-function switchTab(tab) {
-  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-  if (tab === 'login') {
-    document.querySelector('.auth-tab:first-child').classList.add('active');
-    document.getElementById('form-login').classList.add('active');
-  } else {
-    document.querySelector('.auth-tab:last-child').classList.add('active');
-    document.getElementById('form-signup').classList.add('active');
-  }
-  // Clear errors
-  document.querySelectorAll('.auth-error, .auth-success').forEach(e => { e.classList.remove('visible'); e.textContent = ''; });
+// ── LOGIN MODAL ──
+function openLoginModal() {
+  document.getElementById('login-error').classList.remove('visible');
+  document.getElementById('login-overlay').classList.add('visible');
+  setTimeout(() => document.getElementById('login-email').focus(), 100);
+}
+function closeLoginModal() {
+  document.getElementById('login-overlay').classList.remove('visible');
 }
 
 // ── PASSWORD TOGGLE ──
