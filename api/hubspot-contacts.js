@@ -51,7 +51,7 @@ async function listFromCache(req, res) {
   let from = 0;
   const PAGE = 1000;
   while (true) {
-    let q = sb.from('crm_contacts').select('*').order('synced_at', { ascending: false });
+    let q = sb.from('crm_contacts').select('*').order('created_at', { ascending: false });
     if (assignedTo && typeof assignedTo === 'string' && assignedTo.trim()) {
       q = q.eq('assigned_to', assignedTo.trim());
     }
