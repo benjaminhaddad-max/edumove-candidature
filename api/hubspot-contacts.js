@@ -190,15 +190,15 @@ function mapHsToEdumove(hsStatus) {
     'Raccroche au nez': 'Disqualifié',
     'Doublon': 'Disqualifié',
     'Autre prépa concurrente': 'Disqualifié',
-    'Inscrit': 'Va candidater',
-    'Pré-inscrit 2025/2026': 'Va candidater',
-    'Pré-inscrit 2026/2027': 'Va candidater',
+    'Inscrit': 'Disqualifié',
+    'Pré-inscrit 2025/2026': 'Disqualifié',
+    'Pré-inscrit 2026/2027': 'Disqualifié',
     'En cours': 'Nouveau',
     'Rdv pris': 'Va candidater',
     'NRP1': 'Nouveau',
     'NRP2': 'Nouveau',
-    'NRP3': 'Disqualifié',
-    'NRP4': 'Disqualifié'
+    'NRP3': 'Nouveau',
+    'NRP4': 'Nouveau'
   };
   return map[hsStatus] || '';
 }
