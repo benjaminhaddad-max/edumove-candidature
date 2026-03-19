@@ -2910,29 +2910,47 @@ body.closer-mode .msg-new-btn { display: none !important; }
     </div>
 
     <div class="toolbar">
-      <input type="text" class="search-input" id="crm-search" placeholder="Rechercher un contact..." oninput="filterCRMContacts()"/>
-      <select class="filter-select" id="crm-filter-status" onchange="filterCRMContacts()">
-        <option value="">Tous les statuts</option>
+      <input type="text" class="search-input" id="crm-search" placeholder="Rechercher par nom, email, tél..." oninput="filterCRMContacts()" style="min-width:180px;"/>
+      <select class="filter-select" id="crm-filter-form" onchange="filterCRMContacts()" style="min-width:120px;">
+        <option value="">Tous formulaires</option>
+        <option value="Edumove Contact">Contact</option>
+        <option value="Edumove Qualification">Qualification</option>
+        <option value="Meta Lead Gen (LGF V2)">Meta LGF V2</option>
+      </select>
+      <select class="filter-select" id="crm-filter-status" onchange="filterCRMContacts()" style="min-width:120px;">
+        <option value="">Statut Edumove — Tous</option>
         <option value="Nouveau">Nouveau</option>
         <option value="Va candidater">Va candidater</option>
         <option value="Veut absolument autre pays">Veut autre pays</option>
         <option value="Disqualifié">Disqualifié</option>
         <option value="PASS/LAS priorité">PASS/LAS priorité</option>
       </select>
-      <button class="btn-export" onclick="loadCRMContacts()">🔄 Actualiser</button>
-      <button class="btn-export" style="background:var(--orange);" onclick="syncAllToHubSpot()" id="btn-crm-sync">⬆️ Sync candidatures → HubSpot</button>
+      <select class="filter-select" id="crm-filter-hs" onchange="filterCRMContacts()" style="min-width:120px;">
+        <option value="">Statut HubSpot — Tous</option>
+        <option value="_exclude_Disqualifié">Exclure Disqualifié</option>
+        <option value="_exclude_NRP1">Exclure NRP1</option>
+        <option value="_exclude_NRP2">Exclure NRP2</option>
+        <option value="Nouveau">Nouveau</option>
+        <option value="En cours">En cours</option>
+        <option value="Disqualifié">Disqualifié</option>
+        <option value="NRP1">NRP1</option>
+        <option value="NRP2">NRP2</option>
+      </select>
+      <button class="btn-export" onclick="loadCRMContacts()" style="padding:11px 14px;">🔄</button>
+      <button class="btn-export" style="background:var(--orange);padding:11px 14px;" onclick="syncAllToHubSpot()" id="btn-crm-sync">⬆️ Sync</button>
     </div>
 
     <div class="table-wrap">
       <div class="table-container">
-        <table>
+        <table style="font-size:12px;">
           <thead><tr>
-            <th>Nom — Prénom</th>
-            <th>Email</th>
-            <th>Téléphone</th>
-            <th>Formulaire</th>
-            <th>Statut lead</th>
-            <th>Date</th>
+            <th style="width:15%;">Nom</th>
+            <th style="width:18%;">Email</th>
+            <th style="width:11%;">Tél</th>
+            <th style="width:12%;">Formulaire</th>
+            <th style="width:12%;">Statut HS</th>
+            <th style="width:14%;">Statut Edumove</th>
+            <th style="width:8%;">Date</th>
           </tr></thead>
           <tbody id="crm-table-body"></tbody>
         </table>
@@ -7066,6 +7084,8 @@ function renderCRMTable() {
   const loadMore = document.getElementById('crm-load-more');
   const search = (document.getElementById('crm-search').value || '').toLowerCase().trim();
   const statusFilter = document.getElementById('crm-filter-status').value;
+  const formFilter = document.getElementById('crm-filter-form').value;
+  const hsFilter = document.getElementById('crm-filter-hs').value;
 
   let filtered = crmContacts;
   if (search) {
@@ -7073,13 +7093,36 @@ function renderCRMTable() {
       `${c.nom} ${c.prenom} ${c.email} ${c.tel}`.toLowerCase().includes(search)
     );
   }
-  if (statusFilter) {
-    filtered = filtered.filter(c => c.leadStatus === statusFilter);
+  if (formFilter) filtered = filtered.filter(c => c.formName === formFilter);
+  if (statusFilter) filtered = filtered.filter(c => c.leadStatus === statusFilter);
+  if (hsFilter) {
+    if (hsFilter.startsWith('_exclude_')) {
+      const excl = hsFilter.replace('_exclude_', '');
+      filtered = filtered.filter(c => c.hsLeadStatus !== excl);
+    } else {
+      filtered = filtered.filter(c => c.hsLeadStatus === hsFilter);
+    }
+  }
+
+  // Populate HS status filter dynamically with actual values
+  const hsSelect = document.getElementById('crm-filter-hs');
+  if (hsSelect && hsSelect.options.length <= 4) {
+    const allHsStatuses = [...new Set(crmContacts.map(c => c.hsLeadStatus).filter(Boolean))].sort();
+    // Clear and rebuild
+    hsSelect.innerHTML = '<option value="">Statut HubSpot — Tous</option>';
+    allHsStatuses.forEach(s => {
+      hsSelect.innerHTML += `<option value="_exclude_${esc(s)}">Exclure "${esc(s)}"</option>`;
+    });
+    hsSelect.innerHTML += '<option disabled>──────────</option>';
+    allHsStatuses.forEach(s => {
+      hsSelect.innerHTML += `<option value="${esc(s)}">${esc(s)}</option>`;
+    });
+    if (hsFilter) hsSelect.value = hsFilter;
   }
 
   if (filtered.length === 0) {
     tbody.innerHTML = '';
-    empty.querySelector('p').textContent = search || statusFilter ? '🔍 Aucun contact trouvé' : '📇 Aucun contact HubSpot';
+    empty.querySelector('p').textContent = search || statusFilter || formFilter || hsFilter ? '🔍 Aucun contact trouvé' : '📇 Aucun contact HubSpot';
     empty.style.display = 'block';
     loadMore.style.display = 'none';
     return;
@@ -7087,43 +7130,56 @@ function renderCRMTable() {
   empty.style.display = 'none';
   loadMore.style.display = crmHasMore ? '' : 'none';
 
+  const HS_STATUS_COLORS = {
+    'Nouveau': '#3b82f6', 'En cours': '#f59e0b', 'Disqualifié': '#ef4444',
+    'NRP1': '#9ca3af', 'NRP2': '#6b7280', 'Converti': '#10b981'
+  };
+
   tbody.innerHTML = filtered.map(c => {
     const date = c.createdAt ? new Date(c.createdAt).toLocaleDateString('fr-FR') : '—';
     const st = c.leadStatus || '';
-    const stStyle = CRM_STATUS_COLORS[st] || { bg: '#f1f5f9', color: '#64748b', border: '#e2e8f0' };
-    const statusBadge = st
-      ? `<span style="display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:${stStyle.bg};color:${stStyle.color};border:1px solid ${stStyle.border};white-space:nowrap;">${esc(st)}</span>`
-      : '<span style="color:var(--text-muted);font-size:11px;">—</span>';
-
     const statusOptions = CRM_LEAD_STATUSES.map(s =>
       `<option value="${esc(s)}" ${s === st ? 'selected' : ''}>${esc(s)}</option>`
     ).join('');
 
-    const telDisplay = c.tel ? `<a href="tel:${esc(c.tel)}" style="color:var(--violet);text-decoration:none;font-weight:500;">${esc(c.tel)}</a>` : '<span style="color:var(--text-muted);">—</span>';
-    const emailDisplay = c.email ? `<a href="mailto:${esc(c.email)}" style="color:var(--text);text-decoration:none;">${esc(c.email)}</a>` : '—';
+    const telDisplay = c.tel
+      ? `<a href="tel:${esc(c.tel)}" style="color:var(--violet);text-decoration:none;font-size:11px;">${esc(c.tel)}</a>`
+      : '<span style="color:#ccc;">—</span>';
+    const emailDisplay = c.email
+      ? `<a href="mailto:${esc(c.email)}" style="color:var(--text);text-decoration:none;font-size:11px;">${esc(c.email)}</a>`
+      : '—';
 
-    // Link to candidature if exists
-    const candLink = c.candidatureId ? `<button class="btn-view" style="padding:5px 12px;font-size:10px;" onclick="event.stopPropagation();backToDashboard();setTimeout(()=>viewDetail('${esc(c.candidatureId)}'),100)">📋 Dossier</button>` : '';
+    // Form badge with color per type
+    const formColors = {
+      'Edumove Contact': { bg: '#dbeafe', color: '#1d4ed8', border: '#bfdbfe' },
+      'Edumove Qualification': { bg: '#f3e8ff', color: '#7c3aed', border: '#ddd6fe' },
+      'Meta Lead Gen (LGF V2)': { bg: '#fef3c7', color: '#b45309', border: '#fde68a' }
+    };
+    const fc = formColors[c.formName] || { bg: '#f1f5f9', color: '#64748b', border: '#e2e8f0' };
+    const formDisplay = c.formName
+      ? `<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:9px;font-weight:600;background:${fc.bg};color:${fc.color};border:1px solid ${fc.border};white-space:nowrap;">${esc(c.formName)}</span>`
+      : '—';
 
-    // Form name display
-    let formDisplay = '—';
-    if (c.formName) {
-      const shortName = c.formName.replace('EDUMOVE - ', '').replace('Form ', '');
-      formDisplay = `<span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;white-space:nowrap;">${esc(shortName)}</span>`;
-    }
+    // HS lead status badge
+    const hs = c.hsLeadStatus || '';
+    const hsColor = HS_STATUS_COLORS[hs] || '#94a3b8';
+    const hsBadge = hs
+      ? `<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:9px;font-weight:600;background:${hsColor}15;color:${hsColor};border:1px solid ${hsColor}30;white-space:nowrap;">${esc(hs)}</span>`
+      : '<span style="color:#ccc;font-size:10px;">—</span>';
 
     return `<tr>
-      <td><div class="td-name">${esc(c.nom)} ${esc(c.prenom)}</div></td>
-      <td style="font-size:12px;">${emailDisplay}</td>
-      <td>${telDisplay}</td>
-      <td>${formDisplay}</td>
-      <td>
-        <select class="status-select" onchange="updateCRMLeadStatus('${c.id}', this.value)" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:600;border:1.5px solid var(--border);font-family:inherit;cursor:pointer;">
-          <option value="">— Choisir —</option>
+      <td style="padding:10px 12px;"><div style="font-weight:600;color:var(--navy);font-size:12px;">${esc(c.nom)} ${esc(c.prenom)}</div></td>
+      <td style="padding:10px 8px;">${emailDisplay}</td>
+      <td style="padding:10px 8px;">${telDisplay}</td>
+      <td style="padding:10px 6px;">${formDisplay}</td>
+      <td style="padding:10px 6px;">${hsBadge}</td>
+      <td style="padding:10px 6px;">
+        <select onchange="updateCRMLeadStatus('${c.id}', this.value)" style="padding:3px 6px;border-radius:6px;font-size:10px;font-weight:600;border:1.5px solid var(--border);font-family:inherit;cursor:pointer;max-width:130px;">
+          <option value="">—</option>
           ${statusOptions}
         </select>
       </td>
-      <td class="td-date">${date}</td>
+      <td style="padding:10px 6px;font-size:10px;color:var(--text-muted);">${date}</td>
     </tr>`;
   }).join('');
 }

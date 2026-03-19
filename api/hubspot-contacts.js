@@ -145,7 +145,8 @@ function formatContact(c) {
     prenom: p.firstname || '',
     email: p.email || '',
     tel: p.phone || '',
-    leadStatus: p.edumove_lead_status || p.hs_lead_status || '',
+    leadStatus: p.edumove_lead_status || '',
+    hsLeadStatus: p.hs_lead_status || '',
     lifecycle: p.lifecyclestage || '',
     profil: p.edumove_profil || '',
     score: p.edumove_score || '',
@@ -160,13 +161,10 @@ function formatContact(c) {
 
 function cleanFormName(raw) {
   if (!raw) return '';
-  // "Form: EDUMOVE - CONTACT" → "CONTACT"
-  // "Form: EDUMOVE - QUALIFICATION" → "QUALIFICATION"
-  // "Facebook Lead Ads: EDUMOVE - Form LGF V2" → "LGF V2"
-  if (raw.includes('EDUMOVE')) {
-    const match = raw.match(/EDUMOVE\s*-\s*(?:Form\s*)?(.+)/i);
-    if (match) return match[1].trim();
-  }
+  if (raw.includes('EDUMOVE - CONTACT')) return 'Edumove Contact';
+  if (raw.includes('EDUMOVE - QUALIFICATION')) return 'Edumove Qualification';
+  if (raw.includes('EDUMOVE - Form LGF')) return 'Meta Lead Gen (LGF V2)';
+  if (raw.includes('EDUMOVE')) return raw.replace(/^(Form:|Facebook Lead Ads:)\s*/i, '').trim();
   return raw;
 }
 
