@@ -763,18 +763,26 @@ body {
 .btn-ue-save:disabled { background: #bdbdbd; cursor: not-allowed; }
 
 /* ── MESSAGING ── */
+.msg-tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
+.msg-tab-btn {
+  flex: 1; padding: 10px 16px; background: none; border: none; border-bottom: 3px solid transparent;
+  font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer;
+  margin-bottom: -2px; transition: color 0.15s, border-color 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.msg-tab-btn.active { color: var(--navy); border-bottom-color: var(--orange); }
+.msg-tab-btn .tab-badge { background: var(--orange); color: white; border-radius: 10px; font-size: 10px; padding: 1px 6px; font-weight: 700; }
 .messages-container {
-  max-height: 400px;
+  max-height: 380px;
   overflow-y: auto;
-  padding: 16px 0;
+  padding: 8px 0 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 .message {
-  max-width: 75%;
-  padding: 12px 16px;
-  border-radius: 12px;
+  max-width: 72%;
+  padding: 11px 15px;
+  border-radius: 14px;
   font-size: 13px;
   line-height: 1.6;
   position: relative;
@@ -787,28 +795,34 @@ body {
 }
 .message-admin {
   align-self: flex-start;
-  background: var(--bg);
+  background: white;
   color: var(--text);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
   border-bottom-left-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.message-fac {
+  align-self: flex-start;
+  background: #fff8f0;
+  color: var(--text);
+  border: 1.5px solid #fcd9a8;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
 .message-meta {
   font-size: 10px;
-  margin-top: 4px;
-  opacity: 0.6;
+  margin-top: 5px;
+  opacity: 0.55;
 }
-.message-admin .message-sender {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--orange);
-  margin-bottom: 4px;
-}
+.message-admin .message-sender { font-size: 11px; font-weight: 700; color: #615ca5; margin-bottom: 4px; }
+.message-fac .message-sender { font-size: 11px; font-weight: 700; color: var(--orange); margin-bottom: 4px; }
 .messages-empty {
   text-align: center;
   padding: 40px 20px;
   color: var(--text-muted);
   font-size: 13px;
 }
+.msg-channel-note { font-size: 11px; color: var(--text-muted); text-align: center; padding: 8px 0 4px; }
 
 .message-input-row {
   display: flex;
@@ -1173,13 +1187,25 @@ body {
 
   <!-- MESSAGERIE -->
   <div class="section-card">
-      <div class="section-card-header">
+    <div class="section-card-header">
       <div class="section-card-title">Messagerie</div>
     </div>
     <div class="section-card-body">
-      <div class="messages-container" id="messages-container">
-        <div class="messages-empty" id="messages-empty">Aucun message pour le moment. Envoyez un message à l'équipe EDUMOVE ci-dessous.</div>
+      <!-- Tabs -->
+      <div class="msg-tabs">
+        <button class="msg-tab-btn active" id="msg-tab-edumove" onclick="switchMsgTab('edumove')">
+          💜 Equipe Edumove
+        </button>
+        <button class="msg-tab-btn" id="msg-tab-fac" onclick="switchMsgTab('fac')">
+          🏫 <span id="msg-tab-fac-label">Ma faculté</span>
+        </button>
       </div>
+      <!-- Messages -->
+      <div class="messages-container" id="messages-container">
+        <div class="messages-empty" id="messages-empty">Aucun message pour le moment.</div>
+      </div>
+      <!-- Input -->
+      <div class="msg-channel-note" id="msg-channel-note">Votre message sera envoyé à l'équipe Edumove</div>
       <div class="message-input-row">
         <textarea class="message-input" id="message-input" placeholder="Écrivez votre message..." rows="1"></textarea>
         <button class="btn-send" id="btn-send" onclick="sendMessage()">Envoyer</button>
@@ -3317,51 +3343,100 @@ async function confirmDocumentsSubmitted() {
 }
 
 // ── MESSAGING ──
+let activeChannel = 'edumove';
+let allMessages = [];
+
+function switchMsgTab(ch) {
+  activeChannel = ch;
+  document.getElementById('msg-tab-edumove').classList.toggle('active', ch === 'edumove');
+  document.getElementById('msg-tab-fac').classList.toggle('active', ch === 'fac');
+  const note = document.getElementById('msg-channel-note');
+  if (note) {
+    const _facName = _getFacName();
+    note.textContent = ch === 'edumove'
+      ? 'Votre message sera envoyé à l\'équipe Edumove'
+      : `Votre message sera envoyé à ${_facName}`;
+  }
+  renderMessages(allMessages);
+}
+
+function _getFacName() {
+  // Infer fac from candidature data or from fac messages
+  const facMsg = allMessages.find(m => m.sender_role && m.sender_role.startsWith('fac_'));
+  if (facMsg) {
+    const _names = { fac_link: 'LINK Campus University', fac_ucjc: 'UCJC Madrid', fac_ue: 'Universidad Europea' };
+    return _names[facMsg.sender_role] || 'votre faculté';
+  }
+  return 'votre faculté';
+}
+
 async function loadMessages() {
   const container = document.getElementById('messages-container');
   const emptyEl = document.getElementById('messages-empty');
 
-  const renderMessages = (msgs) => {
-    container.querySelectorAll('.message, [data-optimistic]').forEach(m => m.remove());
-    if (!msgs || msgs.length === 0) {
-      emptyEl.style.display = 'block';
-      return;
-    }
-    emptyEl.style.display = 'none';
-    msgs.forEach(msg => {
-      const div = document.createElement('div');
-      const role = msg.sender_role || msg.sender || 'student';
-      const isInstitution = role !== 'student';
-      div.className = 'message message-' + (isInstitution ? 'admin' : 'etudiant');
-      let inner = '';
-      if (isInstitution) {
-        const _names = { admin: 'Equipe EDUMOVE', fac_link: 'LINK Campus', fac_ucjc: 'UCJC Madrid', fac_ue: 'Universidad Europea' };
-        inner += `<div class="message-sender">${_names[role] || msg.sender_name || 'Equipe EDUMOVE'}</div>`;
-      }
-      inner += `<div>${esc(msg.content)}</div>`;
-      if (msg.created_at) {
-        const date = new Date(msg.created_at);
-        inner += `<div class="message-meta">${date.toLocaleDateString('fr-FR')} ${date.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'})}</div>`;
-      }
-      div.innerHTML = inner;
-      container.appendChild(div);
-    });
-    container.scrollTop = container.scrollHeight;
+  const renderMessages_ = (msgs) => {
+    allMessages = msgs || [];
+    // Update fac tab label
+    const facName = _getFacName();
+    const labelEl = document.getElementById('msg-tab-fac-label');
+    if (labelEl && facName !== 'votre faculté') labelEl.textContent = facName.split(' ')[0];
+    renderMessages(allMessages);
   };
 
   // Initial load
   const { data: initialMsgs } = await supabase.from('messages').select('*').eq('candidature_id', candidatureId).order('created_at', { ascending: true });
-  renderMessages(initialMsgs);
+  renderMessages_(initialMsgs);
 
   // Realtime subscription
   const channel = supabase.channel('messages-' + candidatureId)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'candidature_id=eq.' + candidatureId }, async () => {
       const { data: msgs } = await supabase.from('messages').select('*').eq('candidature_id', candidatureId).order('created_at', { ascending: true });
-      renderMessages(msgs);
+      renderMessages_(msgs);
     })
     .subscribe();
 
   messagesUnsubscribe = () => supabase.removeChannel(channel);
+}
+
+function renderMessages(msgs) {
+  const container = document.getElementById('messages-container');
+  const emptyEl = document.getElementById('messages-empty');
+  container.querySelectorAll('.message, [data-optimistic]').forEach(m => m.remove());
+
+  const filtered = (msgs || []).filter(m => {
+    const ch = m.channel || (m.sender_role?.startsWith('fac_') ? 'fac' : 'edumove');
+    if (activeChannel === 'fac') return ch === 'fac';
+    return ch === 'edumove';
+  });
+
+  if (!filtered.length) {
+    emptyEl.style.display = 'block';
+    emptyEl.textContent = activeChannel === 'fac'
+      ? 'Aucun message de votre faculté pour le moment.'
+      : 'Aucun message de l\'équipe Edumove pour le moment.';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  const _names = { admin: 'Equipe EDUMOVE', super_admin: 'Equipe EDUMOVE', fac_link: 'LINK Campus', fac_ucjc: 'UCJC Madrid', fac_ue: 'Universidad Europea' };
+  filtered.forEach(msg => {
+    const div = document.createElement('div');
+    const role = msg.sender_role || 'student';
+    const isStudent = role === 'student';
+    const isFac = role.startsWith('fac_');
+    div.className = 'message ' + (isStudent ? 'message-etudiant' : isFac ? 'message-fac' : 'message-admin');
+    let inner = '';
+    if (!isStudent) {
+      inner += `<div class="message-sender">${_names[role] || msg.sender_name || 'Equipe EDUMOVE'}</div>`;
+    }
+    inner += `<div>${esc(msg.content)}</div>`;
+    if (msg.created_at) {
+      const date = new Date(msg.created_at);
+      inner += `<div class="message-meta">${date.toLocaleDateString('fr-FR')} ${date.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'})}</div>`;
+    }
+    div.innerHTML = inner;
+    container.appendChild(div);
+  });
+  container.scrollTop = container.scrollHeight;
 }
 
 async function sendMessage() {
@@ -3373,7 +3448,6 @@ async function sendMessage() {
   btn.disabled = true;
 
   try {
-    // Affichage optimiste immédiat
     const container = document.getElementById('messages-container');
     document.getElementById('messages-empty').style.display = 'none';
     const optimistic = document.createElement('div');
@@ -3390,23 +3464,19 @@ async function sendMessage() {
       sender_id: currentUser.id,
       sender_role: 'student',
       sender_name: candidatureData?.prenom || 'Étudiant',
-      content: text
+      content: text,
+      channel: activeChannel
     });
     if (error) throw error;
 
-    // Notifier admissions@edumove.fr
+    // Notifier selon le canal
     const c = candidatureData || {};
-    fetch('/api/notify-student-message', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        prenom: c.prenom || '',
-        nom: c.nom || '',
-        email: c.email || currentUser?.email || '',
-        content: text,
-        candidatureId
-      })
-    }).catch(e => console.warn('Email notification failed:', e));
+    if (activeChannel === 'edumove') {
+      fetch('/api/notify-student-message', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prenom: c.prenom || '', nom: c.nom || '', email: c.email || currentUser?.email || '', content: text, candidatureId })
+      }).catch(() => {});
+    }
 
   } catch (err) {
     console.error('Message error:', err);

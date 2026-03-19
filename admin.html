@@ -4264,7 +4264,8 @@ async function sendAdminMessage(candidatureId) {
       sender_id: currentAdminUser?.id || currentAdminUser?.email || 'admin',
       sender_role: _senderRole,
       sender_name: _senderName,
-      content: _contentToSave
+      content: _contentToSave,
+      channel: _isFacSender ? 'fac' : 'edumove'
     });
     if (error) throw error;
 
@@ -6481,7 +6482,8 @@ async function createNewConversation() {
         sender_id: currentAdminUser?.email || role,
         sender_role: role,
         sender_name: _senderName,
-        content: _contentToSave
+        content: _contentToSave,
+        channel: 'fac'
       });
       if (error) { console.error('Create student chat error:', error); alert('Erreur : ' + error.message); return; }
       if (_hasEdumoveMention) {
@@ -6522,7 +6524,8 @@ async function createNewConversation() {
       sender_id: currentAdminUser?.email || 'admin',
       sender_role: 'admin',
       sender_name: 'Équipe EDUMOVE',
-      content
+      content,
+      channel: 'edumove'
     });
     if (error) { console.error('Create student chat error:', error); alert('Erreur : ' + error.message); return; }
     closeNewConvModal();
