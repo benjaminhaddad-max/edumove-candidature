@@ -1823,6 +1823,17 @@ function syncToHubSpot(data) {
 async function submitCandidature() {
   let valid = true;
 
+  // Nom, prénom, téléphone, département obligatoires
+  const missingFields = [];
+  if (!userProfile.nom?.trim()) missingFields.push('Nom');
+  if (!userProfile.prenom?.trim()) missingFields.push('Prénom');
+  if (!userProfile.tel?.trim()) missingFields.push('Téléphone');
+  if (!userProfile.departement?.trim()) missingFields.push('Département');
+  if (missingFields.length > 0) {
+    alert('Veuillez remplir votre profil avant de soumettre :\n• ' + missingFields.join('\n• ') + '\n\nCliquez sur votre nom en haut à droite pour compléter vos informations.');
+    valid = false;
+  }
+
   // Profil
   if (!state.profil) { showErr('err-profil', true); valid = false; }
 
