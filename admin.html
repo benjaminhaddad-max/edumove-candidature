@@ -4312,6 +4312,22 @@ async function sendAdminMessage(candidatureId) {
       }).catch(() => {});
     }
 
+    // Notifier l'étudiant par email + SMS
+    const _notifCand = allCandidatures.find(x => x.id === candidatureId);
+    if (_notifCand) {
+      fetch('/api/notify-student-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: _notifCand.email,
+          tel: _notifCand.tel,
+          prenom: _notifCand.prenom,
+          senderName: _senderName,
+          content: _contentToSave
+        })
+      }).catch(e => console.warn('Notif étudiant non envoyée:', e));
+    }
+
     input.value = '';
     // Affichage optimiste immédiat
     const container = document.getElementById('msg-container-' + candidatureId);
@@ -6660,6 +6676,13 @@ async function createNewConversation() {
       channel: 'edumove'
     });
     if (error) { console.error('Create student chat error:', error); alert('Erreur : ' + error.message); return; }
+    const _newChatCand = allCandidatures.find(x => x.id === candidatureId);
+    if (_newChatCand) {
+      fetch('/api/notify-student-chat', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: _newChatCand.email, tel: _newChatCand.tel, prenom: _newChatCand.prenom, senderName: 'Équipe EDUMOVE', content })
+      }).catch(e => console.warn('Notif étudiant non envoyée:', e));
+    }
     closeNewConvModal();
     await loadFacConversations();
     return;
