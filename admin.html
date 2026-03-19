@@ -3421,9 +3421,12 @@ async function loadCandidatures() {
   if (error) { console.error('Load candidatures error:', error); return; }
 
   // Also fetch profiles WITHOUT a candidature (inscribed but not submitted)
-  const { data: profiles } = await supabase.from('profiles').select('id, nom, prenom, email, tel, departement, created_at').not('role', 'in', '("super_admin","fac_link","fac_ucjc","fac_ue","telepro")');
+  const { data: profiles } = await supabase.from('profiles').select('id, nom, prenom, email, tel, departement, created_at');
+  const { data: adminsData } = await supabase.from('admins').select('email');
+  const { data: facData } = await supabase.from('fac_admins').select('email');
+  const adminEmailSet = new Set([...(adminsData || []).map(a => a.email), ...(facData || []).map(f => f.email)]);
   const candidatureUserIds = new Set((data || []).map(c => c.user_id));
-  const orphanProfiles = (profiles || []).filter(p => !candidatureUserIds.has(p.id) && p.email);
+  const orphanProfiles = (profiles || []).filter(p => !candidatureUserIds.has(p.id) && p.email && !adminEmailSet.has(p.email));
 
   // Create virtual candidature entries for profiles without candidature
   const virtualCandidatures = orphanProfiles.map(p => ({
@@ -3475,10 +3478,12 @@ async function loadCandidatures() {
   supabase.channel('admin-candidatures')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'candidatures' }, async () => {
       const { data: fresh } = await supabase.from('candidatures').select('*').order('created_at', { ascending: false });
-      // Re-fetch orphan profiles
-      const { data: profs } = await supabase.from('profiles').select('id, nom, prenom, email, tel, departement, created_at').not('role', 'in', '("super_admin","fac_link","fac_ucjc","fac_ue","telepro")');
+      const { data: profs } = await supabase.from('profiles').select('id, nom, prenom, email, tel, departement, created_at');
+      const { data: admData } = await supabase.from('admins').select('email');
+      const { data: facData2 } = await supabase.from('fac_admins').select('email');
+      const adminSet = new Set([...(admData || []).map(a => a.email), ...(facData2 || []).map(f => f.email)]);
       const cUserIds = new Set((fresh || []).map(c => c.user_id));
-      const orphans = (profs || []).filter(p => !cUserIds.has(p.id) && p.email);
+      const orphans = (profs || []).filter(p => !cUserIds.has(p.id) && p.email && !adminSet.has(p.email));
       const virtuals = orphans.map(p => ({
         id: 'profile_' + p.id, user_id: p.id, nom: p.nom || '', prenom: p.prenom || '', email: p.email || '',
         tel: p.tel || '', departement: p.departement || '', status: 'non_soumise', filiere: '', created_at: p.created_at, _virtual: true
@@ -6560,7 +6565,7 @@ function renderFacConvList() {
   const sec2 = (window.adminRole === 'super_admin' || !window.adminRole) ? mkSection('Étudiants ↔ Edumove', 'stud_emu', studConvs, conv => {
     const name = getStudentName(conv.candidature_id);
     const lastMsg = conv.lastMsg;
-    const isAdmin = lastMsg.sender_role === 'admin';
+    const isAdmin = lastMsg.sender_role && lastMsg.sender_role !== 'student';
     const preview = (isAdmin ? 'Vous : ' : '') + esc(lastMsg.content.substring(0, 50) + (lastMsg.content.length > 50 ? '…' : ''));
     const date = new Date(lastMsg.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' });
     const isActive = currentFacConv?.type === 'student' && currentFacConv.candidature_id === conv.candidature_id;
@@ -6714,7 +6719,7 @@ async function selectStudentConv(candidatureId) {
   const _renderStudentMsgs = (msgs) => {
     if (!msgs || msgs.length === 0) return '<div class="msg-empty-conv">Aucun message</div>';
     return msgs.map(m => {
-      const isMine = m.sender_role === 'admin';
+      const isMine = m.sender_role && m.sender_role !== 'student';
       const time = new Date(m.created_at).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
       const delBtn = `<button class="msg-delete-btn" title="Supprimer ce message" onclick="event.stopPropagation();deleteSingleMessage('messages',${m.id})">&times;</button>`;
       return `<div class="msg-bubble ${isMine ? 'sent' : 'received'}">${delBtn}<div>${esc(m.content)}</div><div class="msg-meta">${time}</div></div>`;
