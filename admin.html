@@ -1283,13 +1283,6 @@ body.closer-mode .msg-new-btn { display: none !important; }
         <option value="terminale">Terminale</option>
         <option value="reorientation">R&eacute;orientation</option>
       </select>
-      <select class="filter-select" id="filter-source" onchange="applyFilters()">
-        <option value="">Toutes sources</option>
-        <option value="direct">Candidatures directes</option>
-        <option value="direct_LINK">Direct LINK</option>
-        <option value="direct_UCJC">Direct UCJC</option>
-        <option value="direct_UEM">Direct UEM</option>
-      </select>
       <button class="btn-export" onclick="exportCSV()">Exporter CSV</button>
       <button class="btn-export" style="background:var(--orange);" onclick="openAddDossierModal()">+ Ajouter un dossier</button>
     </div>
@@ -1359,11 +1352,32 @@ body.closer-mode .msg-new-btn { display: none !important; }
       <span id="fac-msg-conv-student" style="font-size:11px;color:var(--text-muted);"></span>
     </div>
     <div class="msg-main-body" id="fac-msg-body">
-      <div class="msg-empty-conv">Sélectionnez une conversation ou créez-en une nouvelle</div>
+      <div class="msg-empty-conv" style="max-width:520px;margin:auto;text-align:left;">
+        <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:16px;">💬 Comment fonctionne la messagerie ?</div>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;color:#4b5563;line-height:1.6;">
+          <div style="background:#f5f6fb;border-radius:10px;padding:12px 16px;border-left:3px solid var(--violet);">
+            <strong style="color:var(--violet);">📂 FAC ↔ EDUMOVE</strong><br>
+            Conversations directes avec l'équipe Edumove, sans lien à un étudiant spécifique. Pour des questions générales, administratives, etc.
+          </div>
+          <div style="background:#f5f6fb;border-radius:10px;padding:12px 16px;border-left:3px solid var(--orange);">
+            <strong style="color:var(--orange);">🎓 ÉTUDIANTS ↔ EDUMOVE</strong><br>
+            Messages échangés entre un étudiant et Edumove. Consultation uniquement — vous pouvez tagger @Edumove pour intervenir.
+          </div>
+          <div style="background:#f5f6fb;border-radius:10px;padding:12px 16px;border-left:3px solid #10b981;">
+            <strong style="color:#059669;">🏫 ÉTUDIANTS ↔ UNIVERSITÉ</strong><br>
+            Vos messages directs avec vos étudiants. L'étudiant voit vos messages dans son espace.
+          </div>
+          <div style="background:#ede9fe;border-radius:10px;padding:12px 16px;border-left:3px solid #7c3aed;">
+            <strong style="color:#5b21b6;">🔔 Mentionner @Edumove ou @Fac</strong><br>
+            Dans n'importe quel message, tapez <code style="background:white;padding:1px 6px;border-radius:4px;font-size:12px;">@Edumove</code> ou <code style="background:white;padding:1px 6px;border-radius:4px;font-size:12px;">@LINK</code> / <code style="background:white;padding:1px 6px;border-radius:4px;font-size:12px;">@UCJC</code> / <code style="background:white;padding:1px 6px;border-radius:4px;font-size:12px;">@UE</code> pour alerter la partie concernée. Une notification email est envoyée automatiquement. <strong>Invisible pour l'étudiant.</strong>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="msg-main-footer" id="fac-msg-footer" style="display:none;">
       <textarea id="fac-msg-input" placeholder="Écrire un message..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendFacMessage();}"></textarea>
       <button onclick="sendFacMessage()">Envoyer</button>
+      <div id="fac-msg-footer-hint" style="font-size:11px;color:var(--text-muted,#9ca3af);margin-top:4px;line-height:1.5;display:none;"></div>
     </div>
   </div>
 </div>
@@ -3147,7 +3161,8 @@ function applyFilters() {
   const status = document.getElementById('filter-status').value;
   const profil = document.getElementById('filter-profil').value;
   const uni = document.getElementById('filter-universite').value;
-  const source = document.getElementById('filter-source').value;
+  const sourceEl = document.getElementById('filter-source');
+  const source = sourceEl ? sourceEl.value : '';
 
   filteredCandidatures = allCandidatures.filter(c => {
     // Par défaut : les 3 statuts actifs (en_attente + en_cours + reponse_edumove)
@@ -6048,6 +6063,7 @@ async function selectFacConv(facKey, candidatureId) {
   }
   document.getElementById('fac-msg-conv-student').textContent = studentText;
   document.getElementById('fac-msg-footer').style.display = 'flex';
+  { const _h = document.getElementById('fac-msg-footer-hint'); if (_h) { const _isFac = window.adminRole && window.adminRole !== 'super_admin'; _h.innerHTML = _isFac ? '💡 Tapez <strong>@Edumove</strong> pour alerter l\'équipe — invisible pour l\'étudiant' : '💡 Tapez <strong>@LINK</strong>, <strong>@UCJC</strong> ou <strong>@UE</strong> pour taguer la fac concernée'; _h.style.display = 'block'; } }
 
   // Load messages for this conversation
   await loadFacConvMessages();
