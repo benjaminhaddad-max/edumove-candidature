@@ -430,6 +430,11 @@ body.closer-mode .msg-new-btn { display: none !important; }
   background: white;
 }
 
+/* ── CRM HS FILTER LABELS ── */
+.crm-hs-lbl { display:flex;align-items:center;gap:8px;padding:5px 12px;font-size:11px;cursor:pointer; }
+.crm-hs-lbl:hover { background: var(--bg); }
+.crm-hs-lbl input[type="checkbox"] { width:14px;height:14px;accent-color:var(--violet);flex-shrink:0; }
+
 /* ── BTN VIEW ── */
 .btn-view {
   padding: 8px 20px;
@@ -2925,32 +2930,61 @@ body.closer-mode .msg-new-btn { display: none !important; }
         <option value="Disqualifié">Disqualifié</option>
         <option value="PASS/LAS priorité">PASS/LAS priorité</option>
       </select>
-      <select class="filter-select" id="crm-filter-hs" onchange="filterCRMContacts()" style="min-width:120px;">
-        <option value="">Statut HubSpot — Tous</option>
-        <option value="_exclude_Disqualifié">Exclure Disqualifié</option>
-        <option value="_exclude_NRP1">Exclure NRP1</option>
-        <option value="_exclude_NRP2">Exclure NRP2</option>
-        <option value="Nouveau">Nouveau</option>
-        <option value="En cours">En cours</option>
-        <option value="Disqualifié">Disqualifié</option>
-        <option value="NRP1">NRP1</option>
-        <option value="NRP2">NRP2</option>
-      </select>
+      <div style="position:relative;display:inline-block;">
+        <button class="filter-select" onclick="var d=document.getElementById('crm-hs-dd');d.style.display=d.style.display==='block'?'none':'block'" style="min-width:170px;text-align:left;cursor:pointer;background:white;" id="crm-hs-btn">Statut HubSpot ▾</button>
+        <div id="crm-hs-dd" style="display:none;position:absolute;top:100%;left:0;z-index:300;background:white;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:8px 0;min-width:230px;max-height:360px;overflow-y:auto;margin-top:4px;">
+          <div style="padding:6px 12px 8px;border-bottom:1px solid var(--border-light);display:flex;gap:8px;">
+            <button onclick="document.querySelectorAll('.crm-hs-cb').forEach(c=>c.checked=true);filterCRMContacts()" style="font-size:10px;padding:4px 10px;border:1px solid var(--border);border-radius:4px;background:white;cursor:pointer;font-family:inherit;font-weight:600;">✅ Tout</button>
+            <button onclick="document.querySelectorAll('.crm-hs-cb').forEach(c=>c.checked=false);filterCRMContacts()" style="font-size:10px;padding:4px 10px;border:1px solid var(--border);border-radius:4px;background:white;cursor:pointer;font-family:inherit;font-weight:600;">❌ Aucun</button>
+          </div>
+          <label class="crm-hs-lbl"><input type="checkbox" class="crm-hs-cb" value="Nouveau" checked onchange="filterCRMContacts()"> Nouveau</label>
+          <label class="crm-hs-lbl"><input type="checkbox" class="crm-hs-cb" value="Nouveau - Chaud" checked onchange="filterCRMContacts()"> Nouveau - Chaud</label>
+          <label class="crm-hs-lbl"><input type="checkbox" class="crm-hs-cb" value="En cours" checked onchange="filterCRMContacts()"> En cours</label>
+          <label class="crm-hs-lbl"><input type="checkbox" class="crm-hs-cb" value="Rdv pris" checked onchange="filterCRMContacts()"> Rdv pris</label>
+          <label class="crm-hs-lbl"><input type="checkbox" class="crm-hs-cb" value="A relancer" checked onchange="filterCRMContacts()"> A rappeler</label>
+          <label class="crm-hs-lbl"><input type="checkbox" class="crm-hs-cb" value="A replanifier" checked onchange="filterCRMContacts()"> A replanifier</label>
+          <label class="crm-hs-lbl"><input type="checkbox" class="crm-hs-cb" value="En attente / Réfléchit" checked onchange="filterCRMContacts()"> En attente / Réfléchit</label>
+          <label class="crm-hs-lbl" style="color:#16a34a;font-weight:600;"><input type="checkbox" class="crm-hs-cb" value="Inscrit" checked onchange="filterCRMContacts()"> Pré-inscrit</label>
+          <label class="crm-hs-lbl" style="color:#16a34a;font-weight:600;"><input type="checkbox" class="crm-hs-cb" value="Pré-inscrit 2025/2026" checked onchange="filterCRMContacts()"> Pré-inscrit 2025/2026</label>
+          <label class="crm-hs-lbl" style="color:#16a34a;font-weight:600;"><input type="checkbox" class="crm-hs-cb" value="Pré-inscrit 2026/2027" checked onchange="filterCRMContacts()"> Pré-inscrit 2026/2027</label>
+          <label class="crm-hs-lbl"><input type="checkbox" class="crm-hs-cb" value="A garder pour l'an prochain" checked onchange="filterCRMContacts()"> A garder an prochain</label>
+          <div style="border-top:1px solid var(--border-light);margin:4px 0;padding:2px 12px 0;"><span style="font-size:9px;color:#999;font-weight:600;text-transform:uppercase;">À décocher pour exclure</span></div>
+          <label class="crm-hs-lbl" style="color:#ef4444;"><input type="checkbox" class="crm-hs-cb" value="NRP1" checked onchange="filterCRMContacts()"> NRP1</label>
+          <label class="crm-hs-lbl" style="color:#ef4444;"><input type="checkbox" class="crm-hs-cb" value="NRP2" checked onchange="filterCRMContacts()"> NRP2</label>
+          <label class="crm-hs-lbl" style="color:#ef4444;"><input type="checkbox" class="crm-hs-cb" value="NRP3" checked onchange="filterCRMContacts()"> NRP3</label>
+          <label class="crm-hs-lbl" style="color:#ef4444;"><input type="checkbox" class="crm-hs-cb" value="NRP4" checked onchange="filterCRMContacts()"> NRP4</label>
+          <label class="crm-hs-lbl" style="color:#dc2626;"><input type="checkbox" class="crm-hs-cb" value="Disqualifié" checked onchange="filterCRMContacts()"> Disqualifié</label>
+          <label class="crm-hs-lbl" style="color:#dc2626;"><input type="checkbox" class="crm-hs-cb" value="Mauvais numéro" checked onchange="filterCRMContacts()"> Mauvais/faux numéro</label>
+          <label class="crm-hs-lbl" style="color:#dc2626;"><input type="checkbox" class="crm-hs-cb" value="Raccroche au nez" checked onchange="filterCRMContacts()"> Raccroche au nez</label>
+          <label class="crm-hs-lbl" style="color:#dc2626;"><input type="checkbox" class="crm-hs-cb" value="Autre prépa concurrente" checked onchange="filterCRMContacts()"> Autre prépa</label>
+          <label class="crm-hs-lbl" style="color:#dc2626;"><input type="checkbox" class="crm-hs-cb" value="Doublon" checked onchange="filterCRMContacts()"> Doublon</label>
+          <label class="crm-hs-lbl" style="color:#999;"><input type="checkbox" class="crm-hs-cb" value="" checked onchange="filterCRMContacts()"> (Aucun statut)</label>
+        </div>
+      </div>
       <button class="btn-export" onclick="loadCRMContacts()" style="padding:11px 14px;">🔄</button>
       <button class="btn-export" style="background:var(--orange);padding:11px 14px;" onclick="syncAllToHubSpot()" id="btn-crm-sync">⬆️ Sync</button>
+    </div>
+
+    <!-- BARRE D'ACTIONS BULK (apparaît quand des contacts sont sélectionnés) -->
+    <div id="crm-bulk-bar" style="display:none;background:linear-gradient(135deg,#1b1d3a,#2a2356);border-radius:10px;padding:12px 20px;margin-bottom:16px;display:none;align-items:center;gap:14px;flex-wrap:wrap;">
+      <span style="color:white;font-size:13px;font-weight:600;" id="crm-bulk-count">0 sélectionnés</span>
+      <button onclick="openBulkSmsModal()" style="background:#10b981;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">📱 Envoyer SMS</button>
+      <button onclick="openBulkEmailModal()" style="background:#3b82f6;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">📧 Envoyer Email</button>
+      <button onclick="clearCrmSelection()" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;">✕ Désélectionner</button>
     </div>
 
     <div class="table-wrap">
       <div class="table-container">
         <table style="font-size:12px;">
           <thead><tr>
-            <th style="width:15%;">Nom</th>
-            <th style="width:18%;">Email</th>
-            <th style="width:11%;">Tél</th>
-            <th style="width:12%;">Formulaire</th>
-            <th style="width:12%;">Statut HS</th>
-            <th style="width:14%;">Statut Edumove</th>
-            <th style="width:8%;">Date</th>
+            <th style="width:3%;"><input type="checkbox" id="crm-select-all" onchange="toggleCrmSelectAll(this.checked)" style="cursor:pointer;"/></th>
+            <th style="width:14%;">Nom</th>
+            <th style="width:17%;">Email</th>
+            <th style="width:10%;">Tél</th>
+            <th style="width:11%;">Formulaire</th>
+            <th style="width:11%;">Statut HS</th>
+            <th style="width:13%;">Statut Edumove</th>
+            <th style="width:7%;">Date</th>
           </tr></thead>
           <tbody id="crm-table-body"></tbody>
         </table>
@@ -2962,6 +2996,56 @@ body.closer-mode .msg-new-btn { display: none !important; }
     </div>
     <div id="crm-load-more" style="text-align:center;padding:16px;display:none;">
       <button class="btn-export" onclick="loadMoreCRMContacts()">Charger plus de contacts</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SMS BULK -->
+<div id="bulk-sms-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:none;align-items:center;justify-content:center;" onclick="if(event.target===this)closeBulkSmsModal()">
+  <div style="background:white;border-radius:14px;max-width:520px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);overflow:hidden;">
+    <div style="background:#1b1d3a;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="color:white;font-size:16px;font-weight:700;">📱 Envoyer un SMS</div>
+      <button onclick="closeBulkSmsModal()" style="background:none;border:none;color:white;font-size:20px;cursor:pointer;">&times;</button>
+    </div>
+    <div style="padding:24px;">
+      <div style="font-size:13px;color:#6b7280;margin-bottom:16px;" id="bulk-sms-info">0 destinataires sélectionnés</div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:600;color:#1b1d3a;text-transform:uppercase;letter-spacing:0.04em;">Message SMS</label>
+        <textarea id="bulk-sms-content" rows="4" placeholder="Tapez votre message SMS ici..." style="width:100%;box-sizing:border-box;margin-top:6px;padding:12px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:14px;resize:vertical;outline:none;"></textarea>
+        <div style="font-size:11px;color:#9ca3af;margin-top:4px;">Utilisez <code>{prenom}</code> pour personnaliser. Max 160 caractères recommandé.</div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
+        <button onclick="closeBulkSmsModal()" style="padding:10px 18px;border:1.5px solid #d1d5db;background:white;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">Annuler</button>
+        <button id="bulk-sms-send-btn" onclick="sendBulkSms()" style="padding:10px 22px;border:none;background:#10b981;color:white;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Envoyer les SMS</button>
+      </div>
+      <div id="bulk-sms-result" style="display:none;margin-top:16px;padding:12px;border-radius:8px;font-size:13px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EMAIL BULK -->
+<div id="bulk-email-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:none;align-items:center;justify-content:center;" onclick="if(event.target===this)closeBulkEmailModal()">
+  <div style="background:white;border-radius:14px;max-width:560px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);overflow:hidden;">
+    <div style="background:#1b1d3a;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="color:white;font-size:16px;font-weight:700;">📧 Envoyer un Email</div>
+      <button onclick="closeBulkEmailModal()" style="background:none;border:none;color:white;font-size:20px;cursor:pointer;">&times;</button>
+    </div>
+    <div style="padding:24px;">
+      <div style="font-size:13px;color:#6b7280;margin-bottom:16px;" id="bulk-email-info">0 destinataires sélectionnés</div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:600;color:#1b1d3a;text-transform:uppercase;letter-spacing:0.04em;">Objet</label>
+        <input type="text" id="bulk-email-subject" placeholder="Objet de l'email..." style="width:100%;box-sizing:border-box;margin-top:6px;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:14px;outline:none;"/>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:600;color:#1b1d3a;text-transform:uppercase;letter-spacing:0.04em;">Contenu du mail</label>
+        <textarea id="bulk-email-content" rows="6" placeholder="Tapez le contenu de votre email ici..." style="width:100%;box-sizing:border-box;margin-top:6px;padding:12px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:14px;resize:vertical;outline:none;"></textarea>
+        <div style="font-size:11px;color:#9ca3af;margin-top:4px;">Utilisez <code>{prenom}</code> pour personnaliser. L'email sera envoyé avec le template Edumove.</div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
+        <button onclick="closeBulkEmailModal()" style="padding:10px 18px;border:1.5px solid #d1d5db;background:white;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">Annuler</button>
+        <button id="bulk-email-send-btn" onclick="sendBulkEmail()" style="padding:10px 22px;border:none;background:#3b82f6;color:white;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Envoyer les emails</button>
+      </div>
+      <div id="bulk-email-result" style="display:none;margin-top:16px;padding:12px;border-radius:8px;font-size:13px;"></div>
     </div>
   </div>
 </div>
@@ -7003,6 +7087,15 @@ const CRM_STATUS_COLORS = {
   'PASS/LAS priorité': { bg: '#fffbeb', color: '#d97706', border: '#fde68a' }
 };
 
+// Close HS dropdown on click outside
+document.addEventListener('click', function(e) {
+  const dd = document.getElementById('crm-hs-dd');
+  const wrap = document.getElementById('crm-hs-btn');
+  if (dd && dd.style.display === 'block' && !dd.contains(e.target) && e.target !== wrap) {
+    dd.style.display = 'none';
+  }
+});
+
 function openCRM() {
   document.getElementById('dashboard').classList.remove('active');
   document.getElementById('detail-page').classList.remove('active');
@@ -7085,7 +7178,18 @@ function renderCRMTable() {
   const search = (document.getElementById('crm-search').value || '').toLowerCase().trim();
   const statusFilter = document.getElementById('crm-filter-status').value;
   const formFilter = document.getElementById('crm-filter-form').value;
-  const hsFilter = document.getElementById('crm-filter-hs').value;
+  // HS status filter: get allowed statuses from checkboxes
+  const hsChecked = new Set();
+  document.querySelectorAll('.crm-hs-cb:checked').forEach(cb => hsChecked.add(cb.value));
+  const allHsCbs = document.querySelectorAll('.crm-hs-cb');
+  const hsFilterActive = hsChecked.size < allHsCbs.length; // only filter if some are unchecked
+
+  // Update button label
+  const hsBtn = document.getElementById('crm-hs-btn');
+  if (hsBtn) {
+    const unchecked = allHsCbs.length - hsChecked.size;
+    hsBtn.textContent = unchecked > 0 ? `Statut HS (${unchecked} excl.) ▾` : 'Statut HubSpot ▾';
+  }
 
   let filtered = crmContacts;
   if (search) {
@@ -7095,29 +7199,8 @@ function renderCRMTable() {
   }
   if (formFilter) filtered = filtered.filter(c => c.formName === formFilter);
   if (statusFilter) filtered = filtered.filter(c => c.leadStatus === statusFilter);
-  if (hsFilter) {
-    if (hsFilter.startsWith('_exclude_')) {
-      const excl = hsFilter.replace('_exclude_', '');
-      filtered = filtered.filter(c => c.hsLeadStatus !== excl);
-    } else {
-      filtered = filtered.filter(c => c.hsLeadStatus === hsFilter);
-    }
-  }
-
-  // Populate HS status filter dynamically with actual values
-  const hsSelect = document.getElementById('crm-filter-hs');
-  if (hsSelect && hsSelect.options.length <= 4) {
-    const allHsStatuses = [...new Set(crmContacts.map(c => c.hsLeadStatus).filter(Boolean))].sort();
-    // Clear and rebuild
-    hsSelect.innerHTML = '<option value="">Statut HubSpot — Tous</option>';
-    allHsStatuses.forEach(s => {
-      hsSelect.innerHTML += `<option value="_exclude_${esc(s)}">Exclure "${esc(s)}"</option>`;
-    });
-    hsSelect.innerHTML += '<option disabled>──────────</option>';
-    allHsStatuses.forEach(s => {
-      hsSelect.innerHTML += `<option value="${esc(s)}">${esc(s)}</option>`;
-    });
-    if (hsFilter) hsSelect.value = hsFilter;
+  if (hsFilterActive) {
+    filtered = filtered.filter(c => hsChecked.has(c.hsLeadStatus));
   }
 
   if (filtered.length === 0) {
@@ -7168,6 +7251,7 @@ function renderCRMTable() {
       : '<span style="color:#ccc;font-size:10px;">—</span>';
 
     return `<tr>
+      <td style="padding:10px 6px;text-align:center;"><input type="checkbox" class="crm-row-check" data-id="${c.id}" onchange="updateCrmSelection()" style="cursor:pointer;"/></td>
       <td style="padding:10px 12px;"><div style="font-weight:600;color:var(--navy);font-size:12px;">${esc(c.nom)} ${esc(c.prenom)}</div></td>
       <td style="padding:10px 8px;">${emailDisplay}</td>
       <td style="padding:10px 8px;">${telDisplay}</td>
@@ -7209,6 +7293,134 @@ function updateCRMStats() {
   document.getElementById('crm-stat-candidater').textContent = crmContacts.filter(c => c.leadStatus === 'Va candidater').length;
   document.getElementById('crm-stat-pass').textContent = crmContacts.filter(c => c.leadStatus === 'PASS/LAS priorité').length;
   document.getElementById('crm-stat-disq').textContent = crmContacts.filter(c => c.leadStatus === 'Disqualifié').length;
+}
+
+// ── CRM BULK SELECTION & ACTIONS ──
+let crmSelectedIds = new Set();
+
+function toggleCrmSelectAll(checked) {
+  document.querySelectorAll('.crm-row-check').forEach(cb => { cb.checked = checked; });
+  updateCrmSelection();
+}
+
+function updateCrmSelection() {
+  crmSelectedIds = new Set();
+  document.querySelectorAll('.crm-row-check:checked').forEach(cb => crmSelectedIds.add(cb.dataset.id));
+  const count = crmSelectedIds.size;
+  const bar = document.getElementById('crm-bulk-bar');
+  bar.style.display = count > 0 ? 'flex' : 'none';
+  document.getElementById('crm-bulk-count').textContent = `${count} sélectionné${count > 1 ? 's' : ''}`;
+}
+
+function clearCrmSelection() {
+  document.querySelectorAll('.crm-row-check').forEach(cb => { cb.checked = false; });
+  document.getElementById('crm-select-all').checked = false;
+  crmSelectedIds.clear();
+  document.getElementById('crm-bulk-bar').style.display = 'none';
+}
+
+function getSelectedCrmContacts() {
+  return crmContacts.filter(c => crmSelectedIds.has(c.id));
+}
+
+// ── SMS MODAL ──
+function openBulkSmsModal() {
+  const selected = getSelectedCrmContacts();
+  const withPhone = selected.filter(c => c.tel);
+  document.getElementById('bulk-sms-info').textContent = `${withPhone.length} destinataire${withPhone.length > 1 ? 's' : ''} avec numéro de téléphone (sur ${selected.length} sélectionnés)`;
+  document.getElementById('bulk-sms-content').value = '';
+  document.getElementById('bulk-sms-result').style.display = 'none';
+  document.getElementById('bulk-sms-send-btn').disabled = false;
+  document.getElementById('bulk-sms-overlay').style.display = 'flex';
+}
+function closeBulkSmsModal() { document.getElementById('bulk-sms-overlay').style.display = 'none'; }
+
+async function sendBulkSms() {
+  const message = document.getElementById('bulk-sms-content').value.trim();
+  if (!message) { alert('Veuillez écrire un message.'); return; }
+
+  const selected = getSelectedCrmContacts().filter(c => c.tel);
+  if (!selected.length) { alert('Aucun contact avec numéro de téléphone.'); return; }
+  if (!confirm(`Envoyer ce SMS à ${selected.length} contact${selected.length > 1 ? 's' : ''} ?`)) return;
+
+  const btn = document.getElementById('bulk-sms-send-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Envoi en cours...';
+
+  try {
+    const resp = await fetch('/api/bulk-sms', {
+      method: 'POST', headers: apiHeaders(),
+      body: JSON.stringify({ recipients: selected.map(c => ({ tel: c.tel, prenom: c.prenom })), message })
+    });
+    const data = await resp.json();
+    const resultEl = document.getElementById('bulk-sms-result');
+    if (data.ok) {
+      resultEl.style.display = 'block';
+      resultEl.style.background = '#f0fdf4';
+      resultEl.style.color = '#166534';
+      resultEl.innerHTML = `✅ <strong>${data.results.sent}</strong> SMS envoyé${data.results.sent > 1 ? 's' : ''}${data.results.failed ? ` · <strong>${data.results.failed}</strong> échoué${data.results.failed > 1 ? 's' : ''}` : ''}`;
+    } else {
+      resultEl.style.display = 'block';
+      resultEl.style.background = '#fef2f2';
+      resultEl.style.color = '#991b1b';
+      resultEl.textContent = '❌ ' + (data.reason || data.error || 'Erreur');
+    }
+  } catch (err) {
+    alert('Erreur réseau lors de l\'envoi.');
+  }
+  btn.disabled = false;
+  btn.textContent = 'Envoyer les SMS';
+}
+
+// ── EMAIL MODAL ──
+function openBulkEmailModal() {
+  const selected = getSelectedCrmContacts();
+  const withEmail = selected.filter(c => c.email);
+  document.getElementById('bulk-email-info').textContent = `${withEmail.length} destinataire${withEmail.length > 1 ? 's' : ''} avec email (sur ${selected.length} sélectionnés)`;
+  document.getElementById('bulk-email-subject').value = '';
+  document.getElementById('bulk-email-content').value = '';
+  document.getElementById('bulk-email-result').style.display = 'none';
+  document.getElementById('bulk-email-send-btn').disabled = false;
+  document.getElementById('bulk-email-overlay').style.display = 'flex';
+}
+function closeBulkEmailModal() { document.getElementById('bulk-email-overlay').style.display = 'none'; }
+
+async function sendBulkEmail() {
+  const subject = document.getElementById('bulk-email-subject').value.trim();
+  const content = document.getElementById('bulk-email-content').value.trim();
+  if (!subject || !content) { alert('Veuillez remplir l\'objet et le contenu.'); return; }
+
+  const selected = getSelectedCrmContacts().filter(c => c.email);
+  if (!selected.length) { alert('Aucun contact avec email.'); return; }
+  if (!confirm(`Envoyer cet email à ${selected.length} contact${selected.length > 1 ? 's' : ''} ?`)) return;
+
+  const btn = document.getElementById('bulk-email-send-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Envoi en cours...';
+
+  try {
+    const resp = await fetch('/api/bulk-email', {
+      method: 'POST', headers: apiHeaders(),
+      body: JSON.stringify({ recipients: selected.map(c => ({ email: c.email, prenom: c.prenom })), subject, content })
+    });
+    const data = await resp.json();
+    const resultEl = document.getElementById('bulk-email-result');
+    if (data.ok) {
+      resultEl.style.display = 'block';
+      resultEl.style.background = '#f0fdf4';
+      resultEl.style.color = '#166534';
+      resultEl.innerHTML = `✅ <strong>${data.results.sent}</strong> email${data.results.sent > 1 ? 's' : ''} envoyé${data.results.sent > 1 ? 's' : ''}${data.results.failed ? ` · <strong>${data.results.failed}</strong> échoué${data.results.failed > 1 ? 's' : ''}` : ''}`;
+    } else {
+      resultEl.style.display = 'block';
+      resultEl.style.background = '#fef2f2';
+      resultEl.style.color = '#991b1b';
+      resultEl.textContent = '❌ ' + (data.error || 'Erreur');
+    }
+  } catch (err) {
+    alert('Erreur réseau lors de l\'envoi.');
+  }
+  btn.disabled = false;
+  btn.textContent = 'Envoyer les emails';
 }
 
 // ── SYNC ALL CANDIDATURES TO HUBSPOT ──
