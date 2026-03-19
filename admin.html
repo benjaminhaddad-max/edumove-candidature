@@ -3595,27 +3595,76 @@ function renderDetailPage(c) {
   }
 
   // ── Card 2: NOTES DE PREMIERE ──
-  if (c.notes_premiere && c.notes_premiere.length > 0) {
+  {
+    const _editBtnPrem = _isSA ? `<button class="btn-edit-card" onclick="event.stopPropagation();toggleEditNotes('premiere','${c.id}')">Modifier</button>` : '';
+    const notesPrem = c.notes_premiere || [];
     html += `<div class="detail-card">
-      <div class="detail-card-title collapsed" onclick="toggleCard(this)">Notes de Première</div>
+      <div class="detail-card-title collapsed" onclick="toggleCard(this)">Notes de Première ${_editBtnPrem}</div>
       <div class="detail-card-body collapsed">
-      <table class="notes-table">
+      <div id="notes-premiere-display-${c.id}">
+      ${notesPrem.length > 0 ? `<table class="notes-table">
         <thead><tr><th>Matière</th><th>T1</th><th>T2</th><th>T3</th><th>Moyenne</th></tr></thead>
-        <tbody>${c.notes_premiere.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'\u2014'}</td><td>${n.t2||'\u2014'}</td><td>${n.t3||'\u2014'}</td><td style="font-weight:600;">${n.moy||'\u2014'}</td></tr>`).join('')}</tbody>
-      </table>
+        <tbody>${notesPrem.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'\u2014'}</td><td>${n.t2||'\u2014'}</td><td>${n.t3||'\u2014'}</td><td style="font-weight:600;">${n.moy||'\u2014'}</td></tr>`).join('')}</tbody>
+      </table>` : '<div style="color:#888;font-size:13px;">Aucune note renseignée.</div>'}
+      <div class="detail-item" style="margin-top:8px;"><span class="detail-item-label">Moyenne générale de Première</span><span class="detail-item-value">${c.moyenne_premiere || '\u2014'}</span></div>
+      </div>
+      <div id="notes-premiere-edit-${c.id}" style="display:none;">
+        <table class="notes-table" id="notes-premiere-table-${c.id}">
+          <thead><tr><th>Matière</th><th>T1</th><th>T2</th><th>T3</th><th>Moyenne</th><th></th></tr></thead>
+          <tbody>${(notesPrem.length > 0 ? notesPrem : [{nom:'',t1:'',t2:'',t3:'',moy:''}]).map((n,i) => `<tr>
+            <td><input class="edit-input" style="width:140px;" value="${esc(n.nom||'')}" data-field="nom" data-idx="${i}"></td>
+            <td><input class="edit-input" type="number" step="0.1" style="width:55px;" value="${n.t1||''}" data-field="t1" data-idx="${i}"></td>
+            <td><input class="edit-input" type="number" step="0.1" style="width:55px;" value="${n.t2||''}" data-field="t2" data-idx="${i}"></td>
+            <td><input class="edit-input" type="number" step="0.1" style="width:55px;" value="${n.t3||''}" data-field="t3" data-idx="${i}"></td>
+            <td><input class="edit-input" type="number" step="0.1" style="width:55px;" value="${n.moy||''}" data-field="moy" data-idx="${i}"></td>
+            <td><button onclick="removeNoteRow(this)" style="background:none;border:none;color:#e53935;cursor:pointer;font-size:16px;">✕</button></td>
+          </tr>`).join('')}</tbody>
+        </table>
+        <button onclick="addNoteRow('premiere','${c.id}')" style="margin:8px 0;padding:6px 14px;background:#f5f5f5;border:1px solid #ddd;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit;">+ Ajouter une matière</button>
+        <div style="margin-top:8px;">
+          <span class="detail-item-label">Moyenne générale de Première</span>
+          <input class="edit-input" type="number" step="0.1" style="width:80px;" id="edit-moy-premiere-${c.id}" value="${c.moyenne_premiere||''}">
+        </div>
+        <div class="edit-actions">
+          <button class="btn-cancel-edit" onclick="cancelEditNotes('premiere','${c.id}')">Annuler</button>
+          <button class="btn-save-edit" onclick="saveEditNotes('premiere','${c.id}')">Sauvegarder</button>
+        </div>
+      </div>
       </div>
     </div>`;
   }
 
   // ── Card 3: NOTES DE TERMINALE ──
-  if (c.notes_terminale && c.notes_terminale.length > 0) {
+  {
+    const _editBtnTerm = _isSA ? `<button class="btn-edit-card" onclick="event.stopPropagation();toggleEditNotes('terminale','${c.id}')">Modifier</button>` : '';
+    const notesTerm = c.notes_terminale || [];
     html += `<div class="detail-card">
-      <div class="detail-card-title collapsed" onclick="toggleCard(this)">Notes de Terminale</div>
+      <div class="detail-card-title collapsed" onclick="toggleCard(this)">Notes de Terminale ${_editBtnTerm}</div>
       <div class="detail-card-body collapsed">
-      <table class="notes-table">
+      <div id="notes-terminale-display-${c.id}">
+      ${notesTerm.length > 0 ? `<table class="notes-table">
         <thead><tr><th>Matière</th><th>T1</th><th>T2</th><th>T3</th><th>Moyenne</th></tr></thead>
-        <tbody>${c.notes_terminale.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'\u2014'}</td><td>${n.t2||'\u2014'}</td><td>${n.t3||'\u2014'}</td><td style="font-weight:600;">${n.moy||'\u2014'}</td></tr>`).join('')}</tbody>
-      </table>
+        <tbody>${notesTerm.map(n => `<tr><td style="text-align:left;font-weight:500;">${esc(n.nom)}</td><td>${n.t1||'\u2014'}</td><td>${n.t2||'\u2014'}</td><td>${n.t3||'\u2014'}</td><td style="font-weight:600;">${n.moy||'\u2014'}</td></tr>`).join('')}</tbody>
+      </table>` : '<div style="color:#888;font-size:13px;">Aucune note renseignée.</div>'}
+      </div>
+      <div id="notes-terminale-edit-${c.id}" style="display:none;">
+        <table class="notes-table" id="notes-terminale-table-${c.id}">
+          <thead><tr><th>Matière</th><th>T1</th><th>T2</th><th>T3</th><th>Moyenne</th><th></th></tr></thead>
+          <tbody>${(notesTerm.length > 0 ? notesTerm : [{nom:'',t1:'',t2:'',t3:'',moy:''}]).map((n,i) => `<tr>
+            <td><input class="edit-input" style="width:140px;" value="${esc(n.nom||'')}" data-field="nom" data-idx="${i}"></td>
+            <td><input class="edit-input" type="number" step="0.1" style="width:55px;" value="${n.t1||''}" data-field="t1" data-idx="${i}"></td>
+            <td><input class="edit-input" type="number" step="0.1" style="width:55px;" value="${n.t2||''}" data-field="t2" data-idx="${i}"></td>
+            <td><input class="edit-input" type="number" step="0.1" style="width:55px;" value="${n.t3||''}" data-field="t3" data-idx="${i}"></td>
+            <td><input class="edit-input" type="number" step="0.1" style="width:55px;" value="${n.moy||''}" data-field="moy" data-idx="${i}"></td>
+            <td><button onclick="removeNoteRow(this)" style="background:none;border:none;color:#e53935;cursor:pointer;font-size:16px;">✕</button></td>
+          </tr>`).join('')}</tbody>
+        </table>
+        <button onclick="addNoteRow('terminale','${c.id}')" style="margin:8px 0;padding:6px 14px;background:#f5f5f5;border:1px solid #ddd;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit;">+ Ajouter une matière</button>
+        <div class="edit-actions">
+          <button class="btn-cancel-edit" onclick="cancelEditNotes('terminale','${c.id}')">Annuler</button>
+          <button class="btn-save-edit" onclick="saveEditNotes('terminale','${c.id}')">Sauvegarder</button>
+        </div>
+      </div>
       </div>
     </div>`;
   }
@@ -3649,21 +3698,41 @@ function renderDetailPage(c) {
   </div>`;
 
   // ── Card 5: LANGUES ──
-  if (c.langues) {
-    const hasLang = ['espagnol','anglais','italien','portugais'].some(l => c.langues[l]) || c.langues.autre;
-    if (hasLang) {
-      html += `<div class="detail-card">
-        <div class="detail-card-title collapsed" onclick="toggleCard(this)">Langues</div>
-        <div class="detail-card-body collapsed">
-        <div class="detail-grid">
-          ${['espagnol','anglais','italien','portugais'].map(l =>
-            c.langues[l] ? `<div class="detail-item"><span class="detail-item-label">${l.charAt(0).toUpperCase()+l.slice(1)}</span><span class="detail-item-value">${langLabels[c.langues[l]] || c.langues[l]}</span></div>` : ''
-          ).join('')}
-          ${c.langues.autre ? `<div class="detail-item"><span class="detail-item-label">Autre langue</span><span class="detail-item-value">${esc(c.langues.autre)}</span></div>` : ''}
-        </div>
-        </div>
-      </div>`;
-    }
+  {
+    const _editBtnLang = _isSA ? `<button class="btn-edit-card" onclick="event.stopPropagation();toggleEditLangues('${c.id}')">Modifier</button>` : '';
+    const _langs = c.langues || {};
+    const _langOpts = [
+      { val:'', label:'Non renseigné' },
+      { val:'aucun', label:'Aucun' },
+      { val:'debut', label:'A1-A2 / Débutant' },
+      { val:'b1', label:'B1 / Intermédiaire' },
+      { val:'b2', label:'B2+ / Avancé' }
+    ];
+    html += `<div class="detail-card">
+      <div class="detail-card-title collapsed" onclick="toggleCard(this)">Langues ${_editBtnLang}</div>
+      <div class="detail-card-body collapsed">
+      <div id="langues-display-${c.id}">
+      <div class="detail-grid">
+        ${['espagnol','anglais','italien','portugais'].map(l =>
+          `<div class="detail-item"><span class="detail-item-label">${l.charAt(0).toUpperCase()+l.slice(1)}</span><span class="detail-item-value">${langLabels[_langs[l]] || _langs[l] || '\u2014'}</span></div>`
+        ).join('')}
+        ${_langs.autre ? `<div class="detail-item"><span class="detail-item-label">Autre langue</span><span class="detail-item-value">${esc(_langs.autre)}</span></div>` : ''}
+      </div>
+      </div>
+      <div id="langues-edit-${c.id}" style="display:none;">
+      <div class="detail-grid">
+        ${['espagnol','anglais','italien','portugais'].map(l =>
+          `<div class="detail-item"><span class="detail-item-label">${l.charAt(0).toUpperCase()+l.slice(1)}</span><select class="edit-select" id="edit-lang-${l}-${c.id}">${_langOpts.map(o => `<option value="${o.val}" ${(_langs[l]||'')=== o.val?'selected':''}>${o.label}</option>`).join('')}</select></div>`
+        ).join('')}
+        <div class="detail-item"><span class="detail-item-label">Autre langue</span><input class="edit-input" id="edit-lang-autre-${c.id}" value="${esc(_langs.autre || '')}"></div>
+      </div>
+      <div class="edit-actions">
+        <button class="btn-cancel-edit" onclick="cancelEditLangues('${c.id}')">Annuler</button>
+        <button class="btn-save-edit" onclick="saveEditLangues('${c.id}')">Sauvegarder</button>
+      </div>
+      </div>
+      </div>
+    </div>`;
   }
 
   // ── Card 6bis: PRÉVISUALISATION RÉPONSE ÉTUDIANTE ──
@@ -5490,6 +5559,100 @@ async function saveEditOrient(id) {
   if (c) Object.assign(c, data);
   renderDetailPage(c);
   applyFilters();
+}
+
+// ══════════════════════════════════════════
+// INLINE EDIT — Notes (Premiere / Terminale)
+// ══════════════════════════════════════════
+function toggleEditNotes(type, id) {
+  const display = document.getElementById('notes-' + type + '-display-' + id);
+  const edit = document.getElementById('notes-' + type + '-edit-' + id);
+  if (!display || !edit) return;
+  const showing = edit.style.display !== 'none';
+  display.style.display = showing ? '' : 'none';
+  edit.style.display = showing ? 'none' : '';
+}
+function cancelEditNotes(type, id) {
+  const c = allCandidatures.find(x => x.id === id);
+  if (c) renderDetailPage(c);
+}
+
+function addNoteRow(type, id) {
+  const tbody = document.querySelector('#notes-' + type + '-table-' + id + ' tbody');
+  const idx = tbody.rows.length;
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td><input class="edit-input" style="width:140px;" value="" data-field="nom" data-idx="${idx}"></td>
+    <td><input class="edit-input" type="number" step="0.1" style="width:55px;" value="" data-field="t1" data-idx="${idx}"></td>
+    <td><input class="edit-input" type="number" step="0.1" style="width:55px;" value="" data-field="t2" data-idx="${idx}"></td>
+    <td><input class="edit-input" type="number" step="0.1" style="width:55px;" value="" data-field="t3" data-idx="${idx}"></td>
+    <td><input class="edit-input" type="number" step="0.1" style="width:55px;" value="" data-field="moy" data-idx="${idx}"></td>
+    <td><button onclick="removeNoteRow(this)" style="background:none;border:none;color:#e53935;cursor:pointer;font-size:16px;">✕</button></td>`;
+  tbody.appendChild(row);
+}
+
+function removeNoteRow(btn) {
+  btn.closest('tr').remove();
+}
+
+async function saveEditNotes(type, id) {
+  const tbody = document.querySelector('#notes-' + type + '-table-' + id + ' tbody');
+  const notes = [];
+  tbody.querySelectorAll('tr').forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    const nom = inputs[0]?.value?.trim();
+    if (!nom) return; // skip empty rows
+    notes.push({
+      nom: nom,
+      t1: inputs[1]?.value || '',
+      t2: inputs[2]?.value || '',
+      t3: inputs[3]?.value || '',
+      moy: inputs[4]?.value || ''
+    });
+  });
+  const field = type === 'premiere' ? 'notes_premiere' : 'notes_terminale';
+  const data = { [field]: notes };
+  // Also save moyenne_premiere if editing premiere
+  if (type === 'premiere') {
+    const moyEl = document.getElementById('edit-moy-premiere-' + id);
+    if (moyEl) data.moyenne_premiere = moyEl.value ? parseFloat(moyEl.value) : null;
+  }
+  const { error } = await supabase.from('candidatures').update(data).eq('id', id);
+  if (error) { alert('Erreur: ' + error.message); return; }
+  const c = allCandidatures.find(x => x.id === id);
+  if (c) Object.assign(c, data);
+  renderDetailPage(c);
+}
+
+// ══════════════════════════════════════════
+// INLINE EDIT — Langues
+// ══════════════════════════════════════════
+function toggleEditLangues(id) {
+  const display = document.getElementById('langues-display-' + id);
+  const edit = document.getElementById('langues-edit-' + id);
+  if (!display || !edit) return;
+  const showing = edit.style.display !== 'none';
+  display.style.display = showing ? '' : 'none';
+  edit.style.display = showing ? 'none' : '';
+}
+function cancelEditLangues(id) {
+  const c = allCandidatures.find(x => x.id === id);
+  if (c) renderDetailPage(c);
+}
+
+async function saveEditLangues(id) {
+  const langues = {};
+  ['espagnol','anglais','italien','portugais'].forEach(l => {
+    const val = document.getElementById('edit-lang-' + l + '-' + id)?.value;
+    if (val) langues[l] = val;
+  });
+  const autre = document.getElementById('edit-lang-autre-' + id)?.value?.trim();
+  if (autre) langues.autre = autre;
+  const { error } = await supabase.from('candidatures').update({ langues }).eq('id', id);
+  if (error) { alert('Erreur: ' + error.message); return; }
+  const c = allCandidatures.find(x => x.id === id);
+  if (c) c.langues = langues;
+  renderDetailPage(c);
 }
 
 function exportGuidePDF() {
