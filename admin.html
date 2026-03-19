@@ -4411,7 +4411,6 @@ function admin_buildPreviewSection(c, candidatureId) {
   // Confirm button
   html += '<div style="padding:12px 0;display:flex;gap:10px;">';
   html += '<button onclick="adminConfirmSelections(\'' + candidatureId + '\')" style="padding:10px 20px;background:#615ca5;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;"' + (!hasSel?' disabled style="padding:10px 20px;background:#ccc;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:not-allowed;font-family:inherit;"':'') + '>Confirmer les sélections pour cet étudiant</button>';
-  html += '<button onclick="adminRegeneratePreview(\'' + candidatureId + '\')" style="padding:10px 20px;background:white;color:#615ca5;border:1.5px solid #615ca5;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">🔄 Régénérer</button>';
   html += '</div>';
 
   return html;
@@ -4560,19 +4559,7 @@ async function adminConfirmSelections(candidatureId) {
   viewDetail(candidatureId);
 }
 
-function adminRegeneratePreview(candidatureId) {
-  adminPreviewSelections = { LINK: null, UCJC: null, UE: null };
-  const c = allCandidatures.find(x => x.id === candidatureId);
-  if (!c) return;
-  // If existing selections, pre-populate
-  if (c.uni_selections) {
-    const sel = c.uni_selections;
-    if (sel.LINK) adminPreviewSelections.LINK = { ...sel.LINK };
-    if (sel.UCJC) adminPreviewSelections.UCJC = { ...sel.UCJC };
-    if (sel.UE) adminPreviewSelections.UE = { ...sel.UE };
-  }
-  const container = document.querySelector('#detail-cards [id^="admprev-container-"]');
-  if (container) container.innerHTML = admin_buildPreviewSection(c, candidatureId);
+// adminRegeneratePreview removed — renderDetailPage already rebuilds the preview
 }
 
 // ══════════════════════════════════════════
