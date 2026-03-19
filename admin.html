@@ -3035,6 +3035,9 @@ function applyRoleRestrictions() {
     return;
   }
 
+  // Hide guide button for fac users
+  document.getElementById('btn-guide').style.display = 'none';
+
   // Hide add dossier button and export CSV for fac users
   document.querySelectorAll('.btn-export').forEach(btn => btn.style.display = 'none');
 
