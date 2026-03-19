@@ -3276,6 +3276,21 @@ async function sendMessage() {
     });
     if (error) throw error;
     input.value = '';
+
+    // Notifier admissions@edumove.fr
+    const c = candidatureData || {};
+    fetch('/api/notify-student-message', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prenom: c.prenom || '',
+        nom: c.nom || '',
+        email: c.email || currentUser?.email || '',
+        content: text,
+        candidatureId
+      })
+    }).catch(e => console.warn('Email notification failed:', e));
+
   } catch (err) {
     console.error('Message error:', err);
     alert('Erreur lors de l\'envoi du message.');
