@@ -3053,6 +3053,14 @@ function applyRoleRestrictions() {
   const profilFilter = document.getElementById('filter-profil');
   if (profilFilter) profilFilter.style.display = 'none';
 
+  // Hide university filter and force to own uni
+  const uniFilter = document.getElementById('filter-universite');
+  if (uniFilter) {
+    const facUniMap = { fac_link: 'LINK', fac_ucjc: 'UCJC', fac_ue: 'UE' };
+    uniFilter.value = facUniMap[role] || '';
+    uniFilter.style.display = 'none';
+  }
+
   // Update title
   const titleMap = { fac_link: 'LINK Campus University', fac_ucjc: 'UCJC Madrid', fac_ue: 'Universidad Europea' };
   document.querySelector('.dash-title').textContent = titleMap[role] || 'Tableau de bord';
