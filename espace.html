@@ -1575,9 +1575,10 @@ async function requestCallback() {
     }).eq('id', candidatureId);
     await supabase.from('messages').insert({
       candidature_id: candidatureId,
-      user_id: currentUser.id,
-      content: '📞 Je souhaite etre rappele(e) pour discuter de ma recommandation EDUMOVE.',
-      sender: 'etudiant'
+      sender_id: currentUser.id,
+      sender_role: 'student',
+      sender_name: candidatureData?.prenom || 'Étudiant',
+      content: '📞 Je souhaite etre rappele(e) pour discuter de ma recommandation EDUMOVE.'
     });
 
     // Notification email Brevo → équipe Edumove (non-bloquant)
@@ -3225,9 +3226,10 @@ async function loadMessages() {
     emptyEl.style.display = 'none';
     msgs.forEach(msg => {
       const div = document.createElement('div');
-      div.className = 'message message-' + msg.sender;
+      const role = msg.sender_role || msg.sender || 'student';
+      div.className = 'message message-' + (role === 'admin' ? 'admin' : 'etudiant');
       let inner = '';
-      if (msg.sender === 'admin') {
+      if (role === 'admin') {
         inner += `<div class="message-sender">Equipe EDUMOVE</div>`;
       }
       inner += `<div>${esc(msg.content)}</div>`;
@@ -3265,12 +3267,14 @@ async function sendMessage() {
   btn.disabled = true;
 
   try {
-    await supabase.from('messages').insert({
+    const { error } = await supabase.from('messages').insert({
       candidature_id: candidatureId,
-      user_id: currentUser.id,
-      content: text,
-      sender: 'etudiant'
+      sender_id: currentUser.id,
+      sender_role: 'student',
+      sender_name: candidatureData?.prenom || 'Étudiant',
+      content: text
     });
+    if (error) throw error;
     input.value = '';
   } catch (err) {
     console.error('Message error:', err);
