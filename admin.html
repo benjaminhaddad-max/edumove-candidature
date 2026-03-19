@@ -1188,6 +1188,7 @@ body.closer-mode .msg-new-btn { display: none !important; }
   </div>
   <div class="header-right" id="header-right" style="display:none;">
     <button class="header-nav-btn" onclick="openFacMessaging()" id="btn-fac-messaging" style="display:none;position:relative;">💬 Messagerie<span id="msg-unread-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#e53935;color:white;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:none;align-items:center;justify-content:center;padding:0 4px;"></span></button>
+    <button class="header-nav-btn" onclick="openCRM()" id="btn-crm" style="display:none;">📇 CRM</button>
     <button class="header-nav-btn" onclick="openGuide()" id="btn-guide" style="display:none;">📖 Guide</button>
     <button class="header-nav-btn" onclick="backToDashboard()" id="btn-back-dashboard" style="display:none;">📋 Dossiers</button>
     <span class="header-user" id="header-user"></span>
@@ -2893,6 +2894,59 @@ body.closer-mode .msg-new-btn { display: none !important; }
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════
+     CRM PAGE
+══════════════════════════════════════════ -->
+<div id="crm-page" class="dashboard">
+  <div class="dash-content">
+    <h1 class="dash-title">📇 CRM HubSpot</h1>
+    <div class="dash-subtitle">Contacts Edumove — Gestion des leads</div>
+
+    <div class="stats-row" id="crm-stats">
+      <div class="stat-card" style="border-top:4px solid var(--violet);"><div class="stat-label">Total contacts</div><div class="stat-value" id="crm-stat-total" style="color:var(--violet);">—</div></div>
+      <div class="stat-card" style="border-top:4px solid #10b981;"><div class="stat-label">Va candidater</div><div class="stat-value" id="crm-stat-candidater" style="color:#10b981;">—</div></div>
+      <div class="stat-card" style="border-top:4px solid #f59e0b;"><div class="stat-label">PASS/LAS priorité</div><div class="stat-value" id="crm-stat-pass" style="color:#f59e0b;">—</div></div>
+      <div class="stat-card" style="border-top:4px solid #ef4444;"><div class="stat-label">Disqualifiés</div><div class="stat-value" id="crm-stat-disq" style="color:#ef4444;">—</div></div>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" class="search-input" id="crm-search" placeholder="Rechercher un contact..." oninput="filterCRMContacts()"/>
+      <select class="filter-select" id="crm-filter-status" onchange="filterCRMContacts()">
+        <option value="">Tous les statuts</option>
+        <option value="Nouveau">Nouveau</option>
+        <option value="Va candidater">Va candidater</option>
+        <option value="Veut absolument autre pays">Veut autre pays</option>
+        <option value="Disqualifié">Disqualifié</option>
+        <option value="PASS/LAS priorité">PASS/LAS priorité</option>
+      </select>
+      <button class="btn-export" onclick="loadCRMContacts()">🔄 Actualiser</button>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-container">
+        <table>
+          <thead><tr>
+            <th>Nom — Prénom</th>
+            <th>Email</th>
+            <th>Téléphone</th>
+            <th>Statut lead</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr></thead>
+          <tbody id="crm-table-body"></tbody>
+        </table>
+      </div>
+      <div id="crm-empty" class="empty-state" style="display:none;">
+        <div class="empty-state-icon">📇</div>
+        <p>Chargement des contacts HubSpot...</p>
+      </div>
+    </div>
+    <div id="crm-load-more" style="text-align:center;padding:16px;display:none;">
+      <button class="btn-export" onclick="loadMoreCRMContacts()">Charger plus de contacts</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ══════════════════════════════════════════
 // STATE
@@ -3074,6 +3128,10 @@ function applyRoleRestrictions() {
   // Show messaging and guide buttons for all roles
   document.getElementById('btn-fac-messaging').style.display = '';
   document.getElementById('btn-guide').style.display = '';
+  // CRM only for super_admin
+  if (role === 'super_admin') {
+    document.getElementById('btn-crm').style.display = '';
+  }
   if (role === 'super_admin') return; // Full access
 
   if (role === 'closer') {
@@ -4274,9 +4332,11 @@ function backToList() {
   document.getElementById('detail-page').classList.remove('active');
   document.getElementById('guide-page').classList.remove('active');
   document.getElementById('fac-msg-page').classList.remove('active');
+  document.getElementById('crm-page').classList.remove('active');
   document.getElementById('dashboard').classList.add('active');
   document.getElementById('btn-fac-messaging').style.display = '';
   document.getElementById('btn-guide').style.display = '';
+  if (window.adminRole === 'super_admin') document.getElementById('btn-crm').style.display = '';
   document.getElementById('btn-back-dashboard').style.display = 'none';
   // Re-apply role restrictions (hide guide/filters for fac)
   if (window.adminRole && window.adminRole !== 'super_admin' && window.adminRole !== 'closer') {
@@ -6906,6 +6966,175 @@ async function createNewConversation() {
   closeNewConvModal();
   await loadFacConversations();
   selectFacConv(facKey, candidatureId);
+}
+
+// ══════════════════════════════════════════
+// CRM — HUBSPOT CONTACTS
+// ══════════════════════════════════════════
+let crmContacts = [];
+let crmAfterCursor = null;
+let crmHasMore = false;
+
+const CRM_LEAD_STATUSES = ['Nouveau', 'Va candidater', 'Veut absolument autre pays', 'Disqualifié', 'PASS/LAS priorité'];
+const CRM_STATUS_COLORS = {
+  'Nouveau': { bg: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe' },
+  'Va candidater': { bg: '#ecfdf5', color: '#059669', border: '#a7f3d0' },
+  'Veut absolument autre pays': { bg: '#fff7ed', color: '#c2410c', border: '#fed7aa' },
+  'Disqualifié': { bg: '#fef2f2', color: '#dc2626', border: '#fecaca' },
+  'PASS/LAS priorité': { bg: '#fffbeb', color: '#d97706', border: '#fde68a' }
+};
+
+function openCRM() {
+  document.getElementById('dashboard').classList.remove('active');
+  document.getElementById('detail-page').classList.remove('active');
+  document.getElementById('guide-page').classList.remove('active');
+  document.getElementById('fac-msg-page').classList.remove('active');
+  document.getElementById('crm-page').classList.add('active');
+  document.getElementById('btn-fac-messaging').style.display = 'none';
+  document.getElementById('btn-crm').style.display = 'none';
+  document.getElementById('btn-guide').style.display = 'none';
+  document.getElementById('btn-back-dashboard').style.display = '';
+  if (crmContacts.length === 0) loadCRMContacts();
+}
+
+// Update backToDashboard to handle CRM page
+const _origBackToDash = backToDashboard;
+backToDashboard = function() {
+  document.getElementById('crm-page').classList.remove('active');
+  document.getElementById('btn-crm').style.display = '';
+  _origBackToDash();
+};
+
+async function crmApiCall(body) {
+  const res = await fetch('/api/hubspot-contacts', {
+    method: 'POST',
+    headers: apiHeaders(),
+    body: JSON.stringify(body)
+  });
+  return res.json();
+}
+
+async function loadCRMContacts() {
+  const tbody = document.getElementById('crm-table-body');
+  const empty = document.getElementById('crm-empty');
+  empty.style.display = 'block';
+  empty.querySelector('p').textContent = '⏳ Chargement des contacts HubSpot...';
+  tbody.innerHTML = '';
+
+  try {
+    const data = await crmApiCall({ action: 'list' });
+    crmContacts = data.contacts || [];
+    crmAfterCursor = data.after;
+    crmHasMore = data.hasMore;
+    renderCRMTable();
+    updateCRMStats();
+  } catch (err) {
+    console.error('CRM load error:', err);
+    empty.querySelector('p').textContent = '❌ Erreur de chargement des contacts';
+    empty.style.display = 'block';
+  }
+}
+
+async function loadMoreCRMContacts() {
+  if (!crmAfterCursor) return;
+  try {
+    const data = await crmApiCall({ action: 'list', after: crmAfterCursor });
+    crmContacts = crmContacts.concat(data.contacts || []);
+    crmAfterCursor = data.after;
+    crmHasMore = data.hasMore;
+    renderCRMTable();
+    updateCRMStats();
+  } catch (err) { console.error('CRM load more error:', err); }
+}
+
+function filterCRMContacts() { renderCRMTable(); }
+
+function renderCRMTable() {
+  const tbody = document.getElementById('crm-table-body');
+  const empty = document.getElementById('crm-empty');
+  const loadMore = document.getElementById('crm-load-more');
+  const search = (document.getElementById('crm-search').value || '').toLowerCase().trim();
+  const statusFilter = document.getElementById('crm-filter-status').value;
+
+  let filtered = crmContacts;
+  if (search) {
+    filtered = filtered.filter(c =>
+      `${c.nom} ${c.prenom} ${c.email} ${c.tel}`.toLowerCase().includes(search)
+    );
+  }
+  if (statusFilter) {
+    filtered = filtered.filter(c => c.leadStatus === statusFilter);
+  }
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.querySelector('p').textContent = search || statusFilter ? '🔍 Aucun contact trouvé' : '📇 Aucun contact HubSpot';
+    empty.style.display = 'block';
+    loadMore.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  loadMore.style.display = crmHasMore ? '' : 'none';
+
+  tbody.innerHTML = filtered.map(c => {
+    const date = c.createdAt ? new Date(c.createdAt).toLocaleDateString('fr-FR') : '—';
+    const st = c.leadStatus || '';
+    const stStyle = CRM_STATUS_COLORS[st] || { bg: '#f1f5f9', color: '#64748b', border: '#e2e8f0' };
+    const statusBadge = st
+      ? `<span style="display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:${stStyle.bg};color:${stStyle.color};border:1px solid ${stStyle.border};white-space:nowrap;">${esc(st)}</span>`
+      : '<span style="color:var(--text-muted);font-size:11px;">—</span>';
+
+    const statusOptions = CRM_LEAD_STATUSES.map(s =>
+      `<option value="${esc(s)}" ${s === st ? 'selected' : ''}>${esc(s)}</option>`
+    ).join('');
+
+    const telDisplay = c.tel ? `<a href="tel:${esc(c.tel)}" style="color:var(--violet);text-decoration:none;font-weight:500;">${esc(c.tel)}</a>` : '<span style="color:var(--text-muted);">—</span>';
+    const emailDisplay = c.email ? `<a href="mailto:${esc(c.email)}" style="color:var(--text);text-decoration:none;">${esc(c.email)}</a>` : '—';
+
+    // Link to candidature if exists
+    const candLink = c.candidatureId ? `<button class="btn-view" style="padding:5px 12px;font-size:10px;" onclick="event.stopPropagation();backToDashboard();setTimeout(()=>viewDetail('${esc(c.candidatureId)}'),100)">📋 Dossier</button>` : '';
+
+    return `<tr>
+      <td><div class="td-name">${esc(c.nom)} ${esc(c.prenom)}</div></td>
+      <td style="font-size:12px;">${emailDisplay}</td>
+      <td>${telDisplay}</td>
+      <td>
+        <select class="status-select" onchange="updateCRMLeadStatus('${c.id}', this.value)" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:600;border:1.5px solid var(--border);font-family:inherit;cursor:pointer;">
+          <option value="">— Choisir —</option>
+          ${statusOptions}
+        </select>
+      </td>
+      <td class="td-date">${date}</td>
+      <td><div class="td-actions">${candLink}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+async function updateCRMLeadStatus(contactId, status) {
+  try {
+    await crmApiCall({
+      action: 'update',
+      contactId,
+      properties: { edumove_lead_status: status }
+    });
+    // Update local data
+    const c = crmContacts.find(x => x.id === contactId);
+    if (c) c.leadStatus = status;
+    updateCRMStats();
+    // Visual feedback
+    const sel = document.querySelector(`select[onchange*="${contactId}"]`);
+    if (sel) { sel.style.borderColor = '#10b981'; setTimeout(() => sel.style.borderColor = '', 1500); }
+  } catch (err) {
+    console.error('CRM update error:', err);
+    alert('Erreur lors de la mise à jour du statut');
+  }
+}
+
+function updateCRMStats() {
+  document.getElementById('crm-stat-total').textContent = crmContacts.length;
+  document.getElementById('crm-stat-candidater').textContent = crmContacts.filter(c => c.leadStatus === 'Va candidater').length;
+  document.getElementById('crm-stat-pass').textContent = crmContacts.filter(c => c.leadStatus === 'PASS/LAS priorité').length;
+  document.getElementById('crm-stat-disq').textContent = crmContacts.filter(c => c.leadStatus === 'Disqualifié').length;
 }
 </script>
 
