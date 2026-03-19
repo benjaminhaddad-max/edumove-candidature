@@ -271,7 +271,7 @@ tr:last-child td { border-bottom: none; }
 
 /* ── STATUS BADGES ── */
 .status-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; white-space: nowrap; }
-.status-en_attente { background: var(--warning-bg); color: #92400e; }
+.status-en_attente { background: #fef2f2; color: #991b1b; }
 .status-en_cours { background: var(--violet-bg); color: var(--violet); }
 .status-reponse_edumove { background: #dbeafe; color: #1d4ed8; }
 .status-dossier_soumis { background: #f3e8ff; color: #7c3aed; }
@@ -1287,7 +1287,7 @@ body.closer-mode .msg-new-btn { display: none !important; }
       </select>
       <select class="filter-select" id="filter-status" onchange="applyFilters()">
         <option value="">Tous statuts actifs</option>
-        <option value="en_attente">Nouveaux dossiers</option>
+        <option value="en_attente">Candidature non d&eacute;pos&eacute;e</option>
         <option value="en_cours">En cours de traitement</option>
         <option value="reponse_edumove">R&eacute;ponse Edumove</option>
         <option value="archive">Archiv&eacute;s / Termin&eacute;s</option>
@@ -3273,7 +3273,7 @@ function renderTable() {
   }
   empty.style.display = 'none';
 
-  const statusLabels = { en_attente: 'Nouveau', en_cours: 'En cours', reponse_edumove: 'R\u00e9ponse Edumove', archive: 'Archiv\u00e9' };
+  const statusLabels = { en_attente: 'Candidature non d\u00e9pos\u00e9e', en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', archive: 'Archiv\u00e9' };
   const filiereLabels = { medecine: 'M\u00e9decine', dentaire: 'Dentaire', kine: 'Kin\u00e9sith\u00e9rapie', pharmacie: 'Pharmacie', veterinaire: 'V\u00e9t\u00e9rinaire', prepa_dentaire: 'Pr\u00e9pa Dentaire' };
   const trackLabels = { en_attente: 'En attente', dossier_envoye: 'Envoy\u00e9', test_paye: 'Test pay\u00e9', test_passe: 'Test pass\u00e9', tests_passes: 'Tests pass\u00e9s', entretien_planifie: 'Entretien', entretien_passe: 'Entretien OK', accepte: 'Accept\u00e9', acompte_verse: 'Acompte', refuse: 'Refus\u00e9', inscrit: 'Inscrit', autre_agence: 'Autre agence' };
   const trackColors = { en_attente: '#999', dossier_envoye: '#1565c0', test_paye: '#6a1b9a', test_passe: '#6a1b9a', tests_passes: '#6a1b9a', entretien_planifie: '#e65100', entretien_passe: '#e65100', accepte: '#2e7d32', acompte_verse: '#2e7d32', refuse: '#d32f2f', inscrit: '#1b5e20', autre_agence: '#795548' };
@@ -3627,7 +3627,7 @@ function viewDetail(id) {
 }
 
 function renderDetailPage(c) {
-  const statusLabels = { en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', archive: 'Archiv\u00e9' };
+  const statusLabels = { en_attente: 'Candidature non d\u00e9pos\u00e9e', en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', archive: 'Archiv\u00e9' };
   const langLabels = { b2: 'B2+ / Bilingue', b1: 'B1 / Intermédiaire', debut: 'A1/A2 / Débutant', aucun: 'Aucun' };
   const filiereLabels = { medecine: 'M\u00e9decine', dentaire: 'Dentaire', kinesitherapie: 'Kin\u00e9sith\u00e9rapie', kine: 'Kin\u00e9sith\u00e9rapie', pharmacie: 'Pharmacie', veterinaire: 'V\u00e9t\u00e9rinaire', prepa_dentaire: 'Pr\u00e9pa Dentaire' };
 
@@ -3660,7 +3660,7 @@ function renderDetailPage(c) {
   // Status select - only 2 global statuses (super_admin only)
   const statusSelect = document.getElementById('detail-page-status-select');
   if (window.adminRole === 'super_admin' || !window.adminRole) {
-    statusSelect.innerHTML = '<option value="en_cours" ' + (c.status === 'en_cours' ? 'selected' : '') + '>En cours de traitement</option><option value="reponse_edumove" ' + (c.status === 'reponse_edumove' ? 'selected' : '') + '>R\u00e9ponse Edumove</option>';
+    statusSelect.innerHTML = '<option value="en_attente" ' + (c.status === 'en_attente' ? 'selected' : '') + '>Candidature non d\u00e9pos\u00e9e</option><option value="en_cours" ' + (c.status === 'en_cours' ? 'selected' : '') + '>En cours de traitement</option><option value="reponse_edumove" ' + (c.status === 'reponse_edumove' ? 'selected' : '') + '>R\u00e9ponse Edumove</option>';
     statusSelect.style.display = '';
   } else {
     statusSelect.style.display = 'none';
@@ -4643,6 +4643,90 @@ function admin_buildPreviewSection(c, candidatureId) {
   return html;
 }
 
+// ── ADMIN PREVIEW: DOC ROWS ──
+const _previewDocDefs = {
+  LINK: [
+    { key: 'LINK_formulaire', label: 'Formulaire pré-candidature' },
+    { key: 'LINK_identite', label: "Pièce d'identité" },
+    { key: 'LINK_releves', label: 'Relevé de notes bac' }
+  ],
+  UCJC: [
+    { key: 'UCJC_lettre_motivation', label: 'Lettre de motivation' },
+    { key: 'UCJC_identite', label: "Pièce d'identité" },
+    { key: 'UCJC_formulaire', label: 'Formulaire admission' },
+    { key: 'UCJC_attestation_esp', label: 'Attestation espagnol' }
+  ],
+  UE: [
+    { key: 'UE_bulletins', label: 'Bulletins de Première' },
+    { key: 'UE_identite', label: "Pièce d'identité" },
+    { key: 'UE_rapport_technique', label: 'Rapport technique académique' }
+  ]
+};
+
+function adminBuildDocRows(uniKey, candidatureId) {
+  const c = allCandidatures.find(x => x.id === candidatureId);
+  const docs = c?.documents || {};
+  const defs = _previewDocDefs[uniKey] || [];
+  let h = '<div style="margin-top:10px;padding-top:8px;border-top:1px dashed #ddd;">';
+  h += '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);font-weight:600;margin-bottom:6px;">📄 Documents requis</div>';
+  defs.forEach(({ key, label }) => {
+    const val = docs[key];
+    const safeKey = key.replace(/[^a-zA-Z0-9_]/g, '_');
+    if (typeof val === 'string' && val.startsWith('http')) {
+      h += `<div style="font-size:11px;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <a href="${val}" target="_blank" rel="noopener" style="color:#2e7d32;text-decoration:none;font-weight:500;">✅ ${label}</a>
+        <label for="admprev-doc-${safeKey}" style="cursor:pointer;color:#888;font-size:10px;text-decoration:underline;">remplacer</label>
+        <input type="file" id="admprev-doc-${safeKey}" data-candid="${candidatureId}" data-dockey="${key}" style="display:none" accept=".pdf,.jpg,.jpeg,.png" onchange="adminUploadDocPreview(this,'${uniKey}','${candidatureId}')">
+        <span id="admprev-doc-status-${safeKey}" style="font-size:10px;"></span>
+      </div>`;
+    } else {
+      h += `<div style="font-size:11px;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span style="color:#c62828;">❌ ${label}</span>
+        <label for="admprev-doc-${safeKey}" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:#fff3e0;border:1px solid #ffcc80;border-radius:6px;font-size:10px;font-weight:600;color:#e65100;">
+          📎 Ajouter <input type="file" id="admprev-doc-${safeKey}" data-candid="${candidatureId}" data-dockey="${key}" style="display:none" accept=".pdf,.jpg,.jpeg,.png" onchange="adminUploadDocPreview(this,'${uniKey}','${candidatureId}')">
+        </label>
+        <span id="admprev-doc-status-${safeKey}" style="font-size:10px;"></span>
+      </div>`;
+    }
+  });
+  h += '</div>';
+  return h;
+}
+
+// Upload handler for preview docs — wraps adminUploadDoc then refreshes preview docs
+window.adminUploadDocPreview = async function(inputEl, uniKey, candidatureId) {
+  await window.adminUploadDoc(inputEl);
+  // Refresh doc rows in the sub-section
+  const subEl = document.getElementById('admprev-sub-' + uniKey);
+  if (subEl) {
+    // Keep existing non-doc content (campus/langue chips)
+    const existingDocDiv = subEl.querySelector('[data-preview-docs]');
+    const newHtml = adminBuildDocRows(uniKey, candidatureId);
+    if (existingDocDiv) {
+      existingDocDiv.outerHTML = '<div data-preview-docs>' + newHtml + '</div>';
+    }
+  }
+  // Re-check missing docs to update confirm button
+  adminUpdateSummary(candidatureId);
+};
+
+function adminGetMissingPreviewDocs() {
+  const sel = adminPreviewSelections;
+  const missing = [];
+  ['LINK', 'UCJC', 'UE'].forEach(uni => {
+    if (!sel[uni]) return;
+    if (uni === 'UE' && (!sel.UE.ville || !sel.UE.langue)) return;
+    const c = allCandidatures.find(x => x.id === currentDetailId);
+    const docs = c?.documents || {};
+    (_previewDocDefs[uni] || []).forEach(({ key, label }) => {
+      if (!docs[key] || !(typeof docs[key] === 'string' && docs[key].startsWith('http'))) {
+        missing.push(uni + ' — ' + label);
+      }
+    });
+  });
+  return missing;
+}
+
 // ── ADMIN SELECTION HANDLERS ──
 function adminSelectFiliere(uniKey, filiereId, filiereLabel, candidatureId) {
   const card = document.getElementById('admprev-card-' + uniKey);
@@ -4676,7 +4760,8 @@ function adminSelectFiliere(uniKey, filiereId, filiereLabel, candidatureId) {
     subEl.classList.add('open');
   } else {
     adminPreviewSelections[uniKey] = { filiere: filiereId, filiereLabel: filiereLabel };
-    subEl.classList.remove('open'); subEl.innerHTML = '';
+    subEl.innerHTML = '<div data-preview-docs>' + adminBuildDocRows(uniKey, candidatureId) + '</div>';
+    subEl.classList.add('open');
   }
   adminUpdateSummary(candidatureId);
 }
@@ -4693,6 +4778,7 @@ function adminSelectUEVille(ville, filiereLabel, filiereId, candidatureId) {
       subHtml += '<button class="admprev-sub-chip' + (v===ville?' active':'') + '" onclick="adminSelectUEVille(\'' + v + '\',\'' + filiereLabel + '\',\'' + filiereId + '\',\'' + candidatureId + '\')">' + v + '</button>';
     });
     subHtml += '<div style="font-size:11px;font-weight:600;color:#555;margin:8px 0 6px;">Langue : <strong>' + langues[0] + '</strong></div>';
+    subHtml += '<div data-preview-docs>' + adminBuildDocRows('UE', candidatureId) + '</div>';
     subEl.innerHTML = subHtml;
     adminUpdateSummary(candidatureId);
     return;
@@ -4720,6 +4806,11 @@ function adminSelectUELangue(langue, candidatureId) {
   chips.forEach(c => {
     if (c.textContent === adminPreviewSelections.UE.ville || c.textContent === langue) c.classList.add('active');
   });
+  // Show docs now that ville + langue are selected
+  let existingDocDiv = subEl.querySelector('[data-preview-docs]');
+  const docHtml = '<div data-preview-docs>' + adminBuildDocRows('UE', candidatureId) + '</div>';
+  if (existingDocDiv) existingDocDiv.outerHTML = docHtml;
+  else subEl.insertAdjacentHTML('beforeend', docHtml);
   adminUpdateSummary(candidatureId);
 }
 
@@ -4739,11 +4830,16 @@ function adminUpdateSummary(candidatureId) {
       html += '</div>';
     }
   }
+  // Check missing docs
+  const missingDocs = adminGetMissingPreviewDocs();
+  if (missingDocs.length > 0) {
+    html += '<div style="margin-top:8px;font-size:12px;color:#e65100;line-height:1.6;">⚠️ <strong>Documents manquants :</strong><br>' + missingDocs.map(m => '• ' + m).join('<br>') + '</div>';
+  }
   summaryEl.innerHTML = html;
-  // Enable/disable confirm button
+  // Enable/disable confirm button — need selections AND all docs
   const confirmBtn = summaryEl.parentElement.querySelector('button[onclick*="adminConfirmSelections"]');
   if (confirmBtn) {
-    const complete = sel.LINK || sel.UCJC || (sel.UE && sel.UE.ville && sel.UE.langue);
+    const complete = (sel.LINK || sel.UCJC || (sel.UE && sel.UE.ville && sel.UE.langue)) && missingDocs.length === 0;
     confirmBtn.disabled = !complete;
     confirmBtn.style.background = complete ? '#615ca5' : '#ccc';
     confirmBtn.style.cursor = complete ? 'pointer' : 'not-allowed';
@@ -4755,49 +4851,28 @@ async function adminConfirmSelections(candidatureId) {
   const complete = sel.LINK || sel.UCJC || (sel.UE && sel.UE.ville && sel.UE.langue);
   if (!complete) { alert('Sélectionnez au moins une université avec tous les choix.'); return; }
 
-  // ── Vérifier les documents requis AVANT de confirmer ──
   const c = allCandidatures.find(x => x.id === candidatureId);
-  const docs = c?.documents || {};
-  const missing = [];
 
-  if (sel.LINK) {
-    if (!docs.LINK_formulaire) missing.push('LINK — Formulaire pré-candidature');
-    if (!docs.LINK_identite) missing.push('LINK — Pièce d\'identité');
-    if (!docs.LINK_releves) missing.push('LINK — Relevé de notes bac');
-  }
-  if (sel.UCJC) {
-    if (!docs.UCJC_lettre_motivation) missing.push('UCJC — Lettre de motivation');
-    if (!docs.UCJC_identite) missing.push('UCJC — Pièce d\'identité');
-    if (!docs.UCJC_formulaire) missing.push('UCJC — Formulaire admission');
-  }
-  if (sel.UE && sel.UE.ville && sel.UE.langue) {
-    if (!docs.UE_bulletins) missing.push('UE — Bulletins de Première');
-    if (!docs.UE_identite) missing.push('UE — Pièce d\'identité');
-    if (!docs.UE_rapport_technique) missing.push('UE — Rapport technique académique');
-  }
-
-  if (missing.length > 0) {
-    const forceConfirm = confirm(
-      '⚠️ Documents manquants :\n\n• ' + missing.join('\n• ') +
-      '\n\nVoulez-vous quand même confirmer les sélections sans ces documents ?\n(Les documents pourront être ajoutés après.)'
-    );
-    if (!forceConfirm) return;
-  }
-
-  if (!confirm('Confirmer les sélections pour cet étudiant ?')) return;
+  if (!confirm('Confirmer les sélections et envoyer les dossiers aux universités ?')) return;
 
   const selections = {};
   if (sel.LINK) selections.LINK = { filiere: sel.LINK.filiere, filiereLabel: sel.LINK.filiereLabel };
   if (sel.UCJC) selections.UCJC = { filiere: sel.UCJC.filiere, filiereLabel: sel.UCJC.filiereLabel };
   if (sel.UE && sel.UE.ville && sel.UE.langue) selections.UE = { filiere: sel.UE.filiere, filiereLabel: sel.UE.filiereLabel, ville: sel.UE.ville, langue: sel.UE.langue };
 
-  const existing = Array.isArray(c?.status_history) ? c.status_history : [];
   const now = new Date().toISOString();
-  const adminEmail = currentAdminUser?.email || 'admin';
+
+  // Build uni_tracking updates — auto-advance to "dossier_envoye"
+  const currentTracking = c?.uni_tracking || {};
+  const newTracking = { ...currentTracking };
+  if (sel.LINK) newTracking.LINK_status = 'dossier_envoye';
+  if (sel.UCJC) newTracking.UCJC_status = 'dossier_envoye';
+  if (sel.UE && sel.UE.ville && sel.UE.langue) newTracking.UE_status = 'dossier_envoye';
 
   const { error } = await supabase.from('candidatures').update({
     uni_selections: selections,
-    uni_selections_at: now
+    uni_selections_at: now,
+    uni_tracking: newTracking
   }).eq('id', candidatureId);
 
   if (error) { alert('Erreur : ' + error.message); console.error(error); return; }
@@ -4806,6 +4881,7 @@ async function adminConfirmSelections(candidatureId) {
   if (c) {
     c.uni_selections = selections;
     c.uni_selections_at = now;
+    c.uni_tracking = newTracking;
   }
   await loadCandidatures();
   viewDetail(candidatureId);
@@ -4861,7 +4937,7 @@ function exportCSV() {
 
   const rows = data.map(c => {
     const date = c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '';
-    const statusLabels = { en_cours:'En cours de traitement', reponse_edumove:'R\u00e9ponse Edumove', archive:'Archiv\u00e9' };
+    const statusLabels = { en_attente:'Candidature non d\u00e9pos\u00e9e', en_cours:'En cours de traitement', reponse_edumove:'R\u00e9ponse Edumove', archive:'Archiv\u00e9' };
     return [
       c.nom, c.prenom, c.email, c.tel, c.departement || '', c.profil,
       c.score ? parseFloat(c.score).toFixed(1) : '', c.destination, c.universite, c.niveau,
