@@ -190,33 +190,33 @@ body { margin: 0; font-family: 'Poppins', -apple-system, BlinkMacSystemFont, san
 .dash-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
 
 /* ── STATS CARDS ── */
-.stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; margin-bottom: 28px; }
 .stat-card {
   background: white;
-  padding: 16px 20px;
-  border-radius: var(--radius);
+  padding: 20px 24px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-light);
-  transition: box-shadow 0.2s;
+  transition: all 0.25s ease;
 }
-.stat-card:hover { box-shadow: var(--shadow); }
-.stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 6px; }
-.stat-value { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; color: var(--navy); }
-.stat-card.orange { border-left: 3px solid var(--orange); }
+.stat-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+.stat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 8px; }
+.stat-value { font-size: 32px; font-weight: 800; letter-spacing: -0.03em; color: var(--navy); }
+.stat-card.orange { border-top: 4px solid var(--orange); }
 .stat-card.orange .stat-value { color: var(--orange); }
-.stat-card.violet { border-left: 3px solid var(--violet); }
+.stat-card.violet { border-top: 4px solid var(--violet); }
 .stat-card.violet .stat-value { color: var(--violet); }
-.stat-card.green { border-left: 3px solid var(--success); }
+.stat-card.green { border-top: 4px solid var(--success); }
 .stat-card.green .stat-value { color: var(--success); }
-.stat-card.red { border-left: 3px solid var(--error); }
+.stat-card.red { border-top: 4px solid var(--error); }
 .stat-card.red .stat-value { color: var(--error); }
 
 /* ── TOOLBAR ── */
-.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 20px; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 24px; }
 .search-input {
   flex: 1;
-  min-width: 220px;
-  padding: 10px 14px;
+  min-width: 260px;
+  padding: 11px 16px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
   font-size: 13px;
@@ -224,9 +224,9 @@ body { margin: 0; font-family: 'Poppins', -apple-system, BlinkMacSystemFont, san
   background: white;
   transition: all 0.2s;
 }
-.search-input:focus { outline: none; border-color: var(--violet); box-shadow: 0 0 0 3px rgba(99,102,241,0.08); }
+.search-input:focus { outline: none; border-color: var(--violet); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
 .filter-select {
-  padding: 10px 14px;
+  padding: 11px 16px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
   background: white;
@@ -235,9 +235,11 @@ body { margin: 0; font-family: 'Poppins', -apple-system, BlinkMacSystemFont, san
   color: var(--text);
   cursor: pointer;
   min-width: 140px;
+  transition: border-color 0.2s;
 }
+.filter-select:focus { outline: none; border-color: var(--violet); }
 .btn-export {
-  padding: 10px 18px;
+  padding: 11px 20px;
   background: var(--navy);
   color: white;
   border: none;
@@ -248,79 +250,85 @@ body { margin: 0; font-family: 'Poppins', -apple-system, BlinkMacSystemFont, san
   font-family: inherit;
   transition: all 0.2s;
 }
-.btn-export:hover { background: var(--navy-light); transform: translateY(-1px); }
+.btn-export:hover { background: var(--navy-light); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(27,29,58,0.15); }
 
 /* ── TABLE ── */
-.table-wrap { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); overflow: hidden; }
+.table-wrap { background: white; border-radius: var(--radius-lg); box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 6px 24px rgba(0,0,0,0.06); border: 1px solid var(--border-light); overflow: hidden; }
 .table-container { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
-thead { background: var(--navy); }
-th { padding: 13px 16px; text-align: left; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.9); text-transform: uppercase; letter-spacing: 0.06em; }
-td { padding: 14px 16px; border-bottom: 1px solid var(--border-light); font-size: 13px; vertical-align: middle; }
-tr:hover { background: rgba(99,102,241,0.02); }
+thead { background: linear-gradient(135deg, var(--navy), #2a2356); }
+th { padding: 14px 18px; text-align: left; font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.95); text-transform: uppercase; letter-spacing: 0.07em; }
+td { padding: 16px 18px; border-bottom: 1px solid var(--border-light); font-size: 13px; vertical-align: middle; transition: all 0.15s ease; }
+tbody tr { transition: all 0.15s ease; }
+tbody tr:nth-child(even) { background: rgba(245,245,251,0.5); }
+tbody tr:hover { background: rgba(97,92,165,0.06); }
+tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--violet); }
 tr:last-child td { border-bottom: none; }
-.td-name { font-weight: 600; color: var(--navy); }
+.td-name { font-weight: 700; color: var(--navy); font-size: 14px; letter-spacing: -0.01em; }
 .td-date { color: var(--text-muted); font-size: 12px; }
 
 /* ── UNI BADGES IN TABLE ── */
-.uni-badges { display: flex; gap: 4px; flex-wrap: wrap; }
-.uni-badge { display: inline-block; padding: 3px 8px; border-radius: 5px; font-size: 10px; font-weight: 700; letter-spacing: 0.03em; }
-.uni-badge.link { background: #eef2ff; color: #3730a3; }
-.uni-badge.ucjc { background: #fdf2f8; color: #9d174d; }
-.uni-badge.ue { background: #dbeafe; color: #1e40af; }
+.uni-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.uni-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.02em; }
+.uni-badge.link { background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; }
+.uni-badge.ucjc { background: #fdf2f8; color: #9d174d; border: 1px solid #fbcfe8; }
+.uni-badge.ue { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
 
 /* ── STATUS BADGES ── */
-.status-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; white-space: nowrap; }
-.status-en_attente { background: #fef2f2; color: #991b1b; }
-.status-en_cours { background: var(--violet-bg); color: var(--violet); }
-.status-reponse_edumove { background: #dbeafe; color: #1d4ed8; }
-.status-dossier_soumis { background: #f3e8ff; color: #7c3aed; }
-.status-accepte { background: var(--success-bg); color: #065f46; }
-.status-refuse { background: var(--error-bg); color: #991b1b; }
-.status-abandon { background: #f8fafc; color: #475569; }
-.status-archive { background: #f1f5f9; color: #64748b; }
+.status-badge { display: inline-block; padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.status-en_attente { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+.status-en_cours { background: var(--violet-bg); color: var(--violet); border: 1px solid #c4b5fd; }
+.status-reponse_edumove { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.status-dossier_soumis { background: #f3e8ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+.status-accepte { background: var(--success-bg); color: #065f46; border: 1px solid #a7f3d0; }
+.status-refuse { background: var(--error-bg); color: #991b1b; border: 1px solid #fecaca; }
+.status-abandon { background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
+.status-archive { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
 
 /* ── ARCHIVE / DELETE BUTTONS ── */
 .btn-archive {
-  padding: 6px 12px;
+  padding: 7px 12px;
   background: #f59e0b;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
   transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(245,158,11,0.3);
 }
 .btn-archive:hover { background: #d97706; transform: translateY(-1px); }
 .btn-delete {
-  padding: 6px 12px;
+  padding: 7px 12px;
   background: #ef4444;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
   transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(239,68,68,0.3);
 }
 .btn-delete:hover { background: #dc2626; transform: translateY(-1px); }
 .btn-restore {
-  padding: 6px 12px;
+  padding: 7px 12px;
   background: #10b981;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
   transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(16,185,129,0.3);
 }
 .btn-restore:hover { background: #059669; transform: translateY(-1px); }
-.td-actions { display: flex; gap: 6px; align-items: center; }
+.td-actions { display: flex; gap: 8px; align-items: center; }
 
 /* ── CLOSER (lecture seule) MODE ── */
 body.closer-mode .btn-export,
@@ -424,18 +432,19 @@ body.closer-mode .msg-new-btn { display: none !important; }
 
 /* ── BTN VIEW ── */
 .btn-view {
-  padding: 6px 16px;
+  padding: 8px 20px;
   background: var(--violet);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
   transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(97,92,165,0.2);
 }
-.btn-view:hover { background: var(--violet-hover); transform: translateY(-1px); }
+.btn-view:hover { background: var(--violet-hover); transform: translateY(-1px); box-shadow: 0 4px 8px rgba(97,92,165,0.3); }
 
 /* ── EMPTY STATE ── */
 .empty-state { text-align: center; padding: 60px 20px; }
@@ -1265,9 +1274,9 @@ body.closer-mode .msg-new-btn { display: none !important; }
     <div class="stats-row">
       <div class="stat-card"><div class="stat-label">Total candidatures</div><div class="stat-value" id="stat-total">0</div></div>
       <div class="stat-card violet"><div class="stat-label">En cours</div><div class="stat-value" id="stat-encours">0</div></div>
-      <div class="stat-card" style="border-top:3px solid #1565c0;"><div class="stat-label">R&eacute;ponse Edumove</div><div class="stat-value" id="stat-reponse" style="color:#1565c0;">0</div></div>
+      <div class="stat-card" style="border-top:4px solid #1565c0;"><div class="stat-label">R&eacute;ponse Edumove</div><div class="stat-value" id="stat-reponse" style="color:#1565c0;">0</div></div>
       <div class="stat-card green"><div class="stat-label">Inscrits</div><div class="stat-value" id="stat-inscrit">0</div></div>
-      <div class="stat-card" style="border-top:3px solid #e65100;"><div class="stat-label">Rappels demandés</div><div class="stat-value" id="stat-rappel" style="color:#e65100;">0</div></div>
+      <div class="stat-card" style="border-top:4px solid #e65100;"><div class="stat-label">Rappels demandés</div><div class="stat-value" id="stat-rappel" style="color:#e65100;">0</div></div>
     </div>
 
     <!-- Toolbar -->
@@ -3357,7 +3366,7 @@ function renderTable() {
       const st = tracking[uni + '_status'] || 'en_attente';
       const color = trackColors[st] || '#999';
       const label = trackLabels[st] || st;
-      trackSummary += '<div style="display:flex;align-items:center;gap:4px;font-size:10px;margin-bottom:2px;"><span style="font-weight:600;min-width:32px;">' + uni + '</span><span style="padding:1px 6px;border-radius:4px;background:' + color + '15;color:' + color + ';font-weight:600;font-size:9px;white-space:nowrap;">' + label + '</span></div>';
+      trackSummary += '<div style="display:flex;align-items:center;gap:6px;font-size:11px;margin-bottom:4px;"><span style="font-weight:700;min-width:36px;color:var(--navy);">' + uni + '</span><span style="padding:3px 10px;border-radius:20px;background:' + color + '12;color:' + color + ';border:1px solid ' + color + '30;font-weight:600;font-size:10px;white-space:nowrap;">' + label + '</span></div>';
     });
     if (!trackSummary) trackSummary = '<span style="color:var(--text-muted);font-size:10px;">\u2014</span>';
 
