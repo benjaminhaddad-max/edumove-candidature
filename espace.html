@@ -3218,7 +3218,7 @@ async function loadMessages() {
   const emptyEl = document.getElementById('messages-empty');
 
   const renderMessages = (msgs) => {
-    container.querySelectorAll('.message').forEach(m => m.remove());
+    container.querySelectorAll('.message, [data-optimistic]').forEach(m => m.remove());
     if (!msgs || msgs.length === 0) {
       emptyEl.style.display = 'block';
       return;
@@ -3267,6 +3267,18 @@ async function sendMessage() {
   btn.disabled = true;
 
   try {
+    // Affichage optimiste immédiat
+    const container = document.getElementById('messages-container');
+    document.getElementById('messages-empty').style.display = 'none';
+    const optimistic = document.createElement('div');
+    optimistic.className = 'message message-etudiant';
+    optimistic.dataset.optimistic = '1';
+    const now = new Date();
+    optimistic.innerHTML = `<div>${esc(text)}</div><div class="message-meta">${now.toLocaleDateString('fr-FR')} ${now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>`;
+    container.appendChild(optimistic);
+    container.scrollTop = container.scrollHeight;
+    input.value = '';
+
     const { error } = await supabase.from('messages').insert({
       candidature_id: candidatureId,
       sender_id: currentUser.id,
@@ -3275,7 +3287,6 @@ async function sendMessage() {
       content: text
     });
     if (error) throw error;
-    input.value = '';
 
     // Notifier admissions@edumove.fr
     const c = candidatureData || {};
