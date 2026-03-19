@@ -57,7 +57,7 @@ async function listContacts(req, res, token) {
       filterGroups: [],
       query: search.trim(),
       limit: 100,
-      properties: ['firstname', 'lastname', 'email', 'phone', 'edumove_lead_status', 'edumove_profil', 'edumove_score', 'edumove_destination', 'edumove_candidature_id', 'createdate', 'hs_lead_status', 'lifecyclestage', 'edumove_departement'],
+      properties: ['firstname', 'lastname', 'email', 'phone', 'edumove_lead_status', 'edumove_profil', 'edumove_score', 'edumove_destination', 'edumove_candidature_id', 'createdate', 'hs_lead_status', 'lifecyclestage', 'edumove_departement', 'recent_conversion_event_name', 'hs_analytics_source'],
       sorts: [{ propertyName: 'createdate', direction: 'DESCENDING' }]
     });
     const data = await searchRes.json();
@@ -69,7 +69,7 @@ async function listContacts(req, res, token) {
   }
 
   // Default: list all with pagination
-  let url = '/crm/v3/objects/contacts?limit=100&properties=firstname,lastname,email,phone,edumove_lead_status,edumove_profil,edumove_score,edumove_destination,edumove_candidature_id,createdate,hs_lead_status,lifecyclestage,edumove_departement';
+  let url = '/crm/v3/objects/contacts?limit=100&properties=firstname,lastname,email,phone,edumove_lead_status,edumove_profil,edumove_score,edumove_destination,edumove_candidature_id,createdate,hs_lead_status,lifecyclestage,edumove_departement,recent_conversion_event_name,hs_analytics_source';
   if (after) url += '&after=' + after;
 
   const listRes = await hubFetch(token, 'GET', url);
@@ -89,7 +89,7 @@ async function updateContact(req, res, token) {
   if (!contactId) return safeError(res, 400, 'contactId required');
 
   // Only allow updating specific safe properties
-  const allowed = ['edumove_lead_status', 'hs_lead_status', 'lifecyclestage'];
+  const allowed = ['edumove_lead_status', 'hs_lead_status', 'lifecyclestage', 'edumove_profil'];
   const safeProps = {};
   for (const [key, val] of Object.entries(properties || {})) {
     if (allowed.includes(key)) safeProps[key] = val;
@@ -137,6 +137,8 @@ function formatContact(c) {
     destination: p.edumove_destination || '',
     departement: p.edumove_departement || '',
     candidatureId: p.edumove_candidature_id || '',
+    formName: p.recent_conversion_event_name || '',
+    source: p.hs_analytics_source || '',
     createdAt: p.createdate || ''
   };
 }

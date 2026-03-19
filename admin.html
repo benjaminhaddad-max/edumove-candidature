@@ -2930,9 +2930,9 @@ body.closer-mode .msg-new-btn { display: none !important; }
             <th>Nom — Prénom</th>
             <th>Email</th>
             <th>Téléphone</th>
+            <th>Formulaire</th>
             <th>Statut lead</th>
             <th>Date</th>
-            <th>Actions</th>
           </tr></thead>
           <tbody id="crm-table-body"></tbody>
         </table>
@@ -7023,10 +7023,20 @@ async function loadCRMContacts() {
   tbody.innerHTML = '';
 
   try {
-    const data = await crmApiCall({ action: 'list' });
-    crmContacts = data.contacts || [];
-    crmAfterCursor = data.after;
-    crmHasMore = data.hasMore;
+    crmContacts = [];
+    let after = null;
+    let page = 0;
+    // Auto-paginate to load ALL contacts
+    do {
+      page++;
+      empty.querySelector('p').textContent = `⏳ Chargement... (page ${page})`;
+      const data = await crmApiCall({ action: 'list', after });
+      crmContacts = crmContacts.concat(data.contacts || []);
+      after = data.after;
+      crmHasMore = data.hasMore;
+    } while (crmHasMore && after && page < 50); // safety limit at 5000 contacts
+
+    crmAfterCursor = after;
     renderCRMTable();
     updateCRMStats();
   } catch (err) {
@@ -7095,10 +7105,18 @@ function renderCRMTable() {
     // Link to candidature if exists
     const candLink = c.candidatureId ? `<button class="btn-view" style="padding:5px 12px;font-size:10px;" onclick="event.stopPropagation();backToDashboard();setTimeout(()=>viewDetail('${esc(c.candidatureId)}'),100)">📋 Dossier</button>` : '';
 
+    // Form name display
+    let formDisplay = '—';
+    if (c.formName) {
+      const shortName = c.formName.replace('EDUMOVE - ', '').replace('Form ', '');
+      formDisplay = `<span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;white-space:nowrap;">${esc(shortName)}</span>`;
+    }
+
     return `<tr>
       <td><div class="td-name">${esc(c.nom)} ${esc(c.prenom)}</div></td>
       <td style="font-size:12px;">${emailDisplay}</td>
       <td>${telDisplay}</td>
+      <td>${formDisplay}</td>
       <td>
         <select class="status-select" onchange="updateCRMLeadStatus('${c.id}', this.value)" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:600;border:1.5px solid var(--border);font-family:inherit;cursor:pointer;">
           <option value="">— Choisir —</option>
@@ -7106,7 +7124,6 @@ function renderCRMTable() {
         </select>
       </td>
       <td class="td-date">${date}</td>
-      <td><div class="td-actions">${candLink}</div></td>
     </tr>`;
   }).join('');
 }
@@ -7116,7 +7133,7 @@ async function updateCRMLeadStatus(contactId, status) {
     await crmApiCall({
       action: 'update',
       contactId,
-      properties: { edumove_lead_status: status }
+      properties: { hs_lead_status: status }
     });
     // Update local data
     const c = crmContacts.find(x => x.id === contactId);
