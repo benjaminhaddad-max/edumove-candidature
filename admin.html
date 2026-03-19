@@ -4246,6 +4246,13 @@ async function sendFacDetailMessage(candidatureId) {
       content: text
     });
     input.value = '';
+    // Notifier la fac
+    const detailCand = allCandidatures.find(x => x.id === candidatureId);
+    const detailStudentName = detailCand ? detailCand.prenom + ' ' + detailCand.nom : null;
+    fetch('/api/notify-fac-message', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ direction: 'admin_to_fac', facKey: currentFacDetailTab, senderEmail: currentAdminUser?.email || 'admin', content: text, studentName: detailStudentName })
+    }).catch(e => console.warn('Email fac non envoyé:', e));
   } catch (err) {
     console.error('Erreur envoi fac message:', err);
     alert('Erreur lors de l\'envoi.');
@@ -5948,6 +5955,15 @@ async function sendFacMessage() {
     return;
   }
 
+  // Notifier la fac par email
+  const convStudentName = currentFacConv?.candidature_id
+    ? (() => { const c = allCandidatures.find(x => x.id === currentFacConv.candidature_id); return c ? c.prenom + ' ' + c.nom : null; })()
+    : null;
+  fetch('/api/notify-fac-message', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ direction: 'admin_to_fac', facKey: msg.fac_key, senderEmail: email, content, studentName: convStudentName })
+  }).catch(e => console.warn('Email fac non envoyé:', e));
+
   // Reload conversations list to update preview
   loadFacConversations();
 }
@@ -6042,6 +6058,14 @@ async function createNewConversation() {
     alert('Erreur : ' + error.message);
     return;
   }
+
+  // Notifier la fac
+  const newConvCand = candidatureId ? allCandidatures.find(x => x.id === candidatureId) : null;
+  const newConvStudentName = newConvCand ? newConvCand.prenom + ' ' + newConvCand.nom : null;
+  fetch('/api/notify-fac-message', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ direction: 'admin_to_fac', facKey, senderEmail: currentAdminUser?.email || 'admin', content, studentName: newConvStudentName })
+  }).catch(e => console.warn('Email fac non envoyé:', e));
 
   closeNewConvModal();
   await loadFacConversations();
