@@ -322,6 +322,14 @@ tr:last-child td { border-bottom: none; }
 .btn-restore:hover { background: #059669; transform: translateY(-1px); }
 .td-actions { display: flex; gap: 6px; align-items: center; }
 
+/* ── CLOSER (lecture seule) MODE ── */
+body.closer-mode .btn-export,
+body.closer-mode .btn-archive,
+body.closer-mode .btn-restore,
+body.closer-mode .btn-delete,
+body.closer-mode .detail-page-status-select,
+body.closer-mode .msg-new-btn { display: none !important; }
+
 /* ── ADMIN PREVIEW: UNI CARDS ── */
 .admprev-card { border: 1.5px solid #ddd; border-radius: 12px; overflow: hidden; margin-bottom: 16px; transition: all 0.3s; }
 .admprev-card.selected { border-color: #615ca5; box-shadow: 0 0 0 2px rgba(97,92,165,0.15); }
@@ -2992,6 +3000,15 @@ function applyRoleRestrictions() {
   document.getElementById('btn-guide').style.display = '';
   if (role === 'super_admin') return; // Full access
 
+  if (role === 'closer') {
+    document.body.classList.add('closer-mode');
+    document.querySelector('.dash-title').textContent = 'Tableau de bord';
+    document.querySelector('.dash-subtitle').textContent = 'Consultation des candidatures — lecture seule';
+    const roleTag = document.getElementById('logo-role-tag');
+    if (roleTag) { roleTag.textContent = '👁 Lecture seule'; roleTag.style.background = '#64748b'; }
+    return;
+  }
+
   // Hide add dossier button and export CSV for fac users
   document.querySelectorAll('.btn-export').forEach(btn => btn.style.display = 'none');
 
@@ -3512,7 +3529,7 @@ function renderDetailPage(c) {
 
   // Detail action buttons (archive/delete)
   const actionBtns = document.getElementById('detail-action-btns');
-  if (window.adminRole === 'super_admin' || !window.adminRole) {
+  if ((window.adminRole === 'super_admin' || !window.adminRole) && window.adminRole !== 'closer') {
     const isArchived = c.status !== 'en_attente' && c.status !== 'en_cours' && c.status !== 'reponse_edumove';
     let btnsHtml = '';
     // Resend notifications button (only for reponse_edumove)
@@ -4893,16 +4910,18 @@ function generateAdminResume(c) {
     html += `</div></div>`;
   }
 
-  // ── Actions ──
-  html += `<div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--border);">`;
-  if (c.status !== 'reponse_edumove') {
-    html += `<button class="btn-view" style="background:#1565c0;padding:8px 16px;" onclick="applyAiAction('${c.id}','reponse_edumove')">📩 Envoyer réponse</button>`;
+  // ── Actions (masquées en mode lecture seule) ──
+  if (window.adminRole !== 'closer') {
+    html += `<div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--border);">`;
+    if (c.status !== 'reponse_edumove') {
+      html += `<button class="btn-view" style="background:#1565c0;padding:8px 16px;" onclick="applyAiAction('${c.id}','reponse_edumove')">📩 Envoyer réponse</button>`;
+    }
+    html += `<button class="btn-view" style="background:#7b1fa2;padding:8px 16px;" onclick="applyAiAction('${c.id}','dossier_soumis')">🎓 Dossier soumis</button>`;
+    html += `<button class="btn-view" style="background:var(--success);padding:8px 16px;" onclick="applyAiAction('${c.id}','accepte')">✅ Accepté</button>`;
+    html += `<button class="btn-view" style="background:var(--error);padding:8px 16px;" onclick="applyAiAction('${c.id}','refuse')">❌ Refusé</button>`;
+    html += `<button class="btn-view" style="background:#757575;padding:8px 16px;" onclick="applyAiAction('${c.id}','abandon')">🚫 Abandon</button>`;
+    html += `</div>`;
   }
-  html += `<button class="btn-view" style="background:#7b1fa2;padding:8px 16px;" onclick="applyAiAction('${c.id}','dossier_soumis')">🎓 Dossier soumis</button>`;
-  html += `<button class="btn-view" style="background:var(--success);padding:8px 16px;" onclick="applyAiAction('${c.id}','accepte')">✅ Accepté</button>`;
-  html += `<button class="btn-view" style="background:var(--error);padding:8px 16px;" onclick="applyAiAction('${c.id}','refuse')">❌ Refusé</button>`;
-  html += `<button class="btn-view" style="background:#757575;padding:8px 16px;" onclick="applyAiAction('${c.id}','abandon')">🚫 Abandon</button>`;
-  html += `</div>`;
 
   const overrideMsg = c.manual_override
     ? `<div style="margin-top:8px;font-size:11px;color:var(--text-muted);font-style:italic;">⚠️ L'auto-progression est désactivée (intervention manuelle détectée)</div>`
