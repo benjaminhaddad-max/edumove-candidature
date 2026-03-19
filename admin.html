@@ -2920,6 +2920,7 @@ body.closer-mode .msg-new-btn { display: none !important; }
         <option value="PASS/LAS priorité">PASS/LAS priorité</option>
       </select>
       <button class="btn-export" onclick="loadCRMContacts()">🔄 Actualiser</button>
+      <button class="btn-export" style="background:var(--orange);" onclick="syncAllToHubSpot()" id="btn-crm-sync">⬆️ Sync candidatures → HubSpot</button>
     </div>
 
     <div class="table-wrap">
@@ -7135,6 +7136,63 @@ function updateCRMStats() {
   document.getElementById('crm-stat-candidater').textContent = crmContacts.filter(c => c.leadStatus === 'Va candidater').length;
   document.getElementById('crm-stat-pass').textContent = crmContacts.filter(c => c.leadStatus === 'PASS/LAS priorité').length;
   document.getElementById('crm-stat-disq').textContent = crmContacts.filter(c => c.leadStatus === 'Disqualifié').length;
+}
+
+// ── SYNC ALL CANDIDATURES TO HUBSPOT ──
+async function syncAllToHubSpot() {
+  const btn = document.getElementById('btn-crm-sync');
+  if (!confirm('Synchroniser toutes les candidatures Supabase vers HubSpot ?\nCela va créer ou mettre à jour les contacts.')) return;
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Sync en cours...';
+
+  try {
+    // Load all candidatures from Supabase
+    const { data: candidatures, error } = await supabase
+      .from('candidatures')
+      .select('id, nom, prenom, email, tel, departement, profil, score, destination, universite, niveau, langues, classement_destinations, moyenne_premiere, moyenne_terminale')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    let synced = 0, failed = 0;
+    for (const c of candidatures) {
+      try {
+        const payload = {
+          nom: c.nom, prenom: c.prenom, email: c.email, tel: c.tel,
+          departement: c.departement, profil: c.profil, score: c.score,
+          destination: c.destination, universite: c.universite, niveau: c.niveau,
+          langues: c.langues, classementDestinations: c.classement_destinations,
+          moyennePremiere: c.moyenne_premiere, moyenneTerminale: c.moyenne_terminale,
+          candidatureId: c.id
+        };
+        const res = await fetch('/api/hubspot', {
+          method: 'POST',
+          headers: apiHeaders(),
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if (result.success) synced++; else failed++;
+      } catch (e) {
+        failed++;
+        console.warn('Sync failed for', c.email, e);
+      }
+      // Update progress
+      btn.textContent = `⏳ ${synced + failed}/${candidatures.length}...`;
+    }
+
+    btn.textContent = `✅ ${synced} synced, ${failed} erreurs`;
+    btn.disabled = false;
+    setTimeout(() => { btn.textContent = '⬆️ Sync candidatures → HubSpot'; }, 4000);
+
+    // Reload CRM contacts
+    await loadCRMContacts();
+  } catch (err) {
+    console.error('Sync error:', err);
+    btn.textContent = '❌ Erreur sync';
+    btn.disabled = false;
+    setTimeout(() => { btn.textContent = '⬆️ Sync candidatures → HubSpot'; }, 3000);
+  }
 }
 </script>
 
