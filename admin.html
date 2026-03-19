@@ -6091,6 +6091,7 @@ async function selectStudentConv(candidatureId) {
   document.getElementById('fac-msg-conv-title').textContent = name;
   document.getElementById('fac-msg-conv-student').textContent = 'Chat étudiant ↔ Edumove';
   document.getElementById('fac-msg-footer').style.display = 'flex';
+  { const _h = document.getElementById('fac-msg-footer-hint'); if (_h) { const _isFac = window.adminRole && window.adminRole !== 'super_admin'; _h.innerHTML = _isFac ? '💡 Tapez <strong>@Edumove</strong> pour alerter l\'équipe — invisible pour l\'étudiant' : '💡 Tapez <strong>@LINK</strong>, <strong>@UCJC</strong> ou <strong>@UE</strong> pour taguer la fac concernée'; _h.style.display = 'block'; } }
 
   const body = document.getElementById('fac-msg-body');
   const { data, error } = await supabase.from('messages').select('*')
