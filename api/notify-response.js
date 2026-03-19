@@ -29,7 +29,7 @@ module.exports = async function handler(req, res) {
         'Accept': 'application/json'
       },
       body: JSON.stringify({
-        sender: { name: 'EDUMOVE', email: 'admissions@edumove.fr' },
+        sender: { name: 'Edumove Admissions', email: 'admissions@edumove.fr' },
         to: [{ email }],
         templateId: 114,
         params: { PRENOM: firstName }
