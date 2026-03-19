@@ -76,7 +76,7 @@ module.exports = async function handler(req, res) {
 <body>
   <div class="wrap">
     <div class="header">
-      <div class="header-logo">Edu<span>move</span></div>
+      <img src="https://edumove.fr/wp-content/uploads/2025/12/EDUMOVE-LOGO-2-1.svg" width="150" alt="Edumove" style="display:block;height:auto;"/>
     </div>
     <div class="body">
       <div class="title">Réinitialisation de votre mot de passe</div>
@@ -84,7 +84,7 @@ module.exports = async function handler(req, res) {
         Vous avez demandé à réinitialiser le mot de passe de votre compte Edumove.<br/><br/>
         Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe. Ce lien est valable <strong>1 heure</strong>.
       </div>
-      <a href="${actionLink}" class="cta">Définir un nouveau mot de passe</a>
+      <a href="${actionLink}" style="display:inline-block;background:#ec680a;color:#ffffff !important;text-decoration:none !important;padding:14px 28px;border-radius:10px;font-size:14px;font-weight:600;font-family:'Poppins',Arial,sans-serif;">Définir un nouveau mot de passe</a>
       <div class="note">Si vous n'avez pas fait cette demande, ignorez cet email — votre mot de passe reste inchangé.</div>
     </div>
     <div class="footer">

@@ -54,7 +54,7 @@ module.exports = async function handler(req, res) {
 <body>
   <div class="wrap">
     <div class="header">
-      <div class="header-logo">Edu<span>move</span></div>
+      <img src="https://edumove.fr/wp-content/uploads/2025/12/EDUMOVE-LOGO-2-1.svg" width="150" alt="Edumove" style="display:block;height:auto;"/>
       <div class="badge">📞 Rappel demandé</div>
     </div>
     <div class="body">
@@ -81,7 +81,7 @@ module.exports = async function handler(req, res) {
         </div>` : ''}
       </div>
 
-      <a href="${directLink}" class="cta">👁️ Ouvrir le dossier dans l'admin</a>
+      <a href="${directLink}" style="display:block;background:#ec680a;color:#ffffff !important;text-decoration:none !important;text-align:center;padding:14px 24px;border-radius:10px;font-size:14px;font-weight:600;font-family:'Poppins',Arial,sans-serif;">👁️ Ouvrir le dossier dans l'admin</a>
     </div>
     <div class="footer">
       Notification automatique — Plateforme Edumove &nbsp;·&nbsp; candidature.edumove.fr
