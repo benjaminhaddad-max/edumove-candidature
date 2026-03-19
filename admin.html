@@ -4755,14 +4755,42 @@ async function adminConfirmSelections(candidatureId) {
   const complete = sel.LINK || sel.UCJC || (sel.UE && sel.UE.ville && sel.UE.langue);
   if (!complete) { alert('Sélectionnez au moins une université avec tous les choix.'); return; }
 
-  if (!confirm('Confirmer les sélections pour cet étudiant ? Cela passera le dossier en statut "En cours".')) return;
+  // ── Vérifier les documents requis AVANT de confirmer ──
+  const c = allCandidatures.find(x => x.id === candidatureId);
+  const docs = c?.documents || {};
+  const missing = [];
+
+  if (sel.LINK) {
+    if (!docs.LINK_formulaire) missing.push('LINK — Formulaire pré-candidature');
+    if (!docs.LINK_identite) missing.push('LINK — Pièce d\'identité');
+    if (!docs.LINK_releves) missing.push('LINK — Relevé de notes bac');
+  }
+  if (sel.UCJC) {
+    if (!docs.UCJC_lettre_motivation) missing.push('UCJC — Lettre de motivation');
+    if (!docs.UCJC_identite) missing.push('UCJC — Pièce d\'identité');
+    if (!docs.UCJC_formulaire) missing.push('UCJC — Formulaire admission');
+  }
+  if (sel.UE && sel.UE.ville && sel.UE.langue) {
+    if (!docs.UE_bulletins) missing.push('UE — Bulletins de Première');
+    if (!docs.UE_identite) missing.push('UE — Pièce d\'identité');
+    if (!docs.UE_rapport_technique) missing.push('UE — Rapport technique académique');
+  }
+
+  if (missing.length > 0) {
+    const forceConfirm = confirm(
+      '⚠️ Documents manquants :\n\n• ' + missing.join('\n• ') +
+      '\n\nVoulez-vous quand même confirmer les sélections sans ces documents ?\n(Les documents pourront être ajoutés après.)'
+    );
+    if (!forceConfirm) return;
+  }
+
+  if (!confirm('Confirmer les sélections pour cet étudiant ?')) return;
 
   const selections = {};
   if (sel.LINK) selections.LINK = { filiere: sel.LINK.filiere, filiereLabel: sel.LINK.filiereLabel };
   if (sel.UCJC) selections.UCJC = { filiere: sel.UCJC.filiere, filiereLabel: sel.UCJC.filiereLabel };
   if (sel.UE && sel.UE.ville && sel.UE.langue) selections.UE = { filiere: sel.UE.filiere, filiereLabel: sel.UE.filiereLabel, ville: sel.UE.ville, langue: sel.UE.langue };
 
-  const c = allCandidatures.find(x => x.id === candidatureId);
   const existing = Array.isArray(c?.status_history) ? c.status_history : [];
   const now = new Date().toISOString();
   const adminEmail = currentAdminUser?.email || 'admin';
