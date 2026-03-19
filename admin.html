@@ -2933,6 +2933,8 @@ body.closer-mode .msg-new-btn { display: none !important; }
           <label class="crm-hs-lbl"><input type="checkbox" class="crm-edm-cb" value="Veut absolument autre pays" checked onchange="filterCRMContacts()"> Veut autre pays</label>
           <label class="crm-hs-lbl" style="color:#dc2626;"><input type="checkbox" class="crm-edm-cb" value="Disqualifié" checked onchange="filterCRMContacts()"> Disqualifié</label>
           <label class="crm-hs-lbl"><input type="checkbox" class="crm-edm-cb" value="PASS/LAS priorité" checked onchange="filterCRMContacts()"> PASS/LAS priorité</label>
+          <label class="crm-hs-lbl" style="color:#e65100;"><input type="checkbox" class="crm-edm-cb" value="NRP1" checked onchange="filterCRMContacts()"> NRP1</label>
+          <label class="crm-hs-lbl" style="color:#e65100;"><input type="checkbox" class="crm-edm-cb" value="NRP2" checked onchange="filterCRMContacts()"> NRP2</label>
           <label class="crm-hs-lbl" style="color:#999;"><input type="checkbox" class="crm-edm-cb" value="" checked onchange="filterCRMContacts()"> (Aucun statut)</label>
         </div>
       </div>
@@ -3282,11 +3284,23 @@ function applyRoleRestrictions() {
   // Show messaging and guide buttons for all roles
   document.getElementById('btn-fac-messaging').style.display = '';
   document.getElementById('btn-guide').style.display = '';
-  // CRM only for super_admin
-  if (role === 'super_admin') {
+  // CRM for super_admin + telepro
+  if (role === 'super_admin' || role === 'telepro') {
     document.getElementById('btn-crm').style.display = '';
   }
   if (role === 'super_admin') return; // Full access
+
+  if (role === 'telepro') {
+    document.body.classList.add('closer-mode');
+    document.querySelector('.dash-title').textContent = 'Tableau de bord';
+    document.querySelector('.dash-subtitle').textContent = 'Consultation des candidatures — lecture seule';
+    const roleTag = document.getElementById('logo-role-tag');
+    if (roleTag) { roleTag.textContent = 'Télépro'; roleTag.style.background = '#f59e0b'; }
+    document.getElementById('btn-fac-messaging').style.display = 'none';
+    document.getElementById('btn-guide').style.display = 'none';
+    applyTelepRoRestrictions();
+    return;
+  }
 
   if (role === 'closer') {
     document.body.classList.add('closer-mode');
@@ -4490,7 +4504,7 @@ function backToList() {
   document.getElementById('dashboard').classList.add('active');
   document.getElementById('btn-fac-messaging').style.display = '';
   document.getElementById('btn-guide').style.display = '';
-  if (window.adminRole === 'super_admin') document.getElementById('btn-crm').style.display = '';
+  if (window.adminRole === 'super_admin' || window.adminRole === 'telepro') document.getElementById('btn-crm').style.display = '';
   document.getElementById('btn-back-dashboard').style.display = 'none';
   // Re-apply role restrictions (hide guide/filters for fac)
   if (window.adminRole && window.adminRole !== 'super_admin' && window.adminRole !== 'closer') {
@@ -7131,7 +7145,7 @@ let crmHasMore = false;
 let crmPage = 1;
 let crmPerPage = 20;
 
-const CRM_LEAD_STATUSES = ['Nouveau', 'Va candidater', 'Veut absolument autre pays', 'Disqualifié', 'PASS/LAS priorité'];
+const CRM_LEAD_STATUSES = ['Nouveau', 'Va candidater', 'Veut absolument autre pays', 'Disqualifié', 'PASS/LAS priorité', 'NRP1', 'NRP2'];
 const CRM_STATUS_COLORS = {
   'Nouveau': { bg: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe' },
   'Va candidater': { bg: '#ecfdf5', color: '#059669', border: '#a7f3d0' },
@@ -7371,6 +7385,7 @@ function renderCRMTable() {
           ${statusOptions}
         </select>
       </td>
+      <td style="padding:10px 6px;">${c.assignedName ? `<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:9px;font-weight:600;background:#fef3c7;color:#92400e;border:1px solid #fde68a;white-space:nowrap;">${esc(c.assignedName)}</span>` : '<span style="color:#ccc;font-size:10px;">—</span>'}</td>
       <td style="padding:10px 6px;font-size:10px;color:var(--text-muted);">${date}</td>
     </tr>`;
   }).join('');
@@ -7581,6 +7596,58 @@ async function sendBulkEmail() {
   }
   btn.disabled = false;
   btn.textContent = 'Envoyer les emails';
+}
+
+// ── ASSIGN MODAL ──
+function openAssignModal() {
+  const count = crmSelectedIds.size;
+  if (!count) return;
+  const html = `
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:flex;align-items:center;justify-content:center;" id="assign-overlay" onclick="if(event.target===this)this.remove()">
+      <div style="background:white;border-radius:14px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);overflow:hidden;">
+        <div style="background:#1b1d3a;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="color:white;font-size:16px;font-weight:700;">👤 Assigner ${count} lead${count>1?'s':''}</div>
+          <button onclick="document.getElementById('assign-overlay').remove()" style="background:none;border:none;color:white;font-size:20px;cursor:pointer;">&times;</button>
+        </div>
+        <div style="padding:24px;">
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <button onclick="assignLeadsTo('raphael@edumove.fr','Raphaël')" style="padding:14px;background:#f5f6fb;border:2px solid #e2e4f0;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;text-align:left;">👤 Raphaël <span style="font-size:11px;color:#888;font-weight:400;">raphael@edumove.fr</span></button>
+            <button onclick="assignLeadsTo('lirone@edumove.fr','Lirone')" style="padding:14px;background:#f5f6fb;border:2px solid #e2e4f0;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;text-align:left;">👤 Lirone <span style="font-size:11px;color:#888;font-weight:400;">lirone@edumove.fr</span></button>
+            <button onclick="assignLeadsTo('','')" style="padding:14px;background:#fef2f2;border:2px solid #fecaca;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;text-align:left;color:#991b1b;">✕ Désassigner</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+async function assignLeadsTo(email, name) {
+  const ids = Array.from(crmSelectedIds);
+  document.getElementById('assign-overlay')?.remove();
+  try {
+    const resp = await crmApiCall({ action: 'assign', contactIds: ids, assignTo: email, assignName: name });
+    if (resp.ok) {
+      ids.forEach(id => {
+        const c = crmContacts.find(x => x.id === id);
+        if (c) { c.assignedTo = email; c.assignedName = name; }
+      });
+      clearCrmSelection();
+      renderCRMTable();
+    }
+  } catch (err) {
+    alert('Erreur lors de l\'assignation.');
+  }
+}
+
+// ── TELEPRO RESTRICTIONS ──
+function applyTelepRoRestrictions() {
+  if (window.adminRole !== 'telepro') return;
+  // Hide assign button, sync button, candidature buttons
+  document.getElementById('crm-assign-btn')?.remove();
+  document.getElementById('crm-filter-assigned')?.remove();
+  document.querySelector('[onclick="syncCRMFromHubSpot()"]')?.remove();
+  // Make candidature dashboard read-only: hide status dropdowns, action buttons
+  document.querySelectorAll('.btn-status-change, .btn-archive, .btn-delete').forEach(el => el.remove());
 }
 
 // ── SYNC ALL CANDIDATURES TO HUBSPOT ──
