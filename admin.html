@@ -1291,8 +1291,7 @@ body.closer-mode .msg-new-btn { display: none !important; }
       <input type="text" class="search-input" id="search-input" placeholder="Rechercher par nom, prénom ou email..." oninput="applyFilters()"/>
       <select class="filter-select" id="filter-status" onchange="applyFilters()">
         <option value="">Tous statuts actifs</option>
-        <option value="non_soumise">Candidature non soumise</option>
-        <option value="en_attente">Candidature non d&eacute;pos&eacute;e</option>
+        <option value="non_soumise">Candidature non d&eacute;pos&eacute;e</option>
         <option value="en_cours">En cours de traitement</option>
         <option value="reponse_edumove">R&eacute;ponse Edumove</option>
       </select>
@@ -3611,7 +3610,7 @@ function renderTable() {
   }
   empty.style.display = 'none';
 
-  const statusLabels = { non_soumise: 'Candidature non soumise', en_attente: 'Candidature non d\u00e9pos\u00e9e', en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', archive: 'Archiv\u00e9' };
+  const statusLabels = { non_soumise: 'Candidature non d\u00e9pos\u00e9e', en_attente: 'Candidature non d\u00e9pos\u00e9e', en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', archive: 'Archiv\u00e9' };
   const filiereLabels = { medecine: 'M\u00e9decine', dentaire: 'Dentaire', kine: 'Kin\u00e9sith\u00e9rapie', pharmacie: 'Pharmacie', veterinaire: 'V\u00e9t\u00e9rinaire', prepa_dentaire: 'Pr\u00e9pa Dentaire' };
   const trackLabels = { en_attente: 'En attente', dossier_envoye: 'Envoy\u00e9', test_paye: 'Test pay\u00e9', test_passe: 'Test pass\u00e9', tests_passes: 'Tests pass\u00e9s', entretien_planifie: 'Entretien', entretien_passe: 'Entretien OK', accepte: 'Accept\u00e9', acompte_verse: 'Acompte', refuse: 'Refus\u00e9', inscrit: 'Inscrit', autre_agence: 'Autre agence' };
   const trackColors = { en_attente: '#999', dossier_envoye: '#1565c0', test_paye: '#6a1b9a', test_passe: '#6a1b9a', tests_passes: '#6a1b9a', entretien_planifie: '#e65100', entretien_passe: '#e65100', accepte: '#2e7d32', acompte_verse: '#2e7d32', refuse: '#d32f2f', inscrit: '#1b5e20', autre_agence: '#795548' };
@@ -3882,12 +3881,29 @@ async function restoreCandidature(id) {
 }
 
 async function deleteCandidature(id) {
-  await supabase.from('candidatures').delete().eq('id', id);
-  // If viewing detail, go back to list
+  const c = allCandidatures.find(x => x.id === id);
+  const isVirtual = c?._virtual || (typeof id === 'string' && id.startsWith('profile_'));
+
+  // Retrait immédiat de l'UI (optimistic)
+  allCandidatures = allCandidatures.filter(x => x.id !== id);
   if (currentDetailId === id) {
     currentDetailId = null;
     document.getElementById('detail-page').classList.remove('active');
     document.getElementById('dashboard').classList.add('active');
+  }
+  updateStats();
+  applyFilters();
+
+  // Suppression en base
+  if (isVirtual) {
+    const profileId = id.replace(/^profile_/, '');
+    await supabase.from('profiles').delete().eq('id', profileId);
+  } else {
+    const { error } = await supabase.from('candidatures').delete().eq('id', id);
+    if (error) {
+      console.error('Delete error:', error);
+      alert('Erreur lors de la suppression. La ligne a été retirée de l\'affichage.');
+    }
   }
 }
 
@@ -3965,7 +3981,7 @@ function viewDetail(id) {
 }
 
 function renderDetailPage(c) {
-  const statusLabels = { non_soumise: 'Candidature non soumise', en_attente: 'Candidature non d\u00e9pos\u00e9e', en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', archive: 'Archiv\u00e9' };
+  const statusLabels = { non_soumise: 'Candidature non d\u00e9pos\u00e9e', en_attente: 'Candidature non d\u00e9pos\u00e9e', en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', archive: 'Archiv\u00e9' };
   const langLabels = { b2: 'B2+ / Bilingue', b1: 'B1 / Intermédiaire', debut: 'A1/A2 / Débutant', aucun: 'Aucun' };
   const filiereLabels = { medecine: 'M\u00e9decine', dentaire: 'Dentaire', kinesitherapie: 'Kin\u00e9sith\u00e9rapie', kine: 'Kin\u00e9sith\u00e9rapie', pharmacie: 'Pharmacie', veterinaire: 'V\u00e9t\u00e9rinaire', prepa_dentaire: 'Pr\u00e9pa Dentaire' };
 
@@ -6811,14 +6827,24 @@ async function sendFacMessage() {
 
   // Student ↔ Edumove: insert into messages table
   if (currentFacConv.type === 'student') {
+    // Optimistic: show message instantly
+    const body = document.getElementById('fac-msg-body');
+    const now = new Date();
+    const time = now.toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+    body.insertAdjacentHTML('beforeend', `<div class="msg-bubble sent" data-optimistic><div>${esc(content)}</div><div class="msg-meta">${time}</div></div>`);
+    body.scrollTop = body.scrollHeight;
+
     const { error } = await supabase.from('messages').insert({
       candidature_id: currentFacConv.candidature_id,
       sender_id: currentAdminUser?.id || email,
-      sender_role: 'admin',
+      sender_role: role || 'super_admin',
       sender_name: 'Équipe EDUMOVE',
       content
     });
-    if (error) { console.error('Send student message error:', error); alert('Erreur lors de l\'envoi.'); return; }
+    if (error) { console.error('Send student message error:', error); alert('Erreur lors de l\'envoi.'); body.querySelector('[data-optimistic]')?.remove(); return; }
+    // Re-fetch to replace optimistic with real message
+    const { data: msgs } = await supabase.from('messages').select('*').eq('candidature_id', currentFacConv.candidature_id).order('created_at', { ascending: true });
+    if (msgs) { body.innerHTML = msgs.map(m => { const isMine = m.sender_role && m.sender_role !== 'student'; const t = new Date(m.created_at).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); const delBtn = `<button class="msg-delete-btn" title="Supprimer" onclick="event.stopPropagation();deleteSingleMessage('messages',${m.id})">&times;</button>`; return `<div class="msg-bubble ${isMine?'sent':'received'}">${delBtn}<div>${esc(m.content)}</div><div class="msg-meta">${t}</div></div>`; }).join(''); body.scrollTop = body.scrollHeight; }
     return;
   }
 
