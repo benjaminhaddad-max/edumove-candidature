@@ -71,42 +71,39 @@ async function listFromCache(req, res) {
   return res.status(200).json({ contacts, total: contacts.length, cached: true });
 }
 
-// ── SYNC: Fetch all Edumove contacts from HubSpot → upsert into Supabase ──
+// ── SYNC: Fetch ALL contacts from HubSpot via list endpoint → filter Edumove → upsert into Supabase ──
 async function syncFromHubSpot(req, res) {
   const hubspotToken = process.env.HUBSPOT_ACCESS_TOKEN;
   if (!hubspotToken) return safeError(res, 500, 'HubSpot not configured');
 
   const sb = getSupabase();
-  const PROPS = ['firstname', 'lastname', 'email', 'phone', 'edumove_lead_status', 'hs_lead_status', 'recent_conversion_event_name', 'hs_analytics_source', 'createdate'];
-
-  // Two filters to catch all Edumove contacts (recent + historical forms)
-  const filterGroups = [
-    { filters: [{ propertyName: 'recent_conversion_event_name', operator: 'CONTAINS_TOKEN', value: 'EDUMOVE' }] },
-    { filters: [{ propertyName: 'recent_conversion_event_name', operator: 'CONTAINS_TOKEN', value: 'edumove' }] },
-    { filters: [{ propertyName: 'recent_conversion_event_name', operator: 'CONTAINS_TOKEN', value: 'Edumove' }] }
-  ];
+  const PROPS = 'firstname,lastname,email,phone,edumove_lead_status,hs_lead_status,recent_conversion_event_name,hs_analytics_source,createdate';
 
   let allContacts = [];
   let after = null;
   let safety = 0;
 
-  // Paginate through all contacts
+  // Use LIST endpoint (no search limit) and paginate through ALL contacts
   do {
     safety++;
-    const body = {
-      filterGroups,
-      limit: 100,
-      properties: PROPS,
-      sorts: [{ propertyName: 'createdate', direction: 'DESCENDING' }]
-    };
-    if (after) body.after = after;
+    let url = `https://api.hubapi.com/crm/v3/objects/contacts?limit=100&properties=${PROPS}`;
+    if (after) url += `&after=${after}`;
 
-    const searchRes = await hubFetch(hubspotToken, 'POST', '/crm/v3/objects/contacts/search', body);
-    const data = await searchRes.json();
+    const listRes = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${hubspotToken}` }
+    });
+    const data = await listRes.json();
     const results = data.results || [];
-    allContacts = allContacts.concat(results);
+
+    // Filter: keep only Edumove contacts (form name contains "edumove" case-insensitive)
+    const edumoveResults = results.filter(c => {
+      const formName = (c.properties?.recent_conversion_event_name || '').toLowerCase();
+      return formName.includes('edumove');
+    });
+    allContacts = allContacts.concat(edumoveResults);
+
     after = data.paging?.next?.after || null;
-  } while (after && safety < 100);
+  } while (after && safety < 500);
 
   // Transform and upsert into Supabase
   const now = new Date().toISOString();
