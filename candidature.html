@@ -1126,6 +1126,7 @@ let userProfile = {};
     if (profileData) {
       userProfile = profileData;
       fillProfilDropdown();
+      applyProfilFromSignup(profileData);
     }
   } catch(e) { console.error('Load profile error:', e); }
 
@@ -1394,9 +1395,37 @@ function restoreFiliereItem(btn) {
 function selectProfil(type, el) {
   state.profil = type;
   document.querySelectorAll('.profil-option').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
+  if (el) el.classList.add('selected');
   document.getElementById('bloc-reorientation').style.display = type === 'reorientation' ? 'block' : 'none';
   showErr('err-profil', false);
+}
+
+function applyProfilFromSignup(profile) {
+  if (!profile.profil) return;
+  state.profil = profile.profil;
+
+  // Masquer le sélecteur de situation (déjà choisi à l'inscription)
+  const profilSection = document.querySelector('.profil-select');
+  const profilLabel = profilSection?.previousElementSibling;
+  if (profilSection) profilSection.style.display = 'none';
+  if (profilLabel && profilLabel.textContent.trim() === 'Votre situation') profilLabel.style.display = 'none';
+  document.getElementById('err-profil').style.display = 'none';
+
+  if (profile.profil === 'reorientation') {
+    document.getElementById('bloc-reorientation').style.display = 'block';
+    // Pré-remplir depuis les données d'inscription si disponibles
+    const r = profile.reorientation;
+    if (r) {
+      const formSel = document.getElementById('reori-formation');
+      if (r.formation) {
+        const match = Array.from(formSel.options).find(o => o.value === r.formation);
+        if (match) { formSel.value = r.formation; }
+        else { formSel.value = 'autre'; document.getElementById('reori-autre').value = r.formation; toggleAutreFormation(); }
+      }
+      if (r.annee) document.getElementById('reori-annee').value = r.annee;
+      if (r.motif) document.getElementById('reori-motif').value = r.motif;
+    }
+  }
 }
 
 function toggleAutreFormation() {
