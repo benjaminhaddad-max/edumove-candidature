@@ -1170,7 +1170,7 @@ body.closer-mode .msg-new-btn { display: none !important; }
     <span class="admin-tag" id="logo-role-tag">Admin</span>
   </div>
   <div class="header-right" id="header-right" style="display:none;">
-    <button class="header-nav-btn" onclick="openFacMessaging()" id="btn-fac-messaging" style="display:none;">💬 Messagerie</button>
+    <button class="header-nav-btn" onclick="openFacMessaging()" id="btn-fac-messaging" style="display:none;position:relative;">💬 Messagerie<span id="msg-unread-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#e53935;color:white;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:none;align-items:center;justify-content:center;padding:0 4px;"></span></button>
     <button class="header-nav-btn" onclick="openGuide()" id="btn-guide" style="display:none;">📖 Guide</button>
     <button class="header-nav-btn" onclick="backToDashboard()" id="btn-back-dashboard" style="display:none;">📋 Dossiers</button>
     <span class="header-user" id="header-user"></span>
@@ -3078,6 +3078,39 @@ function showDashboard(user) {
   document.getElementById('header-right').style.display = 'flex';
   document.getElementById('header-user').textContent = user.email;
   loadCandidatures();
+  checkUnreadMessages();
+  // Poll unread every 30s
+  setInterval(checkUnreadMessages, 30000);
+}
+
+async function checkUnreadMessages() {
+  try {
+    const badge = document.getElementById('msg-unread-badge');
+    if (!badge) return;
+    // Get last time admin opened messaging (stored in localStorage)
+    const lastSeen = localStorage.getItem('edumove_msg_last_seen') || '2000-01-01T00:00:00Z';
+
+    // Count student messages (sender='student') since last seen
+    const { count: studentMsgCount } = await supabase.from('messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('sender', 'student')
+      .gt('created_at', lastSeen);
+
+    // Count fac messages to admin since last seen
+    const { count: facMsgCount } = await supabase.from('fac_messages')
+      .select('*', { count: 'exact', head: true })
+      .gt('created_at', lastSeen);
+
+    const total = (studentMsgCount || 0) + (facMsgCount || 0);
+    if (total > 0) {
+      badge.textContent = total > 99 ? '99+' : total;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch (err) {
+    console.error('Check unread error:', err);
+  }
 }
 
 // ══════════════════════════════════════════
@@ -4151,10 +4184,15 @@ function backToList() {
 
   document.getElementById('detail-page').classList.remove('active');
   document.getElementById('guide-page').classList.remove('active');
+  document.getElementById('fac-msg-page').classList.remove('active');
   document.getElementById('dashboard').classList.add('active');
   document.getElementById('btn-fac-messaging').style.display = '';
   document.getElementById('btn-guide').style.display = '';
   document.getElementById('btn-back-dashboard').style.display = 'none';
+  // Re-apply role restrictions (hide guide/filters for fac)
+  if (window.adminRole && window.adminRole !== 'super_admin' && window.adminRole !== 'closer') {
+    applyRoleRestrictions();
+  }
 }
 
 // ══════════════════════════════════════════
@@ -5503,6 +5541,10 @@ function openFacMessaging() {
   document.getElementById('btn-fac-messaging').style.display = 'none';
   document.getElementById('btn-guide').style.display = 'none';
   document.getElementById('btn-back-dashboard').style.display = '';
+  // Mark messages as read
+  localStorage.setItem('edumove_msg_last_seen', new Date().toISOString());
+  const badge = document.getElementById('msg-unread-badge');
+  if (badge) badge.style.display = 'none';
   loadFacConversations();
 
   const role = window.adminRole;
