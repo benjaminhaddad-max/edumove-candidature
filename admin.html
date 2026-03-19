@@ -6299,28 +6299,28 @@ function startNewConversation() {
   html += '<h3 style="margin:0 0 20px;font-size:17px;color:var(--navy);font-weight:700;">Nouvelle conversation</h3>';
 
   if (!isFac) {
-    // Super admin: choose fac + type (existing behavior)
-    html += '<div style="margin-bottom:12px;"><label style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px;">UNIVERSITÉ</label>';
+    // Super admin: deux boutons radio comme fac
+    html += '<div style="margin-bottom:16px;">';
+    html += '<div style="display:flex;gap:10px;margin-bottom:16px;">';
+    html += `<label style="flex:1;cursor:pointer;"><input type="radio" name="new-conv-mode" value="student_chat" onchange="toggleFacConvMode()" style="display:none;">
+      <div class="fac-conv-mode-btn" id="fac-mode-student" onclick="document.querySelector('[name=new-conv-mode][value=student_chat]').checked=true;toggleFacConvMode();" style="border:2px solid var(--orange);border-radius:10px;padding:12px 10px;text-align:center;font-size:13px;font-weight:600;color:var(--orange);cursor:pointer;">💬 Parler à<br>un étudiant</div>
+    </label>`;
+    html += `<label style="flex:1;cursor:pointer;"><input type="radio" name="new-conv-mode" value="fac" onchange="toggleFacConvMode()" style="display:none;" checked>
+      <div class="fac-conv-mode-btn" id="fac-mode-edumove" onclick="document.querySelector('[name=new-conv-mode][value=fac]').checked=true;toggleFacConvMode();" style="border:2px solid var(--violet);border-radius:10px;padding:12px 10px;text-align:center;font-size:13px;font-weight:600;background:var(--violet);color:white;cursor:pointer;">🏫 Parler à<br>une fac</div>
+    </label>`;
+    html += '</div>';
+
+    // FAC selector (shown in fac mode)
+    html += '<div id="new-conv-fac-wrap" style="margin-bottom:12px;"><label style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px;">UNIVERSITÉ</label>';
     html += '<select id="new-conv-fac" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;">';
     html += '<option value="LINK">LINK Campus University</option>';
     html += '<option value="UCJC">UCJC Madrid</option>';
     html += '<option value="UE">Universidad Europea</option>';
     html += '</select></div>';
-    html += '<div style="margin-bottom:12px;"><label style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px;">TYPE</label>';
-    html += '<select id="new-conv-type" onchange="toggleConvStudent()" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;">';
-    html += '<option value="general">Conversation générale</option>';
-    html += '<option value="student">À propos d\'un étudiant</option>';
-    html += '</select></div>';
-    html += '<div id="new-conv-student-wrap" style="display:none;margin-bottom:12px;"><label style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px;">ÉTUDIANT</label>';
-    html += '<div style="position:relative;">';
-    html += '<input id="new-conv-student-search" type="text" placeholder="Rechercher un étudiant…" oninput="filterConvStudents()" autocomplete="off" style="width:100%;box-sizing:border-box;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;outline:none;">';
-    html += '<div id="new-conv-student-list" style="position:absolute;top:calc(100% + 4px);left:0;right:0;background:white;border:1.5px solid var(--border);border-radius:8px;max-height:200px;overflow-y:auto;z-index:10;box-shadow:0 4px 16px rgba(0,0,0,0.1);display:none;">';
-    allCandidatures.forEach(c => {
-      const name = esc((c.prenom || '') + ' ' + (c.nom || ''));
-      const filiere = esc(c.filiere || '');
-      html += `<div class="conv-student-option" data-id="${c.id}" data-name="${name}" onclick="selectConvStudent('${c.id}','${name}')" style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #f0f0f0;">${name}${filiere ? `<span style="font-size:11px;color:var(--text-muted);margin-left:6px;">${filiere}</span>` : ''}</div>`;
-    });
-    html += '</div></div><input type="hidden" id="new-conv-student" value=""></div>';
+
+    // Student selector — required for student_chat, optional for fac mode
+    html += _buildStudentSelector(false);
+    html += '</div>';
   } else {
     // Fac user: deux choix clairs
     html += '<div style="margin-bottom:16px;"><label style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:8px;">TYPE</label>';
@@ -6354,7 +6354,8 @@ function startNewConversation() {
   overlay.onclick = function(e) { if (e.target === overlay) closeNewConvModal(); };
   document.body.appendChild(overlay);
   // Init default state for fac users
-  if (isFac) setTimeout(toggleFacConvMode, 10);
+  // For both fac and super_admin
+  setTimeout(toggleFacConvMode, 10);
 }
 
 function toggleFacConvMode() {
@@ -6362,19 +6363,23 @@ function toggleFacConvMode() {
   const studentBtn = document.getElementById('fac-mode-student');
   const edumoveBtn = document.getElementById('fac-mode-edumove');
   const atInfo = document.getElementById('new-conv-atinfo');
-  const studentLabel = document.querySelector('#new-conv-student-wrap label');
-  if (studentBtn) {
-    const isStudent = mode === 'student_chat';
-    studentBtn.style.background = isStudent ? 'var(--orange)' : 'white';
-    studentBtn.style.color = isStudent ? 'white' : 'var(--orange)';
-    edumoveBtn.style.background = isStudent ? 'white' : 'var(--violet)';
-    edumoveBtn.style.color = isStudent ? 'var(--violet)' : 'white';
-    if (atInfo) atInfo.style.display = isStudent ? 'block' : 'none';
-    // Update student label
-    if (studentLabel) studentLabel.textContent = isStudent ? 'ÉTUDIANT' : 'ÉTUDIANT (optionnel)';
-    setTimeout(() => document.getElementById('new-conv-student-search')?.focus(), 50);
-    filterConvStudents();
-  }
+  const studentWrap = document.getElementById('new-conv-student-wrap');
+  const facWrap = document.getElementById('new-conv-fac-wrap');
+  const studentLabel = studentWrap?.querySelector('label');
+  if (!studentBtn) return;
+
+  const isStudent = mode === 'student_chat';
+  studentBtn.style.background = isStudent ? 'var(--orange)' : 'white';
+  studentBtn.style.color = isStudent ? 'white' : 'var(--orange)';
+  edumoveBtn.style.background = isStudent ? 'white' : 'var(--violet)';
+  edumoveBtn.style.color = isStudent ? 'var(--violet)' : 'white';
+  if (atInfo) atInfo.style.display = isStudent ? 'block' : 'none';
+  if (studentLabel) studentLabel.textContent = isStudent ? 'ÉTUDIANT' : 'ÉTUDIANT (optionnel)';
+  // Show/hide fac selector (super_admin only, hidden in student_chat mode)
+  if (facWrap) facWrap.style.display = isStudent ? 'none' : 'block';
+  // Always show student selector, but focus search if in student mode
+  if (isStudent) setTimeout(() => document.getElementById('new-conv-student-search')?.focus(), 50);
+  filterConvStudents();
 }
 
 function toggleConvStudent() {
@@ -6463,11 +6468,29 @@ async function createNewConversation() {
     return;
   }
 
-  // Super admin flow
+  // Super admin flow (same two-button modal)
+  const mode = document.querySelector('[name=new-conv-mode]:checked')?.value || 'fac';
+  const candidatureId = document.getElementById('new-conv-student').value || null;
+
+  if (mode === 'student_chat') {
+    // Parler à un étudiant → messages table
+    if (!candidatureId) { alert('Veuillez sélectionner un étudiant.'); return; }
+    const { error } = await supabase.from('messages').insert({
+      candidature_id: candidatureId,
+      sender_id: currentAdminUser?.email || 'admin',
+      sender_role: 'admin',
+      sender_name: 'Équipe EDUMOVE',
+      content
+    });
+    if (error) { console.error('Create student chat error:', error); alert('Erreur : ' + error.message); return; }
+    closeNewConvModal();
+    await loadFacConversations();
+    return;
+  }
+
+  // Parler à une fac → fac_messages table
   const facKey = document.getElementById('new-conv-fac').value;
-  const type = document.getElementById('new-conv-type')?.value || 'general';
-  const candidatureId = type === 'student' ? document.getElementById('new-conv-student').value : null;
-  if (type === 'student' && !candidatureId) { alert('Veuillez sélectionner un étudiant dans la liste.'); return; }
+  if (!facKey) { alert('Veuillez sélectionner une université.'); return; }
 
   const { error } = await supabase.from('fac_messages').insert({
     fac_key: facKey,
