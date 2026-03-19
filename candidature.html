@@ -1823,16 +1823,21 @@ function syncToHubSpot(data) {
 async function submitCandidature() {
   let valid = true;
 
-  // Nom, prénom, téléphone, département obligatoires
+  // Nom, prénom, téléphone, département obligatoires — BLOQUANT
+  // Re-fetch profile to ensure latest data
+  const { data: freshProfile } = await supabase.from('profiles').select('nom, prenom, tel, departement').eq('id', currentUser.id).single();
+  const _prof = freshProfile || userProfile || {};
   const missingFields = [];
-  if (!userProfile.nom?.trim()) missingFields.push('Nom');
-  if (!userProfile.prenom?.trim()) missingFields.push('Prénom');
-  if (!userProfile.tel?.trim()) missingFields.push('Téléphone');
-  if (!userProfile.departement?.trim()) missingFields.push('Département');
+  if (!_prof.nom?.trim()) missingFields.push('Nom');
+  if (!_prof.prenom?.trim()) missingFields.push('Prénom');
+  if (!_prof.tel?.trim()) missingFields.push('Téléphone');
+  if (!_prof.departement?.trim()) missingFields.push('Département');
   if (missingFields.length > 0) {
     alert('Veuillez remplir votre profil avant de soumettre :\n• ' + missingFields.join('\n• ') + '\n\nCliquez sur votre nom en haut à droite pour compléter vos informations.');
-    valid = false;
+    return; // Hard block — cannot submit without profile info
   }
+  // Update userProfile with fresh data
+  if (freshProfile) Object.assign(userProfile, freshProfile);
 
   // Profil
   if (!state.profil) { showErr('err-profil', true); valid = false; }
