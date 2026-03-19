@@ -2916,20 +2916,26 @@ body.closer-mode .msg-new-btn { display: none !important; }
 
     <div class="toolbar">
       <input type="text" class="search-input" id="crm-search" placeholder="Rechercher par nom, email, tél..." oninput="filterCRMContacts()" style="min-width:180px;"/>
-      <select class="filter-select" id="crm-filter-form" onchange="filterCRMContacts()" style="min-width:120px;">
-        <option value="">Tous formulaires</option>
-        <option value="Edumove Contact">Contact</option>
-        <option value="Edumove Qualification">Qualification</option>
-        <option value="Meta Lead Gen (LGF V2)">Meta LGF V2</option>
-      </select>
-      <select class="filter-select" id="crm-filter-status" onchange="filterCRMContacts()" style="min-width:120px;">
-        <option value="">Statut Edumove — Tous</option>
-        <option value="Nouveau">Nouveau</option>
-        <option value="Va candidater">Va candidater</option>
-        <option value="Veut absolument autre pays">Veut autre pays</option>
-        <option value="Disqualifié">Disqualifié</option>
-        <option value="PASS/LAS priorité">PASS/LAS priorité</option>
-      </select>
+      <div style="position:relative;display:inline-block;">
+        <button class="filter-select" onclick="var d=document.getElementById('crm-form-dd');d.style.display=d.style.display==='block'?'none':'block'" style="min-width:140px;text-align:left;cursor:pointer;background:white;" id="crm-form-btn">Formulaire ▾</button>
+        <div id="crm-form-dd" style="display:none;position:absolute;top:100%;left:0;z-index:300;background:white;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:8px 0;min-width:200px;margin-top:4px;">
+          <label class="crm-hs-lbl"><input type="checkbox" class="crm-form-cb" value="Edumove Contact" checked onchange="filterCRMContacts()"> Edumove Contact</label>
+          <label class="crm-hs-lbl"><input type="checkbox" class="crm-form-cb" value="Edumove Qualification" checked onchange="filterCRMContacts()"> Edumove Qualification</label>
+          <label class="crm-hs-lbl"><input type="checkbox" class="crm-form-cb" value="Meta Lead Gen (LGF V2)" checked onchange="filterCRMContacts()"> Meta Lead Gen (LGF V2)</label>
+          <label class="crm-hs-lbl" style="color:#999;"><input type="checkbox" class="crm-form-cb" value="" checked onchange="filterCRMContacts()"> (Autre / inconnu)</label>
+        </div>
+      </div>
+      <div style="position:relative;display:inline-block;">
+        <button class="filter-select" onclick="var d=document.getElementById('crm-edm-dd');d.style.display=d.style.display==='block'?'none':'block'" style="min-width:150px;text-align:left;cursor:pointer;background:white;" id="crm-edm-btn">Statut Edumove ▾</button>
+        <div id="crm-edm-dd" style="display:none;position:absolute;top:100%;left:0;z-index:300;background:white;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:8px 0;min-width:220px;margin-top:4px;">
+          <label class="crm-hs-lbl"><input type="checkbox" class="crm-edm-cb" value="Nouveau" checked onchange="filterCRMContacts()"> Nouveau</label>
+          <label class="crm-hs-lbl"><input type="checkbox" class="crm-edm-cb" value="Va candidater" checked onchange="filterCRMContacts()"> Va candidater</label>
+          <label class="crm-hs-lbl"><input type="checkbox" class="crm-edm-cb" value="Veut absolument autre pays" checked onchange="filterCRMContacts()"> Veut autre pays</label>
+          <label class="crm-hs-lbl" style="color:#dc2626;"><input type="checkbox" class="crm-edm-cb" value="Disqualifié" checked onchange="filterCRMContacts()"> Disqualifié</label>
+          <label class="crm-hs-lbl"><input type="checkbox" class="crm-edm-cb" value="PASS/LAS priorité" checked onchange="filterCRMContacts()"> PASS/LAS priorité</label>
+          <label class="crm-hs-lbl" style="color:#999;"><input type="checkbox" class="crm-edm-cb" value="" checked onchange="filterCRMContacts()"> (Aucun statut)</label>
+        </div>
+      </div>
       <div style="position:relative;display:inline-block;">
         <button class="filter-select" onclick="var d=document.getElementById('crm-hs-dd');d.style.display=d.style.display==='block'?'none':'block'" style="min-width:170px;text-align:left;cursor:pointer;background:white;" id="crm-hs-btn">Statut HubSpot ▾</button>
         <div id="crm-hs-dd" style="display:none;position:absolute;top:100%;left:0;z-index:300;background:white;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:8px 0;min-width:230px;max-height:360px;overflow-y:auto;margin-top:4px;">
@@ -2961,6 +2967,12 @@ body.closer-mode .msg-new-btn { display: none !important; }
           <label class="crm-hs-lbl" style="color:#999;"><input type="checkbox" class="crm-hs-cb" value="" checked onchange="filterCRMContacts()"> (Aucun statut)</label>
         </div>
       </div>
+      <select class="filter-select" id="crm-filter-assigned" onchange="filterCRMContacts()" style="min-width:120px;">
+        <option value="">Assigné — Tous</option>
+        <option value="_unassigned">Non assignés</option>
+        <option value="raphael@edumove.fr">Raphaël</option>
+        <option value="lirone@edumove.fr">Lirone</option>
+      </select>
       <button class="btn-export" onclick="syncCRMFromHubSpot()" style="padding:11px 14px;">🔄 Sync HubSpot</button>
     </div>
 
@@ -2969,6 +2981,7 @@ body.closer-mode .msg-new-btn { display: none !important; }
       <span style="color:white;font-size:13px;font-weight:600;" id="crm-bulk-count">0 sélectionnés</span>
       <button onclick="openBulkSmsModal()" style="background:#10b981;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">📱 Envoyer SMS</button>
       <button onclick="openBulkEmailModal()" style="background:#3b82f6;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">📧 Envoyer Email</button>
+      <button onclick="openAssignModal()" id="crm-assign-btn" style="background:#f59e0b;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">👤 Assigner</button>
       <button onclick="clearCrmSelection()" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;">✕ Désélectionner</button>
     </div>
 
@@ -2982,8 +2995,9 @@ body.closer-mode .msg-new-btn { display: none !important; }
             <th style="width:10%;">Tél</th>
             <th style="width:11%;">Formulaire</th>
             <th style="width:11%;">Statut HS</th>
-            <th style="width:13%;">Statut Edumove</th>
-            <th style="width:7%;">Date</th>
+            <th style="width:12%;">Statut Edumove</th>
+            <th style="width:8%;">Assigné</th>
+            <th style="width:6%;">Date</th>
           </tr></thead>
           <tbody id="crm-table-body"></tbody>
         </table>
@@ -7126,13 +7140,15 @@ const CRM_STATUS_COLORS = {
   'PASS/LAS priorité': { bg: '#fffbeb', color: '#d97706', border: '#fde68a' }
 };
 
-// Close HS dropdown on click outside
+// Close CRM dropdowns on click outside
 document.addEventListener('click', function(e) {
-  const dd = document.getElementById('crm-hs-dd');
-  const wrap = document.getElementById('crm-hs-btn');
-  if (dd && dd.style.display === 'block' && !dd.contains(e.target) && e.target !== wrap) {
-    dd.style.display = 'none';
-  }
+  ['crm-hs-dd', 'crm-form-dd', 'crm-edm-dd'].forEach(id => {
+    const dd = document.getElementById(id);
+    const btn = document.getElementById(id.replace('-dd', '-btn'));
+    if (dd && dd.style.display === 'block' && !dd.contains(e.target) && e.target !== btn) {
+      dd.style.display = 'none';
+    }
+  });
 });
 
 function openCRM() {
@@ -7227,32 +7243,59 @@ function renderCRMTable() {
   const tbody = document.getElementById('crm-table-body');
   const empty = document.getElementById('crm-empty');
   const search = (document.getElementById('crm-search').value || '').toLowerCase().trim();
-  const statusFilter = document.getElementById('crm-filter-status').value;
-  const formFilter = document.getElementById('crm-filter-form').value;
-  // HS status filter: get allowed statuses from checkboxes
+
+  // Form filter (checkboxes)
+  const formChecked = new Set();
+  document.querySelectorAll('.crm-form-cb:checked').forEach(cb => formChecked.add(cb.value));
+  const allFormCbs = document.querySelectorAll('.crm-form-cb');
+  const formFilterActive = formChecked.size < allFormCbs.length;
+  const formBtn = document.getElementById('crm-form-btn');
+  if (formBtn) {
+    const unc = allFormCbs.length - formChecked.size;
+    formBtn.textContent = unc > 0 ? `Formulaire (${unc} excl.) ▾` : 'Formulaire ▾';
+  }
+
+  // Edumove status filter (checkboxes)
+  const edmChecked = new Set();
+  document.querySelectorAll('.crm-edm-cb:checked').forEach(cb => edmChecked.add(cb.value));
+  const allEdmCbs = document.querySelectorAll('.crm-edm-cb');
+  const edmFilterActive = edmChecked.size < allEdmCbs.length;
+  const edmBtn = document.getElementById('crm-edm-btn');
+  if (edmBtn) {
+    const unc = allEdmCbs.length - edmChecked.size;
+    edmBtn.textContent = unc > 0 ? `Edumove (${unc} excl.) ▾` : 'Statut Edumove ▾';
+  }
+
+  // HS status filter (checkboxes)
   const hsChecked = new Set();
   document.querySelectorAll('.crm-hs-cb:checked').forEach(cb => hsChecked.add(cb.value));
   const allHsCbs = document.querySelectorAll('.crm-hs-cb');
-  const hsFilterActive = hsChecked.size < allHsCbs.length; // only filter if some are unchecked
-
-  // Update button label
+  const hsFilterActive = hsChecked.size < allHsCbs.length;
   const hsBtn = document.getElementById('crm-hs-btn');
   if (hsBtn) {
-    const unchecked = allHsCbs.length - hsChecked.size;
-    hsBtn.textContent = unchecked > 0 ? `Statut HS (${unchecked} excl.) ▾` : 'Statut HubSpot ▾';
+    const unc = allHsCbs.length - hsChecked.size;
+    hsBtn.textContent = unc > 0 ? `Statut HS (${unc} excl.) ▾` : 'Statut HubSpot ▾';
   }
 
+  const assignedFilter = document.getElementById('crm-filter-assigned')?.value || '';
+
   let filtered = crmContacts;
+
+  // Télépro : ne voit que ses leads assignés
+  if (window.adminRole === 'telepro') {
+    filtered = filtered.filter(c => c.assignedTo === (currentAdminUser?.email || ''));
+  }
+
   if (search) {
     filtered = filtered.filter(c =>
       `${c.nom} ${c.prenom} ${c.email} ${c.tel}`.toLowerCase().includes(search)
     );
   }
-  if (formFilter) filtered = filtered.filter(c => c.formName === formFilter);
-  if (statusFilter) filtered = filtered.filter(c => c.leadStatus === statusFilter);
-  if (hsFilterActive) {
-    filtered = filtered.filter(c => hsChecked.has(c.hsLeadStatus));
-  }
+  if (formFilterActive) filtered = filtered.filter(c => formChecked.has(c.formName));
+  if (edmFilterActive) filtered = filtered.filter(c => edmChecked.has(c.leadStatus));
+  if (hsFilterActive) filtered = filtered.filter(c => hsChecked.has(c.hsLeadStatus));
+  if (assignedFilter === '_unassigned') filtered = filtered.filter(c => !c.assignedTo);
+  else if (assignedFilter) filtered = filtered.filter(c => c.assignedTo === assignedFilter);
 
   if (filtered.length === 0) {
     tbody.innerHTML = '';
