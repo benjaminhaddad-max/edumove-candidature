@@ -6164,6 +6164,16 @@ async function sendFacMessage() {
     body: JSON.stringify({ direction: 'admin_to_fac', facKey: msg.fac_key, senderEmail: email, content, studentName: convStudentName })
   }).catch(e => console.warn('Email fac non envoyé:', e));
 
+  // Notification @mention si @LINK/@UCJC/@UE tagué
+  const mentionedFac = /@(LINK|UCJC|UE)\b/i.exec(content);
+  if (mentionedFac) {
+    const mentionedKey = mentionedFac[1].toUpperCase();
+    fetch('/api/notify-mention', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mentionedParty: 'fac', facKey: mentionedKey, senderName: email, studentName: convStudentName, content, candidatureId: currentFacConv?.candidature_id || null })
+    }).catch(e => console.warn('Mention notification non envoyée:', e));
+  }
+
   // Reload conversations list to update preview
   loadFacConversations();
 }

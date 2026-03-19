@@ -889,6 +889,14 @@ async function sendFacReply() {
     body: JSON.stringify({ direction: 'fac_to_admin', facKey, senderEmail: user?.email, content: text, studentName: candName })
   }).catch(e => console.warn('Email admin non envoyé:', e));
 
+  // Notification @mention si @Edumove tagué
+  if (/@edumove/i.test(text)) {
+    fetch('/api/notify-mention', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mentionedParty: 'edumove', facKey, senderName: user?.email, studentName: candName, content: text, candidatureId: currentFacMsgConv.candidature_id || null })
+    }).catch(e => console.warn('Mention notification non envoyée:', e));
+  }
+
   await loadFacMessaging();
   // Re-select current conv
   const idx = facMsgConversations.findIndex(c => c.candidature_id === currentFacMsgConv.candidature_id);
