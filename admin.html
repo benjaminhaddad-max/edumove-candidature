@@ -3208,16 +3208,21 @@ function renderTable() {
     }
     const filiere = rawFiliere ? (filiereLabels[rawFiliere] || rawFiliere) : '\u2014';
     const tracking = c.uni_tracking || {};
+    // Filter unis visible to this role
+    const _facUniMap = { fac_link: 'LINK', fac_ucjc: 'UCJC', fac_ue: 'UE' };
+    const _allowedUni = _facUniMap[window.adminRole] || null; // null = super_admin sees all
+
     let uniBadges = '';
-    if (sel.LINK) uniBadges += '<span class="uni-badge link">LINK</span>';
-    if (sel.UCJC) uniBadges += '<span class="uni-badge ucjc">UCJC</span>';
-    if (sel.UE) uniBadges += '<span class="uni-badge ue">UE</span>';
+    if (sel.LINK && (!_allowedUni || _allowedUni === 'LINK')) uniBadges += '<span class="uni-badge link">LINK</span>';
+    if (sel.UCJC && (!_allowedUni || _allowedUni === 'UCJC')) uniBadges += '<span class="uni-badge ucjc">UCJC</span>';
+    if (sel.UE && (!_allowedUni || _allowedUni === 'UE')) uniBadges += '<span class="uni-badge ue">UE</span>';
     if (!uniBadges) uniBadges = '<span style="color:var(--text-muted);font-size:11px;">\u2014</span>';
 
     // Per-uni tracking summary
     let trackSummary = '';
     ['LINK', 'UCJC', 'UE'].forEach(uni => {
       if (!sel[uni]) return;
+      if (_allowedUni && _allowedUni !== uni) return; // fac role: hide other unis
       const st = tracking[uni + '_status'] || 'en_attente';
       const color = trackColors[st] || '#999';
       const label = trackLabels[st] || st;
