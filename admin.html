@@ -7563,33 +7563,47 @@ async function sendBulkSms() {
 
   const btn = document.getElementById('bulk-sms-send-btn');
   btn.disabled = true;
-  btn.textContent = '⏳ Envoi en cours...';
+  const resultEl = document.getElementById('bulk-sms-result');
+  const shortLinks = document.getElementById('sms-shortlinks')?.checked || false;
+  const pushtype = document.getElementById('sms-pushtype')?.value || 'alert';
+  const recipients = selected.map(c => ({ tel: c.tel, prenom: c.prenom }));
 
-  try {
-    const resp = await fetch('/api/bulk-sms', {
-      method: 'POST', headers: apiHeaders(),
-      body: JSON.stringify({
-        recipients: selected.map(c => ({ tel: c.tel, prenom: c.prenom })),
-        message,
-        shortLinks: document.getElementById('sms-shortlinks')?.checked || false,
-        pushtype: document.getElementById('sms-pushtype')?.value || 'alert'
-      })
-    });
-    const data = await resp.json();
-    const resultEl = document.getElementById('bulk-sms-result');
-    if (data.ok) {
-      resultEl.style.display = 'block';
-      resultEl.style.background = '#f0fdf4';
-      resultEl.style.color = '#166534';
-      resultEl.innerHTML = `✅ <strong>${data.results.sent}</strong> SMS envoyé${data.results.sent > 1 ? 's' : ''}${data.results.failed ? ` · <strong>${data.results.failed}</strong> échoué${data.results.failed > 1 ? 's' : ''}` : ''}`;
-    } else {
-      resultEl.style.display = 'block';
-      resultEl.style.background = '#fef2f2';
-      resultEl.style.color = '#991b1b';
-      resultEl.textContent = '❌ ' + (data.reason || data.error || 'Erreur');
+  // Split into batches of 200
+  const BATCH_SIZE = 200;
+  const batches = [];
+  for (let i = 0; i < recipients.length; i += BATCH_SIZE) {
+    batches.push(recipients.slice(i, i + BATCH_SIZE));
+  }
+
+  let totalSent = 0, totalFailed = 0;
+  for (let i = 0; i < batches.length; i++) {
+    btn.textContent = `⏳ Envoi batch ${i + 1}/${batches.length}...`;
+    try {
+      const resp = await fetch('/api/bulk-sms', {
+        method: 'POST', headers: apiHeaders(),
+        body: JSON.stringify({ recipients: batches[i], message, shortLinks, pushtype })
+      });
+      const data = await resp.json();
+      if (data.ok && data.results) {
+        totalSent += data.results.sent || 0;
+        totalFailed += data.results.failed || 0;
+      } else {
+        totalFailed += batches[i].length;
+      }
+    } catch (err) {
+      totalFailed += batches[i].length;
     }
-  } catch (err) {
-    alert('Erreur réseau lors de l\'envoi.');
+  }
+
+  resultEl.style.display = 'block';
+  if (totalSent > 0) {
+    resultEl.style.background = '#f0fdf4';
+    resultEl.style.color = '#166534';
+    resultEl.innerHTML = `✅ <strong>${totalSent}</strong> SMS envoyé${totalSent > 1 ? 's' : ''}${totalFailed ? ` · <strong>${totalFailed}</strong> échoué${totalFailed > 1 ? 's' : ''}` : ''}`;
+  } else {
+    resultEl.style.background = '#fef2f2';
+    resultEl.style.color = '#991b1b';
+    resultEl.textContent = '❌ Aucun SMS envoyé (' + totalFailed + ' échoués)';
   }
   btn.disabled = false;
   btn.textContent = 'Envoyer les SMS';
@@ -7671,28 +7685,47 @@ async function sendBulkEmail() {
 
   const btn = document.getElementById('bulk-email-send-btn');
   btn.disabled = true;
-  btn.textContent = '⏳ Envoi en cours...';
+  const resultEl = document.getElementById('bulk-email-result');
+  const allRecipients = payload.recipients;
 
-  try {
-    const resp = await fetch('/api/bulk-email', {
-      method: 'POST', headers: apiHeaders(),
-      body: JSON.stringify(payload)
-    });
-    const data = await resp.json();
-    const resultEl = document.getElementById('bulk-email-result');
-    if (data.ok) {
-      resultEl.style.display = 'block';
-      resultEl.style.background = '#f0fdf4';
-      resultEl.style.color = '#166534';
-      resultEl.innerHTML = `✅ <strong>${data.results.sent}</strong> email${data.results.sent > 1 ? 's' : ''} envoyé${data.results.sent > 1 ? 's' : ''}${data.results.failed ? ` · <strong>${data.results.failed}</strong> échoué${data.results.failed > 1 ? 's' : ''}` : ''}`;
-    } else {
-      resultEl.style.display = 'block';
-      resultEl.style.background = '#fef2f2';
-      resultEl.style.color = '#991b1b';
-      resultEl.textContent = '❌ ' + (data.error || 'Erreur');
+  // Split into batches of 200
+  const BATCH_SIZE = 200;
+  const batches = [];
+  for (let i = 0; i < allRecipients.length; i += BATCH_SIZE) {
+    batches.push(allRecipients.slice(i, i + BATCH_SIZE));
+  }
+
+  let totalSent = 0, totalFailed = 0;
+  for (let i = 0; i < batches.length; i++) {
+    btn.textContent = `⏳ Envoi batch ${i + 1}/${batches.length}...`;
+    try {
+      const batchPayload = { ...payload, recipients: batches[i] };
+      const resp = await fetch('/api/bulk-email', {
+        method: 'POST', headers: apiHeaders(),
+        body: JSON.stringify(batchPayload)
+      });
+      const data = await resp.json();
+      if (data.ok && data.results) {
+        totalSent += data.results.sent || 0;
+        totalFailed += data.results.failed || 0;
+      } else {
+        totalFailed += batches[i].length;
+      }
+    } catch (err) {
+      totalFailed += batches[i].length;
     }
-  } catch (err) {
-    alert('Erreur réseau lors de l\'envoi.');
+  }
+
+  resultEl.style.display = 'block';
+  if (totalSent > 0) {
+    resultEl.style.background = '#f0fdf4';
+    resultEl.style.color = '#166534';
+    resultEl.innerHTML = `✅ <strong>${totalSent}</strong> email${totalSent > 1 ? 's' : ''} envoyé${totalSent > 1 ? 's' : ''}${totalFailed ? ` · <strong>${totalFailed}</strong> échoué${totalFailed > 1 ? 's' : ''}` : ''}`;
+  } else {
+    resultEl.style.display = 'block';
+    resultEl.style.background = '#fef2f2';
+    resultEl.style.color = '#991b1b';
+    resultEl.textContent = '❌ Aucun email envoyé (' + totalFailed + ' échoués)';
   }
   btn.disabled = false;
   btn.textContent = 'Envoyer les emails';
