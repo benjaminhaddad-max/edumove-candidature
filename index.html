@@ -573,6 +573,9 @@ body {
 </footer>
 
 <script>
+const _API_KEY = 'edm_live_k8x2Qp9Rv4TmWn7YsB3jL6hF';
+function apiHeaders() { return { 'Content-Type': 'application/json', 'x-api-key': _API_KEY }; }
+
 // ── AUTH STATE ──
 (async () => {
   const { data: { session } } = await supabase.auth.getSession();
@@ -757,7 +760,7 @@ async function doResetPassword() {
   try {
     await fetch('/api/reset-password', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: apiHeaders(),
       body: JSON.stringify({ email, redirectTo: window.location.origin + '/index.html' })
     });
     successEl.classList.add('visible');

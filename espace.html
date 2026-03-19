@@ -1276,6 +1276,9 @@ body {
 </footer>
 
 <script>
+const _API_KEY = 'edm_live_k8x2Qp9Rv4TmWn7YsB3jL6hF';
+function apiHeaders() { return { 'Content-Type': 'application/json', 'x-api-key': _API_KEY }; }
+
 let currentUser = null;
 let candidatureId = null;
 let candidatureData = null;
@@ -1727,7 +1730,7 @@ async function requestCallback() {
       const c = candidatureData || {};
       await fetch('/api/notify-callback', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: apiHeaders(),
         body: JSON.stringify({
           nom: c.nom || '',
           prenom: c.prenom || '',
@@ -3577,7 +3580,7 @@ async function sendMessage() {
     const c = candidatureData || {};
     if (activeChannel === 'edumove') {
       fetch('/api/notify-student-message', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: apiHeaders(),
         body: JSON.stringify({ prenom: c.prenom || '', nom: c.nom || '', email: c.email || currentUser?.email || '', content: text, candidatureId })
       }).catch(() => {});
     }

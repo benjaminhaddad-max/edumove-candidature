@@ -3337,7 +3337,7 @@ function renderTable() {
       const firstUni = sel.UE || sel.UCJC || sel.LINK;
       if (firstUni?.filiere) rawFiliere = firstUni.filiere;
     }
-    const filiere = rawFiliere ? (filiereLabels[rawFiliere] || rawFiliere) : '\u2014';
+    const filiere = rawFiliere ? esc(filiereLabels[rawFiliere] || rawFiliere) : '\u2014';
     const tracking = c.uni_tracking || {};
     // Filter unis visible to this role
     const _facUniMap = { fac_link: 'LINK', fac_ucjc: 'UCJC', fac_ue: 'UE' };
@@ -3362,7 +3362,7 @@ function renderTable() {
     if (!trackSummary) trackSummary = '<span style="color:var(--text-muted);font-size:10px;">\u2014</span>';
 
     const directBadge = c.source?.startsWith('direct_')
-      ? `<span style="display:inline-block;padding:1px 7px;border-radius:4px;background:#e65100;color:white;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-left:4px;">Direct ${c.source.replace('direct_','')}</span>`
+      ? `<span style="display:inline-block;padding:1px 7px;border-radius:4px;background:#e65100;color:white;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-left:4px;">Direct ${esc(c.source.replace('direct_',''))}</span>`
       : '';
 
     const isActive = c.status === 'en_cours' || c.status === 'reponse_edumove';
@@ -3684,7 +3684,7 @@ function renderDetailPage(c) {
   // Header
   document.getElementById('detail-page-title').textContent = c.prenom + ' ' + c.nom;
   const _directBadgeHtml = c.source?.startsWith('direct_')
-    ? ` <span style="padding:3px 10px;border-radius:6px;background:#e65100;color:white;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Direct ${c.source.replace('direct_','')}</span>`
+    ? ` <span style="padding:3px 10px;border-radius:6px;background:#e65100;color:white;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Direct ${esc(c.source.replace('direct_',''))}</span>`
     : '';
   document.getElementById('detail-page-badge').innerHTML = `<span class="status-badge status-${c.status}">${statusLabels[c.status] || c.status}</span>${_directBadgeHtml}`;
 
@@ -3856,7 +3856,7 @@ function renderDetailPage(c) {
     <div class="detail-grid">
       <div class="detail-item"><span class="detail-item-label">Score académique</span><span class="detail-item-value">${c.score ? parseFloat(c.score).toFixed(1) : '\u2014'}/20</span></div>
       <div class="detail-item"><span class="detail-item-label">Niveau</span><span class="detail-item-value">${esc(c.niveau || '\u2014')}</span></div>
-      <div class="detail-item" style="grid-column:1/-1"><span class="detail-item-label">Classement destinations</span><span class="detail-item-value">${(c.classement_destinations||[]).map((d,i) => (i+1)+'. '+d).join(' | ') || '\u2014'}</span></div>
+      <div class="detail-item" style="grid-column:1/-1"><span class="detail-item-label">Classement destinations</span><span class="detail-item-value">${(c.classement_destinations||[]).map((d,i) => (i+1)+'. '+esc(d)).join(' | ') || '\u2014'}</span></div>
       <div class="detail-item"><span class="detail-item-label">Destination recommandée</span><span class="detail-item-value">${esc(c.destination || '\u2014')}</span></div>
       <div class="detail-item"><span class="detail-item-label">Université</span><span class="detail-item-value">${esc(c.universite || '\u2014')}</span></div>
     </div>
@@ -6662,7 +6662,7 @@ function _buildStudentSelector(required) {
   allCandidatures.forEach(c => {
     const name = esc((c.prenom || '') + ' ' + (c.nom || ''));
     const filiere = esc(c.filiere || '');
-    html += `<div class="conv-student-option" data-id="${c.id}" data-name="${name}" onclick="selectConvStudent('${c.id}','${name}')" style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #f0f0f0;">${name}${filiere ? `<span style="font-size:11px;color:var(--text-muted);margin-left:6px;">${filiere}</span>` : ''}</div>`;
+    html += `<div class="conv-student-option" data-id="${c.id}" data-name="${name}" onclick="selectConvStudent('${c.id}','${name.replace(/'/g, "\\'")}')" style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #f0f0f0;">${name}${filiere ? `<span style="font-size:11px;color:var(--text-muted);margin-left:6px;">${filiere}</span>` : ''}</div>`;
   });
   html += '</div></div>';
   html += '<input type="hidden" id="new-conv-student" value="">';

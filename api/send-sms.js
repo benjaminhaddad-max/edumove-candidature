@@ -1,64 +1,39 @@
 // Vercel Serverless Function — Envoi SMS via SMS Factor
 // POST /api/send-sms
-// Body: { tel, prenom }
+const { setCorsHeaders, handlePreflight, verifyApiKey, safeError, isValidPhone, normalizePhone, capitalize } = require('./_shared');
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
+  setCorsHeaders(req, res);
+  if (handlePreflight(req, res)) return;
+  if (!verifyApiKey(req)) return safeError(res, 401, 'Unauthorized');
 
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
-  // ⚠️ SMS désactivé — mettre SMS_ENABLED=true dans Vercel pour activer
   if (process.env.SMS_ENABLED !== 'true') {
     return res.status(200).json({ ok: false, reason: 'SMS disabled' });
   }
 
   const { tel, prenom } = req.body || {};
-  if (!tel) return res.status(400).json({ error: 'Missing tel' });
-
-  // Normalisation du numéro en format international (33XXXXXXXXX)
-  let phone = String(tel).replace(/[\s.\-()]/g, '');
-  if (phone.startsWith('00')) phone = phone.slice(2);
-  else if (phone.startsWith('+')) phone = phone.slice(1);
-  else if (phone.startsWith('0')) phone = '33' + phone.slice(1);
+  if (!tel || !isValidPhone(tel)) return safeError(res, 400, 'Invalid phone number');
 
   const token = process.env.SMS_FACTOR_TOKEN;
-  if (!token) return res.status(500).json({ error: 'SMS_FACTOR_TOKEN not configured' });
+  if (!token) return safeError(res, 500, 'SMS service not configured');
 
-  const siteUrl = process.env.SITE_URL || 'https://edumove.fr';
-  const nom = prenom ? prenom.charAt(0).toUpperCase() + prenom.slice(1).toLowerCase() : 'Candidat';
+  const phone = normalizePhone(tel);
+  const nom = capitalize(prenom);
+  const siteUrl = process.env.SITE_URL || 'https://candidature.edumove.fr';
   const message = `Bonjour ${nom}, votre réponse Edumove est disponible ! Connectez-vous à votre espace candidat pour la consulter : ${siteUrl}`;
 
   try {
     const response = await fetch('https://api.smsfactor.com/send', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        sms: {
-          message: { text: message, pushtype: 'marketing', sender: 'Edumove' },
-          recipients: { gsm: [{ value: phone }] }
-        }
-      })
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ sms: { message: { text: message, pushtype: 'marketing', sender: 'Edumove' }, recipients: { gsm: [{ value: phone }] } } })
     });
 
     const data = await response.json();
-
-    if (!response.ok || data.status === 0) {
-      console.error('SMS Factor error:', data);
-      return res.status(502).json({ error: 'SMS Factor error', details: data });
-    }
-
-    console.log(`SMS sent to ${phone} (${nom}):`, data);
-    return res.status(200).json({ ok: true, phone, data });
-
+    if (!response.ok || data.status === 0) return safeError(res, 502, 'SMS send failed');
+    return res.status(200).json({ ok: true });
   } catch (err) {
-    console.error('SMS send failed:', err);
-    return res.status(500).json({ error: err.message });
+    console.error('SMS send failed:', err.message);
+    return safeError(res, 500, 'SMS send failed');
   }
 };

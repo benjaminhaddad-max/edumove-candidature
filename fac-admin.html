@@ -331,6 +331,9 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 </div>
 
 <script>
+const _API_KEY = 'edm_live_k8x2Qp9Rv4TmWn7YsB3jL6hF';
+function apiHeaders() { return { 'Content-Type': 'application/json', 'x-api-key': _API_KEY }; }
+
 let currentUniversity = null; // 'ue' | 'ucjc' | 'link'
 let allCandidatures = [];
 
@@ -441,7 +444,7 @@ async function doResetPassword() {
   try {
     const res = await fetch('/api/reset-password', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: apiHeaders(),
       body: JSON.stringify({ email, redirectTo: window.location.origin + '/fac-admin.html' })
     });
     const data = await res.json();
@@ -914,14 +917,14 @@ async function sendFacReply() {
     ? (() => { const c = allCandidatures.find(x => x.id === currentFacMsgConv.candidature_id); return c ? c.prenom + ' ' + c.nom : null; })()
     : null;
   fetch('/api/notify-fac-message', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: apiHeaders(),
     body: JSON.stringify({ direction: 'fac_to_admin', facKey, senderEmail: user?.email, content: _contentToSave, studentName: candName })
   }).catch(e => console.warn('Email admin non envoyé:', e));
 
   // Notification @mention si @Edumove tagué
   if (_hasEdumoveMention) {
     fetch('/api/notify-mention', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: apiHeaders(),
       body: JSON.stringify({ mentionedParty: 'edumove', facKey, senderName: user?.email, studentName: candName, content: text, candidatureId: currentFacMsgConv.candidature_id || null })
     }).catch(e => console.warn('Mention notification non envoyée:', e));
   }
