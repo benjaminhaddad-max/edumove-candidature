@@ -6004,13 +6004,19 @@ function startNewConversation() {
   html += '<option value="student">À propos d\'un étudiant</option>';
   html += '</select></div>';
 
-  // Student selector (hidden by default)
+  // Student selector with search (hidden by default)
   html += '<div id="new-conv-student-wrap" style="display:none;margin-bottom:12px;"><label style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px;">ÉTUDIANT</label>';
-  html += '<select id="new-conv-student" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;">';
+  html += '<div style="position:relative;">';
+  html += '<input id="new-conv-student-search" type="text" placeholder="Rechercher un étudiant…" oninput="filterConvStudents()" autocomplete="off" style="width:100%;box-sizing:border-box;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;outline:none;">';
+  html += '<div id="new-conv-student-list" style="position:absolute;top:calc(100% + 4px);left:0;right:0;background:white;border:1.5px solid var(--border);border-radius:8px;max-height:200px;overflow-y:auto;z-index:10;box-shadow:0 4px 16px rgba(0,0,0,0.1);display:none;">';
   allCandidatures.forEach(c => {
-    html += '<option value="' + c.id + '">' + esc(c.prenom + ' ' + c.nom) + '</option>';
+    const name = esc((c.prenom || '') + ' ' + (c.nom || ''));
+    const filiere = esc(c.filiere || '');
+    html += `<div class="conv-student-option" data-id="${c.id}" data-name="${name}" onclick="selectConvStudent('${c.id}','${name}')" style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #f0f0f0;">${name}${filiere ? `<span style="font-size:11px;color:var(--text-muted);margin-left:6px;">${filiere}</span>` : ''}</div>`;
   });
-  html += '</select></div>';
+  html += '</div></div>';
+  html += '<input type="hidden" id="new-conv-student" value="">';
+  html += '</div>';
 
   // First message
   html += '<div style="margin-bottom:16px;"><label style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px;">MESSAGE</label>';
@@ -6033,6 +6039,27 @@ function startNewConversation() {
 function toggleConvStudent() {
   const type = document.getElementById('new-conv-type').value;
   document.getElementById('new-conv-student-wrap').style.display = type === 'student' ? 'block' : 'none';
+  if (type === 'student') {
+    setTimeout(() => document.getElementById('new-conv-student-search')?.focus(), 50);
+    filterConvStudents();
+  }
+}
+
+function filterConvStudents() {
+  const q = (document.getElementById('new-conv-student-search')?.value || '').toLowerCase();
+  const list = document.getElementById('new-conv-student-list');
+  if (!list) return;
+  list.style.display = 'block';
+  Array.from(list.querySelectorAll('.conv-student-option')).forEach(el => {
+    const name = (el.dataset.name || '').toLowerCase();
+    el.style.display = name.includes(q) ? '' : 'none';
+  });
+}
+
+function selectConvStudent(id, name) {
+  document.getElementById('new-conv-student').value = id;
+  document.getElementById('new-conv-student-search').value = name;
+  document.getElementById('new-conv-student-list').style.display = 'none';
 }
 
 function closeNewConvModal() {
@@ -6054,6 +6081,7 @@ async function createNewConversation() {
   const candidatureId = type === 'student' ? document.getElementById('new-conv-student').value : null;
   const content = document.getElementById('new-conv-message').value.trim();
 
+  if (type === 'student' && !candidatureId) { alert('Veuillez sélectionner un étudiant dans la liste.'); return; }
   if (!content) { alert('Veuillez écrire un message.'); return; }
 
   const msg = {
