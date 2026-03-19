@@ -2848,7 +2848,7 @@ supabase.auth.onAuthStateChange((event) => {
   const { data: { session } } = await supabase.auth.getSession();
   if (session?.user) {
     const user = session.user;
-    const { data: adminData } = await supabase.from('admins').select('id, role').eq('id', user.id).maybeSingle();
+    const { data: adminData } = await supabase.from('admins').select('email, role').eq('email', user.email).maybeSingle();
     if (adminData) {
       currentAdminUser = user;
       window.adminRole = adminData.role || 'super_admin';
@@ -2878,7 +2878,7 @@ async function doLogin() {
     if (error) throw error;
     const user = (await supabase.auth.getUser()).data?.user;
     if (!user) throw new Error('No user');
-    const { data: adminData } = await supabase.from('admins').select('id, role').eq('id', user.id).maybeSingle();
+    const { data: adminData } = await supabase.from('admins').select('email, role').eq('email', user.email).maybeSingle();
     if (adminData) {
       currentAdminUser = user;
       window.adminRole = adminData.role || 'super_admin';
