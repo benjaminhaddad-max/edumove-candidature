@@ -79,31 +79,34 @@ async function syncFromHubSpot(req, res) {
   const sb = getSupabase();
   const PROPS = ['firstname', 'lastname', 'email', 'phone', 'edumove_lead_status', 'hs_lead_status', 'recent_conversion_event_name', 'hs_analytics_source', 'createdate'];
 
-  const edumoveFilter = {
-    propertyName: 'recent_conversion_event_name',
-    operator: 'CONTAINS_TOKEN',
-    value: 'EDUMOVE'
-  };
+  // Two filters to catch all Edumove contacts (recent + historical forms)
+  const filterGroups = [
+    { filters: [{ propertyName: 'recent_conversion_event_name', operator: 'CONTAINS_TOKEN', value: 'EDUMOVE' }] },
+    { filters: [{ propertyName: 'recent_conversion_event_name', operator: 'CONTAINS_TOKEN', value: 'edumove' }] },
+    { filters: [{ propertyName: 'recent_conversion_event_name', operator: 'CONTAINS_TOKEN', value: 'Edumove' }] }
+  ];
 
   let allContacts = [];
-  let after = 0;
+  let after = null;
   let safety = 0;
 
-  // Paginate through all Edumove contacts
+  // Paginate through all contacts
   do {
     safety++;
-    const searchRes = await hubFetch(hubspotToken, 'POST', '/crm/v3/objects/contacts/search', {
-      filterGroups: [{ filters: [edumoveFilter] }],
+    const body = {
+      filterGroups,
       limit: 100,
-      after,
       properties: PROPS,
       sorts: [{ propertyName: 'createdate', direction: 'DESCENDING' }]
-    });
+    };
+    if (after) body.after = after;
+
+    const searchRes = await hubFetch(hubspotToken, 'POST', '/crm/v3/objects/contacts/search', body);
     const data = await searchRes.json();
     const results = data.results || [];
     allContacts = allContacts.concat(results);
     after = data.paging?.next?.after || null;
-  } while (after && safety < 50);
+  } while (after && safety < 100);
 
   // Transform and upsert into Supabase
   const now = new Date().toISOString();
