@@ -47,17 +47,27 @@ module.exports = async function handler(req, res) {
   }
 };
 
-// ── LIST CONTACTS ──
+const CONTACT_PROPERTIES = ['firstname', 'lastname', 'email', 'phone', 'edumove_lead_status', 'edumove_profil', 'edumove_score', 'edumove_destination', 'edumove_candidature_id', 'createdate', 'hs_lead_status', 'lifecyclestage', 'edumove_departement', 'recent_conversion_event_name', 'hs_analytics_source'];
+
+// ── LIST CONTACTS (only from Edumove forms) ──
+// Uses HubSpot search API filtering on recent_conversion_event_name containing "EDUMOVE"
 async function listContacts(req, res, token) {
   const { after, search } = req.body;
 
-  // If search query, use search endpoint
+  // Base filter: only contacts who submitted an EDUMOVE form
+  const edumoveFilter = {
+    propertyName: 'recent_conversion_event_name',
+    operator: 'CONTAINS_TOKEN',
+    value: 'EDUMOVE'
+  };
+
+  // Search with text query + Edumove filter
   if (search && search.trim()) {
     const searchRes = await hubFetch(token, 'POST', '/crm/v3/objects/contacts/search', {
-      filterGroups: [],
+      filterGroups: [{ filters: [edumoveFilter] }],
       query: search.trim(),
       limit: 100,
-      properties: ['firstname', 'lastname', 'email', 'phone', 'edumove_lead_status', 'edumove_profil', 'edumove_score', 'edumove_destination', 'edumove_candidature_id', 'createdate', 'hs_lead_status', 'lifecyclestage', 'edumove_departement', 'recent_conversion_event_name', 'hs_analytics_source'],
+      properties: CONTACT_PROPERTIES,
       sorts: [{ propertyName: 'createdate', direction: 'DESCENDING' }]
     });
     const data = await searchRes.json();
@@ -68,18 +78,23 @@ async function listContacts(req, res, token) {
     });
   }
 
-  // Default: list all with pagination
-  let url = '/crm/v3/objects/contacts?limit=100&properties=firstname,lastname,email,phone,edumove_lead_status,edumove_profil,edumove_score,edumove_destination,edumove_candidature_id,createdate,hs_lead_status,lifecyclestage,edumove_departement,recent_conversion_event_name,hs_analytics_source';
-  if (after) url += '&after=' + after;
-
-  const listRes = await hubFetch(token, 'GET', url);
-  const data = await listRes.json();
+  // Paginated list of Edumove contacts only (search API, max 100 per page)
+  const afterNum = after ? parseInt(after) : 0;
+  const searchRes = await hubFetch(token, 'POST', '/crm/v3/objects/contacts/search', {
+    filterGroups: [{ filters: [edumoveFilter] }],
+    limit: 100,
+    after: afterNum,
+    properties: CONTACT_PROPERTIES,
+    sorts: [{ propertyName: 'createdate', direction: 'DESCENDING' }]
+  });
+  const data = await searchRes.json();
+  const nextAfter = data.paging?.next?.after || null;
 
   return res.status(200).json({
     contacts: (data.results || []).map(formatContact),
     total: data.total || 0,
-    hasMore: !!data.paging?.next?.after,
-    after: data.paging?.next?.after || null
+    hasMore: !!nextAfter,
+    after: nextAfter
   });
 }
 
@@ -137,10 +152,22 @@ function formatContact(c) {
     destination: p.edumove_destination || '',
     departement: p.edumove_departement || '',
     candidatureId: p.edumove_candidature_id || '',
-    formName: p.recent_conversion_event_name || '',
+    formName: cleanFormName(p.recent_conversion_event_name || ''),
     source: p.hs_analytics_source || '',
     createdAt: p.createdate || ''
   };
+}
+
+function cleanFormName(raw) {
+  if (!raw) return '';
+  // "Form: EDUMOVE - CONTACT" → "CONTACT"
+  // "Form: EDUMOVE - QUALIFICATION" → "QUALIFICATION"
+  // "Facebook Lead Ads: EDUMOVE - Form LGF V2" → "LGF V2"
+  if (raw.includes('EDUMOVE')) {
+    const match = raw.match(/EDUMOVE\s*-\s*(?:Form\s*)?(.+)/i);
+    if (match) return match[1].trim();
+  }
+  return raw;
 }
 
 async function hubFetch(token, method, path, body) {
