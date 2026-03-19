@@ -274,6 +274,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
           <div class="msg-thread-footer" id="msg-thread-footer" style="display:none;">
             <textarea class="msg-thread-input" id="msg-thread-input" placeholder="Écrire votre réponse…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendFacReply();}"></textarea>
             <button class="msg-send-btn" onclick="sendFacReply()">Envoyer</button>
+            <div style="font-size:11px;color:#9ca3af;margin-top:6px;line-height:1.5;">💡 Tapez <strong>@Edumove</strong> pour alerter l'équipe — invisible pour l'étudiant</div>
           </div>
         </div>
       </div>
@@ -869,13 +870,16 @@ async function sendFacReply() {
 
   const facKey = getFacKey();
   const { data: { user } } = await supabase.auth.getUser();
+  const _hasEdumoveMention = /@edumove/i.test(text);
+  // Strip @Edumove before saving to DB (not visible in student chat, only in fac↔edumove messaging)
+  const _contentToSave = _hasEdumoveMention ? text.replace(/@edumove/gi, '').replace(/\s{2,}/g, ' ').trim() : text;
 
   const { error } = await supabase.from('fac_messages').insert({
     fac_key: facKey,
     candidature_id: currentFacMsgConv.candidature_id || null,
     sender_role: 'fac',
     sender_email: user?.email || facKey.toLowerCase(),
-    content: text
+    content: _contentToSave
   });
 
   if (error) { console.error('Send reply error:', error); alert('Erreur lors de l\'envoi.'); return; }
@@ -886,11 +890,11 @@ async function sendFacReply() {
     : null;
   fetch('/api/notify-fac-message', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ direction: 'fac_to_admin', facKey, senderEmail: user?.email, content: text, studentName: candName })
+    body: JSON.stringify({ direction: 'fac_to_admin', facKey, senderEmail: user?.email, content: _contentToSave, studentName: candName })
   }).catch(e => console.warn('Email admin non envoyé:', e));
 
   // Notification @mention si @Edumove tagué
-  if (/@edumove/i.test(text)) {
+  if (_hasEdumoveMention) {
     fetch('/api/notify-mention', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mentionedParty: 'edumove', facKey, senderName: user?.email, studentName: candName, content: text, candidatureId: currentFacMsgConv.candidature_id || null })

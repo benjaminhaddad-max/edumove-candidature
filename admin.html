@@ -3527,8 +3527,17 @@ function viewDetail(id) {
 
   renderDetailPage(c);
   loadMessagesForCandidature(c.id);
-  const _initFacTab = window.adminRole === 'fac_ucjc' ? 'UCJC' : window.adminRole === 'fac_ue' ? 'UE' : 'LINK';
-  setTimeout(() => switchFacTab(_initFacTab, c.id), 100);
+  setTimeout(() => {
+    // Init @Edumove mention autocomplete for fac users in student chat
+    if (window.adminRole && window.adminRole !== 'super_admin' && window.adminRole !== 'closer') {
+      const _facMsgInput = document.getElementById('msg-input-' + c.id);
+      if (_facMsgInput) initMentionInput(_facMsgInput, ['@Edumove']);
+    }
+    // Init fac tab for super_admin
+    if (!window.adminRole || window.adminRole === 'super_admin') {
+      switchFacTab('LINK', c.id);
+    }
+  }, 100);
 }
 
 function renderDetailPage(c) {
@@ -4060,29 +4069,31 @@ function renderDetailPage(c) {
         <textarea class="msg-input" id="msg-input-${c.id}" placeholder="Écrire un message..."></textarea>
         <button class="btn-msg-send" onclick="sendAdminMessage('${c.id}')">Envoyer</button>
       </div>
+      ${window.adminRole && window.adminRole !== 'super_admin' && window.adminRole !== 'closer' ? `<div style="font-size:11px;color:var(--text-muted,#9ca3af);margin:4px 16px 10px;line-height:1.5;">💡 Tapez <strong>@Edumove</strong> pour alerter l'équipe — invisible pour l'étudiant</div>` : ''}
       </div>
     </div>`;
   }
 
-  // Messagerie fac (par université) — onglets filtrés selon le rôle
-  const _facRole = window.adminRole;
-  const _allowedFacs = _facRole === 'fac_link' ? ['LINK'] : _facRole === 'fac_ucjc' ? ['UCJC'] : _facRole === 'fac_ue' ? ['UE'] : ['LINK','UCJC','UE'];
-  const _facTabsHtml = _allowedFacs.map((fk, idx) =>
-    `<button class="fac-tab-btn${idx===0?' active':''}" data-fac="${fk}" onclick="switchFacTab('${fk}','${c.id}')">${fk}</button>`
-  ).join('');
-  msgHtml += `<div class="detail-card" style="flex:1;display:flex;flex-direction:column;min-height:0;">
-    <div class="detail-card-title" onclick="toggleCard(this)" style="color:var(--violet);border-color:var(--violet);flex-shrink:0;">Messagerie facultés</div>
-    <div class="detail-card-body" style="flex:1;display:flex;flex-direction:column;min-height:0;padding:0;">
-      ${_allowedFacs.length > 1 ? `<div style="display:flex;gap:0;border-bottom:1px solid var(--border-light);flex-shrink:0;">${_facTabsHtml}</div>` : ''}
-      <div class="msg-container" id="fac-msg-detail-container" style="flex:1;min-height:0;max-height:none;padding:12px;">
-        <div class="msg-empty" id="fac-msg-detail-empty">Sélectionnez une fac</div>
+  // Messagerie fac (par université) — super_admin uniquement
+  if (!window.adminRole || window.adminRole === 'super_admin') {
+    const _allowedFacs = ['LINK','UCJC','UE'];
+    const _facTabsHtml = _allowedFacs.map((fk, idx) =>
+      `<button class="fac-tab-btn${idx===0?' active':''}" data-fac="${fk}" onclick="switchFacTab('${fk}','${c.id}')">${fk}</button>`
+    ).join('');
+    msgHtml += `<div class="detail-card" style="flex:1;display:flex;flex-direction:column;min-height:0;">
+      <div class="detail-card-title" onclick="toggleCard(this)" style="color:var(--violet);border-color:var(--violet);flex-shrink:0;">Messagerie facultés</div>
+      <div class="detail-card-body" style="flex:1;display:flex;flex-direction:column;min-height:0;padding:0;">
+        <div style="display:flex;gap:0;border-bottom:1px solid var(--border-light);flex-shrink:0;">${_facTabsHtml}</div>
+        <div class="msg-container" id="fac-msg-detail-container" style="flex:1;min-height:0;max-height:none;padding:12px;">
+          <div class="msg-empty" id="fac-msg-detail-empty">Sélectionnez une fac</div>
+        </div>
+        <div class="msg-input-row" style="flex-shrink:0;padding:8px 12px;">
+          <textarea class="msg-input" id="fac-msg-detail-input" placeholder="Écrire à la fac..."></textarea>
+          <button class="btn-msg-send" onclick="sendFacDetailMessage('${c.id}')">Envoyer</button>
+        </div>
       </div>
-      <div class="msg-input-row" style="flex-shrink:0;padding:8px 12px;">
-        <textarea class="msg-input" id="fac-msg-detail-input" placeholder="Écrire à la fac..."></textarea>
-        <button class="btn-msg-send" onclick="sendFacDetailMessage('${c.id}')">Envoyer</button>
-      </div>
-    </div>
-  </div>`;
+    </div>`;
+  }
 
   document.getElementById('detail-messaging').innerHTML = msgHtml;
 
@@ -4177,14 +4188,38 @@ async function sendAdminMessage(candidatureId) {
     const _senderNames = { fac_link: 'LINK Campus', fac_ucjc: 'UCJC Madrid', fac_ue: 'Universidad Europea' };
     const _senderRole = window.adminRole || 'admin';
     const _senderName = _senderNames[window.adminRole] || 'Équipe EDUMOVE';
+    const _isFacSender = window.adminRole && window.adminRole !== 'super_admin';
+    const _hasEdumoveMention = _isFacSender && /@edumove/i.test(text);
+    // Strip @Edumove from message stored in DB (student must not see the tag)
+    const _contentToSave = _hasEdumoveMention ? text.replace(/@edumove/gi, '').replace(/\s{2,}/g, ' ').trim() : text;
+
     const { error } = await supabase.from('messages').insert({
       candidature_id: candidatureId,
       sender_id: currentAdminUser?.id || currentAdminUser?.email || 'admin',
       sender_role: _senderRole,
       sender_name: _senderName,
-      content: text
+      content: _contentToSave
     });
     if (error) throw error;
+
+    // Send @Edumove mention notification
+    if (_hasEdumoveMention) {
+      const _cand = allCandidatures.find(x => x.id === candidatureId);
+      const _facKeyMap = { fac_link: 'LINK', fac_ucjc: 'UCJC', fac_ue: 'UE' };
+      fetch('/api/notify-mention', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mentionedParty: 'edumove',
+          facKey: _facKeyMap[window.adminRole],
+          senderName: _senderName,
+          studentName: _cand ? (_cand.prenom + ' ' + _cand.nom) : null,
+          content: text,
+          candidatureId
+        })
+      }).catch(() => {});
+    }
+
     input.value = '';
     // Affichage optimiste immédiat
     const container = document.getElementById('msg-container-' + candidatureId);
