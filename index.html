@@ -174,6 +174,12 @@ body {
   padding: 36px 32px;
 }
 
+/* Profil toggle */
+.profil-toggle { display: flex; gap: 10px; }
+.profil-btn { flex: 1; padding: 12px 10px; border: 1.5px solid var(--border); border-radius: 8px; background: white; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+.profil-btn:hover { border-color: var(--violet-light); color: var(--navy); }
+.profil-btn.active { border-color: var(--orange); background: rgba(236,104,10,0.06); color: var(--orange); }
+
 /* Login modal overlay */
 .login-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: none; align-items: center; justify-content: center; }
 .login-overlay.visible { display: flex; }
@@ -458,6 +464,14 @@ body {
       </div>
     </div>
     <div class="auth-field">
+      <label>Votre situation <span class="req">*</span></label>
+      <div class="profil-toggle">
+        <button type="button" class="profil-btn active" data-val="terminale" onclick="selectSignupProfil('terminale',this)">🎓 Terminale</button>
+        <button type="button" class="profil-btn" data-val="reorientation" onclick="selectSignupProfil('reorientation',this)">🔄 Réorientation</button>
+      </div>
+      <input type="hidden" id="signup-profil" value="terminale"/>
+    </div>
+    <div class="auth-field">
       <label>Mot de passe <span class="req">*</span></label>
       <div class="pw-wrap"><input type="password" id="signup-pass" placeholder="Minimum 6 caractères"/><button type="button" class="pw-toggle" onclick="togglePw(this)">👁</button></div>
     </div>
@@ -465,7 +479,7 @@ body {
       <label>Confirmer le mot de passe <span class="req">*</span></label>
       <div class="pw-wrap"><input type="password" id="signup-pass2" placeholder="Retapez votre mot de passe"/><button type="button" class="pw-toggle" onclick="togglePw(this)">👁</button></div>
     </div>
-    <button class="btn-auth" onclick="doSignup()">Déposer ma candidature</button>
+    <button class="btn-auth" onclick="doSignup()">Poursuivre ma candidature dans mon espace Edumove</button>
     <div class="auth-error" id="signup-error"></div>
     <div class="auth-success" id="signup-success"></div>
   </div>
@@ -538,6 +552,13 @@ body {
   }
 })();
 
+// ── PROFIL TOGGLE ──
+function selectSignupProfil(val, btn) {
+  document.getElementById('signup-profil').value = val;
+  document.querySelectorAll('.profil-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
 // ── LOGIN MODAL ──
 function openLoginModal() {
   document.getElementById('login-error').classList.remove('visible');
@@ -606,13 +627,15 @@ async function doSignup() {
     if (signupError) throw signupError;
     const uid = signupData?.user?.id;
     if (uid) {
+      const profil = document.getElementById('signup-profil').value;
       await supabase.from('profiles').insert({
         id: uid,
         nom: nom,
         prenom: prenom,
         email: email,
         tel: tel,
-        departement: departement
+        departement: departement,
+        profil: profil
       });
     }
     window.location.href = 'candidature.html';
