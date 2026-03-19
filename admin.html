@@ -2981,6 +2981,7 @@ body.closer-mode .msg-new-btn { display: none !important; }
     <!-- BARRE D'ACTIONS BULK (apparaît quand des contacts sont sélectionnés) -->
     <div id="crm-bulk-bar" style="display:none;background:linear-gradient(135deg,#1b1d3a,#2a2356);border-radius:10px;padding:12px 20px;margin-bottom:16px;display:none;align-items:center;gap:14px;flex-wrap:wrap;">
       <span style="color:white;font-size:13px;font-weight:600;" id="crm-bulk-count">0 sélectionnés</span>
+      <button onclick="selectAllFilteredCrm()" id="crm-select-all-btn" style="display:none;background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.4);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">🔘 Sélectionner tous les contacts</button>
       <button onclick="openBulkSmsModal()" style="background:#10b981;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">📱 Envoyer SMS</button>
       <button onclick="openBulkEmailModal()" style="background:#3b82f6;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">📧 Envoyer Email</button>
       <button onclick="openAssignModal()" id="crm-assign-btn" style="background:#f59e0b;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">👤 Assigner</button>
@@ -7354,6 +7355,9 @@ function renderCRMTable() {
   if (assignedFilter === '_unassigned') filtered = filtered.filter(c => !c.assignedTo);
   else if (assignedFilter) filtered = filtered.filter(c => c.assignedTo === assignedFilter);
 
+  // Store filtered contacts globally for "select all filtered"
+  window.crmFilteredContacts = filtered;
+
   if (filtered.length === 0) {
     tbody.innerHTML = '';
     empty.querySelector('p').textContent = search || statusFilter || formFilter || hsFilterActive ? '🔍 Aucun contact trouvé' : '📇 Aucun contact HubSpot';
@@ -7470,12 +7474,38 @@ function toggleCrmSelectAll(checked) {
 }
 
 function updateCrmSelection() {
-  crmSelectedIds = new Set();
+  // Add visible checked checkboxes to selection
   document.querySelectorAll('.crm-row-check:checked').forEach(cb => crmSelectedIds.add(cb.dataset.id));
+  // Remove unchecked visible checkboxes from selection
+  document.querySelectorAll('.crm-row-check:not(:checked)').forEach(cb => crmSelectedIds.delete(cb.dataset.id));
   const count = crmSelectedIds.size;
   const bar = document.getElementById('crm-bulk-bar');
   bar.style.display = count > 0 ? 'flex' : 'none';
   document.getElementById('crm-bulk-count').textContent = `${count} sélectionné${count > 1 ? 's' : ''}`;
+  // Show "select all filtered" button if page selection < total filtered
+  const totalFiltered = (window.crmFilteredContacts || []).length;
+  const selectAllBtn = document.getElementById('crm-select-all-btn');
+  if (selectAllBtn) {
+    if (count > 0 && count < totalFiltered) {
+      selectAllBtn.style.display = 'inline-block';
+      selectAllBtn.textContent = `🔘 Sélectionner les ${totalFiltered} contacts`;
+    } else {
+      selectAllBtn.style.display = 'none';
+    }
+  }
+}
+
+function selectAllFilteredCrm() {
+  const filtered = window.crmFilteredContacts || [];
+  crmSelectedIds = new Set(filtered.map(c => c.id));
+  // Check all visible checkboxes
+  document.querySelectorAll('.crm-row-check').forEach(cb => { cb.checked = true; });
+  document.getElementById('crm-select-all').checked = true;
+  const count = crmSelectedIds.size;
+  const bar = document.getElementById('crm-bulk-bar');
+  bar.style.display = 'flex';
+  document.getElementById('crm-bulk-count').textContent = `${count} sélectionné${count > 1 ? 's' : ''}`;
+  document.getElementById('crm-select-all-btn').style.display = 'none';
 }
 
 function clearCrmSelection() {
@@ -7483,6 +7513,7 @@ function clearCrmSelection() {
   document.getElementById('crm-select-all').checked = false;
   crmSelectedIds.clear();
   document.getElementById('crm-bulk-bar').style.display = 'none';
+  document.getElementById('crm-select-all-btn').style.display = 'none';
 }
 
 function getSelectedCrmContacts() {
