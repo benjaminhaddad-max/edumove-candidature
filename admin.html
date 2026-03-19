@@ -4163,6 +4163,28 @@ async function sendAdminMessage(candidatureId) {
     });
     if (error) throw error;
     input.value = '';
+    // Force reload messages since realtime may not trigger
+    const { data: msgs } = await supabase.from('messages').select('*').eq('candidature_id', candidatureId).order('created_at', { ascending: true });
+    const container = document.getElementById('msg-container-' + candidatureId);
+    const emptyEl = document.getElementById('msg-empty-' + candidatureId);
+    if (container && emptyEl) {
+      container.querySelectorAll('.msg-bubble').forEach(m => m.remove());
+      emptyEl.style.display = 'none';
+      (msgs || []).forEach(msg => {
+        const div = document.createElement('div');
+        const role = msg.sender_role || 'student';
+        div.className = 'msg-bubble ' + (role === 'admin' ? 'admin' : 'etudiant');
+        let inner = `<div class="msg-sender">${role === 'admin' ? (msg.sender_name || 'Équipe EDUMOVE') : 'Étudiant'}</div>`;
+        inner += `<div>${esc(msg.content)}</div>`;
+        if (msg.created_at) {
+          const date = new Date(msg.created_at);
+          inner += `<div class="msg-time">${date.toLocaleDateString('fr-FR')} ${date.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'})}</div>`;
+        }
+        div.innerHTML = inner;
+        container.appendChild(div);
+      });
+      container.scrollTop = container.scrollHeight;
+    }
   } catch (err) {
     console.error('Erreur envoi message:', err);
     alert('Erreur lors de l\'envoi.');
