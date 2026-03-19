@@ -4067,14 +4067,14 @@ function renderDetailPage(c) {
 
   document.getElementById('detail-messaging').innerHTML = msgHtml;
 
-  // For fac users, hide detailed student info cards
+  // For fac users, hide detailed student info cards (but keep messaging + suivi visible)
   if (window.adminRole && window.adminRole !== 'super_admin') {
     setTimeout(() => {
-      document.querySelectorAll('.detail-card').forEach((card, i) => {
+      document.querySelectorAll('#detail-cards .detail-card').forEach((card) => {
         const title = card.querySelector('.detail-card-title');
         if (!title) return;
         const text = title.textContent.toLowerCase();
-        // Only show the SUIVI CANDIDATURE card for fac users
+        // Only show the SUIVI CANDIDATURE card in the left panel for fac users
         if (!text.includes('suivi') && !text.includes('candidature')) {
           card.style.display = 'none';
         }

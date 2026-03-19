@@ -466,8 +466,7 @@ async function doLogin() {
     document.getElementById('header-user').textContent = user.email;
     document.getElementById('login-wrap').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
-    loadCandidatures();
-    loadFacMessaging();
+    loadCandidatures().then(() => loadFacMessaging());
   } catch (e) {
     showLoginError('Email ou mot de passe incorrect.');
   }
@@ -745,19 +744,22 @@ function renderConvList() {
   }
 
   list.innerHTML = facMsgConversations.map((conv, i) => {
-    const candName = conv.candidature_id
-      ? (allCandidatures.find(c => c.id === conv.candidature_id)?.prenom || '') + ' ' +
-        (allCandidatures.find(c => c.id === conv.candidature_id)?.nom || '')
-      : 'Conversation générale';
-    const preview = conv.lastMsg.content.length > 50 ? conv.lastMsg.content.slice(0, 50) + '…' : conv.lastMsg.content;
+    const cand = conv.candidature_id ? allCandidatures.find(c => c.id === conv.candidature_id) : null;
+    const candName = cand ? ((cand.prenom || '') + ' ' + (cand.nom || '')).trim() : (conv.candidature_id ? 'Étudiant inconnu' : 'Conversation générale');
+    const filiere = cand?.filiere || cand?.filiereBac || '';
+    const preview = conv.lastMsg.content.length > 55 ? conv.lastMsg.content.slice(0, 55) + '…' : conv.lastMsg.content;
     const date = new Date(conv.lastMsg.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' });
     const isActive = currentFacMsgConv &&
       currentFacMsgConv.candidature_id === conv.candidature_id ? ' active' : '';
     const unreadClass = conv.hasUnread ? ' msg-conv-unread' : '';
+    const fromLabel = conv.lastMsg.sender_role === 'fac' || conv.lastMsg.sender_role?.startsWith('fac_') ? 'Vous' : 'Edumove';
     return `<div class="msg-conv-item${isActive}${unreadClass}" onclick="selectFacConv(${i})">
-      <div class="msg-conv-subject">${esc(candName.trim() || 'Général')}</div>
-      <div class="msg-conv-date">${date}</div>
-      <div class="msg-conv-preview">${esc(preview)}</div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;">
+        <div class="msg-conv-subject" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(candName || 'Général')}</div>
+        <div class="msg-conv-date" style="float:none;flex-shrink:0;">${date}</div>
+      </div>
+      ${filiere ? `<div style="font-size:11px;color:var(--uni-color);font-weight:600;margin-bottom:2px;">${esc(filiere)}</div>` : ''}
+      <div class="msg-conv-preview">${esc(fromLabel + ' : ' + preview)}</div>
     </div>`;
   }).join('');
 }
@@ -767,11 +769,11 @@ function selectFacConv(index) {
   currentFacMsgConv = conv;
   renderConvList();
 
-  const candName = conv.candidature_id
-    ? (() => { const c = allCandidatures.find(x => x.id === conv.candidature_id); return c ? c.prenom + ' ' + c.nom : 'Étudiant'; })()
-    : 'Conversation générale';
-
-  document.getElementById('msg-thread-header').textContent = candName;
+  const cand = conv.candidature_id ? allCandidatures.find(x => x.id === conv.candidature_id) : null;
+  const candName = cand ? ((cand.prenom || '') + ' ' + (cand.nom || '')).trim() : (conv.candidature_id ? 'Étudiant' : 'Conversation générale');
+  const filiere = cand?.filiere || cand?.filiereBac || '';
+  const headerEl = document.getElementById('msg-thread-header');
+  headerEl.innerHTML = `<span>${esc(candName)}</span>${filiere ? ` <span style="font-size:12px;font-weight:500;color:var(--uni-color);margin-left:8px;">${esc(filiere)}</span>` : ''}`;
   document.getElementById('msg-thread-footer').style.display = 'flex';
 
   const body = document.getElementById('msg-thread-body');
