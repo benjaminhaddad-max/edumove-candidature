@@ -4769,9 +4769,7 @@ async function adminConfirmSelections(candidatureId) {
 
   const { error } = await supabase.from('candidatures').update({
     uni_selections: selections,
-    uni_selections_at: now,
-    status: 'en_cours',
-    status_history: [...existing, { status: 'en_cours', at: now, by: adminEmail, note: 'sélections admin' }]
+    uni_selections_at: now
   }).eq('id', candidatureId);
 
   if (error) { alert('Erreur : ' + error.message); console.error(error); return; }
@@ -4780,7 +4778,6 @@ async function adminConfirmSelections(candidatureId) {
   if (c) {
     c.uni_selections = selections;
     c.uni_selections_at = now;
-    c.status = 'en_cours';
   }
   await loadCandidatures();
   viewDetail(candidatureId);

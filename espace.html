@@ -3093,17 +3093,12 @@ async function confirmAllSelections() {
 
   try {
     const now = new Date().toISOString();
-    const existing = Array.isArray(candidatureData.status_history) ? candidatureData.status_history : [];
     await supabase.from('candidatures').update({
       uni_selections: selections,
-      uni_selections_at: now,
-      status: 'en_cours',
-      status_history: [...existing, { status: 'en_cours', at: now, by: 'auto' }]
+      uni_selections_at: now
     }).eq('id', candidatureId);
     candidatureData.uni_selections = selections;
     candidatureData.uni_selections_at = now;
-    candidatureData.status = 'en_cours';
-    updateStatusDisplay('en_cours');
     showSelectionsSaved(selections);
     // Lancer le timer de validation visuelle
     startValidationCountdown();
