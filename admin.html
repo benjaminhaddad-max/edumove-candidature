@@ -3523,7 +3523,8 @@ function viewDetail(id) {
 
   renderDetailPage(c);
   loadMessagesForCandidature(c.id);
-  setTimeout(() => switchFacTab('LINK', c.id), 100);
+  const _initFacTab = window.adminRole === 'fac_ucjc' ? 'UCJC' : window.adminRole === 'fac_ue' ? 'UE' : 'LINK';
+  setTimeout(() => switchFacTab(_initFacTab, c.id), 100);
 }
 
 function renderDetailPage(c) {
@@ -4057,15 +4058,16 @@ function renderDetailPage(c) {
     </div>`;
   }
 
-  // Messagerie fac (par université)
+  // Messagerie fac (par université) — onglets filtrés selon le rôle
+  const _facRole = window.adminRole;
+  const _allowedFacs = _facRole === 'fac_link' ? ['LINK'] : _facRole === 'fac_ucjc' ? ['UCJC'] : _facRole === 'fac_ue' ? ['UE'] : ['LINK','UCJC','UE'];
+  const _facTabsHtml = _allowedFacs.map((fk, idx) =>
+    `<button class="fac-tab-btn${idx===0?' active':''}" data-fac="${fk}" onclick="switchFacTab('${fk}','${c.id}')">${fk}</button>`
+  ).join('');
   msgHtml += `<div class="detail-card" style="flex:1;display:flex;flex-direction:column;min-height:0;">
     <div class="detail-card-title" onclick="toggleCard(this)" style="color:var(--violet);border-color:var(--violet);flex-shrink:0;">Messagerie facultés</div>
     <div class="detail-card-body" style="flex:1;display:flex;flex-direction:column;min-height:0;padding:0;">
-      <div style="display:flex;gap:0;border-bottom:1px solid var(--border-light);flex-shrink:0;">
-        <button class="fac-tab-btn active" data-fac="LINK" onclick="switchFacTab('LINK','${c.id}')">LINK</button>
-        <button class="fac-tab-btn" data-fac="UCJC" onclick="switchFacTab('UCJC','${c.id}')">UCJC</button>
-        <button class="fac-tab-btn" data-fac="UE" onclick="switchFacTab('UE','${c.id}')">UE</button>
-      </div>
+      ${_allowedFacs.length > 1 ? `<div style="display:flex;gap:0;border-bottom:1px solid var(--border-light);flex-shrink:0;">${_facTabsHtml}</div>` : ''}
       <div class="msg-container" id="fac-msg-detail-container" style="flex:1;min-height:0;max-height:none;padding:12px;">
         <div class="msg-empty" id="fac-msg-detail-empty">Sélectionnez une fac</div>
       </div>
