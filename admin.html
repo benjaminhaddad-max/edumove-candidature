@@ -4046,10 +4046,12 @@ function renderDetailPage(c) {
   // ── RIGHT PANEL: MESSAGING (sticky) ──
   let msgHtml = '';
 
-  // Messagerie étudiant (super_admin only)
-  if (window.adminRole === 'super_admin' || !window.adminRole) {
+  // Messagerie étudiant (tous sauf closer)
+  const _facRoleNames = { fac_link: 'LINK Campus', fac_ucjc: 'UCJC Madrid', fac_ue: 'Universidad Europea' };
+  const _chatTitle = _facRoleNames[window.adminRole] ? `Chat étudiant — ${_facRoleNames[window.adminRole]}` : 'Messagerie étudiant';
+  if (window.adminRole !== 'closer') {
     msgHtml += `<div class="detail-card" style="flex:1;display:flex;flex-direction:column;min-height:0;">
-      <div class="detail-card-title" style="color:var(--orange);border-color:var(--orange);flex-shrink:0;">Messagerie étudiant</div>
+      <div class="detail-card-title" style="color:var(--orange);border-color:var(--orange);flex-shrink:0;">${_chatTitle}</div>
       <div class="detail-card-body" style="flex:1;display:flex;flex-direction:column;min-height:0;padding:12px 16px;">
       <div class="msg-container" id="msg-container-${c.id}" style="flex:1;min-height:0;max-height:none;">
         <div class="msg-empty" id="msg-empty-${c.id}">Aucun message</div>
@@ -4139,8 +4141,9 @@ async function loadMessagesForCandidature(candidatureId) {
     msgs.forEach(msg => {
       const div = document.createElement('div');
       const role = msg.sender_role || msg.sender || 'student';
-      div.className = 'msg-bubble ' + (role === 'admin' ? 'admin' : 'etudiant');
-      let inner = `<div class="msg-sender">${role === 'admin' ? (msg.sender_name || 'Équipe EDUMOVE') : 'Étudiant'}</div>`;
+      const isInst = role !== 'student';
+      div.className = 'msg-bubble ' + (isInst ? 'admin' : 'etudiant');
+      let inner = `<div class="msg-sender">${isInst ? (msg.sender_name || 'Équipe EDUMOVE') : 'Étudiant'}</div>`;
       inner += `<div>${esc(msg.content)}</div>`;
       if (msg.created_at) {
         const date = new Date(msg.created_at);
@@ -4171,11 +4174,14 @@ async function sendAdminMessage(candidatureId) {
   if (!text) return;
 
   try {
+    const _senderNames = { fac_link: 'LINK Campus', fac_ucjc: 'UCJC Madrid', fac_ue: 'Universidad Europea' };
+    const _senderRole = window.adminRole || 'admin';
+    const _senderName = _senderNames[window.adminRole] || 'Équipe EDUMOVE';
     const { error } = await supabase.from('messages').insert({
       candidature_id: candidatureId,
       sender_id: currentAdminUser?.id || currentAdminUser?.email || 'admin',
-      sender_role: 'admin',
-      sender_name: 'Équipe EDUMOVE',
+      sender_role: _senderRole,
+      sender_name: _senderName,
       content: text
     });
     if (error) throw error;
@@ -6155,23 +6161,34 @@ async function sendFacMessage() {
     return;
   }
 
-  // Notifier la fac par email
   const convStudentName = currentFacConv?.candidature_id
     ? (() => { const c = allCandidatures.find(x => x.id === currentFacConv.candidature_id); return c ? c.prenom + ' ' + c.nom : null; })()
     : null;
+
+  // Direction selon qui envoie : fac → admissions@, admin → fac emails
+  const isFacSender = role && role !== 'super_admin';
+  const notifDirection = isFacSender ? 'fac_to_admin' : 'admin_to_fac';
   fetch('/api/notify-fac-message', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ direction: 'admin_to_fac', facKey: msg.fac_key, senderEmail: email, content, studentName: convStudentName })
-  }).catch(e => console.warn('Email fac non envoyé:', e));
+    body: JSON.stringify({ direction: notifDirection, facKey: msg.fac_key, senderEmail: email, content, studentName: convStudentName })
+  }).catch(e => console.warn('Email non envoyé:', e));
 
-  // Notification @mention si @LINK/@UCJC/@UE tagué
-  const mentionedFac = /@(LINK|UCJC|UE)\b/i.exec(content);
-  if (mentionedFac) {
-    const mentionedKey = mentionedFac[1].toUpperCase();
+  // Notification @mention
+  if (isFacSender && /@edumove/i.test(content)) {
+    // Fac a tagué @Edumove → notif admissions@
     fetch('/api/notify-mention', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mentionedParty: 'fac', facKey: mentionedKey, senderName: email, studentName: convStudentName, content, candidatureId: currentFacConv?.candidature_id || null })
+      body: JSON.stringify({ mentionedParty: 'edumove', facKey: msg.fac_key, senderName: email, studentName: convStudentName, content, candidatureId: currentFacConv?.candidature_id || null })
     }).catch(e => console.warn('Mention notification non envoyée:', e));
+  } else {
+    const mentionedFac = /@(LINK|UCJC|UE)\b/i.exec(content);
+    if (mentionedFac) {
+      // Admin a tagué @Fac → notif fac emails
+      fetch('/api/notify-mention', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mentionedParty: 'fac', facKey: mentionedFac[1].toUpperCase(), senderName: email, studentName: convStudentName, content, candidatureId: currentFacConv?.candidature_id || null })
+      }).catch(e => console.warn('Mention notification non envoyée:', e));
+    }
   }
 
   // Reload conversations list to update preview

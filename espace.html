@@ -3229,10 +3229,12 @@ async function loadMessages() {
     msgs.forEach(msg => {
       const div = document.createElement('div');
       const role = msg.sender_role || msg.sender || 'student';
-      div.className = 'message message-' + (role === 'admin' ? 'admin' : 'etudiant');
+      const isInstitution = role !== 'student';
+      div.className = 'message message-' + (isInstitution ? 'admin' : 'etudiant');
       let inner = '';
-      if (role === 'admin') {
-        inner += `<div class="message-sender">Equipe EDUMOVE</div>`;
+      if (isInstitution) {
+        const _names = { admin: 'Equipe EDUMOVE', fac_link: 'LINK Campus', fac_ucjc: 'UCJC Madrid', fac_ue: 'Universidad Europea' };
+        inner += `<div class="message-sender">${_names[role] || msg.sender_name || 'Equipe EDUMOVE'}</div>`;
       }
       inner += `<div>${esc(msg.content)}</div>`;
       if (msg.created_at) {
