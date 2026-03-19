@@ -960,6 +960,20 @@ body.closer-mode .msg-new-btn { display: none !important; }
 .msg-section-count { background:var(--violet); color:white; font-size:9px; font-weight:700; padding:1px 6px; border-radius:10px; }
 .msg-section-items.collapsed { display:none; }
 
+/* Delete message button */
+.msg-bubble { position: relative; }
+.msg-bubble .msg-delete-btn { display:none; position:absolute; top:4px; right:4px; background:rgba(220,38,38,0.85); color:white; border:none; border-radius:50%; width:20px; height:20px; font-size:11px; line-height:20px; text-align:center; cursor:pointer; padding:0; z-index:5; }
+.msg-bubble.sent .msg-delete-btn { right:auto; left:4px; }
+.msg-bubble:hover .msg-delete-btn { display:block; }
+.msg-bubble .msg-delete-btn:hover { background:#dc2626; transform:scale(1.1); }
+
+/* Delete conversation button */
+.msg-delete-conv-btn { background:none; border:1.5px solid #e5e7eb; border-radius:8px; color:#dc2626; font-size:12px; font-weight:600; padding:5px 12px; cursor:pointer; transition:all 0.15s; font-family:inherit; white-space:nowrap; }
+.msg-delete-conv-btn:hover { background:#fef2f2; border-color:#fca5a5; }
+
+/* Per-conversation unread badge */
+.conv-unread-badge { background:#e53935; color:white; font-size:9px; font-weight:700; min-width:16px; height:16px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; padding:0 4px; flex-shrink:0; }
+
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .site-header { padding: 0 16px; }
@@ -1348,8 +1362,11 @@ body.closer-mode .msg-new-btn { display: none !important; }
   </div>
   <div class="msg-main">
     <div class="msg-main-header" id="fac-msg-header">
-      <h3 id="fac-msg-conv-title">Sélectionnez une conversation</h3>
-      <span id="fac-msg-conv-student" style="font-size:11px;color:var(--text-muted);"></span>
+      <div>
+        <h3 id="fac-msg-conv-title">Sélectionnez une conversation</h3>
+        <span id="fac-msg-conv-student" style="font-size:11px;color:var(--text-muted);"></span>
+      </div>
+      <button class="msg-delete-conv-btn" id="fac-msg-delete-conv-btn" style="display:none;" onclick="deleteCurrentConversation()">🗑 Supprimer</button>
     </div>
     <div class="msg-main-body" id="fac-msg-body">
       <div class="msg-empty-conv" style="max-width:520px;margin:auto;text-align:left;">
@@ -3087,21 +3104,29 @@ async function checkUnreadMessages() {
   try {
     const badge = document.getElementById('msg-unread-badge');
     if (!badge) return;
-    // Get last time admin opened messaging (stored in localStorage)
-    const lastSeen = localStorage.getItem('edumove_msg_last_seen') || '2000-01-01T00:00:00Z';
+    const role = window.adminRole;
+    let total = 0;
 
-    // Count student messages (sender='student') since last seen
-    const { count: studentMsgCount } = await supabase.from('messages')
-      .select('*', { count: 'exact', head: true })
-      .eq('sender', 'student')
-      .gt('created_at', lastSeen);
+    // If conversations already loaded, use in-memory data
+    if (facConversations.length > 0 || studentConversations.length > 0) {
+      facConversations.forEach(c => { total += countConvUnread(c, 'fac'); });
+      studentConversations.forEach(c => { total += countConvUnread(c, 'student'); });
+    } else {
+      // Fallback: quick DB count using oldest possible last-seen
+      const lastSeen = localStorage.getItem('edumove_msg_last_seen') || '2000-01-01T00:00:00Z';
+      const { count: studentMsgCount } = await supabase.from('messages')
+        .select('*', { count: 'exact', head: true })
+        .neq('sender_role', 'admin')
+        .gt('created_at', lastSeen);
+      const facKey = getFacKeyForRole(role);
+      let fq = supabase.from('fac_messages').select('*', { count: 'exact', head: true }).gt('created_at', lastSeen);
+      if (facKey) fq = fq.eq('fac_key', facKey);
+      if (role === 'super_admin') fq = fq.neq('sender_role', 'super_admin');
+      else fq = fq.eq('sender_role', 'super_admin');
+      const { count: facMsgCount } = await fq;
+      total = (studentMsgCount || 0) + (facMsgCount || 0);
+    }
 
-    // Count fac messages to admin since last seen
-    const { count: facMsgCount } = await supabase.from('fac_messages')
-      .select('*', { count: 'exact', head: true })
-      .gt('created_at', lastSeen);
-
-    const total = (studentMsgCount || 0) + (facMsgCount || 0);
     if (total > 0) {
       badge.textContent = total > 99 ? '99+' : total;
       badge.style.display = 'flex';
@@ -5542,10 +5567,7 @@ function openFacMessaging() {
   document.getElementById('btn-fac-messaging').style.display = 'none';
   document.getElementById('btn-guide').style.display = 'none';
   document.getElementById('btn-back-dashboard').style.display = '';
-  // Mark messages as read
-  localStorage.setItem('edumove_msg_last_seen', new Date().toISOString());
-  const badge = document.getElementById('msg-unread-badge');
-  if (badge) badge.style.display = 'none';
+  // Don't mark all as read — badges persist until each conversation is opened
   loadFacConversations();
 
   const role = window.adminRole;
@@ -5971,6 +5993,7 @@ async function loadFacConversations() {
   }
 
   renderFacConvList();
+  _updateGlobalUnreadBadge();
 }
 
 function renderFacConvList() {
@@ -6000,9 +6023,10 @@ function renderFacConvList() {
     return getStudentName(c.candidature_id).toLowerCase().includes(q);
   });
 
-  const mkSection = (title, id, items, renderItem) => {
+  const mkSection = (title, id, items, renderItem, unreadTotal) => {
     const count = items.length;
-    const countBadge = count ? `<span class="msg-section-count">${count}</span>` : '';
+    const unreadBadge = unreadTotal > 0 ? `<span class="conv-unread-badge" style="margin-left:6px;">${unreadTotal}</span>` : '';
+    const countBadge = count ? `<span class="msg-section-count">${count}</span>${unreadBadge}` : '';
     const items_html = count
       ? items.map(renderItem).join('')
       : `<div style="padding:10px 20px;font-size:12px;color:var(--text-muted);">Aucune conversation${q ? ' pour "'+q+'"' : ''}</div>`;
@@ -6013,17 +6037,21 @@ function renderFacConvList() {
   };
 
   // Section 1: Fac ↔ Edumove (general, no student)
+  const sec1Unread = facGenConvs.reduce((s,c) => s + countConvUnread(c,'fac'), 0);
   const sec1 = mkSection('Fac ↔ Edumove', 'fac_gen', facGenConvs, conv => {
     const name = facLabels[conv.fac_key] || conv.fac_key;
     const preview = esc(conv.lastMsg.content.substring(0, 55) + (conv.lastMsg.content.length > 55 ? '…' : ''));
     const isActive = currentFacConv?.type === 'fac' && !currentFacConv.candidature_id && currentFacConv.fac_key === conv.fac_key;
+    const unread = countConvUnread(conv, 'fac');
+    const unreadHtml = unread > 0 ? `<span class="conv-unread-badge">${unread}</span>` : '';
     return `<div class="msg-conv-item${isActive ? ' active' : ''}" onclick="selectFacConv('${conv.fac_key}', null)">
-      <div class="conv-name">${name}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;"><div class="conv-name">${name}</div>${unreadHtml}</div>
       <div class="conv-preview">${preview}</div>
     </div>`;
-  });
+  }, sec1Unread);
 
   // Section 2: Étudiants ↔ Edumove (messages table — super_admin only)
+  const sec2Unread = studConvs.reduce((s,c) => s + countConvUnread(c,'student'), 0);
   const sec2 = (window.adminRole === 'super_admin' || !window.adminRole) ? mkSection('Étudiants ↔ Edumove', 'stud_emu', studConvs, conv => {
     const name = getStudentName(conv.candidature_id);
     const lastMsg = conv.lastMsg;
@@ -6031,13 +6059,16 @@ function renderFacConvList() {
     const preview = (isAdmin ? 'Vous : ' : '') + esc(lastMsg.content.substring(0, 50) + (lastMsg.content.length > 50 ? '…' : ''));
     const date = new Date(lastMsg.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' });
     const isActive = currentFacConv?.type === 'student' && currentFacConv.candidature_id === conv.candidature_id;
+    const unread = countConvUnread(conv, 'student');
+    const unreadHtml = unread > 0 ? `<span class="conv-unread-badge">${unread}</span>` : '';
     return `<div class="msg-conv-item${isActive ? ' active' : ''}" onclick="selectStudentConv('${conv.candidature_id}')">
-      <div style="display:flex;justify-content:space-between;"><div class="conv-name">${esc(name)}</div><div style="font-size:10px;color:var(--text-muted);">${date}</div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;"><div class="conv-name">${esc(name)}</div><div style="display:flex;align-items:center;gap:6px;">${unreadHtml}<span style="font-size:10px;color:var(--text-muted);">${date}</span></div></div>
       <div class="conv-preview">${preview}</div>
     </div>`;
-  }) : '';
+  }, sec2Unread) : '';
 
   // Section 3: Étudiants ↔ Université (fac_messages with student)
+  const sec3Unread = studFacConvs.reduce((s,c) => s + countConvUnread(c,'fac'), 0);
   const sec3 = mkSection('Étudiants ↔ Université', 'stud_fac', studFacConvs, conv => {
     const name = getStudentName(conv.candidature_id);
     const facName = facLabels[conv.fac_key] || conv.fac_key;
@@ -6045,12 +6076,14 @@ function renderFacConvList() {
     const date = new Date(conv.lastMsg.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' });
     const isActive = currentFacConv?.type === 'fac' && !!currentFacConv.candidature_id &&
       currentFacConv.fac_key === conv.fac_key && currentFacConv.candidature_id === conv.candidature_id;
+    const unread = countConvUnread(conv, 'fac');
+    const unreadHtml = unread > 0 ? `<span class="conv-unread-badge">${unread}</span>` : '';
     return `<div class="msg-conv-item${isActive ? ' active' : ''}" onclick="selectFacConv('${conv.fac_key}', '${conv.candidature_id}')">
-      <div style="display:flex;justify-content:space-between;"><div class="conv-name">${esc(name)}</div><div style="font-size:10px;color:var(--text-muted);">${date}</div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;"><div class="conv-name">${esc(name)}</div><div style="display:flex;align-items:center;gap:6px;">${unreadHtml}<span style="font-size:10px;color:var(--text-muted);">${date}</span></div></div>
       <div class="conv-student">${facName}</div>
       <div class="conv-preview">${preview}</div>
     </div>`;
-  });
+  }, sec3Unread);
 
   listEl.innerHTML = sec1 + sec2 + sec3;
 }
@@ -6129,7 +6162,11 @@ async function selectFacConv(facKey, candidatureId) {
   }
   document.getElementById('fac-msg-conv-student').textContent = studentText;
   document.getElementById('fac-msg-footer').style.display = 'flex';
+  document.getElementById('fac-msg-delete-conv-btn').style.display = '';
   { const _h = document.getElementById('fac-msg-footer-hint'); if (_h) { const _isFac = window.adminRole && window.adminRole !== 'super_admin'; _h.innerHTML = _isFac ? '💡 Tapez <strong>@Edumove</strong> pour alerter l\'équipe — invisible pour l\'étudiant' : '💡 Tapez <strong>@LINK</strong>, <strong>@UCJC</strong> ou <strong>@UE</strong> pour taguer la fac concernée'; _h.style.display = 'block'; } }
+
+  // Mark this conversation as read
+  markConvRead('fac', facKey, candidatureId);
 
   // Load messages for this conversation
   await loadFacConvMessages();
@@ -6157,7 +6194,11 @@ async function selectStudentConv(candidatureId) {
   document.getElementById('fac-msg-conv-title').textContent = name;
   document.getElementById('fac-msg-conv-student').textContent = 'Chat étudiant ↔ Edumove';
   document.getElementById('fac-msg-footer').style.display = 'flex';
+  document.getElementById('fac-msg-delete-conv-btn').style.display = '';
   { const _h = document.getElementById('fac-msg-footer-hint'); if (_h) { const _isFac = window.adminRole && window.adminRole !== 'super_admin'; _h.innerHTML = _isFac ? '💡 Tapez <strong>@Edumove</strong> pour alerter l\'équipe — invisible pour l\'étudiant' : '💡 Tapez <strong>@LINK</strong>, <strong>@UCJC</strong> ou <strong>@UE</strong> pour taguer la fac concernée'; _h.style.display = 'block'; } }
+
+  // Mark this conversation as read
+  markConvRead('student', null, candidatureId);
 
   const body = document.getElementById('fac-msg-body');
   const { data, error } = await supabase.from('messages').select('*')
@@ -6165,13 +6206,16 @@ async function selectStudentConv(candidatureId) {
 
   if (error) { console.error('Load student messages error:', error); return; }
 
-  body.innerHTML = (data || []).length === 0
-    ? '<div class="msg-empty-conv">Aucun message</div>'
-    : (data || []).map(m => {
-        const isMine = m.sender_role === 'admin';
-        const time = new Date(m.created_at).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
-        return `<div class="msg-bubble ${isMine ? 'sent' : 'received'}"><div>${esc(m.content)}</div><div class="msg-meta">${time}</div></div>`;
-      }).join('');
+  const _renderStudentMsgs = (msgs) => {
+    if (!msgs || msgs.length === 0) return '<div class="msg-empty-conv">Aucun message</div>';
+    return msgs.map(m => {
+      const isMine = m.sender_role === 'admin';
+      const time = new Date(m.created_at).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+      const delBtn = `<button class="msg-delete-btn" title="Supprimer ce message" onclick="event.stopPropagation();deleteSingleMessage('messages',${m.id})">&times;</button>`;
+      return `<div class="msg-bubble ${isMine ? 'sent' : 'received'}">${delBtn}<div>${esc(m.content)}</div><div class="msg-meta">${time}</div></div>`;
+    }).join('');
+  };
+  body.innerHTML = _renderStudentMsgs(data);
   body.scrollTop = body.scrollHeight;
 
   // Realtime
@@ -6179,11 +6223,7 @@ async function selectStudentConv(candidatureId) {
   studentMsgSubscription = supabase.channel('admin-stud-msg-' + candidatureId)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'candidature_id=eq.' + candidatureId }, async () => {
       const { data: msgs } = await supabase.from('messages').select('*').eq('candidature_id', candidatureId).order('created_at', { ascending: true });
-      body.innerHTML = (msgs || []).map(m => {
-        const isMine = m.sender_role === 'admin';
-        const time = new Date(m.created_at).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
-        return `<div class="msg-bubble ${isMine ? 'sent' : 'received'}"><div>${esc(m.content)}</div><div class="msg-meta">${time}</div></div>`;
-      }).join('');
+      body.innerHTML = _renderStudentMsgs(msgs);
       body.scrollTop = body.scrollHeight;
     })
     .subscribe();
@@ -6218,7 +6258,9 @@ async function loadFacConvMessages() {
     const isMine = (role === 'super_admin' && m.sender_role === 'super_admin') ||
                    (role !== 'super_admin' && m.sender_role !== 'super_admin');
     const time = new Date(m.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    const delBtn = `<button class="msg-delete-btn" title="Supprimer ce message" onclick="event.stopPropagation();deleteSingleMessage('fac_messages',${m.id})">&times;</button>`;
     return '<div class="msg-bubble ' + (isMine ? 'sent' : 'received') + '">' +
+      delBtn +
       '<div>' + highlightMentions(m.content) + '</div>' +
       '<div class="msg-meta">' + time + '</div>' +
     '</div>';
@@ -6237,10 +6279,11 @@ function appendFacMessage(m) {
   const isMine = (role === 'super_admin' && m.sender_role === 'super_admin') ||
                  (role !== 'super_admin' && m.sender_role !== 'super_admin');
   const time = new Date(m.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const delBtn = `<button class="msg-delete-btn" title="Supprimer ce message" onclick="event.stopPropagation();deleteSingleMessage('fac_messages',${m.id})">&times;</button>`;
 
   const div = document.createElement('div');
   div.className = 'msg-bubble ' + (isMine ? 'sent' : 'received');
-  div.innerHTML = '<div>' + highlightMentions(m.content) + '</div><div class="msg-meta">' + time + '</div>';
+  div.innerHTML = delBtn + '<div>' + highlightMentions(m.content) + '</div><div class="msg-meta">' + time + '</div>';
   body.appendChild(div);
   body.scrollTop = body.scrollHeight;
 }
@@ -6316,6 +6359,95 @@ async function sendFacMessage() {
 
   // Reload conversations list to update preview
   loadFacConversations();
+}
+
+// ── DELETE MESSAGE / CONVERSATION ──
+async function deleteSingleMessage(table, msgId) {
+  if (!confirm('Supprimer ce message ?')) return;
+  const { error } = await supabase.from(table).delete().eq('id', msgId);
+  if (error) { console.error('Delete message error:', error); alert('Erreur : ' + error.message); return; }
+  // Refresh current view
+  if (currentFacConv) {
+    if (currentFacConv.type === 'student') {
+      await selectStudentConv(currentFacConv.candidature_id);
+    } else {
+      await loadFacConvMessages();
+    }
+  }
+  await loadFacConversations();
+}
+
+async function deleteCurrentConversation() {
+  if (!currentFacConv) return;
+  if (!confirm('Supprimer toute cette conversation et tous ses messages ? Cette action est irréversible.')) return;
+
+  if (currentFacConv.type === 'student') {
+    const { error } = await supabase.from('messages').delete().eq('candidature_id', currentFacConv.candidature_id);
+    if (error) { console.error('Delete conv error:', error); alert('Erreur : ' + error.message); return; }
+  } else {
+    let query = supabase.from('fac_messages').delete().eq('fac_key', currentFacConv.fac_key);
+    if (currentFacConv.candidature_id) {
+      query = query.eq('candidature_id', currentFacConv.candidature_id);
+    } else {
+      query = query.is('candidature_id', null);
+    }
+    const { error } = await query;
+    if (error) { console.error('Delete conv error:', error); alert('Erreur : ' + error.message); return; }
+  }
+
+  // Reset view
+  currentFacConv = null;
+  document.getElementById('fac-msg-conv-title').textContent = 'Sélectionnez une conversation';
+  document.getElementById('fac-msg-conv-student').textContent = '';
+  document.getElementById('fac-msg-footer').style.display = 'none';
+  document.getElementById('fac-msg-delete-conv-btn').style.display = 'none';
+  document.getElementById('fac-msg-body').innerHTML = '<div class="msg-empty-conv">Conversation supprimée</div>';
+  if (facMsgSubscription) { supabase.removeChannel(facMsgSubscription); facMsgSubscription = null; }
+  if (studentMsgSubscription) { supabase.removeChannel(studentMsgSubscription); studentMsgSubscription = null; }
+  await loadFacConversations();
+}
+
+// ── PER-CONVERSATION UNREAD TRACKING ──
+function _convReadKey(type, facKey, candidatureId) {
+  if (type === 'student') return 'edumove_conv_read_student_' + candidatureId;
+  return 'edumove_conv_read_fac_' + facKey + '_' + (candidatureId || 'gen');
+}
+function markConvRead(type, facKey, candidatureId) {
+  localStorage.setItem(_convReadKey(type, facKey, candidatureId), new Date().toISOString());
+  // Recount global unread
+  _updateGlobalUnreadBadge();
+  renderFacConvList();
+}
+function getConvLastRead(type, facKey, candidatureId) {
+  return localStorage.getItem(_convReadKey(type, facKey, candidatureId)) || '2000-01-01T00:00:00Z';
+}
+function countConvUnread(conv, type) {
+  if (type === 'student') {
+    const lastRead = getConvLastRead('student', null, conv.candidature_id);
+    return (conv.messages || []).filter(m => m.sender_role !== 'admin' && m.created_at > lastRead).length;
+  }
+  const lastRead = getConvLastRead('fac', conv.fac_key, conv.candidature_id);
+  const role = window.adminRole;
+  return (conv.messages || []).filter(m => {
+    if (m.created_at <= lastRead) return false;
+    // For super_admin, unread = messages not from super_admin
+    if (role === 'super_admin') return m.sender_role !== 'super_admin';
+    // For fac, unread = messages not from fac
+    return m.sender_role === 'super_admin';
+  }).length;
+}
+function _updateGlobalUnreadBadge() {
+  const badge = document.getElementById('msg-unread-badge');
+  if (!badge) return;
+  let total = 0;
+  facConversations.forEach(c => { total += countConvUnread(c, 'fac'); });
+  studentConversations.forEach(c => { total += countConvUnread(c, 'student'); });
+  if (total > 0) {
+    badge.textContent = total > 99 ? '99+' : total;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
 }
 
 function _buildStudentSelector(required) {

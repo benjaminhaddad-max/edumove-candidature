@@ -44,7 +44,7 @@ body {
   height: 66px;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 250;
   box-shadow: 0 2px 20px rgba(27,29,58,0.4);
 }
 .logo-zone { display: flex; align-items: center; gap: 10px; cursor: pointer; }
@@ -88,7 +88,7 @@ body {
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(27,29,58,0.18);
   z-index: 200;
-  overflow: hidden;
+  overflow: visible;
 }
 .profil-dropdown.open { display: block; }
 .recap-overlay {
@@ -217,9 +217,55 @@ body {
 
 /* ── MAIN ── */
 .dash-content {
-  max-width: 900px;
+  max-width: 1320px;
   margin: 0 auto;
   padding: 36px 24px 80px;
+}
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 28px;
+  align-items: start;
+}
+
+.main-col { min-width: 0; }
+
+.msg-sidebar {
+  position: sticky;
+  top: 82px;
+  max-height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+}
+
+.msg-sidebar .section-card {
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 100px);
+  overflow: hidden;
+}
+
+.msg-sidebar .section-card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  padding-bottom: 16px;
+}
+
+.msg-sidebar .messages-container {
+  flex: 1;
+  max-height: none;
+  overflow-y: auto;
+}
+
+@media (max-width: 960px) {
+  .dash-grid { grid-template-columns: 1fr; }
+  .msg-sidebar { position: static; max-height: none; }
+  .msg-sidebar .section-card { max-height: none; }
+  .msg-sidebar .messages-container { max-height: 340px; }
 }
 
 .dash-title {
@@ -1068,6 +1114,9 @@ body {
   <div class="dash-title" id="welcome-title">Mon espace candidat</div>
   <div class="dash-subtitle">Suivez l'avancement de votre dossier EDUMOVE</div>
 
+  <div class="dash-grid">
+  <div class="main-col">
+
   <!-- STATUS -->
   <div class="status-card" id="status-card">
     <div class="status-icon en_attente" id="status-icon-box">⏳</div>
@@ -1185,6 +1234,9 @@ body {
     </div>
   </div>
 
+  </div><!-- /main-col -->
+
+  <div class="msg-sidebar">
   <!-- MESSAGERIE -->
   <div class="section-card">
     <div class="section-card-header">
@@ -1206,12 +1258,18 @@ body {
       </div>
       <!-- Input -->
       <div class="msg-channel-note" id="msg-channel-note">Votre message sera envoyé à l'équipe Edumove</div>
-      <div class="message-input-row">
+      <div class="msg-fac-locked" id="msg-fac-locked" style="display:none;text-align:center;padding:18px 12px;color:#888;font-size:13px;line-height:1.5;">
+        🔒 La discussion sera disponible lorsque votre faculté vous contactera.
+      </div>
+      <div class="message-input-row" id="message-input-row">
         <textarea class="message-input" id="message-input" placeholder="Écrivez votre message..." rows="1"></textarea>
         <button class="btn-send" id="btn-send" onclick="sendMessage()">Envoyer</button>
       </div>
     </div>
   </div>
+  </div><!-- /msg-sidebar -->
+
+  </div><!-- /dash-grid -->
 
 </div>
 
@@ -1298,6 +1356,15 @@ let authChecked = false;
   try {
     renderDashboard();
   } catch(e) { console.error('Render dashboard error:', e); }
+
+  // Update fac tab label from uni_selections immediately
+  try {
+    const labelEl = document.getElementById('msg-tab-fac-label');
+    if (labelEl) {
+      const facName = _getFacName();
+      labelEl.textContent = facName !== 'votre faculté' ? facName : 'Ma faculté';
+    }
+  } catch(e) {}
 
   try {
     loadMessages();
@@ -3358,13 +3425,21 @@ function switchMsgTab(ch) {
       : `Votre message sera envoyé à ${_facName}`;
   }
   renderMessages(allMessages);
+  updateFacInputState();
 }
 
 function _getFacName() {
-  // Infer fac from candidature data or from fac messages
+  const FAC_NAMES = { LINK: 'LINK Campus', UCJC: 'UCJC Madrid', UE: 'Univ. Europea' };
+  const sel = candidatureData?.uni_selections;
+  if (sel) {
+    const keys = Object.keys(sel).filter(k => sel[k]);
+    if (keys.length === 1) return FAC_NAMES[keys[0]] || keys[0];
+    if (keys.length > 1) return 'Mes facultés';
+  }
+  // Fallback: infer from messages
   const facMsg = allMessages.find(m => m.sender_role && m.sender_role.startsWith('fac_'));
   if (facMsg) {
-    const _names = { fac_link: 'LINK Campus University', fac_ucjc: 'UCJC Madrid', fac_ue: 'Universidad Europea' };
+    const _names = { fac_link: 'LINK Campus', fac_ucjc: 'UCJC Madrid', fac_ue: 'Univ. Europea' };
     return _names[facMsg.sender_role] || 'votre faculté';
   }
   return 'votre faculté';
@@ -3379,7 +3454,7 @@ async function loadMessages() {
     // Update fac tab label
     const facName = _getFacName();
     const labelEl = document.getElementById('msg-tab-fac-label');
-    if (labelEl && facName !== 'votre faculté') labelEl.textContent = facName.split(' ')[0];
+    if (labelEl) labelEl.textContent = facName !== 'votre faculté' ? facName : 'Ma faculté';
     renderMessages(allMessages);
   };
 
@@ -3437,12 +3512,48 @@ function renderMessages(msgs) {
     container.appendChild(div);
   });
   container.scrollTop = container.scrollHeight;
+  updateFacInputState();
+}
+
+function updateFacInputState() {
+  const inputRow = document.getElementById('message-input-row');
+  const noteEl = document.getElementById('msg-channel-note');
+  const lockedEl = document.getElementById('msg-fac-locked');
+  if (!inputRow || !lockedEl) return;
+
+  if (activeChannel === 'fac') {
+    const hasFacMessage = allMessages.some(m => {
+      const ch = m.channel || (m.sender_role?.startsWith('fac_') ? 'fac' : 'edumove');
+      return ch === 'fac' && m.sender_role && m.sender_role.startsWith('fac_');
+    });
+    if (hasFacMessage) {
+      inputRow.style.display = '';
+      noteEl.style.display = '';
+      lockedEl.style.display = 'none';
+    } else {
+      inputRow.style.display = 'none';
+      noteEl.style.display = 'none';
+      lockedEl.style.display = 'block';
+    }
+  } else {
+    inputRow.style.display = '';
+    noteEl.style.display = '';
+    lockedEl.style.display = 'none';
+  }
 }
 
 async function sendMessage() {
   const input = document.getElementById('message-input');
   const text = input.value.trim();
   if (!text) return;
+
+  if (activeChannel === 'fac') {
+    const hasFacMsg = allMessages.some(m => {
+      const ch = m.channel || (m.sender_role?.startsWith('fac_') ? 'fac' : 'edumove');
+      return ch === 'fac' && m.sender_role && m.sender_role.startsWith('fac_');
+    });
+    if (!hasFacMsg) return;
+  }
 
   const btn = document.getElementById('btn-send');
   btn.disabled = true;
