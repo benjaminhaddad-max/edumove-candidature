@@ -3031,14 +3031,38 @@ body.closer-mode .msg-new-btn { display: none !important; }
     </div>
     <div style="padding:24px;">
       <div style="font-size:13px;color:#6b7280;margin-bottom:16px;" id="bulk-email-info">0 destinataires sélectionnés</div>
-      <div style="margin-bottom:12px;">
-        <label style="font-size:12px;font-weight:600;color:#1b1d3a;text-transform:uppercase;letter-spacing:0.04em;">Objet</label>
-        <input type="text" id="bulk-email-subject" placeholder="Objet de l'email..." style="width:100%;box-sizing:border-box;margin-top:6px;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:14px;outline:none;"/>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:12px;font-weight:600;color:#1b1d3a;text-transform:uppercase;letter-spacing:0.04em;">Mode d'envoi</label>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button id="email-mode-template" onclick="setEmailMode('template')" style="flex:1;padding:10px;border:1.5px solid #3b82f6;background:#eff6ff;color:#1d4ed8;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">📋 Template Brevo</button>
+          <button id="email-mode-custom" onclick="setEmailMode('custom')" style="flex:1;padding:10px;border:1.5px solid #d1d5db;background:white;color:#6b7280;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">✏️ Email libre</button>
+        </div>
       </div>
-      <div style="margin-bottom:12px;">
-        <label style="font-size:12px;font-weight:600;color:#1b1d3a;text-transform:uppercase;letter-spacing:0.04em;">Contenu du mail</label>
-        <textarea id="bulk-email-content" rows="6" placeholder="Tapez le contenu de votre email ici..." style="width:100%;box-sizing:border-box;margin-top:6px;padding:12px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:14px;resize:vertical;outline:none;"></textarea>
-        <div style="font-size:11px;color:#9ca3af;margin-top:4px;">Utilisez <code>{prenom}</code> pour personnaliser. L'email sera envoyé avec le template Edumove.</div>
+      <div id="email-template-section">
+        <label style="font-size:12px;font-weight:600;color:#1b1d3a;text-transform:uppercase;letter-spacing:0.04em;">Template Brevo</label>
+        <select id="bulk-email-template" style="width:100%;box-sizing:border-box;margin-top:6px;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:13px;outline:none;cursor:pointer;" onchange="onTemplateSelect()">
+          <option value="">— Choisir un template —</option>
+          <optgroup label="📧 Templates Edumove">
+            <option value="116">Edumove — Plateforme de Candidature</option>
+            <option value="115">Edumove — Nouveau Message</option>
+            <option value="114">Edumove — Recommandations Universités</option>
+            <option value="113">FeedBack — Voeux Parcoursup</option>
+            <option value="112">FeedBack — Lettre de motivation Parcoursup</option>
+            <option value="83">Welcome Mail (Automation)</option>
+          </optgroup>
+        </select>
+        <div id="template-preview" style="display:none;margin-top:10px;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:11px;color:#64748b;line-height:1.5;"></div>
+      </div>
+      <div id="email-custom-section" style="display:none;">
+        <div style="margin-bottom:12px;">
+          <label style="font-size:12px;font-weight:600;color:#1b1d3a;text-transform:uppercase;letter-spacing:0.04em;">Objet</label>
+          <input type="text" id="bulk-email-subject" placeholder="Objet de l'email..." style="width:100%;box-sizing:border-box;margin-top:6px;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:14px;outline:none;"/>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:12px;font-weight:600;color:#1b1d3a;text-transform:uppercase;letter-spacing:0.04em;">Contenu du mail</label>
+          <textarea id="bulk-email-content" rows="6" placeholder="Tapez le contenu de votre email ici..." style="width:100%;box-sizing:border-box;margin-top:6px;padding:12px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:14px;resize:vertical;outline:none;"></textarea>
+          <div style="font-size:11px;color:#9ca3af;margin-top:4px;">Utilisez <code>{prenom}</code> pour personnaliser.</div>
+        </div>
       </div>
       <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
         <button onclick="closeBulkEmailModal()" style="padding:10px 18px;border:1.5px solid #d1d5db;background:white;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">Annuler</button>
@@ -7385,26 +7409,78 @@ async function sendBulkSms() {
 }
 
 // ── EMAIL MODAL ──
+let _emailMode = 'template'; // 'template' or 'custom'
+
+function setEmailMode(mode) {
+  _emailMode = mode;
+  document.getElementById('email-template-section').style.display = mode === 'template' ? '' : 'none';
+  document.getElementById('email-custom-section').style.display = mode === 'custom' ? '' : 'none';
+  document.getElementById('email-mode-template').style.borderColor = mode === 'template' ? '#3b82f6' : '#d1d5db';
+  document.getElementById('email-mode-template').style.background = mode === 'template' ? '#eff6ff' : 'white';
+  document.getElementById('email-mode-template').style.color = mode === 'template' ? '#1d4ed8' : '#6b7280';
+  document.getElementById('email-mode-custom').style.borderColor = mode === 'custom' ? '#3b82f6' : '#d1d5db';
+  document.getElementById('email-mode-custom').style.background = mode === 'custom' ? '#eff6ff' : 'white';
+  document.getElementById('email-mode-custom').style.color = mode === 'custom' ? '#1d4ed8' : '#6b7280';
+}
+
+const TEMPLATE_SUBJECTS = {
+  116: 'Edumove — Déposez votre dossier gratuitement',
+  115: 'Vous avez un nouveau message sur votre espace Edumove',
+  114: 'Votre candidature Edumove — Nos recommandations d\'universités',
+  113: 'Important - Vos voeux Parcoursup',
+  112: 'Important - Lettre de motivation',
+  83: 'Bienvenue chez Edumove'
+};
+
+function onTemplateSelect() {
+  const tid = document.getElementById('bulk-email-template').value;
+  const preview = document.getElementById('template-preview');
+  if (tid && TEMPLATE_SUBJECTS[tid]) {
+    preview.style.display = 'block';
+    preview.innerHTML = '<strong>Objet :</strong> ' + esc(TEMPLATE_SUBJECTS[tid]) + '<br><span style="color:#3b82f6;">Le template Brevo sera envoyé tel quel avec les variables Brevo (prénom, etc.)</span>';
+  } else {
+    preview.style.display = 'none';
+  }
+}
+
 function openBulkEmailModal() {
   const selected = getSelectedCrmContacts();
   const withEmail = selected.filter(c => c.email);
   document.getElementById('bulk-email-info').textContent = `${withEmail.length} destinataire${withEmail.length > 1 ? 's' : ''} avec email (sur ${selected.length} sélectionnés)`;
   document.getElementById('bulk-email-subject').value = '';
   document.getElementById('bulk-email-content').value = '';
+  document.getElementById('bulk-email-template').value = '';
+  document.getElementById('template-preview').style.display = 'none';
   document.getElementById('bulk-email-result').style.display = 'none';
   document.getElementById('bulk-email-send-btn').disabled = false;
+  setEmailMode('template');
   document.getElementById('bulk-email-overlay').style.display = 'flex';
 }
 function closeBulkEmailModal() { document.getElementById('bulk-email-overlay').style.display = 'none'; }
 
 async function sendBulkEmail() {
-  const subject = document.getElementById('bulk-email-subject').value.trim();
-  const content = document.getElementById('bulk-email-content').value.trim();
-  if (!subject || !content) { alert('Veuillez remplir l\'objet et le contenu.'); return; }
-
   const selected = getSelectedCrmContacts().filter(c => c.email);
   if (!selected.length) { alert('Aucun contact avec email.'); return; }
-  if (!confirm(`Envoyer cet email à ${selected.length} contact${selected.length > 1 ? 's' : ''} ?`)) return;
+
+  let payload;
+  if (_emailMode === 'template') {
+    const templateId = document.getElementById('bulk-email-template').value;
+    if (!templateId) { alert('Choisissez un template Brevo.'); return; }
+    payload = {
+      recipients: selected.map(c => ({ email: c.email, prenom: c.prenom })),
+      templateId: parseInt(templateId)
+    };
+  } else {
+    const subject = document.getElementById('bulk-email-subject').value.trim();
+    const content = document.getElementById('bulk-email-content').value.trim();
+    if (!subject || !content) { alert('Remplissez l\'objet et le contenu.'); return; }
+    payload = {
+      recipients: selected.map(c => ({ email: c.email, prenom: c.prenom })),
+      subject, content
+    };
+  }
+
+  if (!confirm(`Envoyer à ${selected.length} contact${selected.length > 1 ? 's' : ''} ?`)) return;
 
   const btn = document.getElementById('bulk-email-send-btn');
   btn.disabled = true;
@@ -7413,7 +7489,7 @@ async function sendBulkEmail() {
   try {
     const resp = await fetch('/api/bulk-email', {
       method: 'POST', headers: apiHeaders(),
-      body: JSON.stringify({ recipients: selected.map(c => ({ email: c.email, prenom: c.prenom })), subject, content })
+      body: JSON.stringify(payload)
     });
     const data = await resp.json();
     const resultEl = document.getElementById('bulk-email-result');

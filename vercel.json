@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/hubspot-contacts.js": { "maxDuration": 60 },
+    "api/bulk-sms.js": { "maxDuration": 60 },
+    "api/bulk-email.js": { "maxDuration": 60 }
+  },
   "headers": [
     {
       "source": "/(.*)",

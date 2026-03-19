@@ -7,10 +7,12 @@ module.exports = async function handler(req, res) {
   if (handlePreflight(req, res)) return;
   if (!verifyApiKey(req)) return safeError(res, 401, 'Unauthorized');
 
-  const { recipients, subject, content } = req.body || {};
+  const { recipients, subject, content, templateId } = req.body || {};
   if (!Array.isArray(recipients) || !recipients.length) return safeError(res, 400, 'Missing recipients');
-  if (!subject || !content) return safeError(res, 400, 'Missing subject or content');
+  if (!templateId && (!subject || !content)) return safeError(res, 400, 'Missing subject/content or templateId');
   if (recipients.length > 200) return safeError(res, 400, 'Max 200 recipients per batch');
+
+  const useTemplate = !!templateId;
 
   const brevoApiKey = process.env.BREVO_API_KEY;
   if (!brevoApiKey) return safeError(res, 500, 'Email service not configured');
