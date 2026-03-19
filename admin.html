@@ -5274,6 +5274,22 @@ function esc(str) {
   return div.innerHTML;
 }
 
+function formatTel(tel) {
+  if (!tel || typeof tel !== 'string') return '';
+  const raw = tel.replace(/\D/g, '');
+  if (raw.length === 10 && raw.startsWith('0')) {
+    return raw.replace(/(\d{2})(?=\d)/g, '$1 ').trim();
+  }
+  if (raw.length === 11 && raw.startsWith('33')) {
+    const rest = raw.slice(2);
+    return '+33 ' + rest.slice(0, 1) + ' ' + rest.slice(1).replace(/(\d{2})(?=\d)/g, '$1 ').trim();
+  }
+  if (raw.length >= 9) {
+    return raw.replace(/(\d{2})(?=\d)/g, '$1 ').trim();
+  }
+  return tel;
+}
+
 function toggleCard(titleEl) {
   titleEl.classList.toggle('collapsed');
   const body = titleEl.nextElementSibling;
@@ -7368,14 +7384,14 @@ function renderCRMTable() {
   };
 
   tbody.innerHTML = pageItems.map(c => {
-    const date = c.createdAt ? new Date(c.createdAt).toLocaleDateString('fr-FR') : '—';
+    const date = c.syncedAt ? new Date(c.syncedAt).toLocaleDateString('fr-FR') : (c.createdAt ? new Date(c.createdAt).toLocaleDateString('fr-FR') : '—');
     const st = c.leadStatus || '';
     const statusOptions = CRM_LEAD_STATUSES.map(s =>
       `<option value="${esc(s)}" ${s === st ? 'selected' : ''}>${esc(s)}</option>`
     ).join('');
 
     const telDisplay = c.tel
-      ? `<a href="tel:${esc(c.tel)}" style="color:var(--violet);text-decoration:none;font-size:11px;">${esc(c.tel)}</a>`
+      ? `<a href="tel:${c.tel.replace(/[^\d+\-]/g, '')}" style="color:var(--violet);text-decoration:none;font-size:11px;">${esc(formatTel(c.tel))}</a>`
       : '<span style="color:#ccc;">—</span>';
     const emailDisplay = c.email
       ? `<a href="mailto:${esc(c.email)}" style="color:var(--text);text-decoration:none;font-size:11px;">${esc(c.email)}</a>`

@@ -51,7 +51,7 @@ async function listFromCache(req, res) {
   let from = 0;
   const PAGE = 1000;
   while (true) {
-    let q = sb.from('crm_contacts').select('*').order('created_at', { ascending: false });
+    let q = sb.from('crm_contacts').select('*').order('synced_at', { ascending: false });
     if (assignedTo && typeof assignedTo === 'string' && assignedTo.trim()) {
       q = q.eq('assigned_to', assignedTo.trim());
     }
@@ -119,7 +119,8 @@ async function syncFromHubSpot(req, res) {
   } while (after && pages < 200);
 
   // Transform and upsert into Supabase
-  const now = new Date().toISOString();
+  // Use createdate as synced_at during bulk sync (preserves chronological order)
+  // Webhook uses NOW() so new form submissions jump to top
   const rows = allContacts.map(c => {
     const p = c.properties || {};
     return {
@@ -133,7 +134,7 @@ async function syncFromHubSpot(req, res) {
       form_name: cleanFormName(p.recent_conversion_event_name || ''),
       source: p.hs_analytics_source || '',
       created_at: p.createdate || null,
-      synced_at: now
+      synced_at: p.createdate || new Date().toISOString()
     };
   });
 
