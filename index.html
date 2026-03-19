@@ -471,6 +471,42 @@ body {
       </div>
       <input type="hidden" id="signup-profil" value="terminale"/>
     </div>
+    <div id="signup-reori-bloc" style="display:none;background:#f5f6fb;border-radius:10px;padding:16px 18px;margin-bottom:6px;">
+      <div style="font-size:13px;font-weight:700;color:#1b1d3a;margin-bottom:12px;">📋 Votre situation actuelle</div>
+      <div class="auth-field">
+        <label>Formation actuelle <span class="req">*</span></label>
+        <select id="signup-reori-formation" style="width:100%;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:14px;" onchange="document.getElementById('signup-reori-autre-wrap').style.display=this.value==='autre'?'block':'none';">
+          <option value="">— Sélectionner —</option>
+          <option value="PASS">PASS</option>
+          <option value="LAS">L.AS</option>
+          <option value="STAPS">STAPS</option>
+          <option value="Licence Sciences">Licence Sciences</option>
+          <option value="Prepa">Prépa (BCPST, etc.)</option>
+          <option value="BTS/BUT">BTS / BUT</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+      <div id="signup-reori-autre-wrap" style="display:none;" class="auth-field">
+        <label>Précisez votre formation</label>
+        <input type="text" id="signup-reori-autre" placeholder="Décrivez votre formation actuelle"/>
+      </div>
+      <div class="auth-field-row" style="margin-top:4px;">
+        <div class="auth-field">
+          <label>Année en cours</label>
+          <select id="signup-reori-annee" style="width:100%;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:14px;">
+            <option value="">— Sélectionner —</option>
+            <option value="1ere annee">1ère année</option>
+            <option value="2eme annee">2ème année</option>
+            <option value="3eme annee">3ème année</option>
+            <option value="Plus">Plus de 3 ans</option>
+          </select>
+        </div>
+        <div class="auth-field">
+          <label>Motif de réorientation</label>
+          <input type="text" id="signup-reori-motif" placeholder="Ex : Échec PASS, projet médical..."/>
+        </div>
+      </div>
+    </div>
     <div class="auth-field">
       <label>Mot de passe <span class="req">*</span></label>
       <div class="pw-wrap"><input type="password" id="signup-pass" placeholder="Minimum 6 caractères"/><button type="button" class="pw-toggle" onclick="togglePw(this)">👁</button></div>
@@ -557,6 +593,7 @@ function selectSignupProfil(val, btn) {
   document.getElementById('signup-profil').value = val;
   document.querySelectorAll('.profil-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  document.getElementById('signup-reori-bloc').style.display = val === 'reorientation' ? 'block' : 'none';
 }
 
 // ── LOGIN MODAL ──
@@ -618,6 +655,10 @@ async function doSignup() {
   successEl.classList.remove('visible');
 
   if (!nom || !prenom || !email || !tel || !departement || !pass || !pass2) { showAuthError(errEl, 'Veuillez remplir tous les champs.'); return; }
+  const profil = document.getElementById('signup-profil').value;
+  if (profil === 'reorientation' && !document.getElementById('signup-reori-formation').value) {
+    showAuthError(errEl, 'Veuillez indiquer votre formation actuelle.'); return;
+  }
   if (pass.length < 6) { showAuthError(errEl, 'Le mot de passe doit contenir au moins 6 caractères.'); return; }
   if (pass !== pass2) { showAuthError(errEl, 'Les mots de passe ne correspondent pas.'); return; }
 
@@ -627,8 +668,7 @@ async function doSignup() {
     if (signupError) throw signupError;
     const uid = signupData?.user?.id;
     if (uid) {
-      const profil = document.getElementById('signup-profil').value;
-      await supabase.from('profiles').insert({
+      const profileData = {
         id: uid,
         nom: nom,
         prenom: prenom,
@@ -636,7 +676,16 @@ async function doSignup() {
         tel: tel,
         departement: departement,
         profil: profil
-      });
+      };
+      if (profil === 'reorientation') {
+        const formationVal = document.getElementById('signup-reori-formation').value;
+        profileData.reorientation = {
+          formation: formationVal === 'autre' ? document.getElementById('signup-reori-autre').value.trim() : formationVal,
+          annee: document.getElementById('signup-reori-annee').value,
+          motif: document.getElementById('signup-reori-motif').value.trim()
+        };
+      }
+      await supabase.from('profiles').insert(profileData);
     }
     window.location.href = 'candidature.html';
   } catch (err) {
