@@ -3049,7 +3049,7 @@ body.closer-mode .msg-new-btn { display: none !important; }
       </div>
       <div style="margin-bottom:12px;display:flex;gap:16px;flex-wrap:wrap;">
         <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;">
-          <input type="checkbox" id="sms-shortlinks" checked style="width:15px;height:15px;accent-color:var(--violet);">
+          <input type="checkbox" id="sms-shortlinks" checked onchange="updateSmsCharCount()" style="width:15px;height:15px;accent-color:var(--violet);">
           <span><strong>Raccourcir les liens</strong> <span style="color:#9ca3af;">(URL → lien court)</span></span>
         </label>
         <div style="display:flex;align-items:center;gap:6px;">
@@ -7525,8 +7525,21 @@ function updateSmsCharCount() {
   const text = document.getElementById('bulk-sms-content').value || '';
   const el = document.getElementById('sms-char-count');
   const count = text.length;
-  el.textContent = count + ' / 160';
-  el.style.color = count > 160 ? '#ef4444' : count > 140 ? '#f59e0b' : '#9ca3af';
+  // Estimate short link length: SMS Factor replaces URLs with ~22 char short links
+  const shortLinksChecked = document.getElementById('sms-shortlinks')?.checked;
+  const urlRegex = /https?:\/\/[^\s]+/g;
+  const urls = text.match(urlRegex) || [];
+  let shortCount = count;
+  if (shortLinksChecked && urls.length > 0) {
+    let saved = 0;
+    urls.forEach(u => { if (u.length > 22) saved += u.length - 22; });
+    shortCount = count - saved;
+    el.innerHTML = `${count} car. → <strong style="color:#10b981;">~${shortCount} avec lien court</strong> / 160`;
+  } else {
+    el.textContent = count + ' / 160';
+  }
+  const ref = shortLinksChecked ? shortCount : count;
+  el.style.color = ref > 160 ? '#ef4444' : ref > 140 ? '#f59e0b' : '#9ca3af';
 }
 
 function openBulkSmsModal() {
