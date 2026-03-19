@@ -4148,7 +4148,10 @@ function renderDetailPage(c) {
     msgHtml += `<div class="detail-card" style="flex:1;display:flex;flex-direction:column;min-height:0;">
       <div class="detail-card-title" style="color:var(--orange);border-color:var(--orange);flex-shrink:0;">${_chatTitle}</div>
       <div class="detail-card-body" style="flex:1;display:flex;flex-direction:column;min-height:0;padding:12px 16px;">
-      <div style="font-size:11px;color:var(--text-muted,#9ca3af);margin-bottom:8px;line-height:1.4;">📩 Échangez directement avec l'étudiant sur son dossier. L'étudiant voit ces messages dans son espace.</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div style="font-size:11px;color:var(--text-muted,#9ca3af);line-height:1.4;">📩 Échangez directement avec l'étudiant sur son dossier. L'étudiant voit ces messages dans son espace.</div>
+        ${!window.adminRole || window.adminRole === 'super_admin' ? `<button class="msg-delete-conv-btn" onclick="clearStudentConversation('${c.id}')" title="Supprimer toute la conversation">🗑 Vider</button>` : ''}
+      </div>
       <div class="msg-container" id="msg-container-${c.id}" style="flex:1;min-height:0;max-height:none;">
         <div class="msg-empty" id="msg-empty-${c.id}">Aucun message</div>
       </div>
@@ -4247,7 +4250,9 @@ async function loadMessagesForCandidature(candidatureId) {
       const role = msg.sender_role || msg.sender || 'student';
       const isInst = role !== 'student';
       div.className = 'msg-bubble ' + (isInst ? 'admin' : 'etudiant');
-      let inner = `<div class="msg-sender">${isInst ? (msg.sender_name || 'Équipe EDUMOVE') : 'Étudiant'}</div>`;
+      const delBtn = (window.adminRole === 'super_admin' || !window.adminRole) ? `<button class="msg-delete-btn" title="Supprimer ce message" onclick="event.stopPropagation();deleteStudentMessage(${msg.id},'${candidatureId}')">&times;</button>` : '';
+      let inner = delBtn;
+      inner += `<div class="msg-sender">${isInst ? (msg.sender_name || 'Équipe EDUMOVE') : 'Étudiant'}</div>`;
       inner += `<div>${esc(msg.content)}</div>`;
       if (msg.created_at) {
         const date = new Date(msg.created_at);
@@ -4263,13 +4268,27 @@ async function loadMessagesForCandidature(candidatureId) {
   renderMsgs(initialMsgs);
 
   const channel = supabase.channel('admin-msgs-' + candidatureId)
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'candidature_id=eq.' + candidatureId }, async () => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: 'candidature_id=eq.' + candidatureId }, async () => {
       const { data: msgs } = await supabase.from('messages').select('*').eq('candidature_id', candidatureId).order('created_at', { ascending: true });
       renderMsgs(msgs);
     })
     .subscribe();
 
   currentMsgUnsubscribe = () => supabase.removeChannel(channel);
+}
+
+async function deleteStudentMessage(msgId, candidatureId) {
+  if (!confirm('Supprimer ce message ?')) return;
+  const { error } = await supabase.from('messages').delete().eq('id', msgId);
+  if (error) { console.error('Delete message error:', error); alert('Erreur : ' + error.message); return; }
+  await loadMessagesForCandidature(candidatureId);
+}
+
+async function clearStudentConversation(candidatureId) {
+  if (!confirm('Supprimer toute la conversation avec cet étudiant ? Cette action est irréversible.')) return;
+  const { error } = await supabase.from('messages').delete().eq('candidature_id', candidatureId);
+  if (error) { console.error('Clear conv error:', error); alert('Erreur : ' + error.message); return; }
+  await loadMessagesForCandidature(candidatureId);
 }
 
 async function sendAdminMessage(candidatureId) {
