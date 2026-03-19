@@ -1273,18 +1273,41 @@ body.closer-mode .msg-new-btn { display: none !important; }
     <!-- Toolbar -->
     <div class="toolbar">
       <input type="text" class="search-input" id="search-input" placeholder="Rechercher par nom, prénom ou email..." oninput="applyFilters()"/>
-      <select class="filter-select" id="filter-universite" onchange="applyFilters()">
-        <option value="">Toutes universit&eacute;s</option>
-        <option value="LINK">🇮🇹 LINK Campus — Rome</option>
-        <option value="UCJC">🇪🇸 UCJC — Madrid</option>
-        <option value="UE">🇪🇸 Universidad Europea</option>
-      </select>
       <select class="filter-select" id="filter-status" onchange="applyFilters()">
         <option value="">Tous statuts actifs</option>
         <option value="en_attente">Candidature non d&eacute;pos&eacute;e</option>
         <option value="en_cours">En cours de traitement</option>
         <option value="reponse_edumove">R&eacute;ponse Edumove</option>
-        <option value="archive">Archiv&eacute;s / Termin&eacute;s</option>
+      </select>
+      <select class="filter-select" id="filter-suivi-fac" onchange="applyFilters()">
+        <option value="">Suivi par fac — Tous</option>
+        <optgroup label="🇮🇹 LINK Campus">
+          <option value="LINK:en_attente">LINK — En attente</option>
+          <option value="LINK:dossier_envoye">LINK — Dossier envoy&eacute;</option>
+          <option value="LINK:test_paye">LINK — Test pay&eacute;</option>
+          <option value="LINK:test_passe">LINK — Test pass&eacute;</option>
+          <option value="LINK:accepte">LINK — Accept&eacute;</option>
+          <option value="LINK:inscrit">LINK — Inscrit</option>
+          <option value="LINK:refuse">LINK — Refus&eacute;</option>
+        </optgroup>
+        <optgroup label="🇪🇸 UCJC">
+          <option value="UCJC:en_attente">UCJC — En attente</option>
+          <option value="UCJC:dossier_envoye">UCJC — Dossier envoy&eacute;</option>
+          <option value="UCJC:entretien_planifie">UCJC — Entretien planifi&eacute;</option>
+          <option value="UCJC:entretien_passe">UCJC — Entretien pass&eacute;</option>
+          <option value="UCJC:accepte">UCJC — Accept&eacute;</option>
+          <option value="UCJC:inscrit">UCJC — Inscrit</option>
+          <option value="UCJC:refuse">UCJC — Refus&eacute;</option>
+        </optgroup>
+        <optgroup label="🇪🇸 Universidad Europea">
+          <option value="UE:en_attente">UE — En attente</option>
+          <option value="UE:dossier_envoye">UE — Dossier envoy&eacute;</option>
+          <option value="UE:tests_passes">UE — Tests pass&eacute;s</option>
+          <option value="UE:accepte">UE — Accept&eacute;</option>
+          <option value="UE:acompte_verse">UE — Acompte vers&eacute;</option>
+          <option value="UE:inscrit">UE — Inscrit</option>
+          <option value="UE:refuse">UE — Refus&eacute;</option>
+        </optgroup>
       </select>
       <select class="filter-select" id="filter-profil" onchange="applyFilters()">
         <option value="">Tous profils</option>
@@ -1292,6 +1315,7 @@ body.closer-mode .msg-new-btn { display: none !important; }
         <option value="reorientation">R&eacute;orientation</option>
       </select>
       <button class="btn-export" onclick="exportCSV()">Exporter CSV</button>
+      <button class="btn-export" id="btn-archives" style="background:transparent;color:var(--text-muted);border:1.5px solid var(--border);" onclick="toggleArchives()">📦 Archivés</button>
       <button class="btn-export" style="background:var(--orange);" onclick="openAddDossierModal()">+ Ajouter un dossier</button>
     </div>
 
@@ -2871,6 +2895,12 @@ const perPage = 15;
 let currentDetailId = null;
 
 // ══════════════════════════════════════════
+// API HELPERS
+// ══════════════════════════════════════════
+const _API_KEY = 'edm_live_k8x2Qp9Rv4TmWn7YsB3jL6hF';
+function apiHeaders() { return { 'Content-Type': 'application/json', 'x-api-key': _API_KEY }; }
+
+// ══════════════════════════════════════════
 // AUTH
 // ══════════════════════════════════════════
 let currentAdminUser = null;
@@ -2979,7 +3009,7 @@ async function doResetPassword() {
   try {
     const res = await fetch('/api/reset-password', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: apiHeaders(),
       body: JSON.stringify({ email, redirectTo: window.location.origin + '/admin.html' })
     });
     const data = await res.json();
@@ -3064,13 +3094,9 @@ function applyRoleRestrictions() {
   const profilFilter = document.getElementById('filter-profil');
   if (profilFilter) profilFilter.style.display = 'none';
 
-  // Hide university filter and force to own uni
-  const uniFilter = document.getElementById('filter-universite');
-  if (uniFilter) {
-    const facUniMap = { fac_link: 'LINK', fac_ucjc: 'UCJC', fac_ue: 'UE' };
-    uniFilter.value = facUniMap[role] || '';
-    uniFilter.style.display = 'none';
-  }
+  // Hide suivi fac filter for fac roles (they only see their own uni)
+  const suiviFacFilter = document.getElementById('filter-suivi-fac');
+  if (suiviFacFilter) suiviFacFilter.style.display = 'none';
 
   // Update title
   const titleMap = { fac_link: 'LINK Campus University', fac_ucjc: 'UCJC Madrid', fac_ue: 'Universidad Europea' };
@@ -3216,29 +3242,59 @@ function updateStats() {
 // ══════════════════════════════════════════
 // FILTERS
 // ══════════════════════════════════════════
+let _showingArchives = false;
+
+function toggleArchives() {
+  _showingArchives = !_showingArchives;
+  const btn = document.getElementById('btn-archives');
+  if (_showingArchives) {
+    btn.style.background = 'var(--navy)';
+    btn.style.color = 'white';
+    btn.style.border = '1.5px solid var(--navy)';
+    // Disable other filters when showing archives
+    document.getElementById('filter-status').disabled = true;
+    document.getElementById('filter-suivi-fac').disabled = true;
+  } else {
+    btn.style.background = 'transparent';
+    btn.style.color = 'var(--text-muted)';
+    btn.style.border = '1.5px solid var(--border)';
+    document.getElementById('filter-status').disabled = false;
+    document.getElementById('filter-suivi-fac').disabled = false;
+  }
+  applyFilters();
+}
+
 function applyFilters() {
   const search = document.getElementById('search-input').value.toLowerCase().trim();
   const status = document.getElementById('filter-status').value;
   const profil = document.getElementById('filter-profil').value;
-  const uni = document.getElementById('filter-universite').value;
+  const suiviFacEl = document.getElementById('filter-suivi-fac');
+  const suiviFac = suiviFacEl ? suiviFacEl.value : '';
   const sourceEl = document.getElementById('filter-source');
   const source = sourceEl ? sourceEl.value : '';
 
   filteredCandidatures = allCandidatures.filter(c => {
-    // Par défaut : les 3 statuts actifs (en_attente + en_cours + reponse_edumove)
-    if (!status) {
-      if (c.status !== 'en_attente' && c.status !== 'en_cours' && c.status !== 'reponse_edumove') return false;
-    } else if (status === 'archive') {
-      // "Archivés/Terminés" = tout ce qui n'est pas un statut actif
+    // Archives mode
+    if (_showingArchives) {
       if (c.status === 'en_attente' || c.status === 'en_cours' || c.status === 'reponse_edumove') return false;
     } else {
-      if (c.status !== status) return false;
+      // Active statuses only
+      if (!status) {
+        if (c.status !== 'en_attente' && c.status !== 'en_cours' && c.status !== 'reponse_edumove') return false;
+      } else {
+        if (c.status !== status) return false;
+      }
     }
     if (search && !(`${c.nom} ${c.prenom} ${c.email}`).toLowerCase().includes(search)) return false;
     if (profil && c.profil !== profil) return false;
-    if (uni) {
+    // Suivi par fac filter (format: "UNI:status")
+    if (suiviFac) {
+      const [filterUni, filterTrack] = suiviFac.split(':');
       const sel = c.uni_selections || {};
-      if (!sel[uni]) return false;
+      const tracking = c.uni_tracking || {};
+      if (!sel[filterUni]) return false;
+      const currentTrack = tracking[filterUni + '_status'] || 'en_attente';
+      if (currentTrack !== filterTrack) return false;
     }
     if (source === 'direct' && !c.source?.startsWith('direct_')) return false;
     if (source && source !== 'direct' && c.source !== source) return false;
@@ -3388,7 +3444,7 @@ async function sendStudentNotifications(candidatureId, c, isRetry = false) {
     try {
       const resp = await fetch('/api/notify-response', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: apiHeaders(),
         body: JSON.stringify({ email: c.email, prenom: c.prenom })
       });
       const data = await resp.json().catch(() => ({}));
@@ -3410,7 +3466,7 @@ async function sendStudentNotifications(candidatureId, c, isRetry = false) {
     try {
       const resp = await fetch('/api/send-sms', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: apiHeaders(),
         body: JSON.stringify({ tel: c.tel, prenom: c.prenom })
       });
       const data = await resp.json().catch(() => ({}));
@@ -4315,7 +4371,7 @@ async function sendAdminMessage(candidatureId) {
       const _facKeyMap = { fac_link: 'LINK', fac_ucjc: 'UCJC', fac_ue: 'UE' };
       fetch('/api/notify-mention', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: apiHeaders(),
         body: JSON.stringify({
           mentionedParty: 'edumove',
           facKey: _facKeyMap[window.adminRole],
@@ -4332,7 +4388,7 @@ async function sendAdminMessage(candidatureId) {
     if (_notifCand) {
       fetch('/api/notify-student-chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: apiHeaders(),
         body: JSON.stringify({
           email: _notifCand.email,
           tel: _notifCand.tel,
@@ -4444,7 +4500,7 @@ async function sendFacDetailMessage(candidatureId) {
     const detailCand = allCandidatures.find(x => x.id === candidatureId);
     const detailStudentName = detailCand ? detailCand.prenom + ' ' + detailCand.nom : null;
     fetch('/api/notify-fac-message', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: apiHeaders(),
       body: JSON.stringify({ direction: 'admin_to_fac', facKey: currentFacDetailTab, senderEmail: currentAdminUser?.email || 'admin', content: text, studentName: detailStudentName })
     }).catch(e => console.warn('Email fac non envoyé:', e));
   } catch (err) {
@@ -6483,7 +6539,7 @@ async function sendFacMessage() {
   const isFacSender = role && role !== 'super_admin';
   const notifDirection = isFacSender ? 'fac_to_admin' : 'admin_to_fac';
   fetch('/api/notify-fac-message', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: apiHeaders(),
     body: JSON.stringify({ direction: notifDirection, facKey: msg.fac_key, senderEmail: email, content, studentName: convStudentName })
   }).catch(e => console.warn('Email non envoyé:', e));
 
@@ -6491,7 +6547,7 @@ async function sendFacMessage() {
   if (isFacSender && /@edumove/i.test(content)) {
     // Fac a tagué @Edumove → notif admissions@
     fetch('/api/notify-mention', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: apiHeaders(),
       body: JSON.stringify({ mentionedParty: 'edumove', facKey: msg.fac_key, senderName: email, studentName: convStudentName, content, candidatureId: currentFacConv?.candidature_id || null })
     }).catch(e => console.warn('Mention notification non envoyée:', e));
   } else {
@@ -6499,7 +6555,7 @@ async function sendFacMessage() {
     if (mentionedFac) {
       // Admin a tagué @Fac → notif fac emails
       fetch('/api/notify-mention', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: apiHeaders(),
         body: JSON.stringify({ mentionedParty: 'fac', facKey: mentionedFac[1].toUpperCase(), senderName: email, studentName: convStudentName, content, candidatureId: currentFacConv?.candidature_id || null })
       }).catch(e => console.warn('Mention notification non envoyée:', e));
     }
@@ -6769,7 +6825,7 @@ async function createNewConversation() {
       if (_hasEdumoveMention) {
         const _cand = allCandidatures.find(x => x.id === candidatureId);
         const _facKeyMap = { fac_link: 'LINK', fac_ucjc: 'UCJC', fac_ue: 'UE' };
-        fetch('/api/notify-mention', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        fetch('/api/notify-mention', { method: 'POST', headers: apiHeaders(),
           body: JSON.stringify({ mentionedParty: 'edumove', facKey: _facKeyMap[role], senderName: _senderName, studentName: _cand ? _cand.prenom + ' ' + _cand.nom : null, content, candidatureId }) }).catch(() => {});
       }
     } else {
@@ -6783,7 +6839,7 @@ async function createNewConversation() {
       });
       if (error) { console.error('Create fac conv error:', error); alert('Erreur : ' + error.message); return; }
       const _cand = candidatureId ? allCandidatures.find(x => x.id === candidatureId) : null;
-      fetch('/api/notify-fac-message', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      fetch('/api/notify-fac-message', { method: 'POST', headers: apiHeaders(),
         body: JSON.stringify({ direction: 'fac_to_admin', facKey, senderEmail: currentAdminUser?.email, content, studentName: _cand ? _cand.prenom + ' ' + _cand.nom : null }) }).catch(() => {});
     }
 
@@ -6811,7 +6867,7 @@ async function createNewConversation() {
     const _newChatCand = allCandidatures.find(x => x.id === candidatureId);
     if (_newChatCand) {
       fetch('/api/notify-student-chat', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: apiHeaders(),
         body: JSON.stringify({ email: _newChatCand.email, tel: _newChatCand.tel, prenom: _newChatCand.prenom, senderName: 'Équipe EDUMOVE', content })
       }).catch(e => console.warn('Notif étudiant non envoyée:', e));
     }
@@ -6835,7 +6891,7 @@ async function createNewConversation() {
 
   const newConvCand = candidatureId ? allCandidatures.find(x => x.id === candidatureId) : null;
   const newConvStudentName = newConvCand ? newConvCand.prenom + ' ' + newConvCand.nom : null;
-  fetch('/api/notify-fac-message', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+  fetch('/api/notify-fac-message', { method: 'POST', headers: apiHeaders(),
     body: JSON.stringify({ direction: 'admin_to_fac', facKey, senderEmail: currentAdminUser?.email || 'admin', content, studentName: newConvStudentName }) }).catch(e => console.warn('Email fac non envoyé:', e));
 
   closeNewConvModal();
