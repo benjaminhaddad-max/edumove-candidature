@@ -176,7 +176,7 @@ body {
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 150;
+  z-index: 99;
 }
 .profil-backdrop.open { display: block; }
 
@@ -1920,8 +1920,8 @@ async function submitCandidature() {
       payload.uni_selections = null;
       payload.source = null;
       payload.documents = {};
-      payload.status = 'en_attente';
-      payload.status_history = [{ status: 'en_attente', at: new Date().toISOString(), by: 'system' }];
+      payload.status = 'en_cours';
+      payload.status_history = [{ status: 'en_cours', at: new Date().toISOString(), by: 'system' }];
       payload.manual_override = false;
       payload.auto_response_text = null;
       payload.auto_response_generated_at = null;
