@@ -7599,8 +7599,8 @@ async function sendBulkSms() {
   const pushtype = document.getElementById('sms-pushtype')?.value || 'alert';
   const recipients = selected.map(c => ({ tel: c.tel, prenom: c.prenom }));
 
-  // Split into batches of 200
-  const BATCH_SIZE = 200;
+  // Split into batches of 500
+  const BATCH_SIZE = 500;
   const batches = [];
   for (let i = 0; i < recipients.length; i += BATCH_SIZE) {
     batches.push(recipients.slice(i, i + BATCH_SIZE));
