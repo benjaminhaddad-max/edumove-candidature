@@ -1331,25 +1331,63 @@ body.closer-mode .msg-new-btn { display: none !important; }
           <option value="UE:refuse">UE — Refus&eacute;</option>
         </optgroup>
       </select>
-      <select class="filter-select" id="filter-filiere" onchange="applyFilters()">
+      <select class="filter-select" id="filter-filiere" onchange="applyFilters()" style="min-width:140px;">
         <option value="">Toutes fili&egrave;res</option>
-        <option value="medecine">M&eacute;decine</option>
-        <option value="dentaire">Dentaire</option>
-        <option value="kinesitherapie">Kin&eacute;sith&eacute;rapie</option>
-        <option value="pharmacie">Pharmacie</option>
-        <option value="veterinaire">V&eacute;t&eacute;rinaire</option>
-        <option value="prepa_dentaire">Pr&eacute;pa Dentaire</option>
+        <optgroup label="Peu importe le rang">
+          <option value="medecine:any">M&eacute;decine</option>
+          <option value="dentaire:any">Dentaire</option>
+          <option value="kinesitherapie:any">Kin&eacute;sith&eacute;rapie</option>
+          <option value="pharmacie:any">Pharmacie</option>
+          <option value="veterinaire:any">V&eacute;t&eacute;rinaire</option>
+        </optgroup>
+        <optgroup label="En 1er choix">
+          <option value="medecine:1">1er — M&eacute;decine</option>
+          <option value="dentaire:1">1er — Dentaire</option>
+          <option value="kinesitherapie:1">1er — Kin&eacute;</option>
+          <option value="pharmacie:1">1er — Pharmacie</option>
+          <option value="veterinaire:1">1er — V&eacute;t&eacute;rinaire</option>
+        </optgroup>
+        <optgroup label="En top 2">
+          <option value="medecine:2">Top 2 — M&eacute;decine</option>
+          <option value="dentaire:2">Top 2 — Dentaire</option>
+          <option value="kinesitherapie:2">Top 2 — Kin&eacute;</option>
+          <option value="pharmacie:2">Top 2 — Pharmacie</option>
+          <option value="veterinaire:2">Top 2 — V&eacute;t&eacute;rinaire</option>
+        </optgroup>
+        <optgroup label="En top 3">
+          <option value="medecine:3">Top 3 — M&eacute;decine</option>
+          <option value="dentaire:3">Top 3 — Dentaire</option>
+          <option value="kinesitherapie:3">Top 3 — Kin&eacute;</option>
+          <option value="pharmacie:3">Top 3 — Pharmacie</option>
+          <option value="veterinaire:3">Top 3 — V&eacute;t&eacute;rinaire</option>
+        </optgroup>
       </select>
-      <select class="filter-select" id="filter-destination" onchange="applyFilters()">
+      <select class="filter-select" id="filter-destination" onchange="applyFilters()" style="min-width:140px;">
         <option value="">Toutes destinations</option>
-        <option value="LINK">🇮🇹 LINK</option>
-        <option value="UCJC">🇪🇸 UCJC</option>
-        <option value="UE">🇪🇸 UE</option>
-        <option value="PASS_LAS">🇫🇷 PASS/LAS</option>
-        <option value="roumanie">🇷🇴 Roumanie</option>
-        <option value="italie">🇮🇹 Italie</option>
-        <option value="espagne">🇪🇸 Espagne</option>
-        <option value="portugal">🇵🇹 Portugal</option>
+        <optgroup label="Peu importe le rang">
+          <option value="LINK:any">🇮🇹 LINK</option>
+          <option value="UCJC:any">🇪🇸 UCJC</option>
+          <option value="UE:any">🇪🇸 UE</option>
+          <option value="PASS_LAS:any">🇫🇷 PASS/LAS</option>
+        </optgroup>
+        <optgroup label="En 1er choix">
+          <option value="LINK:1">1er — 🇮🇹 LINK</option>
+          <option value="UCJC:1">1er — 🇪🇸 UCJC</option>
+          <option value="UE:1">1er — 🇪🇸 UE</option>
+          <option value="PASS_LAS:1">1er — 🇫🇷 PASS/LAS</option>
+        </optgroup>
+        <optgroup label="En top 2">
+          <option value="LINK:2">Top 2 — 🇮🇹 LINK</option>
+          <option value="UCJC:2">Top 2 — 🇪🇸 UCJC</option>
+          <option value="UE:2">Top 2 — 🇪🇸 UE</option>
+          <option value="PASS_LAS:2">Top 2 — 🇫🇷 PASS/LAS</option>
+        </optgroup>
+        <optgroup label="En top 3">
+          <option value="LINK:3">Top 3 — 🇮🇹 LINK</option>
+          <option value="UCJC:3">Top 3 — 🇪🇸 UCJC</option>
+          <option value="UE:3">Top 3 — 🇪🇸 UE</option>
+          <option value="PASS_LAS:3">Top 3 — 🇫🇷 PASS/LAS</option>
+        </optgroup>
       </select>
       <select class="filter-select" id="filter-profil" onchange="applyFilters()">
         <option value="">Tous profils</option>
@@ -3589,16 +3627,30 @@ function applyFilters() {
     if (search && !(`${c.nom} ${c.prenom} ${c.email}`).toLowerCase().includes(search)) return false;
     if (profil && c.profil !== profil) return false;
     if (filiere) {
+      const [fVal, fRank] = filiere.split(':');
       const ranking = c.classement_filieres || [];
       if (ranking.length > 0) {
-        if (!ranking.includes(filiere)) return false;
+        if (fRank === 'any') {
+          if (!ranking.includes(fVal)) return false;
+        } else {
+          const maxRank = parseInt(fRank);
+          const idx = ranking.indexOf(fVal);
+          if (idx === -1 || idx >= maxRank) return false;
+        }
       } else {
-        if (c.filiere !== filiere) return false;
+        if (c.filiere !== fVal) return false;
       }
     }
     if (destination) {
+      const [dVal, dRank] = destination.split(':');
       const dests = c.classement_destinations || [];
-      if (!dests.some(d => d.toLowerCase() === destination.toLowerCase())) return false;
+      if (dRank === 'any') {
+        if (!dests.some(d => d.toLowerCase() === dVal.toLowerCase())) return false;
+      } else {
+        const maxRank = parseInt(dRank);
+        const idx = dests.findIndex(d => d.toLowerCase() === dVal.toLowerCase());
+        if (idx === -1 || idx >= maxRank) return false;
+      }
     }
     // Suivi par fac filter (format: "UNI:status")
     if (suiviFac) {
