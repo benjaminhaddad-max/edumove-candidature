@@ -436,6 +436,9 @@ body.closer-mode .msg-new-btn { display: none !important; }
 .crm-hs-lbl { display:flex;align-items:center;gap:8px;padding:5px 12px;font-size:11px;cursor:pointer; }
 .crm-hs-lbl:hover { background: var(--bg); }
 .crm-hs-lbl input[type="checkbox"] { width:14px;height:14px;accent-color:var(--violet);flex-shrink:0; }
+.crm-period-opt { padding:9px 16px;font-size:12px;font-weight:500;cursor:pointer;color:var(--text);transition:background .15s; }
+.crm-period-opt:hover { background:var(--bg); }
+.crm-period-opt.active { color:var(--violet);font-weight:700;background:var(--violet-bg); }
 
 /* ── BTN VIEW ── */
 .btn-view {
@@ -3019,24 +3022,54 @@ body.closer-mode .msg-new-btn { display: none !important; }
         </div>
       </div>
       </div>
-      <select class="filter-select" id="crm-filter-cand-status" onchange="filterCRMContacts()" style="min-width:130px;">
-        <option value="">Candidature — Tous</option>
-        <option value="_has">✅ A candidaté</option>
-        <option value="_none">❌ Pas candidaté</option>
-        <option value="en_cours">En cours</option>
-        <option value="en_attente">Non déposée</option>
-        <option value="choix_valide">Choix validé</option>
-        <option value="reponse_edumove">Réponse Edumove</option>
-      </select>
+      <div style="position:relative;display:inline-block;">
+        <button class="filter-select" onclick="var d=document.getElementById('crm-cand-dd');d.style.display=d.style.display==='block'?'none':'block'" style="min-width:150px;text-align:left;cursor:pointer;background:white;" id="crm-cand-btn">Candidature ▾</button>
+        <div id="crm-cand-dd" style="display:none;position:absolute;top:100%;left:0;z-index:300;background:white;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:8px 0;min-width:220px;margin-top:4px;">
+          <div style="padding:4px 12px 6px;border-bottom:1px solid var(--border-light);display:flex;gap:8px;">
+            <button onclick="document.querySelectorAll('.crm-cand-cb').forEach(c=>c.checked=true);filterCRMContacts()" style="font-size:10px;padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:white;cursor:pointer;font-family:inherit;font-weight:600;">✅ Tout</button>
+            <button onclick="document.querySelectorAll('.crm-cand-cb').forEach(c=>c.checked=false);filterCRMContacts()" style="font-size:10px;padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:white;cursor:pointer;font-family:inherit;font-weight:600;">❌ Aucun</button>
+          </div>
+          <label class="crm-hs-lbl" style="color:#059669;font-weight:600;"><input type="checkbox" class="crm-cand-cb" value="_has" checked onchange="filterCRMContacts()"> ✅ A candidaté</label>
+          <label class="crm-hs-lbl" style="color:#dc2626;"><input type="checkbox" class="crm-cand-cb" value="_none" checked onchange="filterCRMContacts()"> ❌ Pas candidaté</label>
+          <div style="border-top:1px solid var(--border-light);margin:4px 0;padding:2px 12px 0;"><span style="font-size:9px;color:#999;font-weight:600;text-transform:uppercase;">Par statut</span></div>
+          <label class="crm-hs-lbl"><input type="checkbox" class="crm-cand-cb" value="en_attente" checked onchange="filterCRMContacts()"> Non déposée</label>
+          <label class="crm-hs-lbl" style="color:#7c3aed;"><input type="checkbox" class="crm-cand-cb" value="en_cours" checked onchange="filterCRMContacts()"> En cours</label>
+          <label class="crm-hs-lbl" style="color:#059669;"><input type="checkbox" class="crm-cand-cb" value="choix_valide" checked onchange="filterCRMContacts()"> Choix validé</label>
+          <label class="crm-hs-lbl" style="color:#1d4ed8;"><input type="checkbox" class="crm-cand-cb" value="reponse_edumove" checked onchange="filterCRMContacts()"> Réponse Edumove</label>
+        </div>
+      </div>
       <select class="filter-select" id="crm-filter-assigned" onchange="filterCRMContacts()" style="min-width:120px;">
         <option value="">Assigné — Tous</option>
         <option value="_unassigned">Non assignés</option>
         <option value="raphael@edumove.fr">Raphaël</option>
         <option value="lirone@edumove.fr">Lirone</option>
       </select>
-      <input type="date" class="filter-select" id="crm-date-from" onchange="filterCRMContacts()" style="min-width:150px;background:white;" title="Date début"/>
-      <input type="date" class="filter-select" id="crm-date-to" onchange="filterCRMContacts()" style="min-width:150px;background:white;" title="Date fin"/>
-      <button class="filter-select" onclick="document.getElementById('crm-date-from').value='';document.getElementById('crm-date-to').value='';filterCRMContacts()" style="min-width:82px;background:white;cursor:pointer;">Effacer dates</button>
+      <div style="position:relative;display:inline-block;" id="crm-period-wrap">
+        <button class="filter-select" id="crm-period-btn" onclick="var d=document.getElementById('crm-period-dd');d.style.display=d.style.display==='block'?'none':'block'" style="min-width:160px;text-align:left;cursor:pointer;background:white;">🗓 Toutes les périodes ▾</button>
+        <div id="crm-period-dd" style="display:none;position:absolute;top:100%;left:0;z-index:300;background:white;border:1.5px solid var(--border);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,0.14);min-width:260px;margin-top:4px;overflow:hidden;">
+          <div style="padding:6px 0;">
+            <div class="crm-period-opt" data-period="all" onclick="setCrmPeriod('all')">Toutes les périodes</div>
+            <div class="crm-period-opt" data-period="today" onclick="setCrmPeriod('today')">Aujourd'hui</div>
+            <div class="crm-period-opt" data-period="yesterday" onclick="setCrmPeriod('yesterday')">Hier</div>
+            <div class="crm-period-opt" data-period="week" onclick="setCrmPeriod('week')">Cette semaine</div>
+            <div class="crm-period-opt" data-period="month" onclick="setCrmPeriod('month')">Ce mois</div>
+            <div class="crm-period-opt" data-period="quarter" onclick="setCrmPeriod('quarter')">Ce trimestre</div>
+            <div class="crm-period-opt" data-period="custom" onclick="setCrmPeriod('custom')" style="border-top:1px solid var(--border-light);margin-top:4px;padding-top:10px;">📅 Personnalisé…</div>
+          </div>
+          <div id="crm-period-custom" style="display:none;padding:10px 14px 14px;border-top:1px solid var(--border-light);background:var(--bg);">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;">
+                <label style="font-size:10px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:3px;">Du</label>
+                <input type="date" id="crm-date-from" onchange="applyCrmCustomDates()" style="width:100%;padding:6px 8px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;"/>
+              </div>
+              <div style="flex:1;">
+                <label style="font-size:10px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:3px;">Au</label>
+                <input type="date" id="crm-date-to" onchange="applyCrmCustomDates()" style="width:100%;padding:6px 8px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;"/>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <button class="btn-export" onclick="syncCRMFromHubSpot()" style="padding:11px 14px;">🔄 Sync HubSpot</button>
     </div>
 
@@ -7471,7 +7504,7 @@ const CAND_STATUS_COLORS = {
 
 // Close CRM dropdowns on click outside
 document.addEventListener('click', function(e) {
-  ['crm-form-dd', 'crm-edm-dd'].forEach(id => {
+  ['crm-form-dd', 'crm-edm-dd', 'crm-cand-dd', 'crm-period-dd'].forEach(id => {
     const dd = document.getElementById(id);
     const btn = document.getElementById(id.replace('-dd', '-btn'));
     if (dd && dd.style.display === 'block' && !dd.contains(e.target) && e.target !== btn) {
@@ -7598,6 +7631,81 @@ async function loadMoreCRMContacts() {
   } catch (err) { console.error('CRM load more error:', err); }
 }
 
+let _crmPeriod = 'all';
+let _crmDateFrom = null;
+let _crmDateTo = null;
+
+function setCrmPeriod(period) {
+  _crmPeriod = period;
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const customPanel = document.getElementById('crm-period-custom');
+  const btn = document.getElementById('crm-period-btn');
+  const dd = document.getElementById('crm-period-dd');
+
+  document.querySelectorAll('.crm-period-opt').forEach(el => el.classList.toggle('active', el.dataset.period === period));
+
+  const labels = { all:'🗓 Toutes les périodes', today:'🗓 Aujourd\'hui', yesterday:'🗓 Hier', week:'🗓 Cette semaine', month:'🗓 Ce mois', quarter:'🗓 Ce trimestre', custom:'📅 Personnalisé' };
+
+  if (period === 'all') {
+    _crmDateFrom = null; _crmDateTo = null;
+    customPanel.style.display = 'none';
+  } else if (period === 'today') {
+    _crmDateFrom = today; _crmDateTo = new Date(today.getTime() + 86400000 - 1);
+    customPanel.style.display = 'none';
+  } else if (period === 'yesterday') {
+    const y = new Date(today.getTime() - 86400000);
+    _crmDateFrom = y; _crmDateTo = new Date(today.getTime() - 1);
+    customPanel.style.display = 'none';
+  } else if (period === 'week') {
+    const day = now.getDay(); const diff = day === 0 ? 6 : day - 1;
+    const monday = new Date(today.getTime() - diff * 86400000);
+    _crmDateFrom = monday; _crmDateTo = new Date(today.getTime() + 86400000 - 1);
+    customPanel.style.display = 'none';
+  } else if (period === 'month') {
+    _crmDateFrom = new Date(now.getFullYear(), now.getMonth(), 1);
+    _crmDateTo = new Date(today.getTime() + 86400000 - 1);
+    customPanel.style.display = 'none';
+  } else if (period === 'quarter') {
+    const qMonth = Math.floor(now.getMonth() / 3) * 3;
+    _crmDateFrom = new Date(now.getFullYear(), qMonth, 1);
+    _crmDateTo = new Date(today.getTime() + 86400000 - 1);
+    customPanel.style.display = 'none';
+  } else if (period === 'custom') {
+    customPanel.style.display = 'block';
+    _crmDateFrom = null; _crmDateTo = null;
+    const fromEl = document.getElementById('crm-date-from');
+    const toEl = document.getElementById('crm-date-to');
+    if (fromEl.value) _crmDateFrom = new Date(fromEl.value + 'T00:00:00');
+    if (toEl.value) _crmDateTo = new Date(toEl.value + 'T23:59:59');
+    btn.textContent = (labels[period] || period) + ' ▾';
+    return;
+  }
+
+  btn.textContent = (labels[period] || period) + ' ▾';
+  dd.style.display = 'none';
+  filterCRMContacts();
+}
+
+function applyCrmCustomDates() {
+  const fromEl = document.getElementById('crm-date-from');
+  const toEl = document.getElementById('crm-date-to');
+  _crmDateFrom = fromEl.value ? new Date(fromEl.value + 'T00:00:00') : null;
+  _crmDateTo = toEl.value ? new Date(toEl.value + 'T23:59:59') : null;
+  const btn = document.getElementById('crm-period-btn');
+  if (_crmDateFrom || _crmDateTo) {
+    const fmt = d => d.toLocaleDateString('fr-FR', { day:'2-digit', month:'short' });
+    let label = '📅 ';
+    if (_crmDateFrom && _crmDateTo) label += fmt(_crmDateFrom) + ' → ' + fmt(_crmDateTo);
+    else if (_crmDateFrom) label += 'Depuis ' + fmt(_crmDateFrom);
+    else label += 'Jusqu\'au ' + fmt(_crmDateTo);
+    btn.textContent = label + ' ▾';
+  } else {
+    btn.textContent = '📅 Personnalisé ▾';
+  }
+  filterCRMContacts();
+}
+
 function filterCRMContacts() { crmPage = 1; renderCRMTable(); }
 
 function renderCRMTable() {
@@ -7627,12 +7735,20 @@ function renderCRMTable() {
     edmBtn.textContent = unc > 0 ? `Edumove (${unc} excl.) ▾` : 'Statut Edumove ▾';
   }
 
-  const candStatusFilter = document.getElementById('crm-filter-cand-status')?.value || '';
+  // Candidature status filter (checkboxes)
+  const candChecked = new Set();
+  document.querySelectorAll('.crm-cand-cb:checked').forEach(cb => candChecked.add(cb.value));
+  const allCandCbs = document.querySelectorAll('.crm-cand-cb');
+  const candFilterActive = candChecked.size < allCandCbs.length;
+  const candBtn = document.getElementById('crm-cand-btn');
+  if (candBtn) {
+    const unc = allCandCbs.length - candChecked.size;
+    candBtn.textContent = unc > 0 ? `Candidature (${unc} excl.) ▾` : 'Candidature ▾';
+  }
+
   const assignedFilter = document.getElementById('crm-filter-assigned')?.value || '';
-  const dateFromVal = document.getElementById('crm-date-from')?.value || '';
-  const dateToVal = document.getElementById('crm-date-to')?.value || '';
-  const dateFrom = dateFromVal ? new Date(dateFromVal + 'T00:00:00') : null;
-  const dateTo = dateToVal ? new Date(dateToVal + 'T23:59:59') : null;
+  const dateFrom = _crmDateFrom;
+  const dateTo = _crmDateTo;
   const dateFilterActive = !!(dateFrom || dateTo);
 
   let filtered = crmContacts;
@@ -7649,13 +7765,17 @@ function renderCRMTable() {
   }
   if (formFilterActive) filtered = filtered.filter(c => formChecked.has(c.formName));
   if (edmFilterActive) filtered = filtered.filter(c => edmChecked.has(c.leadStatus));
-  // Candidature status filter
-  if (candStatusFilter) {
+  // Candidature status filter (checkboxes)
+  if (candFilterActive) {
     filtered = filtered.filter(c => {
       const match = matchCRMToCandidature(c);
-      if (candStatusFilter === '_has') return !!match;
-      if (candStatusFilter === '_none') return !match;
-      return match && match.status === candStatusFilter;
+      const hasMatch = !!match && !match._virtual;
+      // Check meta filters
+      if (hasMatch && candChecked.has('_has')) return true;
+      if (!hasMatch && candChecked.has('_none')) return true;
+      // Check specific statuses
+      if (hasMatch && candChecked.has(match.status)) return true;
+      return false;
     });
   }
   if (assignedFilter === '_unassigned') filtered = filtered.filter(c => !c.assignedTo);
@@ -7676,7 +7796,7 @@ function renderCRMTable() {
 
   if (filtered.length === 0) {
     tbody.innerHTML = '';
-    const hasAnyFilter = !!(search || formFilterActive || edmFilterActive || candStatusFilter || assignedFilter || dateFilterActive);
+    const hasAnyFilter = !!(search || formFilterActive || edmFilterActive || candFilterActive || assignedFilter || dateFilterActive);
     empty.querySelector('p').textContent = hasAnyFilter ? '🔍 Aucun contact trouvé' : '📇 Aucun contact HubSpot';
     empty.style.display = 'block';
     document.getElementById('crm-pagination').style.display = 'none';
