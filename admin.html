@@ -6695,11 +6695,11 @@ async function selectFacConv(facKey, candidatureId) {
   let studentText = '';
   if (candidatureId) {
     const c = allCandidatures.find(x => x.id === candidatureId);
-    studentText = c ? ('Dossier : ' + c.prenom + ' ' + c.nom) : 'Dossier spécifique';
+    studentText = c ? `<a href="#" onclick="event.preventDefault();viewDetail('${candidatureId}');showPage('candidatures')" style="color:var(--violet);text-decoration:none;border-bottom:1px dashed var(--violet);cursor:pointer;">📁 Dossier : ${esc(c.prenom)} ${esc(c.nom)}</a>` : 'Dossier spécifique';
   } else {
     studentText = 'Conversation générale';
   }
-  document.getElementById('fac-msg-conv-student').textContent = studentText;
+  document.getElementById('fac-msg-conv-student').innerHTML = studentText;
   document.getElementById('fac-msg-footer').style.display = 'flex';
   document.getElementById('fac-msg-delete-conv-btn').style.display = '';
   { const _h = document.getElementById('fac-msg-footer-hint'); if (_h) { const _isFac = window.adminRole && window.adminRole !== 'super_admin'; _h.innerHTML = _isFac ? '💡 Tapez <strong>@Edumove</strong> pour alerter l\'équipe — invisible pour l\'étudiant' : '💡 Tapez <strong>@LINK</strong>, <strong>@UCJC</strong> ou <strong>@UE</strong> pour taguer la fac concernée'; _h.style.display = 'block'; } }
@@ -6730,7 +6730,8 @@ async function selectStudentConv(candidatureId) {
   const c = allCandidatures.find(x => x.id === candidatureId);
   const name = c ? (c.prenom + ' ' + c.nom) : 'Étudiant';
 
-  document.getElementById('fac-msg-conv-title').textContent = name;
+  const titleEl = document.getElementById('fac-msg-conv-title');
+  titleEl.innerHTML = c ? `<a href="#" onclick="event.preventDefault();viewDetail('${candidatureId}');showPage('candidatures')" style="color:var(--navy);text-decoration:none;border-bottom:2px dashed var(--violet);padding-bottom:2px;cursor:pointer;">${esc(name)}</a>` : name;
   document.getElementById('fac-msg-conv-student').textContent = 'Chat étudiant ↔ Edumove';
   document.getElementById('fac-msg-footer').style.display = 'flex';
   document.getElementById('fac-msg-delete-conv-btn').style.display = '';
