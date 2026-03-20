@@ -3626,15 +3626,21 @@ function renderTable() {
     if (sel.UE && (!_allowedUni || _allowedUni === 'UE')) uniBadges += '<span class="uni-badge ue">UE</span>';
     if (!uniBadges) uniBadges = '<span style="color:var(--text-muted);font-size:11px;">\u2014</span>';
 
-    // Per-uni tracking summary
+    // Per-uni tracking summary with inline selects
+    const uniTrackOptions = {
+      LINK: ['en_attente','dossier_envoye','test_paye','test_passe','accepte','inscrit','refuse','autre_agence'],
+      UCJC: ['en_attente','dossier_envoye','entretien_planifie','entretien_passe','accepte','inscrit','refuse','autre_agence'],
+      UE: ['en_attente','dossier_envoye','tests_passes','accepte','acompte_verse','inscrit','refuse','autre_agence']
+    };
     let trackSummary = '';
     ['LINK', 'UCJC', 'UE'].forEach(uni => {
       if (!sel[uni]) return;
-      if (_allowedUni && _allowedUni !== uni) return; // fac role: hide other unis
+      if (_allowedUni && _allowedUni !== uni) return;
       const st = tracking[uni + '_status'] || 'en_attente';
-      const color = trackColors[st] || '#999';
-      const label = trackLabels[st] || st;
-      trackSummary += '<div style="display:flex;align-items:center;gap:6px;font-size:11px;margin-bottom:4px;"><span style="font-weight:700;min-width:36px;color:var(--navy);">' + uni + '</span><span style="padding:3px 10px;border-radius:20px;background:' + color + '12;color:' + color + ';border:1px solid ' + color + '30;font-weight:600;font-size:10px;white-space:nowrap;">' + label + '</span></div>';
+      const opts = (uniTrackOptions[uni] || []).map(v =>
+        '<option value="' + v + '"' + (v === st ? ' selected' : '') + '>' + (trackLabels[v] || v) + '</option>'
+      ).join('');
+      trackSummary += '<div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><span style="font-weight:700;font-size:10px;min-width:32px;color:var(--navy);">' + uni + '</span><select onchange="quickChangeTrack(\'' + c.id + '\',\'' + uni + '\',this.value)" onclick="event.stopPropagation()" style="padding:2px 4px;border-radius:12px;font-size:9px;font-weight:600;border:1.5px solid var(--border);font-family:inherit;cursor:pointer;max-width:110px;">' + opts + '</select></div>';
     });
     if (!trackSummary) trackSummary = '<span style="color:var(--text-muted);font-size:10px;">\u2014</span>';
 
@@ -3806,6 +3812,16 @@ function confirmArchive(id) {
   btn.className = 'btn-confirm-archive';
   confirmAction = () => archiveCandidature(id);
   document.getElementById('confirm-overlay').classList.add('active');
+}
+
+async function quickChangeTrack(candidatureId, uni, newStatus) {
+  const c = allCandidatures.find(x => x.id === candidatureId);
+  if (!c) return;
+  const tracking = { ...(c.uni_tracking || {}) };
+  tracking[uni + '_status'] = newStatus;
+  const { error } = await supabase.from('candidatures').update({ uni_tracking: tracking }).eq('id', candidatureId);
+  if (error) { alert('Erreur : ' + error.message); return; }
+  c.uni_tracking = tracking;
 }
 
 async function quickChangeStatus(id, newStatus, selectEl) {
