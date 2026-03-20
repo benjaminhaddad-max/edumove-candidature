@@ -8569,12 +8569,14 @@ async function sendBulkSms() {
   btn.disabled = false;
   btn.textContent = _smsScheduled ? '🕐 Programmer l\'envoi' : 'Envoyer les SMS';
 
-  // Update last_sms_at in Supabase for sent contacts
+  // Update last_sms_at in Supabase for sent contacts (batch 500 IDs max to avoid URL limit)
   if (totalSent > 0) {
     const now = _smsScheduled ? new Date(document.getElementById('sms-schedule-date').value + 'T' + document.getElementById('sms-schedule-time').value).toISOString() : new Date().toISOString();
     const sentIds = selected.map(c => c.id);
     try {
-      await supabase.from('crm_contacts').update({ last_sms_at: now }).in('id', sentIds);
+      for (let i = 0; i < sentIds.length; i += 500) {
+        await supabase.from('crm_contacts').update({ last_sms_at: now }).in('id', sentIds.slice(i, i + 500));
+      }
       selected.forEach(c => { c.lastSmsAt = now; });
       renderCRMTable();
     } catch(e) { console.warn('SMS tracking update failed:', e); }
@@ -8764,12 +8766,14 @@ async function sendBulkEmail() {
   btn.disabled = false;
   btn.textContent = _emailScheduled ? '🕐 Programmer l\'envoi' : 'Envoyer les emails';
 
-  // Update last_email_at in Supabase for sent contacts
+  // Update last_email_at in Supabase for sent contacts (batch 500 IDs max to avoid URL limit)
   if (totalSent > 0) {
     const now = _emailScheduled ? new Date(document.getElementById('email-schedule-date').value + 'T' + document.getElementById('email-schedule-time').value).toISOString() : new Date().toISOString();
     const sentIds = selected.map(c => c.id);
     try {
-      await supabase.from('crm_contacts').update({ last_email_at: now }).in('id', sentIds);
+      for (let i = 0; i < sentIds.length; i += 500) {
+        await supabase.from('crm_contacts').update({ last_email_at: now }).in('id', sentIds.slice(i, i + 500));
+      }
       selected.forEach(c => { c.lastEmailAt = now; });
       renderCRMTable();
     } catch(e) { console.warn('Email tracking update failed:', e); }
