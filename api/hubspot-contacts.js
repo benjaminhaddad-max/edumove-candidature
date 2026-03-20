@@ -36,6 +36,7 @@ module.exports = async function handler(req, res) {
     if (action === 'sync') return await syncFromHubSpot(req, res);
     if (action === 'update') return await updateContact(req, res);
     if (action === 'assign') return await assignContacts(req, res);
+    if (action === 'bulk-update-status') return await bulkUpdateStatus(req, res);
     return safeError(res, 400, 'Invalid action');
   } catch (err) {
     console.error('CRM error:', err.message);
@@ -231,6 +232,23 @@ async function assignContacts(req, res) {
     const { error } = await sb.from('crm_contacts').update(updateData).in('id', batch);
     if (!error) updated += batch.length;
     else console.error('Assign error:', error.message);
+  }
+
+  return res.status(200).json({ ok: true, updated });
+}
+
+// ── BULK UPDATE STATUS: Update lead_status for multiple contacts (cache only) ──
+async function bulkUpdateStatus(req, res) {
+  const { contactIds, leadStatus } = req.body;
+  if (!Array.isArray(contactIds) || !contactIds.length || !leadStatus) return safeError(res, 400, 'contactIds and leadStatus required');
+
+  const sb = getSupabase();
+  let updated = 0;
+  for (let i = 0; i < contactIds.length; i += 500) {
+    const batch = contactIds.slice(i, i + 500);
+    const { error } = await sb.from('crm_contacts').update({ lead_status: leadStatus }).in('id', batch);
+    if (!error) updated += batch.length;
+    else console.error('Bulk update error:', error.message);
   }
 
   return res.status(200).json({ ok: true, updated });
