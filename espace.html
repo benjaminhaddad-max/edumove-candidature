@@ -1428,7 +1428,7 @@ let _isAdminPreview = false;
   document.getElementById('main-content').style.display = 'block';
 
   // ── TRACKING: log response view only ──
-  if (!_isAdminPreview && candidatureId) {
+  if (candidatureId) {
     _trackResponseView(candidatureId, candidatureData);
   }
 })();
