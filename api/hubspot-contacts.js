@@ -34,6 +34,7 @@ module.exports = async function handler(req, res) {
   try {
     if (action === 'list') return await listFromCache(req, res);
     if (action === 'sync') return await syncFromHubSpot(req, res);
+    if (action === 'fetch-recent') return await fetchRecentContacts(req, res);
     if (action === 'update') return await updateContact(req, res);
     if (action === 'assign') return await assignContacts(req, res);
     if (action === 'bulk-update-status') return await bulkUpdateStatus(req, res);
@@ -95,6 +96,49 @@ async function listFromCache(req, res) {
   }));
 
   return res.status(200).json({ contacts, total: contacts.length, cached: true });
+}
+
+// ── FETCH RECENT: Grab latest contacts from HubSpot List API (no indexing delay) ──
+async function fetchRecentContacts(req, res) {
+  const hubspotToken = process.env.HUBSPOT_ACCESS_TOKEN;
+  if (!hubspotToken) return safeError(res, 500, 'HubSpot not configured');
+
+  const sb = getSupabase();
+  const PROPS = ['firstname', 'lastname', 'email', 'phone', 'edumove_lead_status', 'hs_lead_status', 'recent_conversion_event_name', 'hs_analytics_source', 'createdate', 'edumove_departement', 'departement'];
+
+  // Fetch the 100 most recently modified contacts (List API = instant, no search indexing)
+  const listRes = await hubFetch(hubspotToken, 'GET', `/crm/v3/objects/contacts?limit=100&properties=${PROPS.join(',')}`);
+  if (!listRes.ok) return safeError(res, 502, 'HubSpot list failed');
+  const listData = await listRes.json();
+
+  const rows = [];
+  for (const c of (listData.results || [])) {
+    const p = c.properties || {};
+    const formName = (p.recent_conversion_event_name || '').toLowerCase();
+    // Accept if form name contains edumove OR if form name is empty (just created)
+    if (!formName.includes('edumove') && formName !== '') continue;
+    rows.push({
+      id: c.id,
+      nom: p.lastname || '',
+      prenom: p.firstname || '',
+      email: p.email || '',
+      tel: p.phone || '',
+      lead_status: p.edumove_lead_status || mapHsToEdumove(p.hs_lead_status || ''),
+      hs_lead_status: p.hs_lead_status || '',
+      form_name: cleanFormName(p.recent_conversion_event_name || ''),
+      source: p.hs_analytics_source || '',
+      departement: p.edumove_departement || p.departement || '',
+      created_at: p.createdate || null,
+      synced_at: new Date().toISOString()
+    });
+  }
+
+  if (rows.length > 0) {
+    const { error } = await sb.from('crm_contacts').upsert(rows, { onConflict: 'id' });
+    if (error) console.error('Fetch-recent upsert error:', error.message);
+  }
+
+  return res.status(200).json({ success: true, found: rows.length });
 }
 
 // ── SYNC: Fetch Edumove contacts from HubSpot search → upsert into Supabase ──

@@ -7870,8 +7870,16 @@ async function syncCRMFromHubSpot() {
   const btn = document.getElementById('crm-sync-btn');
   if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Sync en cours...'; btn.style.opacity = '0.7'; }
   try {
+    // 1) Quick fetch recent contacts (instant, no indexing delay)
+    if (btn) btn.innerHTML = '⏳ Récup nouveaux leads...';
+    const recent = await crmApiCall({ action: 'fetch-recent' });
+    console.log('Quick fetch:', recent.found, 'recent contacts');
+
+    // 2) Full sync from search API
+    if (btn) btn.innerHTML = '⏳ Sync complète...';
     const result = await crmApiCall({ action: 'sync' });
     console.log('CRM sync result:', result);
+
     if (btn) { btn.innerHTML = '✅ ' + (result.synced || 0) + ' synced'; btn.style.opacity = '1'; setTimeout(() => { btn.innerHTML = '🔄 Sync HubSpot'; btn.disabled = false; }, 3000); }
     await loadCRMContacts();
   } catch (err) {
