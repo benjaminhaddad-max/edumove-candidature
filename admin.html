@@ -1331,6 +1331,26 @@ body.closer-mode .msg-new-btn { display: none !important; }
           <option value="UE:refuse">UE — Refus&eacute;</option>
         </optgroup>
       </select>
+      <select class="filter-select" id="filter-filiere" onchange="applyFilters()">
+        <option value="">Toutes fili&egrave;res</option>
+        <option value="medecine">M&eacute;decine</option>
+        <option value="dentaire">Dentaire</option>
+        <option value="kinesitherapie">Kin&eacute;sith&eacute;rapie</option>
+        <option value="pharmacie">Pharmacie</option>
+        <option value="veterinaire">V&eacute;t&eacute;rinaire</option>
+        <option value="prepa_dentaire">Pr&eacute;pa Dentaire</option>
+      </select>
+      <select class="filter-select" id="filter-destination" onchange="applyFilters()">
+        <option value="">Toutes destinations</option>
+        <option value="LINK">🇮🇹 LINK</option>
+        <option value="UCJC">🇪🇸 UCJC</option>
+        <option value="UE">🇪🇸 UE</option>
+        <option value="PASS_LAS">🇫🇷 PASS/LAS</option>
+        <option value="roumanie">🇷🇴 Roumanie</option>
+        <option value="italie">🇮🇹 Italie</option>
+        <option value="espagne">🇪🇸 Espagne</option>
+        <option value="portugal">🇵🇹 Portugal</option>
+      </select>
       <select class="filter-select" id="filter-profil" onchange="applyFilters()">
         <option value="">Tous profils</option>
         <option value="terminale">Terminale</option>
@@ -3541,6 +3561,8 @@ function applyFilters() {
   const search = document.getElementById('search-input').value.toLowerCase().trim();
   const status = document.getElementById('filter-status').value;
   const profil = document.getElementById('filter-profil').value;
+  const filiere = document.getElementById('filter-filiere')?.value || '';
+  const destination = document.getElementById('filter-destination')?.value || '';
   const suiviFacEl = document.getElementById('filter-suivi-fac');
   const suiviFac = suiviFacEl ? suiviFacEl.value : '';
   const sourceEl = document.getElementById('filter-source');
@@ -3560,6 +3582,18 @@ function applyFilters() {
     }
     if (search && !(`${c.nom} ${c.prenom} ${c.email}`).toLowerCase().includes(search)) return false;
     if (profil && c.profil !== profil) return false;
+    if (filiere) {
+      const ranking = c.classement_filieres || [];
+      if (ranking.length > 0) {
+        if (!ranking.includes(filiere)) return false;
+      } else {
+        if (c.filiere !== filiere) return false;
+      }
+    }
+    if (destination) {
+      const dests = c.classement_destinations || [];
+      if (!dests.some(d => d.toLowerCase() === destination.toLowerCase())) return false;
+    }
     // Suivi par fac filter (format: "UNI:status")
     if (suiviFac) {
       const [filterUni, filterTrack] = suiviFac.split(':');
