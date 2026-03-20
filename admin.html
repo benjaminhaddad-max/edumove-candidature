@@ -2988,10 +2988,10 @@ body.closer-mode .msg-new-btn { display: none !important; }
       <div class="stat-card" style="border-top:4px solid #ef4444;"><div class="stat-label">Disqualifiés</div><div class="stat-value" id="crm-stat-disq" style="color:#ef4444;">—</div></div>
     </div>
 
-    <div class="toolbar">
-      <input type="text" class="search-input" id="crm-search" placeholder="Rechercher par nom, email, tél..." oninput="filterCRMContacts()" style="min-width:180px;"/>
-      <div style="position:relative;display:inline-block;">
-        <button class="filter-select" onclick="var d=document.getElementById('crm-form-dd');d.style.display=d.style.display==='block'?'none':'block'" style="min-width:140px;text-align:left;cursor:pointer;background:white;" id="crm-form-btn">Formulaire ▾</button>
+    <div class="toolbar" style="display:flex;flex-wrap:nowrap;gap:8px;align-items:center;overflow-x:auto;">
+      <input type="text" class="search-input" id="crm-search" placeholder="Rechercher nom, email, tél..." oninput="filterCRMContacts()" style="min-width:160px;flex:1;"/>
+      <div style="position:relative;display:inline-block;flex-shrink:0;">
+        <button class="filter-select" onclick="var d=document.getElementById('crm-form-dd');d.style.display=d.style.display==='block'?'none':'block'" style="text-align:left;cursor:pointer;background:white;white-space:nowrap;padding:8px 12px;font-size:12px;" id="crm-form-btn">Formulaire ▾</button>
         <div id="crm-form-dd" style="display:none;position:absolute;top:100%;left:0;z-index:300;background:white;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:8px 0;min-width:200px;margin-top:4px;">
           <div style="padding:4px 12px 6px;border-bottom:1px solid var(--border-light);display:flex;gap:8px;">
             <button onclick="document.querySelectorAll('.crm-form-cb').forEach(c=>c.checked=true);filterCRMContacts()" style="font-size:10px;padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:white;cursor:pointer;font-family:inherit;font-weight:600;">✅ Tout</button>
@@ -3003,15 +3003,15 @@ body.closer-mode .msg-new-btn { display: none !important; }
           <label class="crm-hs-lbl" style="color:#999;"><input type="checkbox" class="crm-form-cb" value="" checked onchange="filterCRMContacts()"> (Autre / inconnu)</label>
         </div>
       </div>
-      <div style="position:relative;display:inline-block;">
-        <button class="filter-select" onclick="var d=document.getElementById('crm-edm-dd');d.style.display=d.style.display==='block'?'none':'block'" style="min-width:150px;text-align:left;cursor:pointer;background:white;" id="crm-edm-btn">Statut Edumove ▾</button>
+      <div style="position:relative;display:inline-block;flex-shrink:0;">
+        <button class="filter-select" onclick="var d=document.getElementById('crm-edm-dd');d.style.display=d.style.display==='block'?'none':'block'" style="text-align:left;cursor:pointer;background:white;white-space:nowrap;padding:8px 12px;font-size:12px;" id="crm-edm-btn">Statut Edumove ▾</button>
         <div id="crm-edm-dd" style="display:none;position:absolute;top:100%;left:0;z-index:300;background:white;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:8px 0;min-width:220px;margin-top:4px;">
           <div style="padding:4px 12px 6px;border-bottom:1px solid var(--border-light);display:flex;gap:8px;">
             <button onclick="document.querySelectorAll('.crm-edm-cb').forEach(c=>c.checked=true);filterCRMContacts()" style="font-size:10px;padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:white;cursor:pointer;font-family:inherit;font-weight:600;">✅ Tout</button>
             <button onclick="document.querySelectorAll('.crm-edm-cb').forEach(c=>c.checked=false);filterCRMContacts()" style="font-size:10px;padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:white;cursor:pointer;font-family:inherit;font-weight:600;">❌ Aucun</button>
           </div>
           <label class="crm-hs-lbl"><input type="checkbox" class="crm-edm-cb" value="Nouveau" checked onchange="filterCRMContacts()"> Nouveau</label>
-          <label class="crm-hs-lbl" style="color:#7c3aed;"><input type="checkbox" class="crm-edm-cb" value="En cours de candidature" checked onchange="filterCRMContacts()"> En cours de candidature</label>
+          <label class="crm-hs-lbl" style="color:#7c3aed;"><input type="checkbox" class="crm-edm-cb" value="En cours de candidature" onchange="filterCRMContacts()"> En cours de candidature</label>
           <label class="crm-hs-lbl"><input type="checkbox" class="crm-edm-cb" value="Va candidater" checked onchange="filterCRMContacts()"> Va candidater</label>
           <label class="crm-hs-lbl"><input type="checkbox" class="crm-edm-cb" value="Veut absolument autre pays" checked onchange="filterCRMContacts()"> Veut autre pays</label>
           <label class="crm-hs-lbl" style="color:#dc2626;"><input type="checkbox" class="crm-edm-cb" value="Disqualifié" checked onchange="filterCRMContacts()"> Disqualifié</label>
@@ -3021,9 +3021,8 @@ body.closer-mode .msg-new-btn { display: none !important; }
           <label class="crm-hs-lbl" style="color:#999;"><input type="checkbox" class="crm-edm-cb" value="" checked onchange="filterCRMContacts()"> (Aucun statut)</label>
         </div>
       </div>
-      </div>
-      <div style="position:relative;display:inline-block;">
-        <button class="filter-select" onclick="var d=document.getElementById('crm-cand-dd');d.style.display=d.style.display==='block'?'none':'block'" style="min-width:150px;text-align:left;cursor:pointer;background:white;" id="crm-cand-btn">Candidature ▾</button>
+      <div style="position:relative;display:inline-block;flex-shrink:0;">
+        <button class="filter-select" onclick="var d=document.getElementById('crm-cand-dd');d.style.display=d.style.display==='block'?'none':'block'" style="text-align:left;cursor:pointer;background:white;white-space:nowrap;padding:8px 12px;font-size:12px;" id="crm-cand-btn">Candidature ▾</button>
         <div id="crm-cand-dd" style="display:none;position:absolute;top:100%;left:0;z-index:300;background:white;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:8px 0;min-width:220px;margin-top:4px;">
           <div style="padding:4px 12px 6px;border-bottom:1px solid var(--border-light);display:flex;gap:8px;">
             <button onclick="document.querySelectorAll('.crm-cand-cb').forEach(c=>c.checked=true);filterCRMContacts()" style="font-size:10px;padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:white;cursor:pointer;font-family:inherit;font-weight:600;">✅ Tout</button>
@@ -3038,15 +3037,15 @@ body.closer-mode .msg-new-btn { display: none !important; }
           <label class="crm-hs-lbl" style="color:#1d4ed8;"><input type="checkbox" class="crm-cand-cb" value="reponse_edumove" checked onchange="filterCRMContacts()"> Réponse Edumove</label>
         </div>
       </div>
-      <select class="filter-select" id="crm-filter-assigned" onchange="filterCRMContacts()" style="min-width:120px;">
+      <select class="filter-select" id="crm-filter-assigned" onchange="filterCRMContacts()" style="flex-shrink:0;padding:8px 12px;font-size:12px;white-space:nowrap;">
         <option value="">Assigné — Tous</option>
         <option value="_unassigned">Non assignés</option>
         <option value="raphael@edumove.fr">Raphaël</option>
         <option value="lirone@edumove.fr">Lirone</option>
       </select>
-      <div style="position:relative;display:inline-block;" id="crm-period-wrap">
-        <button class="filter-select" id="crm-period-btn" onclick="var d=document.getElementById('crm-period-dd');d.style.display=d.style.display==='block'?'none':'block'" style="min-width:160px;text-align:left;cursor:pointer;background:white;">🗓 Toutes les périodes ▾</button>
-        <div id="crm-period-dd" style="display:none;position:absolute;top:100%;left:0;z-index:300;background:white;border:1.5px solid var(--border);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,0.14);min-width:260px;margin-top:4px;overflow:hidden;">
+      <div style="position:relative;display:inline-block;flex-shrink:0;" id="crm-period-wrap">
+        <button class="filter-select" id="crm-period-btn" onclick="var d=document.getElementById('crm-period-dd');d.style.display=d.style.display==='block'?'none':'block'" style="text-align:left;cursor:pointer;background:white;white-space:nowrap;padding:8px 12px;font-size:12px;">🗓 Toutes les périodes ▾</button>
+        <div id="crm-period-dd" style="display:none;position:absolute;top:100%;right:0;z-index:300;background:white;border:1.5px solid var(--border);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,0.14);min-width:260px;margin-top:4px;overflow:hidden;">
           <div style="padding:6px 0;">
             <div class="crm-period-opt" data-period="all" onclick="setCrmPeriod('all')">Toutes les périodes</div>
             <div class="crm-period-opt" data-period="today" onclick="setCrmPeriod('today')">Aujourd'hui</div>
@@ -3070,7 +3069,7 @@ body.closer-mode .msg-new-btn { display: none !important; }
           </div>
         </div>
       </div>
-      <button class="btn-export" onclick="syncCRMFromHubSpot()" style="padding:11px 14px;">🔄 Sync HubSpot</button>
+      <button class="btn-export" onclick="syncCRMFromHubSpot()" style="padding:8px 14px;flex-shrink:0;white-space:nowrap;font-size:12px;">🔄 Sync HubSpot</button>
     </div>
 
     <!-- BARRE D'ACTIONS BULK (apparaît quand des contacts sont sélectionnés) -->
