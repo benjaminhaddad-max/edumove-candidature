@@ -3237,6 +3237,13 @@ body.closer-mode .msg-new-btn { display: none !important; }
           </optgroup>
         </select>
         <div id="template-preview" style="display:none;margin-top:10px;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:11px;color:#64748b;line-height:1.5;"></div>
+        <div id="template-iframe-wrap" style="display:none;margin-top:12px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;background:white;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f1f5f9;border-bottom:1px solid #e2e8f0;">
+            <span style="font-size:11px;font-weight:600;color:#475569;">Aperçu du template</span>
+            <button onclick="document.getElementById('template-iframe-wrap').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:14px;color:#94a3b8;line-height:1;">&times;</button>
+          </div>
+          <iframe id="template-iframe" style="width:100%;height:420px;border:none;" sandbox="allow-same-origin"></iframe>
+        </div>
       </div>
       <div id="email-custom-section" style="display:none;">
         <div style="margin-bottom:12px;">
@@ -8181,15 +8188,31 @@ function _renderEnvoisCell(c) {
   const email = c.lastEmailAt;
   if (!sms && !email) return '<span style="color:#ccc;font-size:10px;">—</span>';
   let html = '<div style="font-size:9px;line-height:1.6;">';
+  // SMS line
   if (sms) {
     const d = new Date(sms);
     const label = d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' }) + ' ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
-    html += '<div style="color:#10b981;font-weight:600;">📱 ' + label + '</div>';
+    let smsStatus = '';
+    if (c.smsClicked) smsStatus = ' <span style="color:#059669;" title="Lien cliqué">✅ cliqué</span>';
+    else if (c.smsDelivered) smsStatus = ' <span style="color:#10b981;" title="Délivré">📬</span>';
+    html += '<div style="color:#10b981;font-weight:600;">📱 ' + label + smsStatus + '</div>';
   }
+  // Email line
   if (email) {
     const d = new Date(email);
     const label = d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' }) + ' ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
-    html += '<div style="color:#3b82f6;font-weight:600;">📧 ' + label + '</div>';
+    const st = c.emailStatus || 'sent';
+    const statusMap = {
+      sent: '<span style="color:#9ca3af;" title="Envoyé">📤</span>',
+      delivered: '<span style="color:#3b82f6;" title="Délivré">📬</span>',
+      opened: '<span style="color:#8b5cf6;" title="Ouvert">👁</span>',
+      clicked: '<span style="color:#059669;" title="Lien cliqué">✅</span>',
+      bounced: '<span style="color:#ef4444;" title="Bounced">❌</span>',
+      spam: '<span style="color:#ef4444;" title="Spam">🚫</span>',
+      unsub: '<span style="color:#f59e0b;" title="Désabonné">🔕</span>'
+    };
+    const statusIcon = statusMap[st] || statusMap.sent;
+    html += '<div style="color:#3b82f6;font-weight:600;">📧 ' + label + ' ' + statusIcon + '</div>';
   }
   html += '</div>';
   return html;
@@ -8466,14 +8489,39 @@ const TEMPLATE_SUBJECTS = {
   83: 'Bienvenue chez Edumove'
 };
 
-function onTemplateSelect() {
+async function onTemplateSelect() {
   const tid = document.getElementById('bulk-email-template').value;
   const preview = document.getElementById('template-preview');
+  const iframeWrap = document.getElementById('template-iframe-wrap');
+  const iframe = document.getElementById('template-iframe');
   if (tid && TEMPLATE_SUBJECTS[tid]) {
     preview.style.display = 'block';
-    preview.innerHTML = '<strong>Objet :</strong> ' + esc(TEMPLATE_SUBJECTS[tid]) + '<br><span style="color:#3b82f6;">Le template Brevo sera envoyé tel quel avec les variables Brevo (prénom, etc.)</span>';
+    preview.innerHTML = '<strong>Objet :</strong> ' + esc(TEMPLATE_SUBJECTS[tid]) + '<br><span style="color:#3b82f6;">Chargement de l\'aperçu…</span>';
+    try {
+      const resp = await fetch('/api/brevo-template-preview', {
+        method: 'POST',
+        headers: apiHeaders(),
+        body: JSON.stringify({ templateId: tid })
+      });
+      const data = await resp.json();
+      if (data.ok && data.htmlContent) {
+        preview.innerHTML = '<strong>Objet :</strong> ' + esc(data.subject || TEMPLATE_SUBJECTS[tid]);
+        iframeWrap.style.display = 'block';
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        doc.open();
+        doc.write(data.htmlContent);
+        doc.close();
+      } else {
+        preview.innerHTML = '<strong>Objet :</strong> ' + esc(TEMPLATE_SUBJECTS[tid]) + '<br><span style="color:#3b82f6;">Le template Brevo sera envoyé tel quel avec les variables Brevo (prénom, etc.)</span>';
+        iframeWrap.style.display = 'none';
+      }
+    } catch (e) {
+      preview.innerHTML = '<strong>Objet :</strong> ' + esc(TEMPLATE_SUBJECTS[tid]) + '<br><span style="color:#3b82f6;">Le template Brevo sera envoyé tel quel avec les variables Brevo (prénom, etc.)</span>';
+      iframeWrap.style.display = 'none';
+    }
   } else {
     preview.style.display = 'none';
+    iframeWrap.style.display = 'none';
   }
 }
 
@@ -8485,6 +8533,7 @@ function openBulkEmailModal() {
   document.getElementById('bulk-email-content').value = '';
   document.getElementById('bulk-email-template').value = '';
   document.getElementById('template-preview').style.display = 'none';
+  document.getElementById('template-iframe-wrap').style.display = 'none';
   document.getElementById('bulk-email-result').style.display = 'none';
   document.getElementById('bulk-email-send-btn').disabled = false;
   setEmailMode('template');
