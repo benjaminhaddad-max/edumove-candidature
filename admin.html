@@ -1301,6 +1301,7 @@ body.closer-mode .msg-new-btn { display: none !important; }
       <select class="filter-select" id="filter-suivi-fac" onchange="applyFilters()">
         <option value="">Suivi par fac — Tous</option>
         <optgroup label="🇮🇹 LINK Campus">
+          <option value="LINK:*">LINK — Tous</option>
           <option value="LINK:en_attente">LINK — En attente</option>
           <option value="LINK:dossier_envoye">LINK — Dossier envoy&eacute;</option>
           <option value="LINK:test_paye">LINK — Test pay&eacute;</option>
@@ -1310,6 +1311,7 @@ body.closer-mode .msg-new-btn { display: none !important; }
           <option value="LINK:refuse">LINK — Refus&eacute;</option>
         </optgroup>
         <optgroup label="🇪🇸 UCJC">
+          <option value="UCJC:*">UCJC — Tous</option>
           <option value="UCJC:en_attente">UCJC — En attente</option>
           <option value="UCJC:dossier_envoye">UCJC — Dossier envoy&eacute;</option>
           <option value="UCJC:entretien_planifie">UCJC — Entretien planifi&eacute;</option>
@@ -1319,6 +1321,7 @@ body.closer-mode .msg-new-btn { display: none !important; }
           <option value="UCJC:refuse">UCJC — Refus&eacute;</option>
         </optgroup>
         <optgroup label="🇪🇸 Universidad Europea">
+          <option value="UE:*">UE — Tous</option>
           <option value="UE:en_attente">UE — En attente</option>
           <option value="UE:dossier_envoye">UE — Dossier envoy&eacute;</option>
           <option value="UE:tests_passes">UE — Tests pass&eacute;s</option>
@@ -3563,8 +3566,10 @@ function applyFilters() {
       const sel = c.uni_selections || {};
       const tracking = c.uni_tracking || {};
       if (!sel[filterUni]) return false;
-      const currentTrack = tracking[filterUni + '_status'] || 'en_attente';
-      if (currentTrack !== filterTrack) return false;
+      if (filterTrack !== '*') {
+        const currentTrack = tracking[filterUni + '_status'] || 'en_attente';
+        if (currentTrack !== filterTrack) return false;
+      }
     }
     if (source === 'direct' && !c.source?.startsWith('direct_')) return false;
     if (source && source !== 'direct' && c.source !== source) return false;
