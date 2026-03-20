@@ -1427,55 +1427,24 @@ let _isAdminPreview = false;
   document.getElementById('loading').style.display = 'none';
   document.getElementById('main-content').style.display = 'block';
 
-  // ── TRACKING: visits, time spent, response viewed ──
+  // ── TRACKING: log response view only ──
   if (!_isAdminPreview && candidatureId) {
-    _startTracking(candidatureId, candidatureData);
+    _trackResponseView(candidatureId, candidatureData);
   }
 })();
 
-// ── STUDENT ACTIVITY TRACKING ──
-let _trackingInterval = null;
-let _trackingStart = Date.now();
-
-async function _startTracking(cid, cData) {
+// ── RESPONSE VIEW TRACKING ──
+// Only tracks when student opens their Edumove response page
+async function _trackResponseView(cid, cData) {
   try {
-    // Increment visit count + set last_viewed_at
-    const prevVisits = cData.visit_count || 0;
     const isReponse = cData.status === 'reponse_edumove' || cData.status === 'choix_valide';
-    const updateObj = {
-      visit_count: prevVisits + 1,
-      last_viewed_at: new Date().toISOString()
-    };
-    // Mark response as viewed if status is reponse_edumove/choix_valide
-    if (isReponse && !cData.response_viewed_at) {
-      updateObj.response_viewed_at = new Date().toISOString();
-    }
-    await supabase.from('candidatures').update(updateObj).eq('id', cid);
-
-    // Track time spent: update every 30 seconds
-    _trackingStart = Date.now();
-    _trackingInterval = setInterval(async () => {
-      const elapsed = Math.round((Date.now() - _trackingStart) / 1000);
-      const prevTime = cData.total_time_spent || 0;
-      await supabase.from('candidatures').update({
-        total_time_spent: prevTime + 30,
-        last_viewed_at: new Date().toISOString()
-      }).eq('id', cid);
-      cData.total_time_spent = prevTime + 30;
-    }, 30000);
-
-    // Save remaining time on page unload
-    window.addEventListener('beforeunload', () => {
-      const elapsed = Math.round((Date.now() - _trackingStart) / 1000);
-      const remainder = elapsed % 30; // time since last interval
-      if (remainder > 2) {
-        const prevTime = cData.total_time_spent || 0;
-        navigator.sendBeacon('/api/track-time', JSON.stringify({
-          candidatureId: cid,
-          seconds: remainder
-        }));
-      }
-    });
+    if (!isReponse) return; // Only track response views
+    // Log this view via API (inserts into response_views table + updates count)
+    fetch('/api/track-response-view', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ candidatureId: cid })
+    }).catch(e => console.warn('Response view tracking failed:', e));
   } catch(e) { console.warn('Tracking error:', e); }
 }
 

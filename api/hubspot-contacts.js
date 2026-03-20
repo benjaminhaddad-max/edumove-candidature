@@ -51,7 +51,7 @@ async function listFromCache(req, res) {
   let from = 0;
   const PAGE = 1000;
   while (true) {
-    let q = sb.from('crm_contacts').select('*').order('synced_at', { ascending: false });
+    let q = sb.from('crm_contacts').select('id,nom,prenom,email,tel,lead_status,hs_lead_status,form_name,source,assigned_to,assigned_name,departement,created_at,synced_at').order('synced_at', { ascending: false });
     if (assignedTo && typeof assignedTo === 'string' && assignedTo.trim()) {
       q = q.eq('assigned_to', assignedTo.trim());
     }
@@ -81,6 +81,7 @@ async function listFromCache(req, res) {
     source: r.source || '',
     assignedTo: r.assigned_to || '',
     assignedName: r.assigned_name || '',
+    departement: r.departement || '',
     createdAt: r.created_at || '',
     syncedAt: r.synced_at || ''
   }));
@@ -94,7 +95,7 @@ async function syncFromHubSpot(req, res) {
   if (!hubspotToken) return safeError(res, 500, 'HubSpot not configured');
 
   const sb = getSupabase();
-  const PROPS = ['firstname', 'lastname', 'email', 'phone', 'edumove_lead_status', 'hs_lead_status', 'recent_conversion_event_name', 'hs_analytics_source', 'createdate'];
+  const PROPS = ['firstname', 'lastname', 'email', 'phone', 'edumove_lead_status', 'hs_lead_status', 'recent_conversion_event_name', 'hs_analytics_source', 'createdate', 'edumove_departement', 'departement'];
 
   let allContacts = [];
   let after = null;
@@ -133,6 +134,7 @@ async function syncFromHubSpot(req, res) {
       hs_lead_status: p.hs_lead_status || '',
       form_name: cleanFormName(p.recent_conversion_event_name || ''),
       source: p.hs_analytics_source || '',
+      departement: p.edumove_departement || p.departement || '',
       created_at: p.createdate || null,
       synced_at: p.createdate || new Date().toISOString()
     };

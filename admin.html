@@ -3038,6 +3038,17 @@ body.closer-mode .msg-new-btn { display: none !important; }
           <label class="crm-hs-lbl" style="color:#1d4ed8;"><input type="checkbox" class="crm-cand-cb" value="reponse_edumove" checked onchange="filterCRMContacts()"> Réponse Edumove</label>
         </div>
       </div>
+      <select class="filter-select" id="crm-filter-zone" onchange="filterCRMContacts()" style="flex-shrink:0;padding:8px 12px;font-size:12px;white-space:nowrap;">
+        <option value="">Zone — Toutes</option>
+        <option value="IDF">IDF</option>
+        <option value="Bordeaux">Bordeaux</option>
+        <option value="Lille">Lille</option>
+        <option value="Lyon">Lyon</option>
+        <option value="Marseille">Marseille</option>
+        <option value="Montpellier">Montpellier</option>
+        <option value="Toulouse">Toulouse</option>
+        <option value="Autre">Autre</option>
+      </select>
       <select class="filter-select" id="crm-filter-assigned" onchange="filterCRMContacts()" style="flex-shrink:0;padding:8px 12px;font-size:12px;white-space:nowrap;">
         <option value="">Assigné — Tous</option>
         <option value="_unassigned">Non assignés</option>
@@ -3092,7 +3103,8 @@ body.closer-mode .msg-new-btn { display: none !important; }
             <th style="width:14%;">Email</th>
             <th style="width:9%;">Tél</th>
             <th style="width:4%;">Dép.</th>
-            <th style="width:10%;">Formulaire</th>
+            <th style="width:6%;">Zone</th>
+            <th style="width:9%;">Formulaire</th>
             <th style="width:12%;">Statut Edumove</th>
             <th style="width:11%;">Statut Candidature</th>
             <th style="width:8%;">Assigné</th>
@@ -3859,46 +3871,68 @@ function renderTable() {
 }
 
 function _renderActivityCell(c) {
-  if (c.status === 'non_soumise') return '<span style="color:#ccc;font-size:10px;">\u2014</span>';
-  const visits = c.visit_count || 0;
-  const totalSec = c.total_time_spent || 0;
-  const lastViewed = c.last_viewed_at;
-  const responseViewed = c.response_viewed_at;
   const isReponseStatus = c.status === 'reponse_edumove' || c.status === 'choix_valide';
+  if (!isReponseStatus) return '<span style="color:#ccc;font-size:10px;">\u2014</span>';
 
-  if (visits === 0) {
-    return '<span style="font-size:10px;color:#9ca3af;">Jamais connect\u00e9</span>';
+  const viewCount = c.response_view_count || 0;
+  const firstView = c.response_viewed_at;
+
+  if (viewCount === 0) {
+    return '<div style="font-size:10px;line-height:1.5;"><div style="color:#dc2626;font-weight:600;">\u274C Pas encore consultée</div></div>';
   }
 
   let html = '<div style="font-size:10px;line-height:1.5;">';
-  // Visits
-  html += '<div style="font-weight:600;color:var(--navy);">' + visits + ' visite' + (visits > 1 ? 's' : '') + '</div>';
-  // Time spent
-  if (totalSec > 0) {
-    const min = Math.floor(totalSec / 60);
-    const label = min < 1 ? '< 1 min' : min + ' min';
-    html += '<div style="color:#6b7280;">\u23F1 ' + label + '</div>';
-  }
-  // Last seen (relative)
-  if (lastViewed) {
-    const diff = Math.floor((Date.now() - new Date(lastViewed).getTime()) / 60000);
+  html += '<div style="color:#059669;font-weight:600;">\u2705 Réponse vue</div>';
+  html += '<div style="font-weight:600;color:var(--navy);">' + viewCount + ' consultation' + (viewCount > 1 ? 's' : '') + '</div>';
+  if (firstView) {
+    const diff = Math.floor((Date.now() - new Date(firstView).getTime()) / 60000);
     let ago;
     if (diff < 2) ago = '\u00e0 l\'instant';
     else if (diff < 60) ago = 'il y a ' + diff + ' min';
     else if (diff < 1440) ago = 'il y a ' + Math.floor(diff / 60) + 'h';
     else ago = 'il y a ' + Math.floor(diff / 1440) + 'j';
-    html += '<div style="color:#9ca3af;">' + ago + '</div>';
-  }
-  // Response viewed indicator
-  if (isReponseStatus) {
-    if (responseViewed) {
-      html += '<div style="color:#059669;font-weight:600;">\u2705 R\u00e9ponse vue</div>';
-    } else {
-      html += '<div style="color:#dc2626;font-weight:600;">\u274C Pas encore vue</div>';
-    }
+    html += '<div style="color:#9ca3af;">1ère vue ' + ago + '</div>';
   }
   html += '</div>';
   return html;
+}
+
+// Fetch and display the full history of response views for a candidature
+async function _loadResponseViewsLog(candidatureId) {
+  const logEl = document.getElementById('response-views-log');
+  if (!logEl) return;
+  try {
+    const { data, error } = await supabase.from('response_views')
+      .select('viewed_at')
+      .eq('candidature_id', candidatureId)
+      .order('viewed_at', { ascending: false })
+      .limit(50);
+    if (error || !data || data.length === 0) {
+      logEl.innerHTML = '<span style="color:#9ca3af;font-size:11px;">Aucune consultation enregistrée</span>';
+      return;
+    }
+    let html = '<div style="font-size:11px;font-weight:600;color:var(--navy);margin-bottom:6px;">Historique des consultations :</div>';
+    html += '<div style="max-height:180px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:8px;padding:8px;">';
+    data.forEach((v, i) => {
+      const d = new Date(v.viewed_at);
+      const dateStr = d.toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+      const diff = Math.floor((Date.now() - d.getTime()) / 60000);
+      let ago;
+      if (diff < 2) ago = 'à l\'instant';
+      else if (diff < 60) ago = 'il y a ' + diff + ' min';
+      else if (diff < 1440) ago = 'il y a ' + Math.floor(diff / 60) + 'h';
+      else ago = 'il y a ' + Math.floor(diff / 1440) + 'j';
+      const bg = i % 2 === 0 ? '#f9fafb' : '#fff';
+      html += '<div style="padding:5px 8px;background:' + bg + ';border-radius:4px;display:flex;justify-content:space-between;align-items:center;">';
+      html += '<span style="font-size:11px;color:var(--navy);font-weight:500;">📋 ' + dateStr + '</span>';
+      html += '<span style="font-size:10px;color:#9ca3af;">' + ago + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+    logEl.innerHTML = html;
+  } catch(e) {
+    logEl.innerHTML = '<span style="color:#dc2626;font-size:11px;">Erreur chargement historique</span>';
+  }
 }
 
 function renderPagination(totalPages) {
@@ -4276,29 +4310,40 @@ function renderDetailPage(c) {
   // Build cards
   let html = '';
 
-  // ── Card 0: ACTIVITÉ ÉTUDIANT ──
+  // ── Card 0: CONSULTATION RÉPONSE EDUMOVE ──
   {
-    const visits = c.visit_count || 0;
-    const totalSec = c.total_time_spent || 0;
-    const lastViewed = c.last_viewed_at;
-    const responseViewed = c.response_viewed_at;
     const isReponse = c.status === 'reponse_edumove' || c.status === 'choix_valide';
-    const min = Math.floor(totalSec / 60);
-    const timeLabel = totalSec === 0 ? '—' : (min < 1 ? '< 1 min' : min + ' min');
-    const lastLabel = lastViewed ? new Date(lastViewed).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : 'Jamais';
-    const responseLabel = isReponse ? (responseViewed ? '<span style="color:#059669;font-weight:700;">Oui — ' + new Date(responseViewed).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + '</span>' : '<span style="color:#dc2626;font-weight:700;">Non — pas encore consultée</span>') : '<span style="color:#9ca3af;">N/A</span>';
+    const viewCount = c.response_view_count || 0;
+    const firstView = c.response_viewed_at;
+    const borderColor = isReponse && viewCount === 0 ? '#dc2626' : '#7c3aed';
+    const statusText = !isReponse
+      ? '<span style="color:#9ca3af;">Réponse pas encore envoyée</span>'
+      : viewCount === 0
+        ? '<span style="color:#dc2626;font-weight:700;">❌ Pas encore consultée</span>'
+        : '<span style="color:#059669;font-weight:700;">✅ Réponse consultée</span>';
+    const firstViewLabel = firstView ? new Date(firstView).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
 
-    html += `<div class="detail-card" style="border-left:4px solid ${isReponse && !responseViewed ? '#dc2626' : '#7c3aed'};">
-      <div class="detail-card-title" onclick="toggleCard(this)">Activité étudiant</div>
+    html += `<div class="detail-card" style="border-left:4px solid ${borderColor};">
+      <div class="detail-card-title" onclick="toggleCard(this)">Consultation réponse Edumove</div>
       <div class="detail-card-body">
-      <div class="detail-grid" style="grid-template-columns:repeat(4,1fr);">
-        <div class="detail-item"><span class="detail-item-label">Visites</span><span class="detail-item-value" style="font-size:20px;font-weight:800;color:var(--navy);">${visits}</span></div>
-        <div class="detail-item"><span class="detail-item-label">Temps total</span><span class="detail-item-value" style="font-size:16px;font-weight:700;">${timeLabel}</span></div>
-        <div class="detail-item"><span class="detail-item-label">Dernière visite</span><span class="detail-item-value" style="font-size:12px;">${lastLabel}</span></div>
-        <div class="detail-item"><span class="detail-item-label">Réponse consultée</span><span class="detail-item-value" style="font-size:12px;">${responseLabel}</span></div>
+      <div class="detail-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="detail-item"><span class="detail-item-label">Statut</span><span class="detail-item-value" style="font-size:12px;">${statusText}</span></div>
+        <div class="detail-item"><span class="detail-item-label">Nb de consultations</span><span class="detail-item-value" style="font-size:20px;font-weight:800;color:var(--navy);">${viewCount}</span></div>
+        <div class="detail-item"><span class="detail-item-label">1ère consultation</span><span class="detail-item-value" style="font-size:12px;">${firstViewLabel}</span></div>
       </div>
+      <div id="response-views-log" style="margin-top:12px;"><span style="color:#9ca3af;font-size:11px;">Chargement historique...</span></div>
       </div>
     </div>`;
+
+    // Fetch response views history asynchronously
+    if (isReponse && viewCount > 0) {
+      _loadResponseViewsLog(c.id);
+    } else {
+      setTimeout(() => {
+        const logEl = document.getElementById('response-views-log');
+        if (logEl) logEl.innerHTML = '<span style="color:#9ca3af;font-size:11px;">Aucune consultation enregistrée</span>';
+      }, 0);
+    }
   }
 
   // ── Card 1: INFORMATIONS ETUDIANT ── (collapsed by default)
@@ -5628,6 +5673,31 @@ function esc(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+function formatDep(val) {
+  if (!val) return '';
+  const digits = String(val).replace(/\D/g, '');
+  if (!digits) return val;
+  if (digits.length >= 5) return digits.slice(0, 2);
+  if (digits.length >= 3) return digits.slice(0, 2);
+  if (digits.length === 2) return digits;
+  if (digits.length === 1) return '0' + digits;
+  return digits;
+}
+
+const ZONE_MAP = {
+  '75':'IDF','77':'IDF','78':'IDF','91':'IDF','92':'IDF','93':'IDF','94':'IDF','95':'IDF',
+  '33':'Bordeaux','40':'Bordeaux','47':'Bordeaux','24':'Bordeaux',
+  '59':'Lille','62':'Lille',
+  '34':'Montpellier','30':'Montpellier','11':'Montpellier',
+  '13':'Marseille','83':'Marseille','84':'Marseille','04':'Marseille','05':'Marseille',
+  '69':'Lyon','01':'Lyon','38':'Lyon','42':'Lyon',
+  '31':'Toulouse','32':'Toulouse','09':'Toulouse','81':'Toulouse','82':'Toulouse',
+};
+function getZone(dep) {
+  const d = formatDep(dep);
+  return ZONE_MAP[d] || 'Autre';
 }
 
 function formatTel(tel) {
@@ -7888,6 +7958,7 @@ function renderCRMTable() {
     candBtn.textContent = unc > 0 ? `Candidature (${unc} excl.) ▾` : 'Candidature ▾';
   }
 
+  const zoneFilter = document.getElementById('crm-filter-zone')?.value || '';
   const assignedFilter = document.getElementById('crm-filter-assigned')?.value || '';
   const dateFrom = _crmDateFrom;
   const dateTo = _crmDateTo;
@@ -7920,6 +7991,7 @@ function renderCRMTable() {
       return false;
     });
   }
+  if (zoneFilter) filtered = filtered.filter(c => getZone(c.departement) === zoneFilter);
   if (assignedFilter === '_unassigned') filtered = filtered.filter(c => !c.assignedTo);
   else if (assignedFilter) filtered = filtered.filter(c => c.assignedTo === assignedFilter);
   if (dateFilterActive) {
@@ -7938,7 +8010,7 @@ function renderCRMTable() {
 
   if (filtered.length === 0) {
     tbody.innerHTML = '';
-    const hasAnyFilter = !!(search || formFilterActive || edmFilterActive || candFilterActive || assignedFilter || dateFilterActive);
+    const hasAnyFilter = !!(search || formFilterActive || edmFilterActive || candFilterActive || zoneFilter || assignedFilter || dateFilterActive);
     empty.querySelector('p').textContent = hasAnyFilter ? '🔍 Aucun contact trouvé' : '📇 Aucun contact HubSpot';
     empty.style.display = 'block';
     document.getElementById('crm-pagination').style.display = 'none';
@@ -8023,7 +8095,8 @@ function renderCRMTable() {
       <td style="padding:10px 12px;"><div style="font-weight:600;color:var(--navy);font-size:12px;">${esc(c.nom)} ${esc(c.prenom)}</div></td>
       <td style="padding:10px 8px;">${emailDisplay}</td>
       <td style="padding:10px 8px;">${telDisplay}</td>
-      <td style="padding:10px 6px;text-align:center;font-size:11px;font-weight:600;color:var(--navy);">${c.departement ? esc(c.departement) : '<span style="color:#ccc;">—</span>'}</td>
+      <td style="padding:10px 6px;text-align:center;font-size:11px;font-weight:600;color:var(--navy);">${c.departement ? esc(formatDep(c.departement)) : '<span style="color:#ccc;">—</span>'}</td>
+      <td style="padding:10px 6px;text-align:center;">${c.departement ? (() => { const z = getZone(c.departement); const zc = { IDF:'#7c3aed', Bordeaux:'#b45309', Lille:'#0369a1', Montpellier:'#059669', Marseille:'#0284c7', Lyon:'#dc2626', Toulouse:'#c026d3' }; const col = zc[z] || '#64748b'; return '<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:9px;font-weight:600;background:' + col + '15;color:' + col + ';border:1px solid ' + col + '30;white-space:nowrap;">' + esc(z) + '</span>'; })() : '<span style="color:#ccc;font-size:10px;">—</span>'}</td>
       <td style="padding:10px 6px;">${formDisplay}</td>
       <td style="padding:10px 6px;">
         <select onchange="updateCRMLeadStatus('${c.id}', this.value)" style="padding:3px 6px;border-radius:6px;font-size:10px;font-weight:600;border:1.5px solid var(--border);font-family:inherit;cursor:pointer;max-width:130px;">
