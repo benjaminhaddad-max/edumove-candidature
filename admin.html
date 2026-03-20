@@ -3865,6 +3865,12 @@ function renderTable() {
         const s = destStyles[dest] || { flag: '', label: dest, bg: '#f1f5f9', color: '#64748b', border: '#e2e8f0' };
         uniBadges += `<span style="display:inline-flex;align-items:center;gap:2px;margin:0 2px 2px 0;padding:1px 6px;border-radius:8px;font-size:9px;font-weight:600;background:${s.bg};color:${s.color};border:1px solid ${s.border};white-space:nowrap;">${i+1}. ${s.flag} ${s.label}</span>`;
       });
+    } else if (sel.LINK || sel.UCJC || sel.UE) {
+      ['LINK','UCJC','UE'].forEach(uni => {
+        if (!sel[uni]) return;
+        const s = destStyles[uni];
+        uniBadges += `<span style="display:inline-flex;align-items:center;gap:2px;margin:0 2px 2px 0;padding:1px 6px;border-radius:8px;font-size:9px;font-weight:600;background:${s.bg};color:${s.color};border:1px solid ${s.border};white-space:nowrap;">${s.flag} ${s.label}</span>`;
+      });
     } else {
       uniBadges = '<span style="color:var(--text-muted);font-size:11px;">\u2014</span>';
     }
@@ -4138,12 +4144,49 @@ async function quickChangeTrack(candidatureId, uni, newStatus) {
 
 async function quickChangeStatus(id, newStatus, selectEl) {
   if (id.startsWith('profile_')) { alert('Ce profil n\'a pas encore de candidature.'); selectEl.value = 'non_soumise'; return; }
-  const { error } = await supabase.from('candidatures').update({ status: newStatus }).eq('id', id);
-  if (error) { alert('Erreur : ' + error.message); return; }
+
   const c = allCandidatures.find(x => x.id === id);
-  if (c) c.status = newStatus;
-  // Update select styling
+  const updateData = { status: newStatus };
+
+  if (newStatus === 'reponse_edumove') {
+    updateData.auto_response_generated_at = new Date().toISOString();
+    const existing = Array.isArray(c?.status_history) ? c.status_history : [];
+    updateData.status_history = [...existing, { status: 'reponse_edumove', at: new Date().toISOString(), by: 'admin-manual' }];
+  }
+
+  const { error } = await supabase.from('candidatures').update(updateData).eq('id', id);
+  if (error) { alert('Erreur : ' + error.message); return; }
+  if (c) {
+    c.status = newStatus;
+    if (updateData.auto_response_generated_at) c.auto_response_generated_at = updateData.auto_response_generated_at;
+    if (updateData.status_history) c.status_history = updateData.status_history;
+  }
   selectEl.className = 'status-badge status-' + newStatus;
+
+  if (newStatus === 'reponse_edumove' && c) {
+    let notifMsg = '';
+    try {
+      if (c.tel && !c.sms_reponse_sent) {
+        const smsRes = await fetch('/api/send-sms', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ tel: c.tel, prenom: c.prenom }) });
+        if (smsRes.ok) {
+          await supabase.from('candidatures').update({ sms_reponse_sent: true }).eq('id', id);
+          c.sms_reponse_sent = true;
+          notifMsg += 'SMS envoyé. ';
+        }
+      }
+      if (c.email) {
+        const emailRes = await fetch('/api/notify-response', { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ email: c.email, prenom: c.prenom }) });
+        if (emailRes.ok) notifMsg += 'Email envoyé.';
+      }
+    } catch (e) { console.warn('Notification error:', e); }
+    if (notifMsg) {
+      const badge = document.createElement('span');
+      badge.textContent = notifMsg.trim();
+      badge.style.cssText = 'position:fixed;top:20px;right:20px;background:#2e7d32;color:white;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;z-index:99999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+      document.body.appendChild(badge);
+      setTimeout(() => badge.remove(), 4000);
+    }
+  }
 }
 
 function confirmDelete(id) {
@@ -4654,7 +4697,8 @@ function renderDetailPage(c) {
     { key: 'UCJC_lettre_motivation', label: 'Lettre de motivation' },
     { key: 'UCJC_identite', label: "Pièce d'identité" },
     { key: 'UCJC_formulaire', label: 'Formulaire admission' },
-    { key: 'UCJC_attestation_esp', label: 'Attestation espagnol' }
+    { key: 'UCJC_attestation_esp', label: 'Attestation espagnol' },
+    { key: 'UCJC_releve_bac', label: 'Relevé de notes du baccalauréat', optional: true }
   ];
   const _ueDocDefs = [
     { key: 'UE_bulletins', label: 'Bulletins de Première' },
@@ -4667,24 +4711,25 @@ function renderDetailPage(c) {
     let h = '<div style="margin-top:10px;border-top:1px dashed #ddd;padding-top:8px;">';
     h += '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);font-weight:600;margin-bottom:5px;">Documents</div>';
     const canEdit = !window.adminRole || window.adminRole === 'super_admin' || window.adminRole === 'fac_link' || window.adminRole === 'fac_ucjc' || window.adminRole === 'fac_ue';
-    defs.forEach(({ key, label, boolean: isBool }) => {
+    defs.forEach(({ key, label, boolean: isBool, optional }) => {
       const val = docs[key];
       const safeKey = key.replace(/[^a-zA-Z0-9_]/g, '_');
+      const optTag = optional ? ' <span style="color:#9ca3af;font-size:9px;font-weight:400;">(facultatif)</span>' : '';
       if (isBool) {
         const ok = val === true || val === 'true';
-        h += `<div style="font-size:11px;color:${ok ? '#1565c0' : '#aaa'};margin-bottom:2px;">○ ${label}${ok ? ' — lancée' : ''}</div>`;
+        h += `<div style="font-size:11px;color:${ok ? '#1565c0' : '#aaa'};margin-bottom:2px;">○ ${label}${optTag}${ok ? ' — lancée' : ''}</div>`;
       } else if (typeof val === 'string' && val.startsWith('http')) {
-        // Doc présent : lien téléchargement + option remplacer
         h += `<div style="font-size:11px;margin-bottom:5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <a href="${val}" target="_blank" rel="noopener" download style="color:var(--violet);text-decoration:none;font-weight:500;display:flex;align-items:center;gap:4px;">✅ ${label} <span style="font-size:9px;opacity:0.6;">(télécharger)</span></a>
+          <a href="${val}" target="_blank" rel="noopener" download style="color:var(--violet);text-decoration:none;font-weight:500;display:flex;align-items:center;gap:4px;">✅ ${label}${optTag} <span style="font-size:9px;opacity:0.6;">(télécharger)</span></a>
           ${canEdit ? `<label for="adoc-${safeKey}" style="cursor:pointer;color:#888;font-size:10px;text-decoration:underline;white-space:nowrap;">remplacer</label>
           <input type="file" id="adoc-${safeKey}" data-candid="${c.id}" data-dockey="${key}" style="display:none" accept=".pdf,.jpg,.jpeg,.png" onchange="adminUploadDoc(this)">
           <span id="adoc-status-${safeKey}" style="font-size:10px;"></span>` : ''}
         </div>`;
       } else {
-        // Doc manquant : bouton upload
+        const icon = optional ? '○' : '❌';
+        const col = optional ? '#9ca3af' : '#c62828';
         h += `<div style="font-size:11px;margin-bottom:5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <span style="color:#c62828;">❌ ${label}</span>
+          <span style="color:${col};">${icon} ${label}${optTag}</span>
           ${canEdit ? `<label for="adoc-${safeKey}" style="cursor:pointer;background:#fff3e0;border:1px solid #ffb74d;color:#e65100;padding:2px 9px;border-radius:4px;font-size:10px;font-weight:600;white-space:nowrap;">📎 Ajouter</label>
           <input type="file" id="adoc-${safeKey}" data-candid="${c.id}" data-dockey="${key}" style="display:none" accept=".pdf,.jpg,.jpeg,.png" onchange="adminUploadDoc(this)">
           <span id="adoc-status-${safeKey}" style="font-size:10px;"></span>` : ''}
@@ -4872,6 +4917,57 @@ function renderDetailPage(c) {
       html += `<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Choix confirmés le ${new Date(c.uni_selections_at).toLocaleDateString('fr-FR')} à ${new Date(c.uni_selections_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>`;
     }
   }
+
+  // Bouton ajouter candidature fac — check filiere to detect truly populated selections
+  const _missingUnis = ['LINK','UCJC','UE'].filter(u => !uniSel[u] || !uniSel[u].filiere);
+  if ((!window.adminRole || window.adminRole === 'super_admin')) {
+    html += `<div id="add-uni-section" style="margin-top:16px;padding-top:16px;border-top:2px dashed #c5cae9;">
+      <button id="add-uni-toggle-btn" onclick="document.getElementById('add-uni-form').style.display=document.getElementById('add-uni-form').style.display==='none'?'block':'none'" style="background:#3b82f6;color:white;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;">
+        <span style="font-size:16px;">+</span> Ajouter une candidature université
+      </button>
+      <div id="add-uni-form" style="display:none;margin-top:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+          <div>
+            <label style="font-size:10px;font-weight:600;color:#475569;text-transform:uppercase;display:block;margin-bottom:4px;">Université</label>
+            <select id="add-uni-name" onchange="onAddUniChange()" style="padding:6px 10px;border:1.5px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit;">
+              <option value="">— Choisir —</option>
+              ${_missingUnis.length > 0 ? _missingUnis.map(u => '<option value="'+u+'">'+(u==='UE'?'Universidad Europea':u)+'</option>').join('') : '<option value="" disabled>Toutes les universités sont déjà ajoutées</option>'}
+            </select>
+          </div>
+          <div>
+            <label style="font-size:10px;font-weight:600;color:#475569;text-transform:uppercase;display:block;margin-bottom:4px;">Filière</label>
+            <select id="add-uni-filiere" style="padding:6px 10px;border:1.5px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit;">
+              <option value="dentaire">Dentaire</option>
+              <option value="medecine">Médecine</option>
+              <option value="kinesitherapie">Kinésithérapie</option>
+              <option value="pharmacie">Pharmacie</option>
+              <option value="veterinaire">Vétérinaire</option>
+            </select>
+          </div>
+          <div id="add-uni-campus-wrap" style="display:none;">
+            <label style="font-size:10px;font-weight:600;color:#475569;text-transform:uppercase;display:block;margin-bottom:4px;">Campus</label>
+            <select id="add-uni-campus" style="padding:6px 10px;border:1.5px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit;">
+              <option value="Madrid">Madrid</option>
+              <option value="Valence">Valence</option>
+              <option value="Malaga">Málaga</option>
+              <option value="Alicante">Alicante</option>
+              <option value="Canaries">Canaries</option>
+            </select>
+          </div>
+          <div id="add-uni-langue-wrap" style="display:none;">
+            <label style="font-size:10px;font-weight:600;color:#475569;text-transform:uppercase;display:block;margin-bottom:4px;">Langue</label>
+            <select id="add-uni-langue" style="padding:6px 10px;border:1.5px solid #d1d5db;border-radius:6px;font-size:12px;font-family:inherit;">
+              <option value="Anglais">Anglais</option>
+              <option value="Espagnol">Espagnol</option>
+              <option value="Français">Français</option>
+            </select>
+          </div>
+          <button onclick="addUniSelection('${c.id}')" style="background:#2e7d32;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;"${_missingUnis.length === 0 ? ' disabled style="background:#ccc;color:white;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:600;cursor:not-allowed;font-family:inherit;"' : ''}>Valider</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
   html += `</div></div>`;
 
   document.getElementById('detail-cards').innerHTML = html;
@@ -5648,6 +5744,45 @@ async function adminConfirmSelections(candidatureId) {
 // ══════════════════════════════════════════
 // UNI TRACKING
 // ══════════════════════════════════════════
+function onAddUniChange() {
+  const uni = document.getElementById('add-uni-name').value;
+  document.getElementById('add-uni-campus-wrap').style.display = uni === 'UE' ? '' : 'none';
+  document.getElementById('add-uni-langue-wrap').style.display = uni === 'UE' ? '' : 'none';
+}
+
+async function addUniSelection(candidatureId) {
+  const uni = document.getElementById('add-uni-name').value;
+  if (!uni) { alert('Choisissez une université.'); return; }
+  const filiere = document.getElementById('add-uni-filiere').value;
+  const campus = uni === 'UE' ? document.getElementById('add-uni-campus').value : '';
+  const langue = uni === 'UE' ? document.getElementById('add-uni-langue').value : '';
+
+  const c = allCandidatures.find(x => x.id === candidatureId);
+  if (!c) return;
+
+  const sel = c.uni_selections || {};
+  const filiereLabelsLocal = { medecine:'Médecine', dentaire:'Dentaire', kinesitherapie:'Kinésithérapie', pharmacie:'Pharmacie', veterinaire:'Vétérinaire' };
+  sel[uni] = { filiere, filiereLabel: filiereLabelsLocal[filiere] || filiere };
+  if (uni === 'UE') { sel[uni].ville = campus; sel[uni].langue = langue; }
+
+  const tracking = c.uni_tracking || {};
+  tracking[uni + '_status'] = 'en_attente';
+
+  const { error } = await supabase.from('candidatures').update({
+    uni_selections: sel,
+    uni_tracking: tracking,
+    uni_selections_at: c.uni_selections_at || new Date().toISOString()
+  }).eq('id', candidatureId);
+
+  if (error) { alert('Erreur : ' + error.message); return; }
+  c.uni_selections = sel;
+  c.uni_tracking = tracking;
+  if (!c.uni_selections_at) c.uni_selections_at = new Date().toISOString();
+
+  renderTable();
+  viewDetail(candidatureId);
+}
+
 async function updateUniTracking(candidatureId, uniKey, field, value) {
   // Check fac role permissions
   const role = window.adminRole;
