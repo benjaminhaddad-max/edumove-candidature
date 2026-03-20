@@ -3601,13 +3601,15 @@ function renderTable() {
   tbody.innerHTML = pageItems.map(c => {
     const date = c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '\u2014';
     const sel = c.uni_selections || {};
-    // Fallback: récupérer la filière depuis uni_selections si pas au niveau racine
-    let rawFiliere = c.filiere;
-    if (!rawFiliere) {
-      const firstUni = sel.UE || sel.UCJC || sel.LINK;
-      if (firstUni?.filiere) rawFiliere = firstUni.filiere;
+    const _ranking = c.classement_filieres || [];
+    let filiere;
+    if (_ranking.length) {
+      filiere = _ranking.map((f,i) => '<span style="font-size:10px;font-weight:600;color:#4338ca;">' + (i+1) + '.</span> ' + esc(filiereLabels[f]||f)).join('<span style="color:#d1d5db;margin:0 3px;">·</span>');
+    } else {
+      let rawFiliere = c.filiere;
+      if (!rawFiliere) { const firstUni = sel.UE || sel.UCJC || sel.LINK; if (firstUni?.filiere) rawFiliere = firstUni.filiere; }
+      filiere = rawFiliere ? esc(filiereLabels[rawFiliere] || rawFiliere) : '\u2014';
     }
-    const filiere = rawFiliere ? esc(filiereLabels[rawFiliere] || rawFiliere) : '\u2014';
     const tracking = c.uni_tracking || {};
     // Filter unis visible to this role
     const _facUniMap = { fac_link: 'LINK', fac_ucjc: 'UCJC', fac_ue: 'UE' };
@@ -3646,7 +3648,14 @@ function renderTable() {
       <td><div class="td-name">${esc(c.nom)} ${esc(c.prenom)}${directBadge}</div></td>
       <td>${filiere}</td>
       <td><div class="uni-badges">${uniBadges}</div></td>
-      <td><span class="status-badge status-${c.status}">${statusLabels[c.status] || c.status}</span></td>
+      <td><select class="status-badge status-${c.status}" onchange="quickChangeStatus('${c.id}',this.value,this)" onclick="event.stopPropagation()" style="cursor:pointer;appearance:none;-webkit-appearance:none;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;font-family:inherit;">
+        <option value="non_soumise" ${c.status==='non_soumise'?'selected':''}>Candidature non soumise</option>
+        <option value="en_attente" ${c.status==='en_attente'?'selected':''}>Candidature non d\u00e9pos\u00e9e</option>
+        <option value="en_cours" ${c.status==='en_cours'?'selected':''}>En cours de traitement</option>
+        <option value="reponse_edumove" ${c.status==='reponse_edumove'?'selected':''}>R\u00e9ponse Edumove</option>
+        <option value="choix_valide" ${c.status==='choix_valide'?'selected':''}>Choix valid\u00e9</option>
+        <option value="archive" ${c.status==='archive'?'selected':''}>Archiv\u00e9</option>
+      </select></td>
       <td class="td-date">${date}</td>
       <td>${trackSummary}</td>
       <td><div class="td-actions"><button class="btn-view" onclick="viewDetail('${c.id}')">Voir</button>${archiveBtn}${deleteBtn}</div></td>
@@ -3793,6 +3802,16 @@ function confirmArchive(id) {
   btn.className = 'btn-confirm-archive';
   confirmAction = () => archiveCandidature(id);
   document.getElementById('confirm-overlay').classList.add('active');
+}
+
+async function quickChangeStatus(id, newStatus, selectEl) {
+  if (id.startsWith('profile_')) { alert('Ce profil n\'a pas encore de candidature.'); selectEl.value = 'non_soumise'; return; }
+  const { error } = await supabase.from('candidatures').update({ status: newStatus }).eq('id', id);
+  if (error) { alert('Erreur : ' + error.message); return; }
+  const c = allCandidatures.find(x => x.id === id);
+  if (c) c.status = newStatus;
+  // Update select styling
+  selectEl.className = 'status-badge status-' + newStatus;
 }
 
 function confirmDelete(id) {
@@ -4022,7 +4041,18 @@ function renderDetailPage(c) {
       <div class="detail-item"><span class="detail-item-label">Téléphone</span><span class="detail-item-value">${esc(c.tel || '\u2014')}</span></div>
       <div class="detail-item"><span class="detail-item-label">Département</span><span class="detail-item-value">${esc(c.departement || c.codePostal || '\u2014')}</span></div>
       <div class="detail-item"><span class="detail-item-label">Profil</span><span class="detail-item-value">${c.profil === 'reorientation' ? 'R\u00e9orientation' : 'Terminale'}</span></div>
-      <div class="detail-item"><span class="detail-item-label">Filière</span><span class="detail-item-value">${filiereLabels[c.filiere] || c.filiere || '\u2014'}</span></div>
+      <div class="detail-item" style="grid-column:1/-1"><span class="detail-item-label">Classement filières</span><span class="detail-item-value">${(() => {
+        const ranking = c.classement_filieres || [];
+        const excl = c.filieres_exclues || [];
+        if (!ranking.length && !c.filiere) return '\u2014';
+        const fl = { medecine:'Médecine', dentaire:'Dentaire', kinesitherapie:'Kinésithérapie', kine:'Kinésithérapie', pharmacie:'Pharmacie', veterinaire:'Vétérinaire', prepa_dentaire:'Prépa Dentaire' };
+        if (ranking.length) {
+          let txt = ranking.map((f,i) => '<span style="display:inline-block;padding:2px 10px;border-radius:14px;font-size:11px;font-weight:600;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;margin:2px 4px 2px 0;">' + (i+1) + '. ' + esc(fl[f]||f) + '</span>').join('');
+          if (excl.length) txt += ' <span style="color:#9ca3af;font-size:10px;margin-left:4px;">Exclues : ' + excl.map(f => esc(fl[f]||f)).join(', ') + '</span>';
+          return txt;
+        }
+        return esc(fl[c.filiere] || c.filiere);
+      })()}</span></div>
     </div>
     </div>
     <div id="info-edit-${c.id}" style="display:none;">
