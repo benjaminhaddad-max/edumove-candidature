@@ -278,6 +278,7 @@ tr:last-child td { border-bottom: none; }
 .status-badge { display: inline-block; padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; }
 .status-non_soumise { background: #f5f5f5; color: #737373; border: 1px solid #d4d4d4; }
 .status-en_attente { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+.status-choix_valide { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
 .status-en_cours { background: var(--violet-bg); color: var(--violet); border: 1px solid #c4b5fd; }
 .status-reponse_edumove { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
 .status-dossier_soumis { background: #f3e8ff; color: #7c3aed; border: 1px solid #ddd6fe; }
@@ -1291,9 +1292,11 @@ body.closer-mode .msg-new-btn { display: none !important; }
       <input type="text" class="search-input" id="search-input" placeholder="Rechercher par nom, prénom ou email..." oninput="applyFilters()"/>
       <select class="filter-select" id="filter-status" onchange="applyFilters()">
         <option value="">Tous statuts actifs</option>
-        <option value="non_soumise">Candidature non d&eacute;pos&eacute;e</option>
+        <option value="non_soumise">Candidature non soumise</option>
+        <option value="en_attente">Candidature non d&eacute;pos&eacute;e</option>
         <option value="en_cours">En cours de traitement</option>
         <option value="reponse_edumove">R&eacute;ponse Edumove</option>
+        <option value="choix_valide">Choix valid&eacute;</option>
       </select>
       <select class="filter-select" id="filter-suivi-fac" onchange="applyFilters()">
         <option value="">Suivi par fac — Tous</option>
@@ -2954,6 +2957,9 @@ body.closer-mode .msg-new-btn { display: none !important; }
         <option value="raphael@edumove.fr">Raphaël</option>
         <option value="lirone@edumove.fr">Lirone</option>
       </select>
+      <input type="date" class="filter-select" id="crm-date-from" onchange="filterCRMContacts()" style="min-width:150px;background:white;" title="Date début"/>
+      <input type="date" class="filter-select" id="crm-date-to" onchange="filterCRMContacts()" style="min-width:150px;background:white;" title="Date fin"/>
+      <button class="filter-select" onclick="document.getElementById('crm-date-from').value='';document.getElementById('crm-date-to').value='';filterCRMContacts()" style="min-width:82px;background:white;cursor:pointer;">Effacer dates</button>
       <button class="btn-export" onclick="syncCRMFromHubSpot()" style="padding:11px 14px;">🔄 Sync HubSpot</button>
     </div>
 
@@ -3540,11 +3546,11 @@ function applyFilters() {
   filteredCandidatures = allCandidatures.filter(c => {
     // Archives mode
     if (_showingArchives) {
-      if (c.status === 'non_soumise' || c.status === 'en_attente' || c.status === 'en_cours' || c.status === 'reponse_edumove') return false;
+      if (c.status === 'non_soumise' || c.status === 'en_attente' || c.status === 'en_cours' || c.status === 'reponse_edumove' || c.status === 'choix_valide') return false;
     } else {
       // Active statuses only
       if (!status) {
-        if (c.status !== 'non_soumise' && c.status !== 'en_attente' && c.status !== 'en_cours' && c.status !== 'reponse_edumove') return false;
+        if (c.status !== 'non_soumise' && c.status !== 'en_attente' && c.status !== 'en_cours' && c.status !== 'reponse_edumove' && c.status !== 'choix_valide') return false;
       } else {
         if (c.status !== status) return false;
       }
@@ -3587,7 +3593,7 @@ function renderTable() {
   }
   empty.style.display = 'none';
 
-  const statusLabels = { non_soumise: 'Candidature non d\u00e9pos\u00e9e', en_attente: 'Candidature non d\u00e9pos\u00e9e', en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', archive: 'Archiv\u00e9' };
+  const statusLabels = { non_soumise: 'Candidature non soumise', en_attente: 'Candidature non d\u00e9pos\u00e9e', en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', choix_valide: 'Choix valid\u00e9', archive: 'Archiv\u00e9' };
   const filiereLabels = { medecine: 'M\u00e9decine', dentaire: 'Dentaire', kine: 'Kin\u00e9sith\u00e9rapie', pharmacie: 'Pharmacie', veterinaire: 'V\u00e9t\u00e9rinaire', prepa_dentaire: 'Pr\u00e9pa Dentaire' };
   const trackLabels = { en_attente: 'En attente', dossier_envoye: 'Envoy\u00e9', test_paye: 'Test pay\u00e9', test_passe: 'Test pass\u00e9', tests_passes: 'Tests pass\u00e9s', entretien_planifie: 'Entretien', entretien_passe: 'Entretien OK', accepte: 'Accept\u00e9', acompte_verse: 'Acompte', refuse: 'Refus\u00e9', inscrit: 'Inscrit', autre_agence: 'Autre agence' };
   const trackColors = { en_attente: '#999', dossier_envoye: '#1565c0', test_paye: '#6a1b9a', test_passe: '#6a1b9a', tests_passes: '#6a1b9a', entretien_planifie: '#e65100', entretien_passe: '#e65100', accepte: '#2e7d32', acompte_verse: '#2e7d32', refuse: '#d32f2f', inscrit: '#1b5e20', autre_agence: '#795548' };
@@ -3958,7 +3964,7 @@ function viewDetail(id) {
 }
 
 function renderDetailPage(c) {
-  const statusLabels = { non_soumise: 'Candidature non d\u00e9pos\u00e9e', en_attente: 'Candidature non d\u00e9pos\u00e9e', en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', archive: 'Archiv\u00e9' };
+  const statusLabels = { non_soumise: 'Candidature non soumise', en_attente: 'Candidature non d\u00e9pos\u00e9e', en_cours: 'En cours de traitement', reponse_edumove: 'R\u00e9ponse Edumove', choix_valide: 'Choix valid\u00e9', archive: 'Archiv\u00e9' };
   const langLabels = { b2: 'B2+ / Bilingue', b1: 'B1 / Intermédiaire', debut: 'A1/A2 / Débutant', aucun: 'Aucun' };
   const filiereLabels = { medecine: 'M\u00e9decine', dentaire: 'Dentaire', kinesitherapie: 'Kin\u00e9sith\u00e9rapie', kine: 'Kin\u00e9sith\u00e9rapie', pharmacie: 'Pharmacie', veterinaire: 'V\u00e9t\u00e9rinaire', prepa_dentaire: 'Pr\u00e9pa Dentaire' };
 
@@ -3991,7 +3997,7 @@ function renderDetailPage(c) {
   // Status select - only 2 global statuses (super_admin only)
   const statusSelect = document.getElementById('detail-page-status-select');
   if (window.adminRole === 'super_admin' || !window.adminRole) {
-    statusSelect.innerHTML = '<option value="en_attente" ' + (c.status === 'en_attente' ? 'selected' : '') + '>Candidature non d\u00e9pos\u00e9e</option><option value="en_cours" ' + (c.status === 'en_cours' ? 'selected' : '') + '>En cours de traitement</option><option value="reponse_edumove" ' + (c.status === 'reponse_edumove' ? 'selected' : '') + '>R\u00e9ponse Edumove</option>';
+    statusSelect.innerHTML = '<option value="en_attente" ' + (c.status === 'en_attente' ? 'selected' : '') + '>Candidature non d\u00e9pos\u00e9e</option><option value="en_cours" ' + (c.status === 'en_cours' ? 'selected' : '') + '>En cours de traitement</option><option value="reponse_edumove" ' + (c.status === 'reponse_edumove' ? 'selected' : '') + '>R\u00e9ponse Edumove</option><option value="choix_valide" ' + (c.status === 'choix_valide' ? 'selected' : '') + '>Choix valid\u00e9</option>';
     statusSelect.style.display = '';
   } else {
     statusSelect.style.display = 'none';
@@ -5205,7 +5211,8 @@ async function adminConfirmSelections(candidatureId) {
   const { error } = await supabase.from('candidatures').update({
     uni_selections: selections,
     uni_selections_at: now,
-    uni_tracking: newTracking
+    uni_tracking: newTracking,
+    status: 'choix_valide'
   }).eq('id', candidatureId);
 
   if (error) { alert('Erreur : ' + error.message); console.error(error); return; }
@@ -7375,6 +7382,11 @@ function renderCRMTable() {
   }
 
   const assignedFilter = document.getElementById('crm-filter-assigned')?.value || '';
+  const dateFromVal = document.getElementById('crm-date-from')?.value || '';
+  const dateToVal = document.getElementById('crm-date-to')?.value || '';
+  const dateFrom = dateFromVal ? new Date(dateFromVal + 'T00:00:00') : null;
+  const dateTo = dateToVal ? new Date(dateToVal + 'T23:59:59') : null;
+  const dateFilterActive = !!(dateFrom || dateTo);
 
   let filtered = crmContacts;
 
@@ -7393,13 +7405,24 @@ function renderCRMTable() {
   if (hsFilterActive) filtered = filtered.filter(c => hsChecked.has(c.hsLeadStatus));
   if (assignedFilter === '_unassigned') filtered = filtered.filter(c => !c.assignedTo);
   else if (assignedFilter) filtered = filtered.filter(c => c.assignedTo === assignedFilter);
+  if (dateFilterActive) {
+    filtered = filtered.filter(c => {
+      if (!c.createdAt) return false;
+      const d = new Date(c.createdAt);
+      if (Number.isNaN(d.getTime())) return false;
+      if (dateFrom && d < dateFrom) return false;
+      if (dateTo && d > dateTo) return false;
+      return true;
+    });
+  }
 
   // Store filtered contacts globally for "select all filtered"
   window.crmFilteredContacts = filtered;
 
   if (filtered.length === 0) {
     tbody.innerHTML = '';
-    empty.querySelector('p').textContent = search || statusFilter || formFilter || hsFilterActive ? '🔍 Aucun contact trouvé' : '📇 Aucun contact HubSpot';
+    const hasAnyFilter = !!(search || formFilterActive || edmFilterActive || hsFilterActive || assignedFilter || dateFilterActive);
+    empty.querySelector('p').textContent = hasAnyFilter ? '🔍 Aucun contact trouvé' : '📇 Aucun contact HubSpot';
     empty.style.display = 'block';
     document.getElementById('crm-pagination').style.display = 'none';
     return;
@@ -7420,6 +7443,29 @@ function renderCRMTable() {
   document.getElementById('crm-next-btn').disabled = crmPage >= totalPages;
   document.getElementById('crm-prev-btn').style.opacity = crmPage <= 1 ? '0.4' : '1';
   document.getElementById('crm-next-btn').style.opacity = crmPage >= totalPages ? '0.4' : '1';
+
+  const HS_STATUS_COLORS = {
+    'Nouveau': '#3b82f6',
+    'Nouveau - Chaud': '#2563eb',
+    'En cours': '#f59e0b',
+    'Rdv pris': '#8b5cf6',
+    'A relancer': '#f97316',
+    'A replanifier': '#fb7185',
+    'En attente / Réfléchit': '#64748b',
+    'Inscrit': '#10b981',
+    'Pré-inscrit 2025/2026': '#059669',
+    'Pré-inscrit 2026/2027': '#047857',
+    'A garder pour l\'an prochain': '#0ea5e9',
+    'NRP1': '#9ca3af',
+    'NRP2': '#6b7280',
+    'NRP3': '#4b5563',
+    'NRP4': '#374151',
+    'Disqualifié': '#ef4444',
+    'Mauvais numéro': '#dc2626',
+    'Raccroche au nez': '#b91c1c',
+    'Autre prépa concurrente': '#991b1b',
+    'Doublon': '#7f1d1d'
+  };
 
   tbody.innerHTML = pageItems.map(c => {
     const date = c.syncedAt ? new Date(c.syncedAt).toLocaleDateString('fr-FR') : (c.createdAt ? new Date(c.createdAt).toLocaleDateString('fr-FR') : '—');
