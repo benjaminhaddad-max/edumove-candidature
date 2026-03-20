@@ -1361,6 +1361,12 @@ body.closer-mode .msg-new-btn { display: none !important; }
       <button class="btn-export" style="background:var(--orange);" onclick="openAddDossierModal()">+ Ajouter un dossier</button>
     </div>
 
+    <!-- Compteur filtré -->
+    <div id="cand-filtered-count" style="padding:6px 16px;font-size:13px;color:var(--text-muted);font-weight:600;display:flex;align-items:center;gap:8px;">
+      <span style="font-size:20px;color:var(--navy);font-weight:700;" id="cand-filtered-num">—</span>
+      <span>dossiers affichés</span>
+    </div>
+
     <!-- Table -->
     <div class="table-wrap">
       <div class="table-container">
@@ -3623,6 +3629,10 @@ function renderTable() {
   const totalPages = Math.ceil(filteredCandidatures.length / perPage);
   const start = (currentPage - 1) * perPage;
   const pageItems = filteredCandidatures.slice(start, start + perPage);
+
+  // Update filtered count
+  const countEl = document.getElementById('cand-filtered-num');
+  if (countEl) countEl.textContent = filteredCandidatures.length;
 
   if (filteredCandidatures.length === 0) {
     tbody.innerHTML = '';
