@@ -3,11 +3,11 @@
 // Charge par espace.html et admin.html apres firebase-config.js
 // ═══════════════════════════════════════════════════════
 
-const OFFICE_OPEN_H = 9, OFFICE_OPEN_M = 0;     // 09:00
+const OFFICE_OPEN_H = 8, OFFICE_OPEN_M = 0;     // 08:00
 const OFFICE_CLOSE_H = 20, OFFICE_CLOSE_M = 0;  // 20:00
-const OFFICE_OPEN_MIN = OFFICE_OPEN_H * 60 + OFFICE_OPEN_M;     // 540
+const OFFICE_OPEN_MIN = OFFICE_OPEN_H * 60 + OFFICE_OPEN_M;     // 480
 const OFFICE_CLOSE_MIN = OFFICE_CLOSE_H * 60 + OFFICE_CLOSE_M;  // 1200
-const OFFICE_DAY_MIN = OFFICE_CLOSE_MIN - OFFICE_OPEN_MIN;      // 660 = 11h
+const OFFICE_DAY_MIN = OFFICE_CLOSE_MIN - OFFICE_OPEN_MIN;      // 720 = 12h
 
 // ── Calcul heures ouvrables ──
 
@@ -318,13 +318,16 @@ function generateAdminSuggestion(c) {
       html += `Accepter → LINK Campus (Italie). Kiné : profil éligible, accompagnement linguistique.`;
     }
   } else if (filiere === 'medecine' || filiere === 'dentaire') {
-    if (esp === 'b2') {
-      if (uemMadridMalaga) {
+    if (esp === 'b2' || esp === 'b1') {
+      // UCJC: B1 ou B2 suffit pour médecine/dentaire (entretien 15 min)
+      if (esp === 'b2' && uemMadridMalaga) {
         html += `Accepter → UCJC + UEM Madrid/Malaga (Espagne). Profil fort : espagnol B2, ${sciCount} spés sci., moy. ${spesAvg.toFixed(1)}/20 (> 15).`;
-      } else if (uemAutres) {
-        html += `Accepter → UCJC + UEM Valence/Alicante/Canaris (Espagne). Espagnol B2, moy. ${spesAvg.toFixed(1)}/20 (> 12.5 mais insuffisant pour Madrid/Malaga).`;
-      } else {
+      } else if (esp === 'b2' && uemAutres) {
+        html += `Accepter → UCJC + UEM Valence/Alicante/Canaris (Espagne). Espagnol B2, moy. ${spesAvg.toFixed(1)}/20 (> 12.5).`;
+      } else if (esp === 'b2') {
         html += `<span style="color:#e65100;">UCJC seule (entretien obligatoire)</span>. Espagnol B2 mais moy. spés ${spesAvg.toFixed(1)}/20 < 12.5 — insuffisant pour UEM.`;
+      } else {
+        html += `UCJC éligible (espagnol B1 — entretien oral 15 min obligatoire). Moy. spés ${spesAvg.toFixed(1)}/20.`;
       }
     } else if (eng === 'b2' || eng === 'b1') {
       if (uemMadridMalaga) {
@@ -334,10 +337,8 @@ function generateAdminSuggestion(c) {
       } else {
         html += `Rediriger → LINK Campus (Italie). Anglais ${eng} mais moy. spés ${spesAvg.toFixed(1)}/20 insuffisante pour UEM.`;
       }
-    } else if (esp === 'b1' || esp === 'debut') {
-      html += `<span style="color:var(--error);">UCJC avec réserves</span>. Espagnol ${esp} (A2/B1 minimum requis) — entretien de 15 min. déterminant. Vérifier motivation et niveau oral.`;
     } else {
-      html += `Rediriger → LINK Campus (Italie). Pas de niveau suffisant en espagnol ni en anglais pour l'Espagne.`;
+      html += `Rediriger → LINK Campus (Italie). Pas de niveau suffisant en espagnol (B1 min pour UCJC) ni en anglais pour l'Espagne.`;
     }
   } else {
     // Filiere non renseignee : logique ancienne

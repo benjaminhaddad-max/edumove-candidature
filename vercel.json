@@ -1,9 +1,16 @@
 {
+  "crons": [
+    {
+      "path": "/api/cron-status",
+      "schedule": "*/15 8-19 * * *"
+    }
+  ],
   "functions": {
     "api/hubspot-contacts.js": { "maxDuration": 60 },
     "api/bulk-sms.js": { "maxDuration": 60 },
     "api/bulk-email.js": { "maxDuration": 60 },
-    "api/hubspot-webhook.js": { "maxDuration": 30 }
+    "api/hubspot-webhook.js": { "maxDuration": 30 },
+    "api/cron-status.js": { "maxDuration": 60 }
   },
   "headers": [
     {

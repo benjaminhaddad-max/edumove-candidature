@@ -1616,11 +1616,11 @@ function updateStatusDisplay(status) {
 
   // Bannière info visible uniquement en attente
   const banner = document.getElementById('attente-info-banner');
-  if (banner) banner.style.display = status === 'en_attente' ? 'block' : 'none';
+  if (banner) banner.style.display = (status === 'en_attente' || status === 'en_cours') ? 'block' : 'none';
 
   // Rappel modification dans les 2h
   const editBanner = document.getElementById('edit-reminder-banner');
-  if (editBanner && status === 'en_attente' && candidatureData?.created_at) {
+  if (editBanner && (status === 'en_attente' || status === 'en_cours') && candidatureData?.created_at) {
     const createdAt = new Date(candidatureData.created_at);
     const twoHoursMs = 2 * 60 * 60 * 1000;
     const timeLeft = twoHoursMs - (Date.now() - createdAt.getTime());

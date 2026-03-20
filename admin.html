@@ -5012,19 +5012,21 @@ let adminPreviewProfile = null;
 
 function admin_computeStudentProfile(c) {
   const sciNames = ['mathematiques','maths','mathématiques','physique-chimie','physique chimie','pc','svt','sciences de la vie','nsi','si'];
-  let sciSum = 0, sciCount = 0;
+  let sciSum = 0, sciNoteCount = 0;
+  const sciSet = new Set();
   function isSci(name) { const n = (name||'').toLowerCase().trim(); return sciNames.some(s => n.includes(s)); }
+  function normName(name) { return (name||'').toLowerCase().trim().replace(/[éè]/g,'e').replace(/\s+/g,' '); }
   function avgNote(note) { const vals = [note.t1,note.t2,note.t3].map(v=>parseFloat(v)).filter(v=>!isNaN(v)); return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null; }
   if (c.notes_premiere) {
-    c.notes_premiere.filter(n=>isSci(n.nom)).forEach(n => { const avg = n.moy ? parseFloat(n.moy) : avgNote(n); if (avg !== null && !isNaN(avg)) { sciSum+=avg; sciCount++; } });
+    c.notes_premiere.filter(n=>isSci(n.nom)).forEach(n => { sciSet.add(normName(n.nom)); const avg = n.moy ? parseFloat(n.moy) : avgNote(n); if (avg !== null && !isNaN(avg)) { sciSum+=avg; sciNoteCount++; } });
   }
   if (c.notes_terminale) {
-    c.notes_terminale.filter(n=>isSci(n.nom)).forEach(n => { const t1 = parseFloat(n.t1); if (!isNaN(t1)) { sciSum+=t1; sciCount++; } });
+    c.notes_terminale.filter(n=>isSci(n.nom)).forEach(n => { sciSet.add(normName(n.nom)); const t1 = parseFloat(n.t1); if (!isNaN(t1)) { sciSum+=t1; sciNoteCount++; } });
   }
-  const moySpeSci = sciCount > 0 ? sciSum/sciCount : 0;
+  const moySpeSci = sciNoteCount > 0 ? sciSum/sciNoteCount : 0;
   const langMap = { b2:3, b1:2, debut:1, aucun:0 };
   const langues = c.langues || {};
-  return { moySpeSci: Math.round(moySpeSci*100)/100, nbSpeSci: sciCount, moyPremiere: c.moyenne_premiere ? parseFloat(c.moyenne_premiere) : 0, espLevel: langMap[langues.espagnol]??0, engLevel: langMap[langues.anglais]??0 };
+  return { moySpeSci: Math.round(moySpeSci*100)/100, nbSpeSci: sciSet.size, moyPremiere: c.moyenne_premiere ? parseFloat(c.moyenne_premiere) : 0, espLevel: langMap[langues.espagnol]??0, engLevel: langMap[langues.anglais]??0 };
 }
 
 function admin_checkEligibility(uniKey, filiereId, profile) {
@@ -5035,7 +5037,10 @@ function admin_checkEligibility(uniKey, filiereId, profile) {
   if (uniKey === 'UCJC') {
     if (filiereId === 'veterinaire') return { eligible:false, reason:'Non disponible à l\'UCJC' };
     if (filiereId === 'medecine') return { eligible:false, reason:'Plus de places pour Médecine à l\'UCJC cette année' };
+    // Médecine/Dentaire: B1 espagnol minimum requis
+    if ((filiereId === 'dentaire') && profile.espLevel < 2) return { eligible:false, reason:'UCJC exige Espagnol B1 minimum pour Dentaire.' };
     if (filiereId === 'dentaire' && profile.nbSpeSci < 2) return { eligible:false, reason:'UCJC exige 2 spé scientifiques pour Dentaire.' };
+    // Pharmacie/Kiné: aucun prérequis linguistique
     return { eligible:true, reason:'' };
   }
   if (uniKey === 'UE') {
@@ -5090,7 +5095,7 @@ function admin_buildPreviewSection(c, candidatureId) {
   html += '<div style="font-size:13px;font-weight:700;margin-bottom:12px;">📋 Profil académique calculé</div>';
   html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;font-size:12px;">';
   if (profile.moySpeSci > 0) html += '<div>🔬 Moy. spé sci : <strong>' + profile.moySpeSci.toFixed(1) + '/20</strong></div>';
-  if (profile.nbSpeSci >= 2) html += '<div>✅ ' + profile.nbSpeSci + ' spé scientifiques</div>';
+  if (profile.nbSpeSci >= 2) html += '<div>✅ ' + profile.nbSpeSci + ' spé scientifiques (distinctes)</div>';
   else if (profile.nbSpeSci === 1) html += '<div>⚠️ 1 seule spé scientifique</div>';
   else html += '<div>⚠️ Aucune spé scientifique détectée</div>';
   if (profile.moyPremiere > 0) html += '<div>📊 Moy. Première : <strong>' + profile.moyPremiere.toFixed(1) + '/20</strong></div>';
@@ -5146,7 +5151,11 @@ function admin_buildPreviewSection(c, candidatureId) {
   const ucjcData = buildChips('UCJC');
   const ucjcSelected = adminPreviewSelections.UCJC ? ' selected' : '';
   let ucjcWarning = '';
-  if (profile.espLevel < 3) ucjcWarning = '<div class="admprev-info" style="background:#fff3e0;color:#e65100;">⚠️ Espagnol insuffisant (B2 requis pour l\'UCJC) — l\'étudiant ne pourra pas s\'inscrire sans améliorer son niveau.</div>';
+  // UCJC: B1+ requis pour Médecine/Dentaire, aucun niveau pour Pharma/Kiné
+  const filieresCand = _adminPreviewCandidature?.classement_filieres || [_adminPreviewCandidature?.filiere].filter(Boolean);
+  const isPharmKine = filieresCand.some(f => f === 'pharmacie' || f === 'kinesitherapie');
+  if (!isPharmKine && profile.espLevel < 2) ucjcWarning = '<div class="admprev-info" style="background:#fff3e0;color:#e65100;">⚠️ Espagnol insuffisant (B1 minimum requis pour l\'UCJC en Médecine/Dentaire).</div>';
+  else if (!isPharmKine && profile.espLevel === 2) ucjcWarning = '<div class="admprev-info" style="background:#e8f5e9;color:#2e7d32;">✅ Niveau B1 — éligible UCJC (entretien oral de 15 min).</div>';
   html += '<div class="admprev-card' + ucjcSelected + '" id="admprev-card-UCJC">';
   html += '<div class="admprev-header ucjc-hdr"><div><div class="admprev-name">🇪🇸 UCJC — Madrid</div><div class="admprev-country">Espagne — 100% espagnol</div></div><div class="admprev-badge">Sélectionné</div></div>';
   html += ucjcWarning;
