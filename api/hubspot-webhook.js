@@ -22,14 +22,19 @@ module.exports = async function handler(req, res) {
   try {
     // HubSpot sends an array of subscription events
     const events = Array.isArray(req.body) ? req.body : [req.body];
+    console.log('HubSpot webhook received', events.length, 'events');
 
     let processed = 0;
     for (const event of events) {
       const contactId = String(event.objectId || event.primaryObjectId || '');
-      if (!contactId) continue;
+      if (!contactId) { console.log('No contactId in event, skipping'); continue; }
+      console.log('Processing contact', contactId);
+
+      // Wait 3s for HubSpot to finish processing form data (recent_conversion_event_name may not be set yet)
+      await new Promise(r => setTimeout(r, 3000));
 
       // Fetch full contact details from HubSpot
-      const props = 'firstname,lastname,email,phone,edumove_lead_status,hs_lead_status,recent_conversion_event_name,hs_analytics_source,createdate';
+      const props = 'firstname,lastname,email,phone,edumove_lead_status,hs_lead_status,recent_conversion_event_name,hs_analytics_source,createdate,edumove_departement,departement';
       const contactRes = await fetch(`https://api.hubapi.com/crm/v3/objects/contacts/${contactId}?properties=${props}`, {
         headers: { 'Authorization': `Bearer ${hubspotToken}` }
       });
@@ -41,10 +46,14 @@ module.exports = async function handler(req, res) {
 
       const contact = await contactRes.json();
       const p = contact.properties || {};
-
-      // Only process Edumove contacts
       const formName = p.recent_conversion_event_name || '';
-      if (!formName.toLowerCase().includes('edumove')) {
+      console.log('Contact fetched:', contactId, 'form:', formName, 'email:', p.email);
+
+      // Accept all contacts from webhook — even if form name not yet populated
+      // (HubSpot sometimes delays setting recent_conversion_event_name)
+      // If form name is set and NOT edumove, skip it
+      if (formName && !formName.toLowerCase().includes('edumove')) {
+        console.log('Skipping non-Edumove contact', contactId, formName);
         continue;
       }
 
@@ -58,13 +67,14 @@ module.exports = async function handler(req, res) {
         hs_lead_status: p.hs_lead_status || '',
         form_name: cleanFormName(formName),
         source: p.hs_analytics_source || '',
+        departement: p.edumove_departement || p.departement || '',
         created_at: p.createdate || null,
         synced_at: new Date().toISOString()
       };
 
       const { error } = await sb.from('crm_contacts').upsert(row, { onConflict: 'id' });
       if (error) console.error('Upsert error:', error.message);
-      else processed++;
+      else { processed++; console.log('Upserted contact', contactId); }
     }
 
     return res.status(200).json({ ok: true, processed });
