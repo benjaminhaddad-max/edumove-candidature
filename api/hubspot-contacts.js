@@ -199,7 +199,7 @@ function mapHsToEdumove(hsStatus) {
     'Pré-inscrit 2025/2026': 'Disqualifié',
     'Pré-inscrit 2026/2027': 'Disqualifié',
     'En cours': 'Nouveau',
-    'Rdv pris': 'Va candidater',
+    'Rdv pris': 'Nouveau',
     'NRP1': 'Nouveau',
     'NRP2': 'Nouveau',
     'NRP3': 'Nouveau',
