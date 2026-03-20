@@ -9,7 +9,7 @@ module.exports = async function handler(req, res) {
 
   if (process.env.SMS_ENABLED !== 'true') return res.status(200).json({ ok: false, reason: 'SMS disabled' });
 
-  const { recipients, message, shortLinks, pushtype } = req.body || {};
+  const { recipients, message, shortLinks, pushtype, delay } = req.body || {};
   if (!Array.isArray(recipients) || !recipients.length) return safeError(res, 400, 'Missing recipients');
   if (!message || typeof message !== 'string') return safeError(res, 400, 'Missing message');
   if (recipients.length > 500) return safeError(res, 400, 'Max 500 recipients per batch');
@@ -39,7 +39,7 @@ module.exports = async function handler(req, res) {
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
           sms: {
-            message: { text: message, pushtype: smsType, sender: 'Edumove', ...(shortLinks ? { shortlink: 1 } : {}) },
+            message: { text: message, pushtype: smsType, sender: 'Edumove', ...(shortLinks ? { shortlink: 1 } : {}), ...(delay ? { delay } : {}) },
             recipients: { gsm: gsmList }
           }
         })

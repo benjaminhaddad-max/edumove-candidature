@@ -7,7 +7,7 @@ module.exports = async function handler(req, res) {
   if (handlePreflight(req, res)) return;
   if (!verifyApiKey(req)) return safeError(res, 401, 'Unauthorized');
 
-  const { recipients, subject, content, templateId } = req.body || {};
+  const { recipients, subject, content, templateId, scheduledAt } = req.body || {};
   if (!Array.isArray(recipients) || !recipients.length) return safeError(res, 400, 'Missing recipients');
   if (!templateId && (!subject || !content)) return safeError(res, 400, 'Missing subject/content or templateId');
   if (recipients.length > 200) return safeError(res, 400, 'Max 200 recipients per batch');
@@ -52,6 +52,9 @@ module.exports = async function handler(req, res) {
         htmlContent
       };
     }
+
+    // Add scheduled time if provided (Brevo scheduledAt in ISO 8601)
+    if (scheduledAt) emailBody.scheduledAt = scheduledAt;
 
     try {
       const resp = await fetch('https://api.brevo.com/v3/smtp/email', {

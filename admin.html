@@ -1397,6 +1397,17 @@ body.closer-mode .msg-new-btn { display: none !important; }
         <option value="terminale">Terminale</option>
         <option value="reorientation">R&eacute;orientation</option>
       </select>
+      <select class="filter-select" id="filter-zone" onchange="applyFilters()">
+        <option value="">Zone — Toutes</option>
+        <option value="IDF">IDF</option>
+        <option value="Bordeaux">Bordeaux</option>
+        <option value="Lille">Lille</option>
+        <option value="Lyon">Lyon</option>
+        <option value="Marseille">Marseille</option>
+        <option value="Montpellier">Montpellier</option>
+        <option value="Toulouse">Toulouse</option>
+        <option value="Autre">Autre</option>
+      </select>
       <button class="btn-export" onclick="exportCSV()">Exporter CSV</button>
       <button class="btn-export" id="btn-archives" style="background:transparent;color:var(--text-muted);border:1.5px solid var(--border);" onclick="toggleArchives()">📦 Archivés</button>
       <button class="btn-export" style="background:var(--orange);" onclick="openAddDossierModal()">+ Ajouter un dossier</button>
@@ -1416,6 +1427,8 @@ body.closer-mode .msg-new-btn { display: none !important; }
             <tr>
               <th>Nom - Pr&eacute;nom</th>
               <th>Fili&egrave;re</th>
+              <th>D&eacute;p.</th>
+              <th>Zone</th>
               <th>Universit&eacute;s</th>
               <th>Statut</th>
               <th>Date</th>
@@ -3168,6 +3181,23 @@ body.closer-mode .msg-new-btn { display: none !important; }
           </select>
         </div>
       </div>
+      <!-- APERÇU SMS -->
+      <div id="sms-preview-box" style="display:none;margin-bottom:14px;padding:14px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;">
+        <div style="font-size:11px;font-weight:600;color:#166534;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;">📱 Aperçu du SMS</div>
+        <div id="sms-preview-text" style="font-size:13px;color:#1b1d3a;line-height:1.6;white-space:pre-wrap;background:white;padding:12px;border-radius:8px;border:1px solid #d1fae5;font-family:system-ui,-apple-system,sans-serif;"></div>
+      </div>
+      <!-- PROGRAMMATION -->
+      <div style="margin-bottom:14px;">
+        <label style="font-size:12px;font-weight:600;color:#1b1d3a;text-transform:uppercase;letter-spacing:0.04em;">Programmation</label>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button id="sms-send-now-btn" onclick="setSmsSchedule(false)" style="flex:1;padding:10px;border:1.5px solid #10b981;background:#f0fdf4;color:#059669;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">⚡ Maintenant</button>
+          <button id="sms-schedule-btn" onclick="setSmsSchedule(true)" style="flex:1;padding:10px;border:1.5px solid #d1d5db;background:white;color:#6b7280;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">🕐 Programmer</button>
+        </div>
+        <div id="sms-schedule-fields" style="display:none;margin-top:10px;display:none;gap:10px;">
+          <input type="date" id="sms-schedule-date" style="flex:1;padding:8px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:13px;outline:none;">
+          <input type="time" id="sms-schedule-time" style="width:120px;padding:8px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:13px;outline:none;">
+        </div>
+      </div>
       <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
         <button onclick="closeBulkSmsModal()" style="padding:10px 18px;border:1.5px solid #d1d5db;background:white;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;">Annuler</button>
         <button id="bulk-sms-send-btn" onclick="sendBulkSms()" style="padding:10px 22px;border:none;background:#10b981;color:white;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Envoyer les SMS</button>
@@ -3217,6 +3247,18 @@ body.closer-mode .msg-new-btn { display: none !important; }
           <label style="font-size:12px;font-weight:600;color:#1b1d3a;text-transform:uppercase;letter-spacing:0.04em;">Contenu du mail</label>
           <textarea id="bulk-email-content" rows="6" placeholder="Tapez le contenu de votre email ici..." style="width:100%;box-sizing:border-box;margin-top:6px;padding:12px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:14px;resize:vertical;outline:none;"></textarea>
           <div style="font-size:11px;color:#9ca3af;margin-top:4px;">Utilisez <code>{prenom}</code> pour personnaliser.</div>
+        </div>
+      </div>
+      <!-- PROGRAMMATION EMAIL -->
+      <div style="margin-bottom:14px;margin-top:14px;">
+        <label style="font-size:12px;font-weight:600;color:#1b1d3a;text-transform:uppercase;letter-spacing:0.04em;">Programmation</label>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button id="email-send-now-btn" onclick="setEmailSchedule(false)" style="flex:1;padding:10px;border:1.5px solid #3b82f6;background:#eff6ff;color:#1d4ed8;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">⚡ Maintenant</button>
+          <button id="email-schedule-btn" onclick="setEmailSchedule(true)" style="flex:1;padding:10px;border:1.5px solid #d1d5db;background:white;color:#6b7280;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">🕐 Programmer</button>
+        </div>
+        <div id="email-schedule-fields" style="display:none;margin-top:10px;display:none;gap:10px;">
+          <input type="date" id="email-schedule-date" style="flex:1;padding:8px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:13px;outline:none;">
+          <input type="time" id="email-schedule-time" style="width:120px;padding:8px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:13px;outline:none;">
         </div>
       </div>
       <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
@@ -3691,6 +3733,7 @@ function applyFilters() {
   const suiviFac = suiviFacEl ? suiviFacEl.value : '';
   const sourceEl = document.getElementById('filter-source');
   const source = sourceEl ? sourceEl.value : '';
+  const zoneFilter = document.getElementById('filter-zone')?.value || '';
 
   filteredCandidatures = allCandidatures.filter(c => {
     // Archives mode
@@ -3745,6 +3788,7 @@ function applyFilters() {
     }
     if (source === 'direct' && !c.source?.startsWith('direct_')) return false;
     if (source && source !== 'direct' && c.source !== source) return false;
+    if (zoneFilter && getZone(c.departement) !== zoneFilter) return false;
     return true;
   });
 
@@ -3852,6 +3896,8 @@ function renderTable() {
     return `<tr${c.status === 'archive' ? ' style="opacity:0.6"' : ''}>
       <td><div class="td-name">${esc(c.nom)} ${esc(c.prenom)}${directBadge}</div></td>
       <td>${filiere}</td>
+      <td style="text-align:center;font-size:11px;font-weight:600;color:var(--navy);">${c.departement ? esc(formatDep(c.departement)) : '<span style="color:#ccc;">\u2014</span>'}</td>
+      <td style="text-align:center;">${c.departement ? (() => { const z = getZone(c.departement); const zc = { IDF:'#7c3aed', Bordeaux:'#b45309', Lille:'#0369a1', Montpellier:'#059669', Marseille:'#0284c7', Lyon:'#dc2626', Toulouse:'#c026d3' }; const col = zc[z] || '#64748b'; return '<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:9px;font-weight:600;background:' + col + '15;color:' + col + ';border:1px solid ' + col + '30;white-space:nowrap;">' + esc(z) + '</span>'; })() : '<span style="color:#ccc;font-size:10px;">\u2014</span>'}</td>
       <td><div class="uni-badges">${uniBadges}</div></td>
       <td><select class="status-badge status-${c.status}" onchange="quickChangeStatus('${c.id}',this.value,this)" onclick="event.stopPropagation()" style="cursor:pointer;appearance:none;-webkit-appearance:none;padding:5px 28px 5px 14px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;font-family:inherit;background-image:url('data:image/svg+xml,<%3Fxml version=%221.0%22%3F><svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22 viewBox=%220 0 10 6%22><path d=%22M0 0l5 6 5-6z%22 fill=%22%23666%22/></svg>');background-repeat:no-repeat;background-position:right 10px center;background-size:10px 6px;">
         <option value="non_soumise" ${c.status==='non_soumise'?'selected':''}>Candidature non soumise</option>
@@ -5635,7 +5681,7 @@ function exportCSV() {
   const data = filteredCandidatures.length > 0 ? filteredCandidatures : allCandidatures;
   if (data.length === 0) { alert('Aucune donnée à exporter.'); return; }
 
-  const headers = ['Nom','Prénom','Email','Téléphone','Département','Profil','Score','Destination','Université','Niveau','Statut','Date',
+  const headers = ['Nom','Prénom','Email','Téléphone','Département','Zone','Profil','Score','Destination','Université','Niveau','Statut','Date',
     'Espagnol','Anglais','Italien','Portugais','Autre langue',
     'Moyenne Première','Moyenne Terminale','Classement destinations'];
 
@@ -5643,7 +5689,7 @@ function exportCSV() {
     const date = c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '';
     const statusLabels = { en_attente:'Candidature non d\u00e9pos\u00e9e', en_cours:'En cours de traitement', reponse_edumove:'R\u00e9ponse Edumove', archive:'Archiv\u00e9' };
     return [
-      c.nom, c.prenom, c.email, c.tel, c.departement || '', c.profil,
+      c.nom, c.prenom, c.email, c.tel, c.departement ? formatDep(c.departement) : '', c.departement ? getZone(c.departement) : '', c.profil,
       c.score ? parseFloat(c.score).toFixed(1) : '', c.destination, c.universite, c.niveau,
       statusLabels[c.status] || c.status, date,
       c.langues?.espagnol || '', c.langues?.anglais || '', c.langues?.italien || '', c.langues?.portugais || '', c.langues?.autre || '',
@@ -8194,11 +8240,12 @@ function getSelectedCrmContacts() {
 }
 
 // ── SMS MODAL ──
+let _smsScheduled = false;
+
 function updateSmsCharCount() {
   const text = document.getElementById('bulk-sms-content').value || '';
   const el = document.getElementById('sms-char-count');
   const count = text.length;
-  // Estimate short link length: SMS Factor replaces URLs with ~22 char short links
   const shortLinksChecked = document.getElementById('sms-shortlinks')?.checked;
   const urlRegex = /https?:\/\/[^\s]+/g;
   const urls = text.match(urlRegex) || [];
@@ -8207,12 +8254,53 @@ function updateSmsCharCount() {
     let saved = 0;
     urls.forEach(u => { if (u.length > 22) saved += u.length - 22; });
     shortCount = count - saved;
-    el.innerHTML = `${count} car. → <strong style="color:#10b981;">~${shortCount} avec lien court</strong> / 160`;
+    el.innerHTML = `${count} car. &rarr; <strong style="color:#10b981;">~${shortCount} avec lien court</strong> / 160`;
   } else {
     el.textContent = count + ' / 160';
   }
   const ref = shortLinksChecked ? shortCount : count;
   el.style.color = ref > 160 ? '#ef4444' : ref > 140 ? '#f59e0b' : '#9ca3af';
+  // Update preview
+  updateSmsPreview();
+}
+
+function updateSmsPreview() {
+  const text = document.getElementById('bulk-sms-content').value || '';
+  const box = document.getElementById('sms-preview-box');
+  const previewEl = document.getElementById('sms-preview-text');
+  if (!text.trim()) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  const shortLinksChecked = document.getElementById('sms-shortlinks')?.checked;
+  let preview = text.replace(/\{prenom\}/gi, 'Marie');
+  if (shortLinksChecked) {
+    preview = preview.replace(/https?:\/\/[^\s]+/g, 'https://s.edumove.fr/abc12');
+  }
+  previewEl.textContent = preview;
+}
+
+function setSmsSchedule(scheduled) {
+  _smsScheduled = scheduled;
+  const fields = document.getElementById('sms-schedule-fields');
+  const nowBtn = document.getElementById('sms-send-now-btn');
+  const schedBtn = document.getElementById('sms-schedule-btn');
+  const sendBtn = document.getElementById('bulk-sms-send-btn');
+  if (scheduled) {
+    fields.style.display = 'flex';
+    schedBtn.style.borderColor = '#f59e0b'; schedBtn.style.background = '#fffbeb'; schedBtn.style.color = '#d97706';
+    nowBtn.style.borderColor = '#d1d5db'; nowBtn.style.background = 'white'; nowBtn.style.color = '#6b7280';
+    sendBtn.textContent = '🕐 Programmer l\'envoi';
+    sendBtn.style.background = '#f59e0b';
+    // Default: tomorrow 9h
+    const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('sms-schedule-date').value = tomorrow.toISOString().split('T')[0];
+    document.getElementById('sms-schedule-time').value = '09:00';
+  } else {
+    fields.style.display = 'none';
+    nowBtn.style.borderColor = '#10b981'; nowBtn.style.background = '#f0fdf4'; nowBtn.style.color = '#059669';
+    schedBtn.style.borderColor = '#d1d5db'; schedBtn.style.background = 'white'; schedBtn.style.color = '#6b7280';
+    sendBtn.textContent = 'Envoyer les SMS';
+    sendBtn.style.background = '#10b981';
+  }
 }
 
 function openBulkSmsModal() {
@@ -8222,6 +8310,9 @@ function openBulkSmsModal() {
   document.getElementById('bulk-sms-content').value = '';
   document.getElementById('bulk-sms-result').style.display = 'none';
   document.getElementById('bulk-sms-send-btn').disabled = false;
+  document.getElementById('sms-preview-box').style.display = 'none';
+  setSmsSchedule(false);
+  updateSmsCharCount();
   document.getElementById('bulk-sms-overlay').style.display = 'flex';
 }
 function closeBulkSmsModal() { document.getElementById('bulk-sms-overlay').style.display = 'none'; }
@@ -8232,7 +8323,20 @@ async function sendBulkSms() {
 
   const selected = getSelectedCrmContacts().filter(c => c.tel);
   if (!selected.length) { alert('Aucun contact avec numéro de téléphone.'); return; }
-  if (!confirm(`Envoyer ce SMS à ${selected.length} contact${selected.length > 1 ? 's' : ''} ?`)) return;
+
+  // Build schedule datetime if programmed
+  let delay = null;
+  if (_smsScheduled) {
+    const d = document.getElementById('sms-schedule-date').value;
+    const t = document.getElementById('sms-schedule-time').value;
+    if (!d || !t) { alert('Choisissez une date et une heure.'); return; }
+    const schedDate = new Date(d + 'T' + t + ':00');
+    if (schedDate <= new Date()) { alert('La date programmée doit être dans le futur.'); return; }
+    delay = d + ' ' + t + ':00'; // format YYYY-MM-DD HH:mm:ss for SMS Factor
+  }
+
+  const actionLabel = _smsScheduled ? 'Programmer' : 'Envoyer';
+  if (!confirm(`${actionLabel} ce SMS à ${selected.length} contact${selected.length > 1 ? 's' : ''} ?`)) return;
 
   const btn = document.getElementById('bulk-sms-send-btn');
   btn.disabled = true;
@@ -8241,7 +8345,6 @@ async function sendBulkSms() {
   const pushtype = document.getElementById('sms-pushtype')?.value || 'alert';
   const recipients = selected.map(c => ({ tel: c.tel, prenom: c.prenom }));
 
-  // Split into batches of 500
   const BATCH_SIZE = 500;
   const batches = [];
   for (let i = 0; i < recipients.length; i += BATCH_SIZE) {
@@ -8250,11 +8353,13 @@ async function sendBulkSms() {
 
   let totalSent = 0, totalFailed = 0;
   for (let i = 0; i < batches.length; i++) {
-    btn.textContent = `⏳ Envoi batch ${i + 1}/${batches.length}...`;
+    btn.textContent = `⏳ ${actionLabel} batch ${i + 1}/${batches.length}...`;
     try {
+      const body = { recipients: batches[i], message, shortLinks, pushtype };
+      if (delay) body.delay = delay;
       const resp = await fetch('/api/bulk-sms', {
         method: 'POST', headers: apiHeaders(),
-        body: JSON.stringify({ recipients: batches[i], message, shortLinks, pushtype })
+        body: JSON.stringify(body)
       });
       const data = await resp.json();
       if (data.ok && data.results) {
@@ -8272,18 +8377,20 @@ async function sendBulkSms() {
   if (totalSent > 0) {
     resultEl.style.background = '#f0fdf4';
     resultEl.style.color = '#166534';
-    resultEl.innerHTML = `✅ <strong>${totalSent}</strong> SMS envoyé${totalSent > 1 ? 's' : ''}${totalFailed ? ` · <strong>${totalFailed}</strong> échoué${totalFailed > 1 ? 's' : ''}` : ''}`;
+    const schedLabel = _smsScheduled ? ' (programmé)' : '';
+    resultEl.innerHTML = `✅ <strong>${totalSent}</strong> SMS ${_smsScheduled ? 'programmé' : 'envoyé'}${totalSent > 1 ? 's' : ''}${schedLabel}${totalFailed ? ` · <strong>${totalFailed}</strong> échoué${totalFailed > 1 ? 's' : ''}` : ''}`;
   } else {
     resultEl.style.background = '#fef2f2';
     resultEl.style.color = '#991b1b';
     resultEl.textContent = '❌ Aucun SMS envoyé (' + totalFailed + ' échoués)';
   }
   btn.disabled = false;
-  btn.textContent = 'Envoyer les SMS';
+  btn.textContent = _smsScheduled ? '🕐 Programmer l\'envoi' : 'Envoyer les SMS';
 }
 
 // ── EMAIL MODAL ──
-let _emailMode = 'template'; // 'template' or 'custom'
+let _emailMode = 'template';
+let _emailScheduled = false;
 
 function setEmailMode(mode) {
   _emailMode = mode;
@@ -8295,6 +8402,30 @@ function setEmailMode(mode) {
   document.getElementById('email-mode-custom').style.borderColor = mode === 'custom' ? '#3b82f6' : '#d1d5db';
   document.getElementById('email-mode-custom').style.background = mode === 'custom' ? '#eff6ff' : 'white';
   document.getElementById('email-mode-custom').style.color = mode === 'custom' ? '#1d4ed8' : '#6b7280';
+}
+
+function setEmailSchedule(scheduled) {
+  _emailScheduled = scheduled;
+  const fields = document.getElementById('email-schedule-fields');
+  const nowBtn = document.getElementById('email-send-now-btn');
+  const schedBtn = document.getElementById('email-schedule-btn');
+  const sendBtn = document.getElementById('bulk-email-send-btn');
+  if (scheduled) {
+    fields.style.display = 'flex';
+    schedBtn.style.borderColor = '#f59e0b'; schedBtn.style.background = '#fffbeb'; schedBtn.style.color = '#d97706';
+    nowBtn.style.borderColor = '#d1d5db'; nowBtn.style.background = 'white'; nowBtn.style.color = '#6b7280';
+    sendBtn.textContent = '🕐 Programmer l\'envoi';
+    sendBtn.style.background = '#f59e0b';
+    const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('email-schedule-date').value = tomorrow.toISOString().split('T')[0];
+    document.getElementById('email-schedule-time').value = '09:00';
+  } else {
+    fields.style.display = 'none';
+    nowBtn.style.borderColor = '#3b82f6'; nowBtn.style.background = '#eff6ff'; nowBtn.style.color = '#1d4ed8';
+    schedBtn.style.borderColor = '#d1d5db'; schedBtn.style.background = 'white'; schedBtn.style.color = '#6b7280';
+    sendBtn.textContent = 'Envoyer les emails';
+    sendBtn.style.background = '#3b82f6';
+  }
 }
 
 const TEMPLATE_SUBJECTS = {
@@ -8328,6 +8459,7 @@ function openBulkEmailModal() {
   document.getElementById('bulk-email-result').style.display = 'none';
   document.getElementById('bulk-email-send-btn').disabled = false;
   setEmailMode('template');
+  setEmailSchedule(false);
   document.getElementById('bulk-email-overlay').style.display = 'flex';
 }
 function closeBulkEmailModal() { document.getElementById('bulk-email-overlay').style.display = 'none'; }
@@ -8354,14 +8486,24 @@ async function sendBulkEmail() {
     };
   }
 
-  if (!confirm(`Envoyer à ${selected.length} contact${selected.length > 1 ? 's' : ''} ?`)) return;
+  // Build schedule datetime if programmed
+  if (_emailScheduled) {
+    const d = document.getElementById('email-schedule-date').value;
+    const t = document.getElementById('email-schedule-time').value;
+    if (!d || !t) { alert('Choisissez une date et une heure.'); return; }
+    const schedDate = new Date(d + 'T' + t + ':00');
+    if (schedDate <= new Date()) { alert('La date programmée doit être dans le futur.'); return; }
+    payload.scheduledAt = schedDate.toISOString();
+  }
+
+  const actionLabel = _emailScheduled ? 'Programmer' : 'Envoyer';
+  if (!confirm(`${actionLabel} à ${selected.length} contact${selected.length > 1 ? 's' : ''} ?`)) return;
 
   const btn = document.getElementById('bulk-email-send-btn');
   btn.disabled = true;
   const resultEl = document.getElementById('bulk-email-result');
   const allRecipients = payload.recipients;
 
-  // Split into batches of 200
   const BATCH_SIZE = 200;
   const batches = [];
   for (let i = 0; i < allRecipients.length; i += BATCH_SIZE) {
@@ -8370,7 +8512,7 @@ async function sendBulkEmail() {
 
   let totalSent = 0, totalFailed = 0;
   for (let i = 0; i < batches.length; i++) {
-    btn.textContent = `⏳ Envoi batch ${i + 1}/${batches.length}...`;
+    btn.textContent = `⏳ ${actionLabel} batch ${i + 1}/${batches.length}...`;
     try {
       const batchPayload = { ...payload, recipients: batches[i] };
       const resp = await fetch('/api/bulk-email', {
@@ -8393,7 +8535,7 @@ async function sendBulkEmail() {
   if (totalSent > 0) {
     resultEl.style.background = '#f0fdf4';
     resultEl.style.color = '#166534';
-    resultEl.innerHTML = `✅ <strong>${totalSent}</strong> email${totalSent > 1 ? 's' : ''} envoyé${totalSent > 1 ? 's' : ''}${totalFailed ? ` · <strong>${totalFailed}</strong> échoué${totalFailed > 1 ? 's' : ''}` : ''}`;
+    resultEl.innerHTML = `✅ <strong>${totalSent}</strong> email${totalSent > 1 ? 's' : ''} ${_emailScheduled ? 'programmé' : 'envoyé'}${totalSent > 1 ? 's' : ''}${totalFailed ? ` · <strong>${totalFailed}</strong> échoué${totalFailed > 1 ? 's' : ''}` : ''}`;
   } else {
     resultEl.style.display = 'block';
     resultEl.style.background = '#fef2f2';
@@ -8401,7 +8543,7 @@ async function sendBulkEmail() {
     resultEl.textContent = '❌ Aucun email envoyé (' + totalFailed + ' échoués)';
   }
   btn.disabled = false;
-  btn.textContent = 'Envoyer les emails';
+  btn.textContent = _emailScheduled ? '🕐 Programmer l\'envoi' : 'Envoyer les emails';
 }
 
 // ── ASSIGN MODAL ──
