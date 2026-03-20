@@ -1,10 +1,18 @@
 // Vercel Serverless Function — HubSpot Webhook: auto-sync new Edumove contacts
 // Called by HubSpot when a contact submits an Edumove form
+// Auto-sends welcome SMS (SMS Factor) + welcome email (Brevo template) to NEW leads
 const { createClient } = require('@supabase/supabase-js');
+const { isValidPhone, normalizePhone, isValidEmail } = require('./_shared');
 
 function getSupabase() {
   return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 }
+
+// Welcome SMS message
+const WELCOME_SMS = `La plateforme de candidature Edumove est ouverte !\nMédecine, Dentaire, Pharmacie, Kiné en Europe. Accompagnement de A à Z\nCandidatez : candidature.edumove.fr`;
+
+// Default Brevo template for welcome email (configurable via env)
+const WELCOME_TEMPLATE_ID = parseInt(process.env.WELCOME_BREVO_TEMPLATE_ID || '83');
 
 module.exports = async function handler(req, res) {
   // Allow HubSpot webhook calls (no CORS needed, no API key — HubSpot sends POST)
@@ -25,6 +33,7 @@ module.exports = async function handler(req, res) {
     console.log('HubSpot webhook received', events.length, 'events');
 
     let processed = 0;
+    let welcomed = 0;
     for (const event of events) {
       const contactId = String(event.objectId || event.primaryObjectId || '');
       if (!contactId) { console.log('No contactId in event, skipping'); continue; }
@@ -57,6 +66,11 @@ module.exports = async function handler(req, res) {
         continue;
       }
 
+      // Check if contact already exists in Supabase (to determine if it's a NEW lead)
+      const { data: existing } = await sb.from('crm_contacts').select('id,last_sms_at,last_email_at').eq('id', contact.id).single();
+      const isNewLead = !existing;
+
+      const now = new Date().toISOString();
       const row = {
         id: contact.id,
         nom: p.lastname || '',
@@ -69,20 +83,95 @@ module.exports = async function handler(req, res) {
         source: p.hs_analytics_source || '',
         departement: p.edumove_departement || p.departement || '',
         created_at: p.createdate || null,
-        synced_at: new Date().toISOString()
+        synced_at: now
       };
 
       const { error } = await sb.from('crm_contacts').upsert(row, { onConflict: 'id' });
-      if (error) console.error('Upsert error:', error.message);
-      else { processed++; console.log('Upserted contact', contactId); }
+      if (error) { console.error('Upsert error:', error.message); continue; }
+      processed++;
+      console.log('Upserted contact', contactId);
+
+      // ── AUTO-WELCOME: Send SMS + Email to NEW leads only ──
+      if (isNewLead) {
+        const welcomeResults = await sendWelcome(sb, contact.id, p.phone, p.email, p.firstname);
+        if (welcomeResults.smsSent || welcomeResults.emailSent) welcomed++;
+        console.log('Welcome sent to', contactId, welcomeResults);
+      }
     }
 
-    return res.status(200).json({ ok: true, processed });
+    return res.status(200).json({ ok: true, processed, welcomed });
   } catch (err) {
     console.error('Webhook error:', err.message);
     return res.status(200).json({ ok: false, error: err.message }); // 200 so HubSpot doesn't retry
   }
 };
+
+// ── Send welcome SMS + Brevo email to a new lead ──
+async function sendWelcome(sb, contactId, phone, email, firstname) {
+  const results = { smsSent: false, emailSent: false };
+  const now = new Date().toISOString();
+  const prenom = firstname ? firstname.charAt(0).toUpperCase() + firstname.slice(1).toLowerCase() : '';
+
+  // 1) Send welcome SMS via SMS Factor
+  if (phone && isValidPhone(phone) && process.env.SMS_ENABLED === 'true') {
+    const smsToken = process.env.SMS_FACTOR_TOKEN;
+    if (smsToken) {
+      try {
+        const normalizedPhone = normalizePhone(phone);
+        const resp = await fetch('https://api.smsfactor.com/send', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${smsToken}`, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({
+            sms: {
+              message: { text: WELCOME_SMS, pushtype: 'marketing', sender: 'Edumove' },
+              recipients: { gsm: [{ value: normalizedPhone }] }
+            }
+          })
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (resp.ok && data.status !== 0) {
+          results.smsSent = true;
+          await sb.from('crm_contacts').update({ last_sms_at: now }).eq('id', contactId);
+          console.log('Welcome SMS sent to', normalizedPhone);
+        } else {
+          console.error('Welcome SMS failed:', data.message || resp.status);
+        }
+      } catch (err) {
+        console.error('Welcome SMS error:', err.message);
+      }
+    }
+  }
+
+  // 2) Send welcome email via Brevo template
+  if (email && isValidEmail(email)) {
+    const brevoApiKey = process.env.BREVO_API_KEY;
+    if (brevoApiKey) {
+      try {
+        const resp = await fetch('https://api.brevo.com/v3/smtp/email', {
+          method: 'POST',
+          headers: { 'api-key': brevoApiKey, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({
+            templateId: WELCOME_TEMPLATE_ID,
+            to: [{ email, name: prenom || 'Bonjour' }],
+            params: { PRENOM: prenom || 'Bonjour', prenom: prenom || 'Bonjour', FIRSTNAME: prenom || 'Bonjour' }
+          })
+        });
+        if (resp.ok) {
+          results.emailSent = true;
+          await sb.from('crm_contacts').update({ last_email_at: now, email_status: 'sent' }).eq('id', contactId);
+          console.log('Welcome email sent to', email, 'template:', WELCOME_TEMPLATE_ID);
+        } else {
+          const errText = await resp.text();
+          console.error('Welcome email failed:', errText);
+        }
+      } catch (err) {
+        console.error('Welcome email error:', err.message);
+      }
+    }
+  }
+
+  return results;
+}
 
 function mapHsToEdumove(hsStatus) {
   const map = {
