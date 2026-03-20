@@ -3620,26 +3620,28 @@ function renderTable() {
     const _facUniMap = { fac_link: 'LINK', fac_ucjc: 'UCJC', fac_ue: 'UE' };
     const _allowedUni = _facUniMap[window.adminRole] || null; // null = super_admin sees all
 
-    let uniBadges = '';
-    let uniNum = 0;
-    const uniStyles = {
+    // Classement destinations (voeux étudiant)
+    const destRanking = c.classement_destinations || [];
+    const destStyles = {
       LINK: { flag: '🇮🇹', label: 'LINK', bg: '#eef2ff', color: '#4338ca', border: '#c7d2fe' },
       UCJC: { flag: '🇪🇸', label: 'UCJC', bg: '#fef3c7', color: '#92400e', border: '#fde68a' },
-      UE: { flag: '🇪🇸', label: 'UE', bg: '#ecfdf5', color: '#065f46', border: '#a7f3d0' }
+      UE: { flag: '🇪🇸', label: 'UE', bg: '#ecfdf5', color: '#065f46', border: '#a7f3d0' },
+      PASS_LAS: { flag: '🇫🇷', label: 'PASS/LAS', bg: '#f0f9ff', color: '#0369a1', border: '#bae6fd' },
+      pass_las: { flag: '🇫🇷', label: 'PASS/LAS', bg: '#f0f9ff', color: '#0369a1', border: '#bae6fd' },
+      roumanie: { flag: '🇷🇴', label: 'Roumanie', bg: '#fef2f2', color: '#991b1b', border: '#fecaca' },
+      italie: { flag: '🇮🇹', label: 'Italie', bg: '#eef2ff', color: '#4338ca', border: '#c7d2fe' },
+      portugal: { flag: '🇵🇹', label: 'Portugal', bg: '#ecfdf5', color: '#065f46', border: '#a7f3d0' },
+      espagne: { flag: '🇪🇸', label: 'Espagne', bg: '#fef3c7', color: '#92400e', border: '#fde68a' }
     };
-    ['LINK', 'UCJC', 'UE'].forEach(uni => {
-      if (!sel[uni]) return;
-      if (_allowedUni && _allowedUni !== uni) return;
-      uniNum++;
-      const s = uniStyles[uni];
-      const filLabel = sel[uni].filiereLabel || '';
-      uniBadges += `<div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;">
-        <span style="font-size:10px;font-weight:800;color:var(--navy);min-width:14px;">${uniNum}.</span>
-        <span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:600;background:${s.bg};color:${s.color};border:1px solid ${s.border};white-space:nowrap;">${s.flag} ${s.label}</span>
-        ${filLabel ? `<span style="font-size:9px;color:var(--text-muted);white-space:nowrap;">${esc(filLabel)}</span>` : ''}
-      </div>`;
-    });
-    if (!uniBadges) uniBadges = '<span style="color:var(--text-muted);font-size:11px;">\u2014</span>';
+    let uniBadges = '';
+    if (destRanking.length > 0) {
+      destRanking.forEach((dest, i) => {
+        const s = destStyles[dest] || { flag: '', label: dest, bg: '#f1f5f9', color: '#64748b', border: '#e2e8f0' };
+        uniBadges += `<span style="display:inline-flex;align-items:center;gap:2px;margin:0 2px 2px 0;padding:1px 6px;border-radius:8px;font-size:9px;font-weight:600;background:${s.bg};color:${s.color};border:1px solid ${s.border};white-space:nowrap;">${i+1}. ${s.flag} ${s.label}</span>`;
+      });
+    } else {
+      uniBadges = '<span style="color:var(--text-muted);font-size:11px;">\u2014</span>';
+    }
 
     // Per-uni tracking summary with inline selects
     const uniTrackOptions = {
@@ -7558,20 +7560,12 @@ function renderCRMTable() {
       ? `<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:9px;font-weight:600;background:${fc.bg};color:${fc.color};border:1px solid ${fc.border};white-space:nowrap;">${esc(c.formName)}</span>`
       : '—';
 
-    // HS lead status badge
-    const hs = c.hsLeadStatus || '';
-    const hsColor = HS_STATUS_COLORS[hs] || '#94a3b8';
-    const hsBadge = hs
-      ? `<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:9px;font-weight:600;background:${hsColor}15;color:${hsColor};border:1px solid ${hsColor}30;white-space:nowrap;">${esc(hs)}</span>`
-      : '<span style="color:#ccc;font-size:10px;">—</span>';
-
     return `<tr>
       <td style="padding:10px 6px;text-align:center;"><input type="checkbox" class="crm-row-check" data-id="${c.id}" onchange="updateCrmSelection()" style="cursor:pointer;"/></td>
       <td style="padding:10px 12px;"><div style="font-weight:600;color:var(--navy);font-size:12px;">${esc(c.nom)} ${esc(c.prenom)}</div></td>
       <td style="padding:10px 8px;">${emailDisplay}</td>
       <td style="padding:10px 8px;">${telDisplay}</td>
       <td style="padding:10px 6px;">${formDisplay}</td>
-      <td style="padding:10px 6px;">${hsBadge}</td>
       <td style="padding:10px 6px;">
         <select onchange="updateCRMLeadStatus('${c.id}', this.value)" style="padding:3px 6px;border-radius:6px;font-size:10px;font-weight:600;border:1.5px solid var(--border);font-family:inherit;cursor:pointer;max-width:130px;">
           <option value="">—</option>
