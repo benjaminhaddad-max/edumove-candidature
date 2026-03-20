@@ -7502,13 +7502,11 @@ let _candMatchByName = {};
 
 async function enrichCrmDepartements() {
   try {
-    const emails = crmContacts.map(c => c.email).filter(Boolean);
-    if (!emails.length) return;
-    const { data: profiles } = await supabase.from('profiles').select('email, departement').in('email', emails);
-    const { data: cands } = await supabase.from('candidatures').select('email, departement').in('email', emails);
+    // Use allCandidatures (already loaded) instead of querying Supabase with 2500+ emails
     const depMap = {};
-    (profiles || []).forEach(p => { if (p.departement) depMap[p.email.toLowerCase()] = p.departement; });
-    (cands || []).forEach(c => { if (c.departement && !depMap[c.email.toLowerCase()]) depMap[c.email.toLowerCase()] = c.departement; });
+    (allCandidatures || []).forEach(c => {
+      if (c.email && c.departement) depMap[c.email.toLowerCase()] = c.departement;
+    });
     crmContacts.forEach(c => { if (c.email) c.departement = depMap[c.email.toLowerCase()] || ''; });
   } catch(e) { console.warn('Enrichissement départements:', e); }
 }
@@ -7647,21 +7645,26 @@ async function loadCRMContacts() {
     buildCandidatureMatchIndex();
 
     // Auto-set "En cours de candidature" for contacts with a known candidature still marked as "Nouveau"
-    const autoUpdatePromises = [];
+    // Only update local + Supabase cache (no HubSpot API calls to avoid 502 overload)
+    const autoUpdateIds = [];
     for (const contact of crmContacts) {
       if (contact.leadStatus === 'Nouveau' || !contact.leadStatus) {
         const match = matchCRMToCandidature(contact);
         if (match && !match._virtual) {
           contact.leadStatus = 'En cours de candidature';
-          autoUpdatePromises.push(
-            crmApiCall({ action: 'update', contactId: contact.id, properties: { lead_status: 'En cours de candidature' } }).catch(e => console.warn('Auto-update failed:', e))
-          );
+          autoUpdateIds.push(contact.id);
         }
       }
     }
-    if (autoUpdatePromises.length > 0) {
-      console.log(`Auto-updating ${autoUpdatePromises.length} contacts to "En cours de candidature"`);
-      Promise.allSettled(autoUpdatePromises);
+    if (autoUpdateIds.length > 0) {
+      console.log(`Auto-updating ${autoUpdateIds.length} contacts to "En cours de candidature" (cache only)`);
+      // Batch update Supabase cache via a single lightweight call
+      try {
+        for (let i = 0; i < autoUpdateIds.length; i += 50) {
+          const batch = autoUpdateIds.slice(i, i + 50);
+          await supabase.from('crm_contacts').update({ lead_status: 'En cours de candidature' }).in('id', batch);
+        }
+      } catch (e) { console.warn('Auto-update cache error:', e); }
     }
 
     renderCRMTable();
