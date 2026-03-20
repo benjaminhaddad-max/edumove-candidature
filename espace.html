@@ -3370,6 +3370,8 @@ async function handleRapportDemarche(checked) {
     if (cb && checked) {
       cb.parentElement.querySelector('span').innerHTML = '<strong>J\'ai lancé la démarche pour obtenir le rapport académique</strong> ✅<br><span style="font-size:11px;color:var(--text-muted);">Bien noté ! Vous pourrez envoyer le document dès réception, même après validation de votre dossier.</span>';
     }
+    // Refresh confirm button (rapport technique no longer blocking)
+    updateConfirmButton();
   } catch (err) {
     console.error('Rapport démarche error:', err);
   }
