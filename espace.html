@@ -1286,6 +1286,9 @@ let messagesUnsubscribe = null;
 let userProfile = {};
 let authChecked = false;
 
+// ── ADMIN PREVIEW MODE ──
+let _isAdminPreview = false;
+
 // ── AUTH ──
 (async () => {
   const { data: { session } } = await supabase.auth.getSession();
@@ -1297,48 +1300,97 @@ let authChecked = false;
   }
   currentUser = user;
 
-  // Load user profile for dropdown
-  try {
-    const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-    if (profileData) {
-      userProfile = profileData;
-      fillProfilDropdown();
-    }
-  } catch(e) { console.error('Load profile error:', e); }
-
-  // Load candidature — check URL param or sessionStorage (from submission redirect)
-  const urlCid = new URLSearchParams(window.location.search).get('cid') || sessionStorage.getItem('edumove_just_submitted');
-  sessionStorage.removeItem('edumove_just_submitted');
-  try {
-    if (urlCid) {
-      const { data: doc } = await supabase.from('candidatures').select('*').eq('id', urlCid).single();
-      if (doc && doc.user_id === user.id) {
-        candidatureId = doc.id;
-        candidatureData = doc;
+  // Check admin preview mode: ?preview=CANDIDATURE_ID
+  const previewCid = new URLSearchParams(window.location.search).get('preview');
+  if (previewCid) {
+    // Verify user is admin
+    try {
+      const { data: adminData } = await supabase.from('admins').select('id').eq('id', user.id).maybeSingle();
+      if (adminData) {
+        _isAdminPreview = true;
+        const { data: doc } = await supabase.from('candidatures').select('*').eq('id', previewCid).single();
+        if (doc) {
+          candidatureId = doc.id;
+          candidatureData = doc;
+          // Load student profile
+          try {
+            const { data: profileData } = await supabase.from('profiles').select('*').eq('id', doc.user_id).single();
+            if (profileData) { userProfile = profileData; fillProfilDropdown(); }
+          } catch(e) {}
+          // Show admin preview banner
+          _showAdminPreviewBanner(doc);
+        } else {
+          alert('Candidature introuvable');
+          window.location.href = 'admin.html';
+          return;
+        }
       }
-    }
-    if (!candidatureId) {
-      let { data } = await supabase.from('candidatures').select('*').eq('user_id', user.id).limit(1).maybeSingle();
-      if (!data) {
-        await new Promise(r => setTimeout(r, 2000));
-        const res = await supabase.from('candidatures').select('*').eq('user_id', user.id).limit(1).maybeSingle();
-        data = res.data;
-      }
-      if (!data) {
-        window.location.href = 'candidature.html';
-        return;
-      }
-      candidatureId = data.id;
-      candidatureData = data;
-    }
-  } catch(e) {
-    console.error('Load candidature error:', e);
-    document.getElementById('loading').style.display = 'none';
-    return;
+    } catch(e) { console.error('Admin preview check error:', e); }
   }
-  // Clean URL param
-  if (new URLSearchParams(window.location.search).get('cid')) {
-    window.history.replaceState({}, '', 'espace.html');
+
+  if (!_isAdminPreview) {
+    // Normal student flow
+    // Load user profile for dropdown
+    try {
+      const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+      if (profileData) {
+        userProfile = profileData;
+        fillProfilDropdown();
+      }
+    } catch(e) { console.error('Load profile error:', e); }
+
+    // Load candidature — check URL param or sessionStorage (from submission redirect)
+    const urlCid = new URLSearchParams(window.location.search).get('cid') || sessionStorage.getItem('edumove_just_submitted');
+    sessionStorage.removeItem('edumove_just_submitted');
+    try {
+      if (urlCid) {
+        const { data: doc } = await supabase.from('candidatures').select('*').eq('id', urlCid).single();
+        if (doc && doc.user_id === user.id) {
+          candidatureId = doc.id;
+          candidatureData = doc;
+        }
+      }
+      if (!candidatureId) {
+        let { data } = await supabase.from('candidatures').select('*').eq('user_id', user.id).limit(1).maybeSingle();
+        if (!data) {
+          await new Promise(r => setTimeout(r, 2000));
+          const res = await supabase.from('candidatures').select('*').eq('user_id', user.id).limit(1).maybeSingle();
+          data = res.data;
+        }
+        if (!data) {
+          window.location.href = 'candidature.html';
+          return;
+        }
+        candidatureId = data.id;
+        candidatureData = data;
+      }
+    } catch(e) {
+      console.error('Load candidature error:', e);
+      document.getElementById('loading').style.display = 'none';
+      return;
+    }
+    // Clean URL param
+    if (new URLSearchParams(window.location.search).get('cid')) {
+      window.history.replaceState({}, '', 'espace.html');
+    }
+  }
+
+  function _showAdminPreviewBanner(doc) {
+    const banner = document.createElement('div');
+    banner.id = 'admin-preview-banner';
+    banner.innerHTML = `
+      <div style="position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(135deg,#e65100,#f57c00);color:white;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;font-family:inherit;box-shadow:0 2px 12px rgba(0,0,0,0.3);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:18px;">👁</span>
+          <span style="font-weight:700;font-size:14px;">MODE ADMIN</span>
+          <span style="font-size:13px;opacity:0.9;">Vue étudiant de <strong>${doc.prenom || ''} ${doc.nom || ''}</strong></span>
+        </div>
+        <button onclick="window.close();window.location.href='admin.html'" style="background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.4);padding:6px 16px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;">✕ Fermer</button>
+      </div>
+    `;
+    document.body.prepend(banner);
+    // Push down page content
+    document.body.style.paddingTop = '48px';
   }
 
   try {
@@ -1377,6 +1429,12 @@ let authChecked = false;
 })();
 
 async function logout() {
+  // In admin preview mode, just close the tab / go back to admin
+  if (_isAdminPreview) {
+    window.close();
+    window.location.href = 'admin.html';
+    return;
+  }
   if (messagesUnsubscribe) messagesUnsubscribe();
   try { await supabase.auth.signOut(); } catch(e) { console.error('Logout error:', e); }
   window.location.href = 'index.html';

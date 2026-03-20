@@ -3087,12 +3087,13 @@ body.closer-mode .msg-new-btn { display: none !important; }
         <table style="font-size:12px;">
           <thead><tr>
             <th style="width:3%;"><input type="checkbox" id="crm-select-all" onchange="toggleCrmSelectAll(this.checked)" style="cursor:pointer;"/></th>
-            <th style="width:13%;">Nom</th>
-            <th style="width:15%;">Email</th>
-            <th style="width:10%;">Tél</th>
-            <th style="width:11%;">Formulaire</th>
+            <th style="width:12%;">Nom</th>
+            <th style="width:14%;">Email</th>
+            <th style="width:9%;">Tél</th>
+            <th style="width:4%;">Dép.</th>
+            <th style="width:10%;">Formulaire</th>
             <th style="width:12%;">Statut Edumove</th>
-            <th style="width:12%;">Statut Candidature</th>
+            <th style="width:11%;">Statut Candidature</th>
             <th style="width:8%;">Assigné</th>
             <th style="width:7%;">Date</th>
           </tr></thead>
@@ -3473,24 +3474,47 @@ async function checkUnreadMessages() {
     const role = window.adminRole;
     let total = 0;
 
-    // If conversations already loaded, use in-memory data
+    // If conversations already loaded, use in-memory per-conversation read tracking
     if (facConversations.length > 0 || studentConversations.length > 0) {
       facConversations.forEach(c => { total += countConvUnread(c, 'fac'); });
       studentConversations.forEach(c => { total += countConvUnread(c, 'student'); });
     } else {
-      // Fallback: quick DB count using oldest possible last-seen
-      const lastSeen = localStorage.getItem('edumove_msg_last_seen') || '2000-01-01T00:00:00Z';
-      const { count: studentMsgCount } = await supabase.from('messages')
-        .select('*', { count: 'exact', head: true })
-        .eq('sender_role', 'student')
-        .gt('created_at', lastSeen);
+      // Fallback: load conversations from DB and count with per-conversation read markers
+      // Student messages
+      const { data: studentMsgs } = await supabase.from('messages').select('candidature_id, sender_role, created_at').eq('sender_role', 'student');
+      if (studentMsgs) {
+        const byConv = {};
+        studentMsgs.forEach(m => {
+          if (!m.candidature_id) return;
+          if (!byConv[m.candidature_id]) byConv[m.candidature_id] = [];
+          byConv[m.candidature_id].push(m);
+        });
+        Object.entries(byConv).forEach(([cid, msgs]) => {
+          const lastRead = getConvLastRead('student', null, cid);
+          total += msgs.filter(m => m.created_at > lastRead).length;
+        });
+      }
+      // Fac messages
       const facKey = getFacKeyForRole(role);
-      let fq = supabase.from('fac_messages').select('*', { count: 'exact', head: true }).gt('created_at', lastSeen);
+      let fq = supabase.from('fac_messages').select('fac_key, candidature_id, sender_role, created_at');
       if (facKey) fq = fq.eq('fac_key', facKey);
-      if (role === 'super_admin') fq = fq.neq('sender_role', 'super_admin');
-      else fq = fq.eq('sender_role', 'super_admin');
-      const { count: facMsgCount } = await fq;
-      total = (studentMsgCount || 0) + (facMsgCount || 0);
+      const { data: facMsgs } = await fq;
+      if (facMsgs) {
+        const byConv = {};
+        facMsgs.forEach(m => {
+          const key = m.fac_key + '|' + (m.candidature_id || 'general');
+          if (!byConv[key]) byConv[key] = { fac_key: m.fac_key, candidature_id: m.candidature_id, msgs: [] };
+          byConv[key].msgs.push(m);
+        });
+        Object.values(byConv).forEach(conv => {
+          const lastRead = getConvLastRead('fac', conv.fac_key, conv.candidature_id);
+          total += conv.msgs.filter(m => {
+            if (m.created_at <= lastRead) return false;
+            if (role === 'super_admin') return m.sender_role !== 'super_admin';
+            return m.sender_role === 'super_admin';
+          }).length;
+        });
+      }
     }
 
     if (total > 0) {
@@ -3810,6 +3834,7 @@ function renderTable() {
       ? `<button class="btn-restore" onclick="event.stopPropagation();restoreCandidature('${c.id}')" title="Désarchiver / Restaurer">&#x21A9;</button>`
       : `<button class="btn-archive" onclick="event.stopPropagation();confirmArchive('${c.id}')" title="Archiver">&#x1F4E6;</button>`;
     const deleteBtn = `<button class="btn-delete" onclick="event.stopPropagation();confirmDelete('${c.id}')" title="Supprimer">&times;</button>`;
+    const eyeBtn = (c.status !== 'non_soumise') ? '<button onclick="event.stopPropagation();window.open(\'espace.html?preview=' + c.id + '\',\'_blank\')" title="Vue \u00e9tudiant" style="background:#7c3aed;color:white;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;justify-content:center;">&#x1F441;</button>' : '';
 
     return `<tr${c.status === 'archive' ? ' style="opacity:0.6"' : ''}>
       <td><div class="td-name">${esc(c.nom)} ${esc(c.prenom)}${directBadge}</div></td>
@@ -3824,7 +3849,7 @@ function renderTable() {
       </select></td>
       <td class="td-date">${date}</td>
       <td>${trackSummary}</td>
-      <td><div class="td-actions"><button class="btn-view" onclick="viewDetail('${c.id}')">Voir</button>${archiveBtn}${deleteBtn}</div></td>
+      <td><div class="td-actions"><button class="btn-view" onclick="viewDetail('${c.id}')">Voir</button>${eyeBtn}${archiveBtn}${deleteBtn}</div></td>
     </tr>`;
   }).join('');
 
@@ -4175,6 +4200,10 @@ function renderDetailPage(c) {
   if ((window.adminRole === 'super_admin' || !window.adminRole) && window.adminRole !== 'closer') {
     const isArchived = c.status !== 'en_attente' && c.status !== 'en_cours' && c.status !== 'reponse_edumove';
     let btnsHtml = '';
+    // View as student button
+    if (c.status !== 'non_soumise') {
+      btnsHtml += `<button onclick="window.open('espace.html?preview=${c.id}','_blank')" style="padding:8px 16px;font-size:13px;background:#7c3aed;color:white;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:600;">👁 Vue étudiant</button>`;
+    }
     // Resend notifications button (only for reponse_edumove)
     if (c.status === 'reponse_edumove') {
       btnsHtml += `<button onclick="resendNotifications('${c.id}')" style="padding:8px 16px;font-size:13px;background:#1565c0;color:white;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:600;">📧 Renvoyer notif</button>`;
@@ -4812,6 +4841,9 @@ async function loadMessagesForCandidature(candidatureId) {
   const { data: initialMsgs } = await supabase.from('messages').select('*').eq('candidature_id', candidatureId).order('created_at', { ascending: true });
   renderMsgs(initialMsgs);
 
+  // Mark this student conversation as read (so badge stays accurate)
+  markConvRead('student', null, candidatureId);
+
   const channel = supabase.channel('admin-msgs-' + candidatureId)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: 'candidature_id=eq.' + candidatureId }, async () => {
       const { data: msgs } = await supabase.from('messages').select('*').eq('candidature_id', candidatureId).order('created_at', { ascending: true });
@@ -4859,6 +4891,9 @@ async function sendAdminMessage(candidatureId) {
       channel: _isFacSender ? 'fac' : 'edumove'
     });
     if (error) throw error;
+
+    // Mark conversation as read after sending
+    markConvRead('student', null, candidatureId);
 
     // Send @Edumove mention notification
     if (_hasEdumoveMention) {
@@ -5152,7 +5187,7 @@ function admin_buildPreviewSection(c, candidatureId) {
   const ucjcSelected = adminPreviewSelections.UCJC ? ' selected' : '';
   let ucjcWarning = '';
   // UCJC: B1+ requis pour Médecine/Dentaire, aucun niveau pour Pharma/Kiné
-  const filieresCand = _adminPreviewCandidature?.classement_filieres || [_adminPreviewCandidature?.filiere].filter(Boolean);
+  const filieresCand = c?.classement_filieres || [c?.filiere].filter(Boolean);
   const isPharmKine = filieresCand.some(f => f === 'pharmacie' || f === 'kinesitherapie');
   if (!isPharmKine && profile.espLevel < 2) ucjcWarning = '<div class="admprev-info" style="background:#fff3e0;color:#e65100;">⚠️ Espagnol insuffisant (B1 minimum requis pour l\'UCJC en Médecine/Dentaire).</div>';
   else if (!isPharmKine && profile.espLevel === 2) ucjcWarning = '<div class="admprev-info" style="background:#e8f5e9;color:#2e7d32;">✅ Niveau B1 — éligible UCJC (entretien oral de 15 min).</div>';
@@ -6723,6 +6758,7 @@ async function loadFacConversations() {
 
 function renderFacConvList() {
   const listEl = document.getElementById('fac-conv-list');
+  if (!listEl) return;
   const q = (document.getElementById('fac-msg-search')?.value || '').toLowerCase().trim();
   const facLabels = { LINK: 'LINK Campus', UCJC: 'UCJC Madrid', UE: 'Universidad Europea' };
 
@@ -6903,6 +6939,8 @@ async function selectFacConv(facKey, candidatureId) {
       const m = payload.new;
       if (m.fac_key === facKey && (m.candidature_id || null) === (candidatureId || null)) {
         appendFacMessage(m);
+        // Auto-mark as read since admin is viewing this conversation
+        markConvRead('fac', facKey, candidatureId);
       }
     })
     .subscribe();
@@ -6951,6 +6989,8 @@ async function selectStudentConv(candidatureId) {
       const { data: msgs } = await supabase.from('messages').select('*').eq('candidature_id', candidatureId).order('created_at', { ascending: true });
       body.innerHTML = _renderStudentMsgs(msgs);
       body.scrollTop = body.scrollHeight;
+      // Auto-mark as read since admin is viewing this conversation
+      markConvRead('student', null, candidatureId);
     })
     .subscribe();
 
@@ -7045,6 +7085,8 @@ async function sendFacMessage() {
     // Re-fetch to replace optimistic with real message
     const { data: msgs } = await supabase.from('messages').select('*').eq('candidature_id', currentFacConv.candidature_id).order('created_at', { ascending: true });
     if (msgs) { body.innerHTML = msgs.map(m => { const isMine = m.sender_role && m.sender_role !== 'student'; const t = new Date(m.created_at).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); const delBtn = `<button class="msg-delete-btn" title="Supprimer" onclick="event.stopPropagation();deleteSingleMessage('messages',${m.id})">&times;</button>`; return `<div class="msg-bubble ${isMine?'sent':'received'}">${delBtn}<div>${esc(m.content)}</div><div class="msg-meta">${t}</div></div>`; }).join(''); body.scrollTop = body.scrollHeight; }
+    // Re-mark as read after sending (updates timestamp to now)
+    markConvRead('student', null, currentFacConv.candidature_id);
     return;
   }
 
@@ -7092,6 +7134,9 @@ async function sendFacMessage() {
       }).catch(e => console.warn('Mention notification non envoyée:', e));
     }
   }
+
+  // Re-mark current fac conv as read after sending
+  markConvRead('fac', currentFacConv.fac_key, currentFacConv.candidature_id);
 
   // Reload conversations list to update preview
   loadFacConversations();
@@ -7455,6 +7500,19 @@ let _candMatchByEmail = {};
 let _candMatchByTel = {};
 let _candMatchByName = {};
 
+async function enrichCrmDepartements() {
+  try {
+    const emails = crmContacts.map(c => c.email).filter(Boolean);
+    if (!emails.length) return;
+    const { data: profiles } = await supabase.from('profiles').select('email, departement').in('email', emails);
+    const { data: cands } = await supabase.from('candidatures').select('email, departement').in('email', emails);
+    const depMap = {};
+    (profiles || []).forEach(p => { if (p.departement) depMap[p.email.toLowerCase()] = p.departement; });
+    (cands || []).forEach(c => { if (c.departement && !depMap[c.email.toLowerCase()]) depMap[c.email.toLowerCase()] = c.departement; });
+    crmContacts.forEach(c => { if (c.email) c.departement = depMap[c.email.toLowerCase()] || ''; });
+  } catch(e) { console.warn('Enrichissement départements:', e); }
+}
+
 function buildCandidatureMatchIndex() {
   _candMatchByEmail = {};
   _candMatchByTel = {};
@@ -7581,6 +7639,9 @@ async function loadCRMContacts() {
       }
       return;
     }
+
+    // Enrich contacts with département from profiles + candidatures
+    await enrichCrmDepartements();
 
     // Build candidature matching index
     buildCandidatureMatchIndex();
@@ -7889,6 +7950,7 @@ function renderCRMTable() {
       <td style="padding:10px 12px;"><div style="font-weight:600;color:var(--navy);font-size:12px;">${esc(c.nom)} ${esc(c.prenom)}</div></td>
       <td style="padding:10px 8px;">${emailDisplay}</td>
       <td style="padding:10px 8px;">${telDisplay}</td>
+      <td style="padding:10px 6px;text-align:center;font-size:11px;font-weight:600;color:var(--navy);">${c.departement ? esc(c.departement) : '<span style="color:#ccc;">—</span>'}</td>
       <td style="padding:10px 6px;">${formDisplay}</td>
       <td style="padding:10px 6px;">
         <select onchange="updateCRMLeadStatus('${c.id}', this.value)" style="padding:3px 6px;border-radius:6px;font-size:10px;font-weight:600;border:1.5px solid var(--border);font-family:inherit;cursor:pointer;max-width:130px;">
