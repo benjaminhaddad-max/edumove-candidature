@@ -1284,10 +1284,9 @@ body.closer-mode .msg-new-btn { display: none !important; }
     <!-- Stats -->
     <div class="stats-row">
       <div class="stat-card"><div class="stat-label">Total candidatures</div><div class="stat-value" id="stat-total">0</div></div>
-      <div class="stat-card violet"><div class="stat-label">En cours</div><div class="stat-value" id="stat-encours">0</div></div>
       <div class="stat-card" style="border-top:4px solid #1565c0;"><div class="stat-label">R&eacute;ponse Edumove</div><div class="stat-value" id="stat-reponse" style="color:#1565c0;">0</div></div>
+      <div class="stat-card" style="border-top:4px solid #7c3aed;"><div class="stat-label">Choix valid&eacute;s</div><div class="stat-value" id="stat-choix" style="color:#7c3aed;">0</div></div>
       <div class="stat-card green"><div class="stat-label">Inscrits</div><div class="stat-value" id="stat-inscrit">0</div></div>
-      <div class="stat-card" style="border-top:4px solid #e65100;"><div class="stat-label">Rappels demandés</div><div class="stat-value" id="stat-rappel" style="color:#e65100;">0</div></div>
     </div>
 
     <!-- Toolbar -->
@@ -3684,18 +3683,16 @@ async function loadCandidatures() {
 function updateStats() {
   const active = allCandidatures.filter(c => c.status !== 'archive');
   const total = active.length;
-  const encours = active.filter(c => c.status === 'en_cours' || c.status === 'en_attente').length;
   const reponse = active.filter(c => c.status === 'reponse_edumove').length;
+  const choix = active.filter(c => c.status === 'choix_valide').length;
   const inscrit = active.filter(c => {
     const t = c.uni_tracking || {};
     return ['LINK_status', 'UCJC_status', 'UE_status'].some(k => t[k] === 'inscrit');
   }).length;
-  const rappel = active.filter(c => c.callback_requested).length;
   document.getElementById('stat-total').textContent = total;
-  document.getElementById('stat-encours').textContent = encours;
   document.getElementById('stat-reponse').textContent = reponse;
+  document.getElementById('stat-choix').textContent = choix;
   document.getElementById('stat-inscrit').textContent = inscrit;
-  document.getElementById('stat-rappel').textContent = rappel;
 }
 
 // ══════════════════════════════════════════
