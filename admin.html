@@ -3621,9 +3621,24 @@ function renderTable() {
     const _allowedUni = _facUniMap[window.adminRole] || null; // null = super_admin sees all
 
     let uniBadges = '';
-    if (sel.LINK && (!_allowedUni || _allowedUni === 'LINK')) uniBadges += '<span class="uni-badge link">LINK</span>';
-    if (sel.UCJC && (!_allowedUni || _allowedUni === 'UCJC')) uniBadges += '<span class="uni-badge ucjc">UCJC</span>';
-    if (sel.UE && (!_allowedUni || _allowedUni === 'UE')) uniBadges += '<span class="uni-badge ue">UE</span>';
+    let uniNum = 0;
+    const uniStyles = {
+      LINK: { flag: '🇮🇹', label: 'LINK', bg: '#eef2ff', color: '#4338ca', border: '#c7d2fe' },
+      UCJC: { flag: '🇪🇸', label: 'UCJC', bg: '#fef3c7', color: '#92400e', border: '#fde68a' },
+      UE: { flag: '🇪🇸', label: 'UE', bg: '#ecfdf5', color: '#065f46', border: '#a7f3d0' }
+    };
+    ['LINK', 'UCJC', 'UE'].forEach(uni => {
+      if (!sel[uni]) return;
+      if (_allowedUni && _allowedUni !== uni) return;
+      uniNum++;
+      const s = uniStyles[uni];
+      const filLabel = sel[uni].filiereLabel || '';
+      uniBadges += `<div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;">
+        <span style="font-size:10px;font-weight:800;color:var(--navy);min-width:14px;">${uniNum}.</span>
+        <span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:600;background:${s.bg};color:${s.color};border:1px solid ${s.border};white-space:nowrap;">${s.flag} ${s.label}</span>
+        ${filLabel ? `<span style="font-size:9px;color:var(--text-muted);white-space:nowrap;">${esc(filLabel)}</span>` : ''}
+      </div>`;
+    });
     if (!uniBadges) uniBadges = '<span style="color:var(--text-muted);font-size:11px;">\u2014</span>';
 
     // Per-uni tracking summary with inline selects
