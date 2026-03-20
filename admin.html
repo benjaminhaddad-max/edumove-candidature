@@ -3008,6 +3008,7 @@ body.closer-mode .msg-new-btn { display: none !important; }
             <button onclick="document.querySelectorAll('.crm-edm-cb').forEach(c=>c.checked=false);filterCRMContacts()" style="font-size:10px;padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:white;cursor:pointer;font-family:inherit;font-weight:600;">❌ Aucun</button>
           </div>
           <label class="crm-hs-lbl"><input type="checkbox" class="crm-edm-cb" value="Nouveau" checked onchange="filterCRMContacts()"> Nouveau</label>
+          <label class="crm-hs-lbl" style="color:#7c3aed;"><input type="checkbox" class="crm-edm-cb" value="En cours de candidature" checked onchange="filterCRMContacts()"> En cours de candidature</label>
           <label class="crm-hs-lbl"><input type="checkbox" class="crm-edm-cb" value="Va candidater" checked onchange="filterCRMContacts()"> Va candidater</label>
           <label class="crm-hs-lbl"><input type="checkbox" class="crm-edm-cb" value="Veut absolument autre pays" checked onchange="filterCRMContacts()"> Veut autre pays</label>
           <label class="crm-hs-lbl" style="color:#dc2626;"><input type="checkbox" class="crm-edm-cb" value="Disqualifié" checked onchange="filterCRMContacts()"> Disqualifié</label>
@@ -7398,9 +7399,10 @@ let crmHasMore = false;
 let crmPage = 1;
 let crmPerPage = 20;
 
-const CRM_LEAD_STATUSES = ['Nouveau', 'Va candidater', 'Veut absolument autre pays', 'Disqualifié', 'PASS/LAS priorité', 'NRP1', 'NRP2'];
+const CRM_LEAD_STATUSES = ['Nouveau', 'En cours de candidature', 'Va candidater', 'Veut absolument autre pays', 'Disqualifié', 'PASS/LAS priorité', 'NRP1', 'NRP2'];
 const CRM_STATUS_COLORS = {
   'Nouveau': { bg: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe' },
+  'En cours de candidature': { bg: '#f3e8ff', color: '#7c3aed', border: '#ddd6fe' },
   'Va candidater': { bg: '#ecfdf5', color: '#059669', border: '#a7f3d0' },
   'Veut absolument autre pays': { bg: '#fff7ed', color: '#c2410c', border: '#fed7aa' },
   'Disqualifié': { bg: '#fef2f2', color: '#dc2626', border: '#fecaca' },
@@ -7541,6 +7543,24 @@ async function loadCRMContacts() {
 
     // Build candidature matching index
     buildCandidatureMatchIndex();
+
+    // Auto-set "En cours de candidature" for contacts with a known candidature still marked as "Nouveau"
+    const autoUpdatePromises = [];
+    for (const contact of crmContacts) {
+      if (contact.leadStatus === 'Nouveau' || !contact.leadStatus) {
+        const match = matchCRMToCandidature(contact);
+        if (match && !match._virtual) {
+          contact.leadStatus = 'En cours de candidature';
+          autoUpdatePromises.push(
+            crmApiCall({ action: 'update', contactId: contact.id, properties: { lead_status: 'En cours de candidature' } }).catch(e => console.warn('Auto-update failed:', e))
+          );
+        }
+      }
+    }
+    if (autoUpdatePromises.length > 0) {
+      console.log(`Auto-updating ${autoUpdatePromises.length} contacts to "En cours de candidature"`);
+      Promise.allSettled(autoUpdatePromises);
+    }
 
     renderCRMTable();
     updateCRMStats();
