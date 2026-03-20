@@ -12,7 +12,7 @@ function getSupabase() {
 const WELCOME_SMS = `La plateforme de candidature Edumove est ouverte !\nMédecine, Dentaire, Pharmacie, Kiné en Europe. Accompagnement de A à Z\nCandidatez : candidature.edumove.fr`;
 
 // Default Brevo template for welcome email (configurable via env)
-const WELCOME_TEMPLATE_ID = parseInt(process.env.WELCOME_BREVO_TEMPLATE_ID || '83');
+const WELCOME_TEMPLATE_ID = parseInt(process.env.WELCOME_BREVO_TEMPLATE_ID || '116');
 
 module.exports = async function handler(req, res) {
   // Allow HubSpot webhook calls (no CORS needed, no API key — HubSpot sends POST)
