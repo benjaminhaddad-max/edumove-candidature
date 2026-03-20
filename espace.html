@@ -947,6 +947,17 @@ body {
 .uni-partner-card { border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 20px; transition: all 0.3s; }
 .uni-partner-card.selected { border-color: var(--violet); box-shadow: 0 0 0 2px rgba(97,92,165,0.15); }
 .uni-partner-card.locked { opacity: 0.6; pointer-events: none; position: relative; }
+.uni-partner-card.dismissed .uni-card-body { display: none; }
+.uni-partner-card.dismissed { opacity: 0.5; border-color: #e0e0e0; }
+.uni-partner-card.dismissed .uni-partner-header { opacity: 0.7; }
+.uni-partner-card.dismissed .uni-badge-dismissed { display: flex !important; }
+.uni-badge-dismissed { display: none !important; align-items: center; gap: 8px; font-size: 11px; color: rgba(255,255,255,0.9); }
+.uni-badge-dismissed .btn-reactivate { background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.4); color: #fff; padding: 4px 12px; border-radius: 16px; font-size: 10px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.2s; }
+.uni-badge-dismissed .btn-reactivate:hover { background: rgba(255,255,255,0.4); }
+.btn-dismiss-uni { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.8); padding: 5px 12px; border-radius: 16px; font-size: 10px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.2s; margin-left: 8px; }
+.btn-dismiss-uni:hover { background: rgba(255,0,0,0.2); border-color: rgba(255,100,100,0.5); color: #fff; }
+.uni-partner-card.selected .btn-dismiss-uni { display: none; }
+.uni-partner-card.dismissed .btn-dismiss-uni { display: none; }
 
 .uni-partner-header { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
 .uni-partner-header.link-hdr { background: linear-gradient(135deg, #1a2744, #2a3d66); color: #fff; }
@@ -2336,17 +2347,21 @@ function buildLINKCard(filieres) {
   const { chips, ineligible } = buildChipsWithEligibility(filieres, 'LINK');
   let html = '<div class="uni-partner-card" id="card-LINK">';
   html += '<div class="uni-partner-header link-hdr">';
-  html += '<div><div class="uni-name">LINK Campus — Università degli Studi LINK</div><div class="uni-country">Italie — Rome</div></div>';
+  html += '<div><div class="uni-name">🇮🇹 LINK Campus — Rome</div><div class="uni-country">Italie — Pas de prérequis linguistique</div></div>';
+  html += '<div style="display:flex;align-items:center;gap:6px;">';
   html += '<div class="uni-badge">Sélectionné</div>';
-  html += '</div>';
-  html += '<div class="uni-filiere-subtitle">Cours en italien — Pas de prérequis linguistique</div>';
+  html += '<div class="uni-badge-dismissed">✖ Pas intéressé(e) <button class="btn-reactivate" onclick="reactivateUni(\'LINK\')">↩ Revenir</button></div>';
+  html += '<button class="btn-dismiss-uni" onclick="dismissUni(\'LINK\')">Pas intéressé(e)</button>';
+  html += '</div></div>';
+  html += '<div class="uni-card-body">';
+  html += '<div class="uni-filiere-subtitle">Choisissez votre filière :</div>';
   html += '<div class="uni-filiere-grid">' + chips + '</div>';
   html += buildInfosFaculte('LINK');
   html += '<div id="link-sub-options" class="uni-sub-options"></div>';
   html += '<div class="uni-docs-section" id="docs-LINK"></div>';
   html += '<div class="uni-next-step" id="next-step-LINK"></div>';
   html += ineligible;
-  html += '</div>';
+  html += '</div></div>';
   return html;
 }
 
@@ -2354,17 +2369,21 @@ function buildUCJCCard(filieres) {
   const { chips, ineligible } = buildChipsWithEligibility(filieres, 'UCJC');
   let html = '<div class="uni-partner-card" id="card-UCJC">';
   html += '<div class="uni-partner-header ucjc-hdr">';
-  html += '<div><div class="uni-name">UCJC — Universidad Camilo José Cela</div><div class="uni-country">Espagne — Madrid</div></div>';
+  html += '<div><div class="uni-name">🇪🇸 UCJC — Madrid</div><div class="uni-country">Espagne — Cours 100% en espagnol</div></div>';
+  html += '<div style="display:flex;align-items:center;gap:6px;">';
   html += '<div class="uni-badge">Sélectionné</div>';
-  html += '</div>';
-  html += '<div class="uni-filiere-subtitle">Cours 100% en espagnol</div>';
+  html += '<div class="uni-badge-dismissed">✖ Pas intéressé(e) <button class="btn-reactivate" onclick="reactivateUni(\'UCJC\')">↩ Revenir</button></div>';
+  html += '<button class="btn-dismiss-uni" onclick="dismissUni(\'UCJC\')">Pas intéressé(e)</button>';
+  html += '</div></div>';
+  html += '<div class="uni-card-body">';
+  html += '<div class="uni-filiere-subtitle">Choisissez votre filière :</div>';
   html += '<div class="uni-filiere-grid">' + chips + '</div>';
   html += buildInfosFaculte('UCJC');
   html += '<div id="ucjc-sub-options" class="uni-sub-options"></div>';
   html += '<div class="uni-docs-section" id="docs-UCJC"></div>';
   html += '<div class="uni-next-step" id="next-step-UCJC"></div>';
   html += ineligible;
-  html += '</div>';
+  html += '</div></div>';
   return html;
 }
 
@@ -2372,18 +2391,47 @@ function buildUECard(filieres) {
   const { chips, ineligible } = buildChipsWithEligibility(filieres, 'UE');
   let html = '<div class="uni-partner-card" id="card-UE">';
   html += '<div class="uni-partner-header ue-hdr">';
-  html += '<div><div class="uni-name">Universidad Europea</div><div class="uni-country">Espagne — Plusieurs campus</div></div>';
+  html += '<div><div class="uni-name">🇪🇸 Universidad Europea</div><div class="uni-country">Espagne — Plusieurs campus</div></div>';
+  html += '<div style="display:flex;align-items:center;gap:6px;">';
   html += '<div class="uni-badge">Sélectionné</div>';
-  html += '</div>';
-  html += '<div class="uni-filiere-subtitle">Cours en espagnol, anglais ou français selon campus</div>';
+  html += '<div class="uni-badge-dismissed">✖ Pas intéressé(e) <button class="btn-reactivate" onclick="reactivateUni(\'UE\')">↩ Revenir</button></div>';
+  html += '<button class="btn-dismiss-uni" onclick="dismissUni(\'UE\')">Pas intéressé(e)</button>';
+  html += '</div></div>';
+  html += '<div class="uni-card-body">';
+  html += '<div class="uni-filiere-subtitle">Choisissez votre filière :</div>';
   html += '<div class="uni-filiere-grid">' + chips + '</div>';
   html += buildInfosFaculte('UE');
   html += '<div id="ue-sub-options" class="uni-sub-options"></div>';
   html += '<div class="uni-docs-section" id="docs-UE"></div>';
   html += '<div class="uni-next-step" id="next-step-UE"></div>';
   html += ineligible;
-  html += '</div>';
+  html += '</div></div>';
   return html;
+}
+
+// ── DISMISS / REACTIVATE UNI ──
+function dismissUni(uniKey) {
+  const card = document.getElementById('card-' + uniKey);
+  if (!card) return;
+  card.classList.add('dismissed');
+  card.classList.remove('selected');
+  // Clear any existing selection for this uni
+  uniSelections[uniKey] = null;
+  if (uniKey === 'UE') { ueSelectedFiliere = null; ueSelectedVille = null; }
+  // Reset chips
+  card.querySelectorAll('.uni-filiere-chip').forEach(c => c.classList.remove('active'));
+  // Clear sub-options and docs
+  const sub = document.getElementById((uniKey === 'UE' ? 'ue' : uniKey.toLowerCase()) + '-sub-options');
+  if (sub) { sub.classList.remove('open'); sub.innerHTML = ''; }
+  const docs = document.getElementById('docs-' + uniKey);
+  if (docs) { docs.classList.remove('open'); docs.innerHTML = ''; }
+  updateConfirmButton();
+}
+
+function reactivateUni(uniKey) {
+  const card = document.getElementById('card-' + uniKey);
+  if (!card) return;
+  card.classList.remove('dismissed');
 }
 
 // ── FILIERE SELECTION ──
@@ -3192,9 +3240,16 @@ async function confirmAllSelections() {
 }
 
 function showSelectionsSaved(selections) {
-  // Lock all cards
+  // Lock all cards, dismiss unselected ones
   document.querySelectorAll('.uni-partner-card').forEach(card => {
     card.classList.add('locked');
+  });
+  // Dismiss cards not selected
+  ['LINK', 'UCJC', 'UE'].forEach(key => {
+    if (!selections[key]) {
+      const card = document.getElementById('card-' + key);
+      if (card) card.classList.add('dismissed');
+    }
   });
 
   // Hide confirm button, show unlock
@@ -3271,9 +3326,10 @@ function addPersistentRapportUpload() {
 }
 
 function unlockSelections() {
-  // Remove locked state
+  // Remove locked and dismissed states
   document.querySelectorAll('.uni-partner-card').forEach(card => {
     card.classList.remove('locked');
+    card.classList.remove('dismissed');
   });
 
   // Reset all selections state
