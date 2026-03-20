@@ -7506,7 +7506,7 @@ document.addEventListener('click', function(e) {
   ['crm-form-dd', 'crm-edm-dd', 'crm-cand-dd', 'crm-period-dd'].forEach(id => {
     const dd = document.getElementById(id);
     const btn = document.getElementById(id.replace('-dd', '-btn'));
-    if (dd && dd.style.display === 'block' && !dd.contains(e.target) && e.target !== btn) {
+    if (dd && dd.style.display === 'block' && !dd.contains(e.target) && btn && !btn.contains(e.target)) {
       dd.style.display = 'none';
     }
   });
