@@ -51,7 +51,7 @@ async function listFromCache(req, res) {
   let from = 0;
   const PAGE = 1000;
   while (true) {
-    let q = sb.from('crm_contacts').select('id,nom,prenom,email,tel,lead_status,hs_lead_status,form_name,source,assigned_to,assigned_name,departement,created_at,synced_at').order('synced_at', { ascending: false });
+    let q = sb.from('crm_contacts').select('id,nom,prenom,email,tel,lead_status,hs_lead_status,form_name,source,assigned_to,assigned_name,departement,created_at,synced_at,last_sms_at,last_email_at,sms_clicked').order('synced_at', { ascending: false });
     if (assignedTo && typeof assignedTo === 'string' && assignedTo.trim()) {
       q = q.eq('assigned_to', assignedTo.trim());
     }
@@ -83,7 +83,10 @@ async function listFromCache(req, res) {
     assignedName: r.assigned_name || '',
     departement: r.departement || '',
     createdAt: r.created_at || '',
-    syncedAt: r.synced_at || ''
+    syncedAt: r.synced_at || '',
+    lastSmsAt: r.last_sms_at || '',
+    lastEmailAt: r.last_email_at || '',
+    smsClicked: r.sms_clicked || false
   }));
 
   return res.status(200).json({ contacts, total: contacts.length, cached: true });
