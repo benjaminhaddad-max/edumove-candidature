@@ -109,6 +109,7 @@ async function syncFromHubSpot(req, res) {
   let after = null;
   let pages = 0;
 
+  // 1) Search API: gets indexed Edumove contacts (may miss very recent ones due to indexing delay)
   do {
     pages++;
     const body = {
@@ -126,6 +127,21 @@ async function syncFromHubSpot(req, res) {
     allContacts = allContacts.concat(data.results || []);
     after = data.paging?.next?.after || null;
   } while (after && pages < 200);
+
+  // 2) Also fetch recently created contacts via List API (no indexing delay)
+  // This catches contacts created in the last 2 hours that search hasn't indexed yet
+  const seenIds = new Set(allContacts.map(c => c.id));
+  try {
+    const recentRes = await hubFetch(hubspotToken, 'GET', `/crm/v3/objects/contacts?limit=50&properties=${PROPS.join(',')}&sorts=-createdate`);
+    const recentData = await recentRes.json();
+    for (const c of (recentData.results || [])) {
+      const formName = (c.properties?.recent_conversion_event_name || '').toLowerCase();
+      if (formName.includes('edumove') && !seenIds.has(c.id)) {
+        allContacts.push(c);
+        console.log('Caught recent contact via List API:', c.id, c.properties?.email);
+      }
+    }
+  } catch (e) { console.warn('Recent contacts fallback error:', e.message); }
 
   // Transform and upsert into Supabase
   // Use createdate as synced_at during bulk sync (preserves chronological order)
