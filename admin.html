@@ -3018,6 +3018,15 @@ body.closer-mode .msg-new-btn { display: none !important; }
         </div>
       </div>
       </div>
+      <select class="filter-select" id="crm-filter-cand-status" onchange="filterCRMContacts()" style="min-width:130px;">
+        <option value="">Candidature — Tous</option>
+        <option value="_has">✅ A candidaté</option>
+        <option value="_none">❌ Pas candidaté</option>
+        <option value="en_cours">En cours</option>
+        <option value="en_attente">Non déposée</option>
+        <option value="choix_valide">Choix validé</option>
+        <option value="reponse_edumove">Réponse Edumove</option>
+      </select>
       <select class="filter-select" id="crm-filter-assigned" onchange="filterCRMContacts()" style="min-width:120px;">
         <option value="">Assigné — Tous</option>
         <option value="_unassigned">Non assignés</option>
@@ -3045,13 +3054,14 @@ body.closer-mode .msg-new-btn { display: none !important; }
         <table style="font-size:12px;">
           <thead><tr>
             <th style="width:3%;"><input type="checkbox" id="crm-select-all" onchange="toggleCrmSelectAll(this.checked)" style="cursor:pointer;"/></th>
-            <th style="width:15%;">Nom</th>
-            <th style="width:18%;">Email</th>
-            <th style="width:11%;">Tél</th>
-            <th style="width:13%;">Formulaire</th>
-            <th style="width:14%;">Statut Edumove</th>
-            <th style="width:10%;">Assigné</th>
-            <th style="width:8%;">Date</th>
+            <th style="width:13%;">Nom</th>
+            <th style="width:15%;">Email</th>
+            <th style="width:10%;">Tél</th>
+            <th style="width:11%;">Formulaire</th>
+            <th style="width:12%;">Statut Edumove</th>
+            <th style="width:12%;">Statut Candidature</th>
+            <th style="width:8%;">Assigné</th>
+            <th style="width:7%;">Date</th>
           </tr></thead>
           <tbody id="crm-table-body"></tbody>
         </table>
@@ -7397,9 +7407,69 @@ const CRM_STATUS_COLORS = {
   'PASS/LAS priorité': { bg: '#fffbeb', color: '#d97706', border: '#fde68a' }
 };
 
+// ── Candidature Matching Index ──
+let _candMatchByEmail = {};
+let _candMatchByTel = {};
+let _candMatchByName = {};
+
+function buildCandidatureMatchIndex() {
+  _candMatchByEmail = {};
+  _candMatchByTel = {};
+  _candMatchByName = {};
+  const candidates = allCandidatures || [];
+  for (const c of candidates) {
+    if (c._virtual) continue; // skip virtual profiles
+    if (c.email) _candMatchByEmail[c.email.toLowerCase().trim()] = c;
+    if (c.tel) {
+      const cleanTel = c.tel.replace(/[\s\-\.\(\)]/g, '').replace(/^0/, '+33');
+      _candMatchByTel[cleanTel] = c;
+    }
+    const nameKey = `${(c.nom||'').toLowerCase().trim()} ${(c.prenom||'').toLowerCase().trim()}`.trim();
+    if (nameKey.length > 3) _candMatchByName[nameKey] = c;
+  }
+}
+
+function matchCRMToCandidature(contact) {
+  // 1. Match by email (most reliable)
+  if (contact.email) {
+    const match = _candMatchByEmail[contact.email.toLowerCase().trim()];
+    if (match) return match;
+  }
+  // 2. Match by phone
+  if (contact.tel) {
+    const cleanTel = contact.tel.replace(/[\s\-\.\(\)]/g, '').replace(/^0/, '+33');
+    const match = _candMatchByTel[cleanTel];
+    if (match) return match;
+  }
+  // 3. Match by nom + prenom (last resort)
+  const nameKey = `${(contact.nom||'').toLowerCase().trim()} ${(contact.prenom||'').toLowerCase().trim()}`.trim();
+  if (nameKey.length > 3) {
+    const match = _candMatchByName[nameKey];
+    if (match) return match;
+  }
+  return null;
+}
+
+const CAND_STATUS_LABELS = {
+  non_soumise: 'Non soumise',
+  en_attente: 'Non déposée',
+  en_cours: 'En cours',
+  choix_valide: 'Choix validé',
+  reponse_edumove: 'Réponse Edumove',
+  archive: 'Archivé'
+};
+const CAND_STATUS_COLORS = {
+  non_soumise: { bg: '#f5f5f5', color: '#737373', border: '#d4d4d4' },
+  en_attente: { bg: '#fef2f2', color: '#991b1b', border: '#fecaca' },
+  en_cours: { bg: '#f3e8ff', color: '#7c3aed', border: '#ddd6fe' },
+  choix_valide: { bg: '#ecfdf5', color: '#059669', border: '#a7f3d0' },
+  reponse_edumove: { bg: '#dbeafe', color: '#1d4ed8', border: '#bfdbfe' },
+  archive: { bg: '#f1f5f9', color: '#64748b', border: '#e2e8f0' }
+};
+
 // Close CRM dropdowns on click outside
 document.addEventListener('click', function(e) {
-  ['crm-hs-dd', 'crm-form-dd', 'crm-edm-dd'].forEach(id => {
+  ['crm-form-dd', 'crm-edm-dd'].forEach(id => {
     const dd = document.getElementById(id);
     const btn = document.getElementById(id.replace('-dd', '-btn'));
     if (dd && dd.style.display === 'block' && !dd.contains(e.target) && e.target !== btn) {
@@ -7469,6 +7539,9 @@ async function loadCRMContacts() {
       return;
     }
 
+    // Build candidature matching index
+    buildCandidatureMatchIndex();
+
     renderCRMTable();
     updateCRMStats();
   } catch (err) {
@@ -7534,17 +7607,7 @@ function renderCRMTable() {
     edmBtn.textContent = unc > 0 ? `Edumove (${unc} excl.) ▾` : 'Statut Edumove ▾';
   }
 
-  // HS status filter (checkboxes)
-  const hsChecked = new Set();
-  document.querySelectorAll('.crm-hs-cb:checked').forEach(cb => hsChecked.add(cb.value));
-  const allHsCbs = document.querySelectorAll('.crm-hs-cb');
-  const hsFilterActive = hsChecked.size < allHsCbs.length;
-  const hsBtn = document.getElementById('crm-hs-btn');
-  if (hsBtn) {
-    const unc = allHsCbs.length - hsChecked.size;
-    hsBtn.textContent = unc > 0 ? `Statut HS (${unc} excl.) ▾` : 'Statut HubSpot ▾';
-  }
-
+  const candStatusFilter = document.getElementById('crm-filter-cand-status')?.value || '';
   const assignedFilter = document.getElementById('crm-filter-assigned')?.value || '';
   const dateFromVal = document.getElementById('crm-date-from')?.value || '';
   const dateToVal = document.getElementById('crm-date-to')?.value || '';
@@ -7566,7 +7629,15 @@ function renderCRMTable() {
   }
   if (formFilterActive) filtered = filtered.filter(c => formChecked.has(c.formName));
   if (edmFilterActive) filtered = filtered.filter(c => edmChecked.has(c.leadStatus));
-  if (hsFilterActive) filtered = filtered.filter(c => hsChecked.has(c.hsLeadStatus));
+  // Candidature status filter
+  if (candStatusFilter) {
+    filtered = filtered.filter(c => {
+      const match = matchCRMToCandidature(c);
+      if (candStatusFilter === '_has') return !!match;
+      if (candStatusFilter === '_none') return !match;
+      return match && match.status === candStatusFilter;
+    });
+  }
   if (assignedFilter === '_unassigned') filtered = filtered.filter(c => !c.assignedTo);
   else if (assignedFilter) filtered = filtered.filter(c => c.assignedTo === assignedFilter);
   if (dateFilterActive) {
@@ -7585,7 +7656,7 @@ function renderCRMTable() {
 
   if (filtered.length === 0) {
     tbody.innerHTML = '';
-    const hasAnyFilter = !!(search || formFilterActive || edmFilterActive || hsFilterActive || assignedFilter || dateFilterActive);
+    const hasAnyFilter = !!(search || formFilterActive || edmFilterActive || candStatusFilter || assignedFilter || dateFilterActive);
     empty.querySelector('p').textContent = hasAnyFilter ? '🔍 Aucun contact trouvé' : '📇 Aucun contact HubSpot';
     empty.style.display = 'block';
     document.getElementById('crm-pagination').style.display = 'none';
@@ -7656,6 +7727,15 @@ function renderCRMTable() {
       ? `<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:9px;font-weight:600;background:${fc.bg};color:${fc.color};border:1px solid ${fc.border};white-space:nowrap;">${esc(c.formName)}</span>`
       : '—';
 
+    // Match candidature status
+    const matchedCand = matchCRMToCandidature(c);
+    const candStatus = matchedCand ? (matchedCand.status || 'en_attente') : null;
+    const candLabel = candStatus ? (CAND_STATUS_LABELS[candStatus] || candStatus) : null;
+    const candColor = candStatus ? (CAND_STATUS_COLORS[candStatus] || { bg: '#f1f5f9', color: '#64748b', border: '#e2e8f0' }) : null;
+    const candBadge = candLabel
+      ? `<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:9px;font-weight:600;background:${candColor.bg};color:${candColor.color};border:1px solid ${candColor.border};white-space:nowrap;">${esc(candLabel)}</span>`
+      : '<span style="color:#ccc;font-size:10px;">—</span>';
+
     return `<tr>
       <td style="padding:10px 6px;text-align:center;"><input type="checkbox" class="crm-row-check" data-id="${c.id}" onchange="updateCrmSelection()" style="cursor:pointer;"/></td>
       <td style="padding:10px 12px;"><div style="font-weight:600;color:var(--navy);font-size:12px;">${esc(c.nom)} ${esc(c.prenom)}</div></td>
@@ -7668,6 +7748,7 @@ function renderCRMTable() {
           ${statusOptions}
         </select>
       </td>
+      <td style="padding:10px 6px;">${candBadge}</td>
       <td style="padding:10px 6px;">${c.assignedName ? `<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:9px;font-weight:600;background:#fef3c7;color:#92400e;border:1px solid #fde68a;white-space:nowrap;">${esc(c.assignedName)}</span>` : '<span style="color:#ccc;font-size:10px;">—</span>'}</td>
       <td style="padding:10px 6px;font-size:10px;color:var(--text-muted);">${date}</td>
     </tr>`;
