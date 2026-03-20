@@ -3375,7 +3375,7 @@ async function checkUnreadMessages() {
       const lastSeen = localStorage.getItem('edumove_msg_last_seen') || '2000-01-01T00:00:00Z';
       const { count: studentMsgCount } = await supabase.from('messages')
         .select('*', { count: 'exact', head: true })
-        .neq('sender_role', 'admin')
+        .eq('sender_role', 'student')
         .gt('created_at', lastSeen);
       const facKey = getFacKeyForRole(role);
       let fq = supabase.from('fac_messages').select('*', { count: 'exact', head: true }).gt('created_at', lastSeen);
@@ -3659,7 +3659,7 @@ function renderTable() {
       <td><div class="td-name">${esc(c.nom)} ${esc(c.prenom)}${directBadge}</div></td>
       <td>${filiere}</td>
       <td><div class="uni-badges">${uniBadges}</div></td>
-      <td><select class="status-badge status-${c.status}" onchange="quickChangeStatus('${c.id}',this.value,this)" onclick="event.stopPropagation()" style="cursor:pointer;appearance:none;-webkit-appearance:none;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;font-family:inherit;">
+      <td><select class="status-badge status-${c.status}" onchange="quickChangeStatus('${c.id}',this.value,this)" onclick="event.stopPropagation()" style="cursor:pointer;appearance:none;-webkit-appearance:none;padding:5px 28px 5px 14px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;font-family:inherit;background-image:url('data:image/svg+xml,<%3Fxml version=%221.0%22%3F><svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22 viewBox=%220 0 10 6%22><path d=%22M0 0l5 6 5-6z%22 fill=%22%23666%22/></svg>');background-repeat:no-repeat;background-position:right 10px center;background-size:10px 6px;">
         <option value="non_soumise" ${c.status==='non_soumise'?'selected':''}>Candidature non soumise</option>
         <option value="en_attente" ${c.status==='en_attente'?'selected':''}>Candidature non d\u00e9pos\u00e9e</option>
         <option value="en_cours" ${c.status==='en_cours'?'selected':''}>En cours de traitement</option>
@@ -6995,7 +6995,7 @@ function getConvLastRead(type, facKey, candidatureId) {
 function countConvUnread(conv, type) {
   if (type === 'student') {
     const lastRead = getConvLastRead('student', null, conv.candidature_id);
-    return (conv.messages || []).filter(m => m.sender_role !== 'admin' && m.created_at > lastRead).length;
+    return (conv.messages || []).filter(m => m.sender_role === 'student' && m.created_at > lastRead).length;
   }
   const lastRead = getConvLastRead('fac', conv.fac_key, conv.candidature_id);
   const role = window.adminRole;
