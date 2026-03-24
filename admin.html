@@ -1433,6 +1433,7 @@ body.closer-mode .msg-new-btn { display: none !important; }
               <th>Date</th>
               <th>Activit&eacute;</th>
               <th>Suivi par fac</th>
+              <th>Eleves Diploma Sant&eacute;</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -3921,6 +3922,7 @@ function renderTable() {
       <td class="td-date">${date}</td>
       <td>${_renderActivityCell(c)}</td>
       <td>${trackSummary}</td>
+      <td style="text-align:center;font-size:11px;font-weight:600;">${c.eleves_diploma_sante ? '<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;background:#059669;color:white;white-space:nowrap;">' + esc(c.eleves_diploma_sante) + '</span>' : ''}</td>
       <td><div class="td-actions"><button class="btn-view" onclick="viewDetail('${c.id}')">Voir</button>${eyeBtn}${archiveBtn}${deleteBtn}</div></td>
     </tr>`;
   }).join('');
@@ -5824,7 +5826,7 @@ function exportCSV() {
 
   const headers = ['Nom','Prénom','Email','Téléphone','Département','Zone','Profil','Score','Destination','Université','Niveau','Statut','Date',
     'Espagnol','Anglais','Italien','Portugais','Autre langue',
-    'Moyenne Première','Moyenne Terminale','Classement destinations'];
+    'Moyenne Première','Moyenne Terminale','Classement destinations','Eleves Diploma Santé'];
 
   const rows = data.map(c => {
     const date = c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '';
@@ -5834,7 +5836,7 @@ function exportCSV() {
       c.score ? parseFloat(c.score).toFixed(1) : '', c.destination, c.universite, c.niveau,
       statusLabels[c.status] || c.status, date,
       c.langues?.espagnol || '', c.langues?.anglais || '', c.langues?.italien || '', c.langues?.portugais || '', c.langues?.autre || '',
-      c.moyenne_premiere || '', c.moyenne_terminale || '', (c.classement_destinations||[]).join(' > ') || ''
+      c.moyenne_premiere || '', c.moyenne_terminale || '', (c.classement_destinations||[]).join(' > ') || '', c.eleves_diploma_sante || ''
     ];
   });
 
