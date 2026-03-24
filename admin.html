@@ -4115,6 +4115,55 @@ async function sendStudentNotifications(candidatureId, c, isRetry = false) {
   }
 }
 
+async function adminResetPassword(userId, email) {
+  if (!userId) { alert('Pas de compte utilisateur associé à cette candidature.'); return; }
+  // Generate random password: 2 uppercase + 4 lowercase + 2 digits + 1 special
+  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const lower = 'abcdefghjkmnpqrstuvwxyz';
+  const digits = '23456789';
+  const special = '!@#$&*';
+  let pwd = '';
+  for (let i = 0; i < 2; i++) pwd += upper[Math.floor(Math.random() * upper.length)];
+  for (let i = 0; i < 4; i++) pwd += lower[Math.floor(Math.random() * lower.length)];
+  for (let i = 0; i < 2; i++) pwd += digits[Math.floor(Math.random() * digits.length)];
+  pwd += special[Math.floor(Math.random() * special.length)];
+  // Shuffle
+  pwd = pwd.split('').sort(() => Math.random() - 0.5).join('');
+
+  if (!confirm(`Réinitialiser le mot de passe de ${email} ?\n\nNouveau mot de passe : ${pwd}`)) return;
+
+  try {
+    const resp = await fetch('/api/admin-reset-password', {
+      method: 'POST',
+      headers: apiHeaders(),
+      body: JSON.stringify({ user_id: userId, new_password: pwd })
+    });
+    const data = await resp.json();
+    if (data.ok) {
+      // Show copyable password in a nice modal
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:99999;';
+      modal.innerHTML = `<div style="background:white;border-radius:16px;padding:32px 40px;max-width:460px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+        <div style="font-size:40px;margin-bottom:12px;">🔑</div>
+        <div style="font-size:18px;font-weight:700;color:#1b1d3a;margin-bottom:8px;">Mot de passe réinitialisé</div>
+        <div style="font-size:13px;color:#6b7280;margin-bottom:20px;">${esc(email)}</div>
+        <div style="background:#f0fdf4;border:2px solid #059669;border-radius:12px;padding:16px;margin-bottom:20px;">
+          <div style="font-family:monospace;font-size:24px;font-weight:700;color:#059669;letter-spacing:2px;user-select:all;">${pwd}</div>
+        </div>
+        <button onclick="navigator.clipboard.writeText('${pwd}');this.textContent='✅ Copié !';setTimeout(()=>this.textContent='📋 Copier le mot de passe',1500)" style="padding:10px 24px;background:#241E3F;color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:12px;">📋 Copier le mot de passe</button>
+        <br/>
+        <button onclick="this.closest('div[style]').remove()" style="padding:8px 20px;background:transparent;color:#6b7280;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;">Fermer</button>
+      </div>`;
+      document.body.appendChild(modal);
+      modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+    } else {
+      alert('Erreur : ' + (data.error || 'Échec de la réinitialisation'));
+    }
+  } catch (err) {
+    alert('Erreur réseau : ' + err.message);
+  }
+}
+
 async function resendNotifications(candidatureId) {
   const c = allCandidatures.find(x => x.id === candidatureId);
   if (!c) return;
@@ -4397,6 +4446,7 @@ function renderDetailPage(c) {
     if (c.status === 'reponse_edumove') {
       btnsHtml += `<button onclick="resendNotifications('${c.id}')" style="padding:8px 16px;font-size:13px;background:#1565c0;color:white;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:600;">📧 Renvoyer notif</button>`;
     }
+    btnsHtml += `<button onclick="adminResetPassword('${c.user_id}','${esc(c.email)}')" style="padding:8px 16px;font-size:13px;background:#059669;color:white;border:none;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:600;">🔑 Réinitialiser MDP</button>`;
     btnsHtml += isArchived
       ? `<button class="btn-restore" onclick="restoreCandidature('${c.id}')" style="padding:8px 16px;font-size:13px;">&#x21A9; Restaurer</button>
          <button class="btn-delete" onclick="confirmDelete('${c.id}')" style="padding:8px 16px;font-size:13px;">Supprimer</button>`
