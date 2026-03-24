@@ -1396,6 +1396,15 @@ body.closer-mode .msg-new-btn { display: none !important; }
         <option value="terminale">Terminale</option>
         <option value="reorientation">R&eacute;orientation</option>
       </select>
+      <select class="filter-select" id="filter-diploma" onchange="applyFilters()">
+        <option value="">Diploma Santé — Tous</option>
+        <option value="TS Présentiel">TS Présentiel</option>
+        <option value="TS en ligne">TS en ligne</option>
+        <option value="PAES Présentiel">PAES Présentiel</option>
+        <option value="PAES Distanciel">PAES Distanciel</option>
+        <option value="any">✅ Tout élève Diploma</option>
+        <option value="none">❌ Non élève Diploma</option>
+      </select>
       <select class="filter-select" id="filter-zone" onchange="applyFilters()">
         <option value="">Zone — Toutes</option>
         <option value="IDF">IDF</option>
@@ -3741,6 +3750,7 @@ function applyFilters() {
   const sourceEl = document.getElementById('filter-source');
   const source = sourceEl ? sourceEl.value : '';
   const zoneFilter = document.getElementById('filter-zone')?.value || '';
+  const diplomaFilter = document.getElementById('filter-diploma')?.value || '';
 
   filteredCandidatures = allCandidatures.filter(c => {
     // Archives mode
@@ -3796,6 +3806,9 @@ function applyFilters() {
     if (source === 'direct' && !c.source?.startsWith('direct_')) return false;
     if (source && source !== 'direct' && c.source !== source) return false;
     if (zoneFilter && getZone(c.departement) !== zoneFilter) return false;
+    if (diplomaFilter === 'any' && !c.eleves_diploma_sante) return false;
+    if (diplomaFilter === 'none' && c.eleves_diploma_sante) return false;
+    if (diplomaFilter && diplomaFilter !== 'any' && diplomaFilter !== 'none' && c.eleves_diploma_sante !== diplomaFilter) return false;
     return true;
   });
 
