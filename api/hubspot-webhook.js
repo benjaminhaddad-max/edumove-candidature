@@ -66,6 +66,14 @@ module.exports = async function handler(req, res) {
         continue;
       }
 
+      // Exclude specific Edumove forms that should NOT trigger welcome SMS/email
+      const EXCLUDED_FORMS = ['webinaire du 15/04'];
+      const isExcludedForm = EXCLUDED_FORMS.some(ex => formName.toLowerCase().includes(ex));
+      if (isExcludedForm) {
+        console.log('Skipping excluded Edumove form', contactId, formName);
+        continue;
+      }
+
       // Check if contact already exists in Supabase (to determine if it's a NEW lead)
       const { data: existing } = await sb.from('crm_contacts').select('id,last_sms_at,last_email_at').eq('id', contact.id).single();
       const isNewLead = !existing;
